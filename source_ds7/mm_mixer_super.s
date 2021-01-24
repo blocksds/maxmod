@@ -115,6 +115,7 @@
 // channel structure
 //----------------------------------------------------------------------
 
+	// mm_mixer_channel in asm_include/mp_mixer_ds.h
 	.equ	C_SAMP,		0	// mainram address
 	.equ	C_CNT,		3	// LSBs = target panning 0..127, MSB = key-on
 	.equ	C_FREQ,		4	// unsigned 3.10, top 3 cleared
