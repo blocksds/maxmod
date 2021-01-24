@@ -24,6 +24,7 @@
 @ other definitions
 #ifdef SYS_GBA
 
+// This struct is in mm_types.h: mm_gba_system
 .equ MM_GBA_SYSTEM_MODE,	0
 .equ MM_GBA_SYSTEM_MCH_COUNT,	MM_GBA_SYSTEM_MODE	+ 4
 .equ MM_GBA_SYSTEM_ACH_COUNT,	MM_GBA_SYSTEM_MCH_COUNT	+ 4
