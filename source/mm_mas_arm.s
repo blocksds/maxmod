@@ -38,54 +38,6 @@ __SECTION_IWRAM
 .syntax unified
 .align 2
 
-.type mmAllocChannel, %function
-.global	mmAllocChannel
-@********************************************************
-mmAllocChannel:
-@********************************************************
-// finds a channel to use
-// returns invalid channel [255] if none available
-	push	{r4,r5,r6}				// preserve regs
-	ldr	r5,=mm_ch_mask			// read channel mask
-	ldr	r5, [r5]
-	ldr	r1,=mm_achannels		// pointer to active channels
-	ldr	r1, [r1]
-	add	r1, #MCA_FVOL
-	mov	r0, #0				// r0 = counter
-	mov	r2, #0x80000000			// r2 = min vol
-	mov	r3, #255			// r3 = best channel [255=none]
-	mov	r6, #ACHN_BACKGROUND
-	b	.mppac_start
-.mppac_skip:
-	add	r1, #MCA_SIZE
-.mppac_next_test:
-	cmp	r5, #0
-.mppac_next_notest:
-	beq	.mppac_finished
-	add	r0, #1
-.mppac_start:
-	movs	r5, r5, lsr#1			// 1    shift out channel bit
-	bcc	.mppac_skip			// 1/3  skip if cleared
-	ldrh	r4, [r1], #MCA_SIZE		// 5    read type setting & increment pointer
-	cmp	r6, r4, lsr #8			// 1    compare background/disabled
-	blt	.mppac_next_test		// 1/3  if > background then its important, dont use this channel
-	bgt	.mppac_found			// 1/3  if < background then its disabled, use this channel
-	
-	cmp	r2, r4, lsl#23			// 1    compare volume with our record
-	bls	.mppac_next_test		// 1/3  goto next if not less
-	mov	r3, r0				// 1    otherwise save this channel
-	movs	r2, r4, lsl#23			// 1    and volume level
-//	beq	.mppac_finished			// 1/3	exit immediately if volume is zero
-	b	.mppac_next_test		// 3    loop
-						// 17
-.mppac_finished:
-	mov	r0, r3
-//	cmp	r0, #255	//trap
-//	5: bge 5b
-.mppac_found:
-	pop	{r4,r5,r6}
-	bx	lr
-
 .global mmReadPattern
 @****************************************************
 mmReadPattern:
