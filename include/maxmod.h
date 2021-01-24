@@ -185,7 +185,7 @@ inline void mmSetPosition( mm_word position )
  * Returns nonzero if module is playing.
  ****************************************************************************/
 
-int  mmActive( void );
+mm_bool mmActive( void );
 
 /****************************************************************************
  * mmJingle( mm_word module_ID )
@@ -203,7 +203,7 @@ void mmJingle( mm_word module_ID );
  * Returns nonzero if a jingle is actively playing.
  ****************************************************************************/
 
-int  mmActiveSub( void );
+mm_bool mmActiveSub( void );
 
 /****************************************************************************
  * mmSetModuleVolume( mm_word volume )
@@ -339,7 +339,7 @@ mm_bool mmEffectActive( mm_sfxhand handle );
  * handle : Sound effect handle.
  ****************************************************************************/
 
-void mmEffectCancel( mm_sfxhand handle );
+mm_word mmEffectCancel( mm_sfxhand handle );
 
 /****************************************************************************
  * mmEffectRelease( mm_sfxhand handle )
