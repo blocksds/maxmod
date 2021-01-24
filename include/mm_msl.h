@@ -29,8 +29,8 @@ typedef struct tmslhead
 	mm_hword	sampleCount;
 	mm_hword	moduleCount;
 	mm_word		reserved[2];
-	mm_addr		sampleTable[MSL_NSAMPS];
-	mm_addr		moduleTable[MSL_NSONGS];
+	mm_addr		sampleTable[]; // [MSL_NSAMPS];
+	//mm_addr	moduleTable[MSL_NSONGS];
 } msl_head;
 
 #ifdef __cplusplus

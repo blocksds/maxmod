@@ -34,14 +34,14 @@ extern "C" {
 /// Precalculated mix buffer lengths (in bytes)
 typedef enum
 {
-	 MM_MIXLEN_8KHZ  = 544  ///< (8121 hz)
-	 MM_MIXLEN_10KHZ = 704  ///< (10512 hz)
-	 MM_MIXLEN_13KHZ = 896  ///< (13379 hz)
-	 MM_MIXLEN_16KHZ = 1056 ///< (15768 hz)
-	 MM_MIXLEN_18KHZ = 1216 ///< (18157 hz)
-	 MM_MIXLEN_21KHZ = 1408 ///< (21024 hz)
-	 MM_MIXLEN_27KHZ = 1792 ///< (26758 hz)
-	 MM_MIXLEN_31KHZ = 2112 ///< (31536 hz)
+	 MM_MIXLEN_8KHZ  = 544,  ///< (8121 hz)
+	 MM_MIXLEN_10KHZ = 704,  ///< (10512 hz)
+	 MM_MIXLEN_13KHZ = 896,  ///< (13379 hz)
+	 MM_MIXLEN_16KHZ = 1056, ///< (15768 hz)
+	 MM_MIXLEN_18KHZ = 1216, ///< (18157 hz)
+	 MM_MIXLEN_21KHZ = 1408, ///< (21024 hz)
+	 MM_MIXLEN_27KHZ = 1792, ///< (26758 hz)
+	 MM_MIXLEN_31KHZ = 2112, ///< (31536 hz)
 } mm_mixlen_enum;
 
 /// Size of mod channel (bytes)
@@ -196,7 +196,7 @@ void mmFrame( void ) __attribute((long_call));
 /// @param mode
 ///     Mode of playback. Can be MM_PLAY_LOOP (play and loop until stopped
 ///     manually) or MM_PLAY_ONCE (play until end).
-void mmStart( mm_word id module_ID, mm_pmode mode );
+void mmStart( mm_word module_ID, mm_pmode mode );
 
 /// Pauses playback of the active module.
 ///

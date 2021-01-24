@@ -146,7 +146,7 @@ typedef struct tmm_mas_ds_sample
 	union {
 		mm_word	loop_length;
 		mm_word	length;
-	}
+	};
 	mm_byte		format;
 	mm_byte		repeat_mode;
 	mm_hword	default_frequency;
