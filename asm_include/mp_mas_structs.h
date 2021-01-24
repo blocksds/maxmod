@@ -53,6 +53,53 @@ typedef struct {
 
 static_assert(sizeof(mpl_layer_information) == 56);
 
+// Active Information
+// ------------------
+
+typedef struct __attribute__ ((packed)) { // TODO: Unpack
+    mm_word     reserved;
+    mm_word     pattread_p;
+    mm_byte     afvol;
+    mm_byte     sampoff;
+    mm_byte     volplus;
+    mm_byte     notedelay;
+    mm_hword    panplus;
+} mpv_active_information;
+
+static_assert(sizeof(mpv_active_information) == 14);
+
+// Module Channel
+// --------------
+
+typedef struct {
+    mm_byte     alloc;  // Allocated active channel number
+    mm_byte     cflags; // Pattern comression flags, called "maskvariable" in ITTECH.TXT
+    mm_byte     panning;
+    mm_byte     volcmd; // Volume column command
+    mm_byte     effect; // Effect number    } Combined
+    mm_byte     param;  // Effect parameter }
+    mm_byte     fxmem;  // Effect memory
+    mm_byte     note;   // Translated note
+    mm_byte     flags;  // Channel flags
+    mm_byte     inst;   // Instrument#
+    mm_byte     pflags; // Playback flags (unused)
+    mm_byte     vibdep;
+    mm_byte     vibspd;
+    mm_byte     vibpos;
+    mm_byte     volume;  // } Combined
+    mm_byte     cvolume; // }
+    mm_word     period;
+    mm_hword    bflags;
+    mm_byte     pnoter;  // Pattern note
+    mm_byte     memory[15];
+    mm_byte     padding[2];
+} mm_module_channel;
+
+static_assert(sizeof(mm_module_channel) == 40);
+
+// Active Channel
+// --------------
+
 typedef struct {
     mm_word     period;     // internal period
     mm_hword    fade;       //    }
@@ -97,5 +144,52 @@ static_assert(sizeof(mm_active_channel) == 28);
 #define ACHN_BACKGROUND 2 // LOCKED (alloc channel)
 #define ACHN_FOREGROUND 3
 #define ACHN_CUSTOM     4
+
+// Module Channel Flags
+// --------------------
+
+#define MF_START        1
+#define MF_DVOL         2
+#define MF_HASVCMD      4
+#define MF_HASFX        8
+#define MF_NEWINSTR     16
+
+#define MF_NOTEOFF      64  // LOCKED
+#define MF_NOTECUT      128 // LOCKED
+
+// #define MF_NEWINSTR         1 // new instrument
+// #define MF_DVOL             2
+// #define MF_START            4
+// #define MF_HASFX            8
+// #define MF_HASVCMD          16
+// #define MF_NOTEOFF          64  // LOCKED
+// #define MF_NOTECUT          128 // LOCKED
+
+// Other Definitions
+// -----------------
+
+#define IT_NNA_CUT      0 // New note actions
+#define IT_NNA_CONT     1
+#define IT_NNA_OFF      2
+#define IT_NNA_FADE     3
+
+#define IT_DCA_CUT      0 // Duplicate check actions
+#define IT_DCA_OFF      1
+#define IT_DCA_FADE     2
+
+// Misc Reference
+// --------------
+
+// BFLAGS:
+// /////ctv nnppttvv
+// nn...............new note action
+// pp...............panbrello waveform
+// tt...............tremolo waveform
+// vv...............vibrato waveform
+// dd...............duplicate check type
+// v................volume envelope enabled
+// t................tremor variable...
+// c................cut channel volume
+// //////...........reserved
 
 #endif // MP_MAS_STRUCTS_H

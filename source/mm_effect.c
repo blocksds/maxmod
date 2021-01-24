@@ -10,6 +10,7 @@
 #include "mm_mixer.h"
 #include "mm_msl.h"
 #include "mp_mas_structs.h"
+#include "mp_format_mas.h"
 
 #if defined(SYS_GBA)
 #include "mm_main_gba.h"

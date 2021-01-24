@@ -29,20 +29,5 @@ typedef struct tmslhead
 	//mm_addr	moduleTable[MSL_NSONGS];
 } msl_head;
 
-// sample structure......................................
-#define C_SAMPLE_LEN        0
-#define C_SAMPLE_LOOP       4
-#define C_SAMPLE_POINT      12
-#define C_SAMPLE_DATA       16
-
-#define C_SAMPLEN_LSTART    0
-#define C_SAMPLEN_LEN       4
-#define C_SAMPLEN_FORMAT    8
-#define C_SAMPLEN_REP       9
-#define C_SAMPLEN_POINT     12
-#define C_SAMPLEN_DATA      16
-
-#define C_SAMPLEC_DFREQ     10
-
 #endif
 

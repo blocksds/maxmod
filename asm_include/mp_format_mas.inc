@@ -16,7 +16,7 @@
 .ifndef MP_FORMAT_MAS_INC
 .equ	MP_FORMAT_MAS_INC, 1
 
-@ MAS header structure..................................
+@ MAS header structure = mas_header
 .equ	C_MAS_LEN	,0
 .equ	C_MAS_INSTN	,1
 .equ	C_MAS_SAMPN	,2	

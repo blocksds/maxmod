@@ -24,6 +24,7 @@
 @ other definitions
 #ifdef SYS_GBA
 
+// This struct is in mm_types.h: mm_gba_system
 .struct 0
 MM_GBA_SYSTEM_MODE:		.space 4
 MM_GBA_SYSTEM_MCH_COUNT:	.space 4
