@@ -8,6 +8,9 @@
 
 #include "mp_mixer_gba.h"
 
+extern mm_word mm_mixlen;
 extern mm_mixer_channel *mm_mixchannels;
+
+void mmMixerInit(mm_gba_system* setup);
 
 #endif // MM_MIXER_GBA_H
