@@ -155,7 +155,7 @@ void mmVBlank( void );
 ///
 /// @param function
 ///     Pointer to your VBlank handler.
-void mmSetVBlankHandler( void* function );
+void mmSetVBlankHandler( mm_voidfunc function );
 
 /// Install handler to receive song events.
 ///

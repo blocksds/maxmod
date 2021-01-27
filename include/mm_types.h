@@ -78,6 +78,9 @@ typedef enum
 /// @param param Additional data about the message.
 typedef mm_word (*mm_callback)( mm_word msg, mm_word param );
 
+/// Void function pointer.
+typedef void (*mm_voidfunc)( void );
+
 /// Function pointer definition for handling stream fill requests (DS mode).
 ///
 /// @param length Number of samples to write to the output.
