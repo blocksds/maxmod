@@ -30,29 +30,13 @@
 @==================================================================
 
 
-	.global	mmVBlank
-	.type	mmVBlank STT_FUNC
 	.global	mmMixerMix
 	.type	mmMixerMix STT_FUNC
 
 	.global	mmMixerSetSource
 	.type	mmMixerSetSource STT_FUNC
-	.global	mmMixerSetRead
-	.type	mmMixerSetRead STT_FUNC
 	.global	mmMixerSetFreq
 	.type	mmMixerSetFreq STT_FUNC
-	.global	mmMixerStopChannel
-	.type	mmMixerStopChannel STT_FUNC
-	.global	mmMixerInit
-	.type	mmMixerInit STT_FUNC
-	.global mmMixerChannelActive
-	.type	mmMixerChannelActive STT_FUNC
-	.global	mmMixerMulFreq
-	.type	mmMixerMulFreq STT_FUNC
-	.global	mmMixerSetVolume
-	.type	mmMixerSetVolume STT_FUNC
-	.global	mmMixerSetPan
-	.type	mmMixerSetPan STT_FUNC
 
 //	.global	mm_freqscalar
 	.global mm_mixlen
@@ -65,27 +49,9 @@
 @ more definitions
 @===============================================
 
-.equ	REG_SOUNDCNT_L,	0x4000080
-.equ	REG_SOUNDCNT_H,	0x4000082
-.equ	REG_SOUNDCNT_X,	0x4000084
-
-.equ	REG_TM0CNT,	0x4000100
-
-.equ	REG_DMA1SAD,	0x40000BC
-.equ	REG_DMA1DAD,	0x40000C0
-.equ	REG_DMA1CNT,	0x40000C4
-
-.equ	REG_DMA2SAD,	0x40000C8
-.equ	REG_DMA2DAD,	0x40000CC
-.equ	REG_DMA2CNT,	0x40000D0
-
 .equ	REG_DMA3SAD,	0x40000D4
 .equ	REG_DMA3DAD,	0x40000D8
 .equ	REG_DMA3CNT,	0x40000DC
-
-.equ	REG_SGFIFOA,	0x40000A0
-.equ	REG_SGFIFOB,	0x40000A4
-.equ	REG_VCOUNT,	0x4000006
 
 @ MIXER CHANNEL FORMAT
 
@@ -114,6 +80,9 @@
 
 .section .bss
 .align 2
+
+		.global mm_mixbuffer, mm_mixchannels, mm_wavebuffer, mm_mixlen
+		.global mm_mixch_count, mm_mixch_end, mm_ratescale, mm_timerfreq
 
 mp_writepos: 	.space 4	@ wavebuffer write position
 
@@ -150,49 +119,6 @@ mm_fetch:	.space FETCH_SIZE+16
 
 mpm_nullsample:
 .byte	128
-
-.align 2
-@-----------------------------------------------------------------------------------------------------
-mmVBlank:				@ vblank wrapper, used to reset dma...HIGH PRIORITY PLEASE!
-@-----------------------------------------------------------------------------------------------------
-	
-	b	.mpvb_disabled		@ disable until ready.. (overwrite this area with NOP)
-
-	ldr	r0,=mp_mix_seg		@ swap mixing segmentl
-	ldrsb	r1, [r0]
-	mvns	r1, r1
-	strb	r1, [r0]
-	beq	.mpvb_exit
-	
-	ldr	r1,=0x040000c6		@ dma control	RESTART DMA
-	ldr	r0,=0x0440		@ disable dma
-	strh	r0, [r1]
-	strh	r0, [r1,#12]
-	ldr	r0,=0xB600		@ restart dma
-	strh	r0, [r1]
-	strh	r0, [r1,#12]
-	
-	b	.mpvb_dontreset
-.mpvb_exit:
-	ldr	r0,=mp_writepos		@ restart write position
-@	ldr	r1,=mp_playbuffer_l	@ ...
-	ldr	r1,=mm_wavebuffer
-	ldr	r1, [r1]
-	str	r1, [r0]		@ ...
-.mpvb_dontreset:
-
-.mpvb_disabled:
-	ldr	r0,=0x3007FF8		@ acknowledge interrupt
-	ldrh	r2, [r0]
-	orr	r2, r2, #0x1
-	strh	r2, [r0]
-	
-	ldr	r0,=mm_vblank_function
-	ldr	r0, [r0]
-	cmp	r0, #0
-	bxeq	lr
-	bx	r0
-.pool
 
 .align 2
 @-------------------------------------------------------------------------
@@ -1038,23 +964,6 @@ mmMixerSetSource:
 	bx	lr
 
 /****************************************************************************
- * mmMixerSetRead( channel, value )
- *
- * Set channel read position
- ****************************************************************************/
-					.thumb_func
-mmMixerSetRead:
-
-	movs	r2, #CHN_SIZE		// get channel pointer from index
-	muls	r0, r2			//
-	ldr	r2,=mm_mixchannels	//
-	ldr	r2,[r2]			//
-	adds	r0, r2			//
-
-	str	r1, [r0, #CHN_READ]	// store new offset
-	bx	lr			//
-
-/****************************************************************************
  * mmMixerSetFreq
  *
  * Set channel mixing rate
@@ -1101,259 +1010,5 @@ mmMixerSetFreq:
 	bx	lr			// return
 	*/
 	.thumb
-
-/****************************************************************************
- * mmMixerMulFreq( channel, value )
- *
- * Scale mixing frequency
- ****************************************************************************/
-					.thumb_func
-mmMixerMulFreq:
-
-	movs	r2, #CHN_SIZE		// get channel pointer from index
-	muls	r0, r2			//
-	ldr	r2,=mm_mixchannels	//
-	ldr	r2, [r2]		//
-	adds	r0, r2			//
-
-	ldr	r3, [r0, #CHN_FREQ]	// scale
-	muls	r3, r1			//
-	lsrs	r3, #10			//
-	str	r3, [r0, #CHN_FREQ]	//
-	bx	lr
-
-/****************************************************************************
- * mmMixerStopChannel( channel )
- *
- * Stop mixing channel
- ****************************************************************************/
-					.thumb_func
-mmMixerStopChannel:
-
-	movs	r1, #CHN_SIZE		// get channel pointer from index
-	muls	r0, r1			//
-	ldr	r1,=mm_mixchannels	//
-	ldr	r1,[r1]			//
-	adds	r0, r1			//
-
-	movs	r1, #1			// set MSB (disable) of source
-	lsls	r1, #31			//
-	str	r1, [r0]		//
-	bx	lr
-
-/****************************************************************************
- * mmMixerChannelActive( channel )
- *
- * Test if mixing channel is active
- ****************************************************************************/
-					.thumb_func
-mmMixerChannelActive:
-
-	movs	r1, #CHN_SIZE		// get channel pointer from index
-	muls	r0, r1			//
-	ldr	r1,=mm_mixchannels	//
-	ldr	r1,[r1]			//
-	adds	r0, r1			//
-
-mp_Mixer_ChannelEnabledA:
-	ldr	r0, [r0, #CHN_SRC]	// nonzero (-1) = enabled
-	asrs	r0, #31			// zero         = disabled
-	mvns	r0, r0			//
-	bx	lr
-
-/****************************************************************************
- * mmMixerSetVolume( channel, volume )
- *
- * Set channel volume
- ****************************************************************************/
-					.thumb_func
-mmMixerSetVolume:
-
-	movs	r2, #CHN_SIZE		// get channel pointer from index
-	muls	r0, r2			//
-	ldr	r2,=mm_mixchannels	//
-	ldr	r2,[r2]			//
-	adds	r0, r2			//
-
-	strb	r1, [r0, #CHN_VOL]	// set volume
-
-	bx	lr
-
-/****************************************************************************
- * mmMixerSetPan( channel, panning )
- *
- * Set channel panning
- ****************************************************************************/
-					.thumb_func
-mmMixerSetPan:
-
-	movs	r2, #CHN_SIZE		// get channel pointer from index
-	muls	r0, r2			//
-	ldr	r2,=mm_mixchannels	//
-	ldr	r2,[r2]			//
-	adds	r0, r2			//
-
-	strb	r1, [r0, #CHN_PAN]	// set panning
-	bx	lr
-
-/****************************************************************************
- * mmMixerInit( system )
- *
- * Initialize mixer
- ****************************************************************************/
-					.thumb_func
-mmMixerInit:
-
-	ldr	r2,=mm_mixbuffer
-	ldr	r1, [r0,#MM_GBA_SYSTEM_ACH_COUNT]
-	str	r1, [r2,#16]
-
-	movs	r3, #CHN_SIZE
-	muls	r1, r3
-	ldr	r3, [r0,#MM_GBA_SYSTEM_MIXCH]
-	str	r3, [r2,#4]
-	adds	r3, r1
-	str	r3, [r2,#20]
-	ldr	r1, [r0,#MM_GBA_SYSTEM_MIXMEM]
-	str	r1, [r2,#0]
-	ldr	r1, [r0,#MM_GBA_SYSTEM_WAVEMEM]
-	str	r1, [r2,#8]
-	ldr	r1, [r0,#MM_GBA_SYSTEM_MODE]
-	lsls	r1, #1
-	adr	r3, mp_mixing_lengths
-	ldrh	r3, [r3,r1]
-	str	r3, [r2,#12]
-	adr	r3, mp_rate_scales
-	ldrh	r3, [r3, r1]
-	str	r3, [r2, #24]
-	adr	r3, mp_timing_sheet
-	ldrh	r3, [r3, r1]
-	str	r3, [r2, #28]
-	adr	r3, mp_bpm_divisors
-	lsls	r1, #1
-	ldr	r3, [r3,r1]
-
-	ldr	r2,=mm_bpmdv
-	str	r3, [r2,#0]
-
-
-	ldr	r0,=mm_wavebuffer		@ clear wave buffer
-	ldr	r0,[r0]
-	ldr	r1,=mm_mixlen
-	ldr	r1, [r1]
-	movs	r2, #0				@ ..
-.mpi_loop1:					@ ..
-	stmia	r0!, {r2}			@ ..
-	subs	r1, r1, #1			@ ..
-	bne	.mpi_loop1			@ ..
-
-	ldr	r0,=mp_mix_seg			@ reset mixing segment
-	strb	r2, [r0]			@ ..
-
-	ldr	r0,=mm_mixchannels		@ disable mixing channels
-	ldr	r1,[r0,#12]@ nchannels
-	ldr	r0,[r0]
-	ldr	r3,=1<<31
-.mpi_loop2:
-	str	r3, [r0, #CHN_SRC]
-	adds	r0, #CHN_SIZE
-	subs	r1, #1
-	bne	.mpi_loop2
-
-	ldr	r0,=mmVBlank			@ enable vblank routine
-	ldr	r1,=0xE1A00000			@ ..
-	str	r1, [r0]			@ ..
-
-	ldr	r0,=REG_SGFIFOA			@ clear fifo data
-	str	r2, [r0]			@ ..
-	str	r2, [r0, #4]			@ ..
-	ldr	r0,=REG_SOUNDCNT_H		@ reset direct sound
-	strh	r2, [r0]			@ ..
-	ldr	r1,=0x9A0C			@ setup sound [DIRECT SOUND A/B reset,timer0,A=left,B=right,volume=100%]
-	strh	r1, [r0]			@ ..
-	ldr	r0,=REG_DMA1SAD			@ setup DMA source addresses (playback buffers)
-	ldr	r1,=mm_wavebuffer
-	ldr	r2, [r1, #4]@mixlen
-	ldr	r1, [r1]
-
-	@ldr	r1,=mp_playbuffer_l		@ ..
-	str	r1, [r0]			@ ..
-
-	adds	r1,r2
-	adds	r1,r2
-
-@	ldr	r1,=mp_playbuffer_r		@ ..
-	str	r1, [r0, #12]			@ ..
-
-	ldr	r1,=REG_SGFIFOA			@ setup DMA destination (sound fifo)
-	str	r1, [r0, #4]			@ ..
-	adds	r1, #4				@ ..
-	str	r1, [r0, #16]			@ ..
-
-	ldr	r1,=0xB6000000			@ enable DMA (enable,fifo request,32-bit,repeat)
-	str	r1, [r0, #8]			@ ..
-	str	r1, [r0, #20]			@ ..
-
-	ldr	r0,=REG_SOUNDCNT_X		@ master sound enable
-	movs	r1, #0x80			@ ..
-	strh	r1, [r0]			@ ..
-
-	ldr	r0,=REG_VCOUNT			@ wait for new frame
-.mpi_vsync:					@ ..
-	ldrh	r1, [r0]			@ skip current vblank period
-	cmp	r1, #160			@ ..
-	bge	.mpi_vsync			@ ..
-.mpi_vsync2:
-	ldrh	r1, [r0]			@ wait for new one
-	cmp	r1, #160			@ ..
-	blt	.mpi_vsync2			@ ..
-
-.mpi_vsync_2:					@ pass#2
-	ldrh	r1, [r0]			@ skip current vblank period
-	cmp	r1, #160			@ ..
-	bge	.mpi_vsync_2			@ ..
-.mpi_vsync2_2:
-	ldrh	r1, [r0]			@ wait for new one
-	cmp	r1, #160			@ ..
-	blt	.mpi_vsync2_2			@ ..
-
-	ldr	r0,=REG_TM0CNT				@ enable sampling timer
-	ldr	r1,=mm_timerfreq
-	ldr	r1,[r1]
-	movs	r2, #0x80
-	lsls	r2, #16
-	orrs	r1, r2
-	@ldr	r1,=(-MP_TIMERFREQ&0xFFFF) | (0x80<<16)	@ ..
-	str	r1, [r0]				@ ..
-	bx	lr					@ finished
-
-
-// round(rate / 59.737)
-.align 2
-mp_mixing_lengths:
-	.hword	136,  176,  224,  264,  304,  352,  448,  528
-	@      8khz,10khz,13khz,16khz,18khz,21khz,27khz,32khz
-
-.align 2
-//mp_freq_scales:		@ (16khz -> real)
-//	.hword 33056, 25536, 20064, 17024, 14784, 12768
-
-// 15768*16384 / rate
-mp_rate_scales:
-	.hword 31812, 24576, 19310, 16384, 14228, 12288,  9655,  8192
-	@       8khz, 10khz, 13khz, 16khz, 18khz, 21khz, 27khz, 32khz
-	@       8121, 10512, 13379, 15768, 18157, 21024, 26758, 31536,
-
-.align 2
-// gbaclock / rate
-mp_timing_sheet:
-	.hword -2066,-1596,-1254,-1064, -924, -798, -627, -532
-	@       8khz,10khz,13khz,16khz,18khz,21khz,27khz,32khz
-
-.align 2
-// rate * 2.5
-mp_bpm_divisors:
-	.word 20302,26280,33447,39420,45393,52560,66895,78840
-
 
 .end
