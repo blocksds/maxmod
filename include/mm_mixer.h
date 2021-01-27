@@ -11,6 +11,7 @@
 extern mm_word mm_mixlen;
 
 void mmMixerMix(mm_word samples_count);
+void mmMixerSetSource(int channel, mm_word p_sample);
 void mmMixerSetVolume(int channel, mm_word volume);
 void mmMixerSetPan(int channel, mm_byte panning);
 void mmMixerSetFreq(int channel, mm_word rate);
