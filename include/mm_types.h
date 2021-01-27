@@ -54,6 +54,7 @@ typedef enum
 } mm_stream_formats;
 //-----------------------------------------------------------------------------
 
+typedef void (*mm_voidfunc)( void );
 typedef mm_word (*mm_callback)( mm_word msg, mm_word param );
 typedef mm_word (*mm_stream_func)( mm_word length, mm_addr dest, mm_stream_formats format );
 

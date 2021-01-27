@@ -69,7 +69,7 @@ void mmVBlank( void );
  * function : Pointer to your VBlank handler.
  ****************************************************************************/
 
-void mmSetVBlankHandler( void* function );
+void mmSetVBlankHandler( mm_voidfunc function );
 
 /****************************************************************************
  * mmSetEventHandler( mm_callback handler )

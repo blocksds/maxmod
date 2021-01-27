@@ -15,7 +15,7 @@
 #include "mp_mixer_gba.h"
 
 // Pointer to a user function to be called during the vblank irq
-void *mm_vblank_function;
+mm_voidfunc mm_vblank_function;
 
 // Address of soundbank in memory/rom
 mm_addr mp_solution;
@@ -48,7 +48,7 @@ void mmInit(mm_gba_system* setup)
 }
 
 // Set function to be called during the vblank IRQ
-void mmSetVBlankHandler(void *function)
+void mmSetVBlankHandler(mm_voidfunc function)
 {
     mm_vblank_function = function;
 }
