@@ -15,6 +15,8 @@ void mmMixerSetVolume(int channel, mm_word volume);
 void mmMixerSetPan(int channel, mm_byte panning);
 void mmMixerSetFreq(int channel, mm_word rate);
 void mmMixerMulFreq(int channel, mm_word factor);
+void mmMixerStopChannel(int channel);
+mm_word mmMixerChannelActive(int channel);
 
 #endif // MM_MIXER_H
 

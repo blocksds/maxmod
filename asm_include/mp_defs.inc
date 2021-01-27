@@ -23,20 +23,6 @@
 
 @ other definitions
 #ifdef SYS_GBA
-
-// This struct is in mm_types.h: mm_gba_system
-.struct 0
-MM_GBA_SYSTEM_MODE:		.space 4
-MM_GBA_SYSTEM_MCH_COUNT:	.space 4
-MM_GBA_SYSTEM_ACH_COUNT:	.space 4
-MM_GBA_SYSTEM_MODCH:		.space 4
-MM_GBA_SYSTEM_ACTCH:		.space 4
-MM_GBA_SYSTEM_MIXCH:		.space 4
-MM_GBA_SYSTEM_MIXMEM:		.space 4
-MM_GBA_SYSTEM_WAVEMEM:		.space 4
-MM_GBA_SYSTEM_SOUNDBANK:	.space 4
-MM_GBA_SYSTEM_SIZE:
-
 .equ		SAMPFRAC,		12	@ # of bits used in fractional part of sample reading
 #endif
 
