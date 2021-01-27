@@ -33,11 +33,6 @@
 	.global	mmMixerMix
 	.type	mmMixerMix STT_FUNC
 
-	.global	mmMixerSetSource
-	.type	mmMixerSetSource STT_FUNC
-	.global	mmMixerSetFreq
-	.type	mmMixerSetFreq STT_FUNC
-
 //	.global	mm_freqscalar
 	.global mm_mixlen
 	.global mm_bpmdv
@@ -932,83 +927,5 @@ mmMix_Remainder:
 #undef rvol
 #undef rsampa
 #undef rsampb
-
-@============================================================================
-@                                 END OF MIXER
-@============================================================================
-
-	.text
-	.thumb
-	.align 2
-
-/****************************************************************************
- * mmMixerSetSource( channel, p_sample )
- *
- * Set channel source
- ****************************************************************************/
-					.thumb_func
-mmMixerSetSource:
-
-	movs	r2, #CHN_SIZE		// get channel pointer from index
-	muls	r0, r2			//
-	ldr	r2,=mm_mixchannels	//
-	ldr	r2, [r2]		//
-	adds	r0, r2			//
-
-	adds	r1, #C_SAMPLE_DATA	// set sample data address
-	str	r1, [r0, #CHN_SRC]	//
-
-	movs	r1, #0			// reset read position
-	str	r1, [r0, #CHN_READ]	//
-
-	bx	lr
-
-/****************************************************************************
- * mmMixerSetFreq
- *
- * Set channel mixing rate
- ****************************************************************************/
-					.thumb_func
-mmMixerSetFreq:
-
-//	push	{r3, r4}		// FIXME: why would you preserve r3?
-
-	movs	r2, #CHN_SIZE		// get channel pointer from index
-	muls	r0, r2, r0		//
-	ldr	r2,=mm_mixchannels	//
-	ldr	r2,[r2]			//
-	adds	r0, r0, r2		//
-
-	lsls	r1, #2 // ...
-
-	strh	r1, [r0, #CHN_FREQ]
-	bx	lr
-
-/*
-	ldr	r4,=mm_freqscalar	// r4=scale
-	ldr	r4,[r4]			//
-
-	adds	r2, pc, #0		// switch to arm for a nice long multiply
-	bx	r2
-
-	.arm
-
-	//------------------------------------
-	// fix frequency to match mixing rate
-	// a = specified frequency
-	// hz = a*2y13 / pr
-	//------------------------------------
-
-	umull	r3, r2, r1, r4		// long multiply
-	adds	r3, r3, #32768		// shift, etc..
-	movs	r3, r3, lsr#16		//
-	orrs	r3, r3, r2, lsl#16	//
-
-	str	r3, [r0, #CHN_FREQ]	// set chan frequency
-
-	ldmfd	sp!, {r3,r4}		// pop registers
-	bx	lr			// return
-	*/
-	.thumb
 
 .end

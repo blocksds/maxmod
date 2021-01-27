@@ -8,6 +8,8 @@
 
 #include "maxmod.h"
 
+#include "mp_format_mas.h"
+
 #include "mm_main_gba.h"
 #include "mm_mixer_gba.h"
 #include "mp_mixer_gba.h"
@@ -56,6 +58,34 @@ mm_word mmMixerChannelActive(int channel)
         return 0;
 
     return 0xFFFFFFFF;
+}
+
+// Set channel source
+void mmMixerSetSource(int channel, mm_word p_sample)
+{
+    // Set sample data address
+    mm_mixchannels[channel].src = p_sample + C_SAMPLE_DATA;
+
+    // Reset read position
+    mm_mixchannels[channel].read = 0;
+}
+
+// Set channel mixing rate
+void mmMixerSetFreq(int channel, mm_word rate)
+{
+    mm_mixchannels[channel].freq = rate << 2;
+
+    // TODO: This code was commented out in the original code (ARM, not Thumb):
+#if 0
+    // Fix frequency to match mixing rate
+    // a = specified frequency
+    // hz = a * 2y13 / pr
+
+    uint64_t value = (rate * (uint64_t)mm_freqscalar + 32768) >> 16;
+
+    // Set chan frequency
+    mm_mixchannels[channel].freq = (mm_word)value;
+#endif
 }
 
 static int vblank_handler_enabled = 0;
