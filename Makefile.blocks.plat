@@ -61,6 +61,11 @@ else
 V		:= @
 endif
 
+# Libraries
+# ---------
+
+LIBDIRS		:= $(BLOCKSDS)/libs/libc
+
 # Source files
 # ------------
 
@@ -90,7 +95,8 @@ endif
 
 WARNFLAGS	:= -Wall
 
-INCLUDEFLAGS	:= $(foreach path,$(INCLUDEDIRS),-I$(path))
+INCLUDEFLAGS	:= $(foreach path,$(INCLUDEDIRS),-I$(path)) \
+		   $(foreach path,$(LIBDIRS),-I$(path)/include)
 
 ASFLAGS		+= -x assembler-with-cpp $(DEFINES) $(ARCH) \
 		   -mthumb -mthumb-interwork $(INCLUDEFLAGS) \
