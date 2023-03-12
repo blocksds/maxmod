@@ -64,7 +64,18 @@ endif
 # Libraries
 # ---------
 
-LIBDIRS		:= $(BLOCKSDS)/libs/libc
+ifeq ($(SYSTEM),GBA)
+LIBDIRS		:= $(BLOCKSDS)/libs/libc7
+endif
+ifeq ($(SYSTEM),DS7)
+LIBDIRS		:= $(BLOCKSDS)/libs/libc7
+endif
+ifeq ($(SYSTEM),DS9)
+LIBDIRS		:= $(BLOCKSDS)/libs/libc9
+endif
+ifeq ($(SYSTEM),DS9E)
+LIBDIRS		:= $(BLOCKSDS)/libs/libc9
+endif
 
 # Source files
 # ------------
