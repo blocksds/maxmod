@@ -69,16 +69,16 @@ endif
 # ---------
 
 ifeq ($(SYSTEM),GBA)
-LIBDIRS		:= $(BLOCKSDS)/libs/libc7
+LIBDIRS		:=
 endif
 ifeq ($(SYSTEM),DS7)
-LIBDIRS		:= $(BLOCKSDS)/libs/libc7
+LIBDIRS		:=
 endif
 ifeq ($(SYSTEM),DS9)
-LIBDIRS		:= $(BLOCKSDS)/libs/libc9
+LIBDIRS		:=
 endif
 ifeq ($(SYSTEM),DS9E)
-LIBDIRS		:= $(BLOCKSDS)/libs/libc9
+LIBDIRS		:=
 endif
 
 # Source files
