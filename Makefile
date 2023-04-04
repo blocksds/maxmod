@@ -8,9 +8,12 @@ MAXMOD_PATCH	:= 12
 
 VERSION		:= $(MAXMOD_MAJOR).$(MAXMOD_MINOR).$(MAXMOD_PATCH)
 
+CP		:= cp
+INSTALL		:= install
 MAKE		:= make
+RM		:= rm -rf
 
-.PHONY: all clean ds7 ds9 ds9e gba
+.PHONY: all clean ds7 ds9 ds9e gba install
 
 all: gba ds7 ds9 ds9e
 
@@ -31,3 +34,12 @@ ds9:
 
 ds9e:
 	@+$(MAKE) SYSTEM=DS9E -f Makefile.plat --no-print-directory
+
+INSTALLDIR	?= /opt/blocksds/core/libs/maxmod
+INSTALLDIR_ABS	:= $(abspath $(INSTALLDIR))
+
+install: all
+	@echo "  INSTALL $(INSTALLDIR_ABS)"
+	@test $(INSTALLDIR_ABS)
+	$(V)$(INSTALL) -d $(INSTALLDIR_ABS)
+	$(V)$(CP) -r include lib $(INSTALLDIR_ABS)
