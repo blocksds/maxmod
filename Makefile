@@ -8,10 +8,25 @@ MAXMOD_PATCH	:= 12
 
 VERSION		:= $(MAXMOD_MAJOR).$(MAXMOD_MINOR).$(MAXMOD_PATCH)
 
+# Tools
+# -----
+
 CP		:= cp
 INSTALL		:= install
 MAKE		:= make
 RM		:= rm -rf
+
+# Verbose flag
+# ------------
+
+ifeq ($(VERBOSE),1)
+V		:=
+else
+V		:= @
+endif
+
+# Targets
+# -------
 
 .PHONY: all clean ds7 ds9 ds9e gba install
 
@@ -40,6 +55,6 @@ INSTALLDIR_ABS	:= $(abspath $(INSTALLDIR))
 
 install: all
 	@echo "  INSTALL $(INSTALLDIR_ABS)"
-	@test $(INSTALLDIR_ABS)
+	$(V)$(RM) $(INSTALLDIR_ABS)
 	$(V)$(INSTALL) -d $(INSTALLDIR_ABS)
 	$(V)$(CP) -r include lib LICENSE.txt $(INSTALLDIR_ABS)
