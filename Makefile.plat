@@ -17,9 +17,6 @@ endif
 ifeq ($(SYSTEM),DS9)
 SOURCEDIRS	:= source_ds source_ds9
 endif
-ifeq ($(SYSTEM),DS9E)
-SOURCEDIRS	:= source source_ds source_ds9 source_ds9e
-endif
 
 INCLUDEDIRS	:= asm_include
 
@@ -37,10 +34,6 @@ endif
 ifeq ($(SYSTEM),DS9)
 NAME		:= libmm9
 BUILDDIR	:= build/ds9
-endif
-ifeq ($(SYSTEM),DS9E)
-NAME		:= libmm9e
-BUILDDIR	:= build/ds9e
 endif
 
 ARCHIVE		:= lib/$(NAME).a
@@ -76,9 +69,6 @@ endif
 ifeq ($(SYSTEM),DS9)
 LIBDIRS		:=
 endif
-ifeq ($(SYSTEM),DS9E)
-LIBDIRS		:=
-endif
 
 # Source files
 # ------------
@@ -100,10 +90,6 @@ ARCH		:= -mcpu=arm7tdmi -mtune=arm7tdmi
 endif
 ifeq ($(SYSTEM),DS9)
 DEFINES		+= -D__NDS__ -DARM9 -DSYS_NDS -DSYS_NDS9
-ARCH		:= -march=armv5te -mtune=arm946e-s
-endif
-ifeq ($(SYSTEM),DS9E)
-DEFINES		+= -D__NDS__ -DARM9 -DSYS_NDS -DSYS_NDS9 -DSYS_NDS9E
 ARCH		:= -march=armv5te -mtune=arm946e-s
 endif
 

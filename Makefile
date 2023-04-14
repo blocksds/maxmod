@@ -28,9 +28,9 @@ endif
 # Targets
 # -------
 
-.PHONY: all clean ds7 ds9 ds9e gba install
+.PHONY: all clean ds7 ds9 gba install
 
-all: gba ds7 ds9 ds9e
+all: gba ds7 ds9 ds
 
 clean:
 	@echo "  CLEAN"
@@ -47,8 +47,6 @@ ds7:
 ds9:
 	@+$(MAKE) SYSTEM=DS9 -f Makefile.plat --no-print-directory
 
-ds9e:
-	@+$(MAKE) SYSTEM=DS9E -f Makefile.plat --no-print-directory
 
 INSTALLDIR	?= /opt/blocksds/core/libs/maxmod
 INSTALLDIR_ABS	:= $(abspath $(INSTALLDIR))
