@@ -47,11 +47,12 @@ ds7:
 ds9:
 	@+$(MAKE) SYSTEM=DS9 -f Makefile.plat --no-print-directory
 
+ds: ds7 ds9
 
 INSTALLDIR	?= /opt/blocksds/core/libs/maxmod
 INSTALLDIR_ABS	:= $(abspath $(INSTALLDIR))
 
-install: all
+install: ds
 	@echo "  INSTALL $(INSTALLDIR_ABS)"
 	@test $(INSTALLDIR_ABS)
 	$(V)$(RM) $(INSTALLDIR_ABS)
