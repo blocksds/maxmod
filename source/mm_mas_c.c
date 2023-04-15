@@ -22,6 +22,12 @@
 #include "mm_mixer_ds.h"
 #endif
 
+// TODO: Make this static
+void mpp_setbpm(mpl_layer_information*, mm_word);
+void mpp_setposition(mpl_layer_information*, mm_word);
+
+mm_word mpp_resolution;
+
 // Suspend main module and associated channels.
 void mpp_suspend(void)
 {
@@ -232,7 +238,7 @@ void mmStop(void)
 
 // Set sequence position.
 // Input r5 = layer, position = r0
-static void mpp_setposition(mpl_layer_information *layer_info, mm_word position)
+void mpp_setposition(mpl_layer_information *layer_info, mm_word position)
 {
     mas_header *header = (mas_header *)layer_info->songadr;
 
@@ -325,7 +331,7 @@ mm_word mmGetPosition(void)
 
 // Set BPM. bpm = 32..255
 // Input r5 = layer, r0 = bpm
-static void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
+void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
 {
     layer_info->bpm = bpm;
 
