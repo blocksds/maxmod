@@ -344,7 +344,8 @@ void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
         // Samples per tick ~= mixfreq / (bpm / 2.5) ~= mixfreq * 2.5 / bpm
         mm_word r0 = mm_bpmdv;
 
-        r0 = r1 / r0;
+        // DO NOT TRUST THE COMMENTS IN THE ASM!
+        r0 = r0 / r1;
 
         // Make it a multiple of two
         r0 &= ~1;
@@ -359,7 +360,7 @@ void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
     {
         // SUB LAYER, time using vsync (rate = (bpm / 2.5) / 59.7)
 
-        layer_info->tickrate = 149 / (bpm << 15);
+        layer_info->tickrate = (bpm << 15) / 149;
     }
 #endif
 
@@ -379,7 +380,7 @@ void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
     }
 
     // using 60hz vsync for timing
-    layer_info->tickrate = (mpp_resolution / bpm) >> 1;
+    layer_info->tickrate = (bpm / mpp_resolution) >> 1;
 #endif
 }
 

@@ -8,6 +8,6 @@
 
 #include "mp_mixer_ds.h"
 
-extern mm_mixer_channel *mm_mix_channels;
+extern mm_mixer_channel mm_mix_channels[];
 
 #endif // MM_MIXER_DS_H

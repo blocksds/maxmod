@@ -358,27 +358,6 @@ mmEventForwarder:
 	orr	r0, r1
 	bl	mmARM9msg
 	pop	{pc}
-	
-/******************************************************************************
- * mmGetSoundBank( n_songs, bank )
- *
- * Load sound bank address
- ******************************************************************************/
-						.global mmGetSoundBank
-						.thumb_func
-mmGetSoundBank:
-	ldr	r2,=mmModuleCount		// save data
-	stmia	r2!, {r0,r1}			//
-	
-	lsl	r0, #2				// also sample bank address
-	add	r1, r0				//	
-	stmia	r2!, {r1}			//
-	
-//------------------------------------------------
-// initialize system
-//------------------------------------------------
-
-	b	mmInit7
 
 /******************************************************************************
  * mmFrame()
