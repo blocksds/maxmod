@@ -10,5 +10,10 @@
 
 extern mm_word mm_ch_mask;
 extern mm_callback mmCallback;
+extern mm_word mmModuleCount;
+extern mm_addr mmModuleBank;
+extern mm_addr mmSampleBank;
+extern mm_voidfunc mm_vblank_function;
+extern mm_byte mmInitialized;
 
 #endif // MM_MAIN_H
