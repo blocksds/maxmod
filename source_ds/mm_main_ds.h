@@ -11,4 +11,6 @@
 extern mm_addr mmModuleBank;
 extern mm_addr mmSampleBank;
 
+void mmGetSoundBank(mm_word n_songs, mm_addr bank);
+
 #endif // MM_MAIN_DS_H
