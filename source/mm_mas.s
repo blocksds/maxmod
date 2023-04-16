@@ -570,7 +570,7 @@ mppProcessTick_incframe:
 	
 	mov	r2, #255
 	strb	r2, [r5, #MPL_PATTJUMP]
-	mov	r0, r1
+	mov	r0, r5
 	bl	mpp_setposition
 	
 	ldrb	r1, [r5, #MPL_PATTJUMP_ROW]
@@ -609,8 +609,9 @@ mppProcessTick_incframe:
 	
 .mppt_nextposition:					@ advance position
 	
-	ldrb	r0, [r5, #MPL_POSITION]			@ increment position
-	add	r0, #1
+	ldrb	r1, [r5, #MPL_POSITION]			@ increment position
+	add	r1, #1
+	mov r0,r5
 	
 	bl	mpp_setposition
 	b	.mppt_exit
@@ -3264,12 +3265,12 @@ mppe_SetTempo:					@ EFFECT Txy: Set Tempo / Tempo Slide
 	bne	.mppe_st_exit
 	mov	r0, r1
 .mppe_st_set2:
-	push	{r5,lr}
-	mov	r5, r8
-	ldr	r1,=mpp_setbpm
-	bl	mpp_call_r1
+	push	{lr}
+	mov r1, r0
+	mov r0, r8
+	ldr	r2,=mpp_setbpm
+	bl	mpp_call_r2
 	@jump1
-	pop	{r5}
 	pop	{r3}
 	bx	r3
 .mppe_st_exit:
