@@ -237,6 +237,7 @@ typedef struct t_mmstream
 } mm_stream;
 //-----------------------------------------------------------------------------
 
+/*
 typedef struct t_mmsoundcnt_ds
 {
     mm_word volume_mul : 7;
@@ -259,6 +260,7 @@ typedef struct t_mmsoundcnt_ds
 //-----------------------------------------------------------------------------
 } __attribute__((packed)) mmsoundcnt_ds;
 //-----------------------------------------------------------------------------
+*/
 
 typedef struct t_mmlayer
 {

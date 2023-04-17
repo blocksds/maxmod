@@ -30,12 +30,13 @@ static mm_word mmEventForwarder(mm_word, mm_word);
 static void StopActiveChannel(mm_word);
 
 #define NUM_CHANNELS 32
+#define NUM_PHYS_CHANNELS 16
 
 #define INITIALIZED_VALUE 42
 #define BASE_VOLUME 0x400
 #define BASE_TEMPO 0x400
 #define BASE_PITCH 0x400
-#define ALL_CHANNELS_UNLOCK 0xFFFF
+#define ALL_PHYS_CHANNELS_UNLOCK ((1<<NUM_PHYS_CHANNELS)-1)
 
 extern mm_byte mm_mixing_mode;
 
@@ -95,7 +96,10 @@ static void StopActiveChannel(mm_word index) {
     mix_ch->cvol = 0;
 #endif
 
-    SCHANNEL_CR(index) = 0;
+    // Why are there more channels than physical sound channels?!
+    // And there was no check for that in the asm... :/
+    if(index < NUM_PHYS_CHANNELS)
+        SCHANNEL_CR(index) = 0;
 
     mm_active_channel *act_ch = &mm_achannels[index];
     mm_byte prev_flags = act_ch->flags;
@@ -140,7 +144,7 @@ static void mmInit7(void) {
     
     mmInitialize(1);
     
-    mmUnlockChannels(ALL_CHANNELS_UNLOCK);
+    mmUnlockChannels(ALL_PHYS_CHANNELS_UNLOCK);
     
     // Setup channel addresses
     mm_achannels = mm_rds_achannels;
