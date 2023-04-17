@@ -1,10 +1,14 @@
+// SPDX-License-Identifier: ISC
+//
+// Copyright (c) 2023, Lorenzooone (lollo.lollo.rbiz@gmail.com)
+
 #ifndef USEFUL_QUALIFIERS__
 #define USEFUL_QUALIFIERS__
 
 #define UNUSED(x) UNUSED_ ## x __attribute__((__unused__))
 #define ALWAYS_INLINE __attribute__((always_inline)) static inline
 #define NO_INLINE __attribute__((noinline))
-#define MAX_OPTIMIZE __attribute__((optimize(3)))
+//#define MAX_OPTIMIZE __attribute__((optimize(3)))
 #ifndef PACKED
 #define PACKED __attribute__((packed))
 #endif

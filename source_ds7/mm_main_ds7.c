@@ -1,23 +1,7 @@
 // SPDX-License-Identifier: ISC
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
-
-/****************************************************************************
- *                                                          __              *
- *                ____ ___  ____ __  ______ ___  ____  ____/ /              *
- *               / __ `__ \/ __ `/ |/ / __ `__ \/ __ \/ __  /               *
- *              / / / / / / /_/ />  </ / / / / / /_/ / /_/ /                *
- *             /_/ /_/ /_/\__,_/_/|_/_/ /_/ /_/\____/\__,_/                 *
- *                                                                          *
- *               Nintendo DS & Gameboy Advance Sound System                 *
- *                                                                          *
- ****************************************************************************/
-
-/******************************************************************************
- *
- * Definitions
- *
- ******************************************************************************/
+// Copyright (c) 2023, Lorenzooone (lollo.lollo.rbiz@gmail.com)
 
 #include "maxmod.h"
 #include "mm_main.h"
@@ -28,7 +12,8 @@
 #include "mm_mas.h"
 #include "mm_effect.h"
 #include "mp_defs.h"
-#include "libnds_defs.h"
+#include "multiplatform_defs.h"
+#include "useful_qualifiers.h"
 
 #if defined(SYS_GBA)
 #include "mm_main_gba.h"
@@ -39,10 +24,10 @@
 #include "mm_mixer_super.h"
 #endif
 
-void mmInit7(void);
-void mmInitialize(mm_bool);
-mm_word mmEventForwarder(mm_word, mm_word);
-void StopActiveChannel(mm_word);
+static void mmInit7(void);
+static void mmInitialize(mm_bool);
+static mm_word mmEventForwarder(mm_word, mm_word);
+static void StopActiveChannel(mm_word);
 
 #define NUM_CHANNELS 32
 
@@ -51,8 +36,6 @@ void StopActiveChannel(mm_word);
 #define BASE_TEMPO 0x400
 #define BASE_PITCH 0x400
 #define ALL_CHANNELS_UNLOCK 0xFFFF
-
-#define TIMER_0_IRQ (1<<3)
 
 extern mm_byte mm_mixing_mode;
 
@@ -64,7 +47,7 @@ mm_bool mmIsInitialized(void) {
     return mmInitialized == INITIALIZED_VALUE;
 }
 
-void mmInitialize(mm_bool do_initialize) {
+ALWAYS_INLINE void mmInitialize(mm_bool do_initialize) {
     if(do_initialize)
         mmInitialized = INITIALIZED_VALUE;
     else
@@ -92,7 +75,7 @@ void mmLockChannels(mm_word mask) {
 }
 
 // Stop active channel
-void StopActiveChannel(mm_word index) {
+static void StopActiveChannel(mm_word index) {
     mm_module_channel *channels;
     mm_word num_channels;
 
@@ -112,7 +95,7 @@ void StopActiveChannel(mm_word index) {
     mix_ch->cvol = 0;
 #endif
 
-    *((mm_word*)(REG_SOUNDXCNT+index)) = 0;
+    SCHANNEL_CR(index) = 0;
 
     mm_active_channel *act_ch = &mm_achannels[index];
     mm_byte prev_flags = act_ch->flags;
@@ -146,10 +129,9 @@ void mmInstall(int fifo_channel) {
     mmSetupComms(fifo_channel);
 }
 
-void mmInit7(void) {
-    // WHAT IS THIS REFERENCING?!
-    irqSet(TIMER_0_IRQ, mmFrame);
-    irqEnable(TIMER_0_IRQ);
+static void mmInit7(void) {
+    irqSet(IRQ_TIMER0, mmFrame);
+    irqEnable(IRQ_TIMER0);
     
     // Init volumes
     mmSetModuleVolume(BASE_VOLUME);
@@ -193,7 +175,7 @@ void mmFrame(void) {
 }
 
 // Forward event to arm9
-mm_word mmEventForwarder(mm_word msg, mm_word param) {
+static mm_word mmEventForwarder(mm_word msg, mm_word param) {
     return mmARM9msg(msg | (param << 8) | (1 << 20));
 }
 

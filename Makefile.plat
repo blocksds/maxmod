@@ -10,15 +10,15 @@ BLOCKSDSEXT	?= /opt/blocksds/external
 
 ifeq ($(SYSTEM),GBA)
 SOURCEDIRS	:= source source_gba
-INCLUDEDIRS	:= asm_include include source_gba source source_ds7
+INCLUDEDIRS	:= asm_include include source_gba source
 endif
 ifeq ($(SYSTEM),DS7)
 SOURCEDIRS	:= source source_ds source_ds7
-INCLUDEDIRS	:= asm_include include source_ds source source_ds7
+INCLUDEDIRS	:= asm_include include source_ds source source_ds7 $(BLOCKSDS)/libs/libnds/include
 endif
 ifeq ($(SYSTEM),DS9)
 SOURCEDIRS	:= source_ds source_ds9
-INCLUDEDIRS	:= asm_include include source_ds source source_ds7
+INCLUDEDIRS	:= asm_include include source_ds source source_ds7 $(BLOCKSDS)/libs/libnds/include
 endif
 
 # Build artifacts
