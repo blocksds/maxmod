@@ -11,6 +11,7 @@
 extern mm_addr mmModuleBank;
 extern mm_addr mmSampleBank;
 
-void mmGetSoundBank(mm_word n_songs, mm_addr bank);
+void mmSuspendIRQ_t(void);
+void mmRestoreIRQ_t(void);
 
 #endif // MM_MAIN_DS_H

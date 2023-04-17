@@ -237,6 +237,31 @@ typedef struct t_mmstream
 } mm_stream;
 //-----------------------------------------------------------------------------
 
+/*
+typedef struct t_mmsoundcnt_ds
+{
+    mm_word volume_mul : 7;
+    mm_word unused : 1;
+    mm_word volume_div : 2;
+    mm_word unused2 : 5;
+    mm_word hold : 1;
+    mm_word panning : 7;
+    mm_word unused3 : 1;
+    mm_word wave_duty : 3;
+    mm_word repeat_mode : 2;
+    mm_word format : 2;
+    mm_word status : 1;
+    mm_word src : 27;
+    mm_word unused4 : 5;
+    mm_hword timer;
+    mm_hword loop_start;
+    mm_word word_length : 22;
+    mm_word unused5 : 10;
+//-----------------------------------------------------------------------------
+} __attribute__((packed)) mmsoundcnt_ds;
+//-----------------------------------------------------------------------------
+*/
+
 typedef struct t_mmlayer
 {
 
