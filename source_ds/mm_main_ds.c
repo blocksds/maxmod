@@ -28,7 +28,7 @@
 #include "mm_mas.h"
 #include "mm_effect.h"
 #include "mp_defs.h"
-#include "devkitpro_defs.h"
+#include "libnds_defs.h"
 
 #if defined(SYS_GBA)
 #include "mm_main_gba.h"
@@ -75,10 +75,10 @@ void mmInitialize(mm_bool do_initialize) {
 void mmUnlockChannels(mm_word mask) {
 #ifdef SYS_NDS
     // Can NOT unlock channels in mode b
-	if(mm_mixing_mode == 1)
-	    return;
+    if(mm_mixing_mode == 1)
+        return;
 #endif
-	mm_ch_mask |= mask;
+    mm_ch_mask |= mask;
 }
 
 // Lock audio channels to prevent the sequencer from using them.
@@ -112,15 +112,15 @@ void StopActiveChannel(mm_word index) {
     mix_ch->cvol = 0;
 #endif
 
-	*((mm_word*)(REG_SOUNDXCNT+index)) = 0;
+    *((mm_word*)(REG_SOUNDXCNT+index)) = 0;
 
-	mm_active_channel *act_ch = &mm_achannels[index];
-	mm_byte prev_flags = act_ch->flags;
-	act_ch->flags = 0;
-	act_ch->type = 0;
-	
-	if(prev_flags & MCAF_EFFECT)
-	    return;
+    mm_active_channel *act_ch = &mm_achannels[index];
+    mm_byte prev_flags = act_ch->flags;
+    act_ch->flags = 0;
+    act_ch->type = 0;
+    
+    if(prev_flags & MCAF_EFFECT)
+        return;
     
     if(prev_flags & MCAF_SUB) {
         channels = &mm_schannels[0];
@@ -194,7 +194,7 @@ void mmFrame(void) {
 
 // Forward event to arm9
 mm_word mmEventForwarder(mm_word msg, mm_word param) {
-	return mmARM9msg(msg | (param << 8) | (1 << 20));
+    return mmARM9msg(msg | (param << 8) | (1 << 20));
 }
 
 // Load sound bank address

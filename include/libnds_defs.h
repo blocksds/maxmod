@@ -1,5 +1,5 @@
-#ifndef DEVKITPRO_DEFS__
-#define DEVKITPRO_DEFS__
+#ifndef LIBNDS_DEFS__
+#define LIBNDS_DEFS__
 
 #include "mm_types.h"
 
