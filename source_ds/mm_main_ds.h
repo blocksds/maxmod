@@ -11,4 +11,7 @@
 extern mm_addr mmModuleBank;
 extern mm_addr mmSampleBank;
 
+void mmSuspendIRQ_t(void);
+void mmRestoreIRQ_t(void);
+
 #endif // MM_MAIN_DS_H
