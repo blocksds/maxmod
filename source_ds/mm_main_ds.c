@@ -17,6 +17,5 @@ void mmSuspendIRQ_t() {
 
 // Function to enable interrupts via the status register
 void mmRestoreIRQ_t() {
-    previous_irq_state = getCPSR() & CPSR_FLAG_IRQ_DIS;
     setCPSR(previous_irq_state | (getCPSR() & (~CPSR_FLAG_IRQ_DIS)));
 }
