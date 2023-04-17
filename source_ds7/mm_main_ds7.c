@@ -96,8 +96,8 @@ static void StopActiveChannel(mm_word index) {
     mix_ch->cvol = 0;
 #endif
 
-    // Why are there more channels than physical sound channels?!
-    // And there was no check for that in the asm... :/
+    // There are more channels than physical sound channels,
+    // but there was no check for that in the asm... :/
     if(index < NUM_PHYS_CHANNELS)
         SCHANNEL_CR(index) = 0;
 
