@@ -7,6 +7,7 @@
 #include <string.h>
 
 #include "maxmod.h"
+#include "useful_qualifiers.h"
 
 #include "mm_mas.h"
 #include "mp_defs.h"
@@ -161,7 +162,7 @@ void mmJingle(mm_word module_ID)
 }
 
 // Reset channel data, and any active channels linked to the layer.
-static void mpp_resetchannels(mpl_layer_information *layer_info,
+static void mpp_resetchannels(mpl_layer_information* UNUSED(layer_info),
                               mm_module_channel *channels,
                               mm_word num_ch)
 {
