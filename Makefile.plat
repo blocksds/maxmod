@@ -14,11 +14,11 @@ INCLUDEDIRS	:= asm_include include source_gba source
 endif
 ifeq ($(SYSTEM),DS7)
 SOURCEDIRS	:= source source_ds source_ds7
-INCLUDEDIRS	:= asm_include include source_ds source source_ds7 $(BLOCKSDS)/libs/libnds/include
+INCLUDEDIRS	:= asm_include include source_ds source source_ds7
 endif
 ifeq ($(SYSTEM),DS9)
 SOURCEDIRS	:= source_ds source_ds9
-INCLUDEDIRS	:= asm_include include source_ds source source_ds7 $(BLOCKSDS)/libs/libnds/include
+INCLUDEDIRS	:= asm_include include source_ds source source_ds9
 endif
 
 # Build artifacts
@@ -65,10 +65,10 @@ ifeq ($(SYSTEM),GBA)
 LIBDIRS		:=
 endif
 ifeq ($(SYSTEM),DS7)
-LIBDIRS		:=
+LIBDIRS		:= $(BLOCKSDS)/libs/libnds
 endif
 ifeq ($(SYSTEM),DS9)
-LIBDIRS		:=
+LIBDIRS		:= $(BLOCKSDS)/libs/libnds
 endif
 
 # Source files
