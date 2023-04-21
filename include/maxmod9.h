@@ -186,7 +186,7 @@ void mmSetEventHandler( mm_callback handler );
 ///
 /// @param filename
 ///     Filename of your soundbank binary.
-void mmSoundBankInFiles( char* filename );
+void mmSoundBankInFiles( const char* filename );
 
 /// Enable the standard interface for a soundbank that is loaded into memory.
 ///
