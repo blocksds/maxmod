@@ -22,7 +22,7 @@ typedef struct {
     mm_byte     chanvol[32];
     mm_byte     chanpan[32];
     mm_byte     order[200];
-    mm_byte     tables[];
+    mm_word     tables[];
 } mas_header;
 
 #define C_FLAGS_GS          1
