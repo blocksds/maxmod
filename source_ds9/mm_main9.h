@@ -6,12 +6,11 @@
 #ifndef MM_MAIN9_H__
 #define MM_MAIN9_H__
 
-#define mmModuleBank mmMemoryBank
-
 #include "mm_types.h"
 
 extern mm_word mmModuleCount;
 extern mm_word mmSampleCount;
+extern mm_addr mmModuleBank;
 extern mm_addr mmMemoryBank;
 extern mm_addr mmSampleBank;
 extern mm_callback mmcbMemory;
