@@ -440,8 +440,8 @@ void mmPlayModule(mm_word address, mm_word mode, mm_word layer)
 
     mas_header* header = (mm_addr)address;
 
-    mm_word instn_size = header->instn * 4;
-    mm_word sampn_size = header->sampn * 4;
+    mm_word instn_size = header->instn;
+    mm_word sampn_size = header->sampn;
 
     // Setup instrument, sample and pattern tables
     layer_info->insttable = (mm_word)&header->tables[0];
