@@ -26,8 +26,11 @@ mm_word mmModuleCount;
 // Number of samples in sound bank
 mm_word mmSampleCount;
 
-// Address of module bank
+// Address of bank in memory
 mm_addr mmMemoryBank;
+
+// Address of module bank
+mm_addr mmModuleBank;
 
 // Address of sample bank
 mm_addr mmSampleBank;
@@ -56,10 +59,11 @@ void mmInit(mm_ds_system *system)
     mmModuleCount = system->mod_count;
     mmSampleCount = system->samp_count;
     mmMemoryBank = system->mem_bank;
+    mmModuleBank = system->mem_bank;
     mmSampleBank = system->mem_bank + mmModuleCount;
 
     for (mm_word i = 0; i < mmModuleCount; i++)
-        ((mm_word*)mmMemoryBank)[i] = 0;
+        ((mm_word*)mmModuleBank)[i] = 0;
 
     for (mm_word i = 0; i < mmSampleCount; i++)
         ((mm_word*)mmSampleBank)[i] = 0;
@@ -68,7 +72,7 @@ void mmInit(mm_ds_system *system)
     mmSetupComms(system->fifo_channel);
 
     // Send soundbank info to ARM7
-    mmSendBank(mmModuleCount, mmMemoryBank);
+    mmSendBank(mmModuleCount, mmModuleBank);
 }
 
 // Shared initialization code for default setup
