@@ -30,11 +30,13 @@ void mmLoad(mm_word module_ID) {
     
     mas_header* header = (mas_header*)(mmModuleBankArr[module_ID] + 8);
     
-    mm_word* sample_table = &header->tables[header->instn];
+    mm_word instn_size = header->instn;
+    
+    mm_word* sample_table = &header->tables[instn_size];
     
     // Load samples
     for(mm_word i = 0; i < header->sampn; i++)
-        mmLoadEffect(((mm_mas_sample_info*)(sample_table[i]))->msl_id);
+        mmLoadEffect(((mm_mas_sample_info*)(sample_table[i] + ((mm_word)header)))->msl_id);
     
     // Flush the Bank
     mmFlushBank();
@@ -51,11 +53,13 @@ void mmUnload(mm_word module_ID) {
     
     mas_header* header = (mas_header*)(mmModuleBankArr[module_ID] + 8);
     
-    mm_word* sample_table = &header->tables[header->instn];
+    mm_word instn_size = header->instn;
+    
+    mm_word* sample_table = &header->tables[instn_size];
     
     // Free samples
     for(mm_word i = 0; i < header->sampn; i++)
-        mmUnloadEffect(((mm_mas_sample_info*)(sample_table[i]))->msl_id);
+        mmUnloadEffect(((mm_mas_sample_info*)(sample_table[i] + ((mm_word)header)))->msl_id);
     
     // Free module
     mmModuleBankArr[module_ID] = 0;
