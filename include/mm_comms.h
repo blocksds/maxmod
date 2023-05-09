@@ -19,6 +19,6 @@
 
 #include "mm_types.h"
 
-void mmSetupComms(int);
+void mmSetupComms(mm_word);
 
 #endif

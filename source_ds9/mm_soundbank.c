@@ -98,6 +98,7 @@ static mm_word mmsHandleFileOp(mm_word msg, mm_word param) {
 
 }
 
+// Failure handling function for mmLoadDataFromSoundBank
 static mm_word failLoadData(FILE* fp) {
     fclose(fp);
     return NOT_PROCESSED_RETVAL;
@@ -151,7 +152,7 @@ static mm_word mmLoadDataFromSoundBank(mm_word index, mm_word command) {
     if(fseek(fp, (mm_word)offset, SEEK_SET) != 0)
         return failLoadData(fp);
     
-    if(fread(&data, sizeof(mm_byte), size, fp) == 0)
+    if(fread(&data, sizeof(mm_byte), size, fp) != size)
         return failLoadData(fp);
     
     fclose(fp);
