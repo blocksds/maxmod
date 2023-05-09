@@ -232,17 +232,17 @@ void mmStart(mm_word module_ID, mm_pmode mode) {
 }
 
 // Pause module playback
-void mmPause() {
+void mmPause(void) {
     SendSimple(0, MSG_PAUSE);
 }
 
 // Resume module playback
-void mmResume() {
+void mmResume(void) {
     SendSimple(0, MSG_RESUME);
 }
 
 // Stop module playback
-void mmStop() {
+void mmStop(void) {
     SendSimple(0, MSG_STOP);
 }
 
@@ -298,7 +298,7 @@ void mmStreamBegin(mm_word wave, mm_hword clks, mm_hword len, mm_byte format) {
 }
 
 // Close audio stream
-void mmStreamEnd() {
+void mmStreamEnd(void) {
     SendSimple(0, MSG_CLOSESTREAM);
 }
 
@@ -314,7 +314,7 @@ static mm_sfxhand mmValidateEffectHandle(mm_sfxhand handle) {
 
 // Return effect handle
 // NO_HANDLES_AVAILABLE = no channels available
-static mm_sfxhand mmCreateEffectHandle() {
+static mm_sfxhand mmCreateEffectHandle(void) {
     int i = 0;
     
     // Search for free channel
@@ -420,17 +420,17 @@ mm_sfxhand mmEffectEx(mm_sound_effect* sound) {
 }
 
 // Cancel all sound effects
-void mmEffectCancelAll() {
+void mmEffectCancelAll(void) {
     SendSimple(0, MSG_EFFECTCANCELALL);
 }
 
 // Enable reverb system
-void mmReverbEnable() {
+void mmReverbEnable(void) {
     SendSimple(0, MSG_REVERBENABLE);
 }
 
 // Disable reverb system
-void mmReverbDisable() {
+void mmReverbDisable(void) {
     SendSimple(0, MSG_REVERBDISABLE);
 }
 

@@ -9,7 +9,7 @@
 #include "mm_main9.h"
 #include <stddef.h>
 
-ARM_TARGET void mmFlushBank() {
+ARM_TARGET void mmFlushBank(void) {
     uintptr_t bank_addr = (uintptr_t)mmMemoryBank;
     for(size_t i = 0; i < ((mmModuleCount + mmSampleCount + 32 - 1 + (bank_addr & 31)) / 32); i++)
         CP15_CleanAndFlushDCacheEntry((bank_addr & (~31)) + (i * 32));

@@ -40,7 +40,7 @@ mm_callback mmCallback;
 mm_byte mmActiveStatus;
 
 // Returns nonzero if module is playing
-mm_bool mmActive() {
+mm_bool mmActive(void) {
     return mmActiveStatus;
 }
 
