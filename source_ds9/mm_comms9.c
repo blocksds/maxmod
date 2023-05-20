@@ -89,43 +89,6 @@ F: SELECTMODE		2	[mode]				select audio mode
 #define MAX_PARAM_WORDS 4
 #define NO_HANDLES_AVAILABLE 0
 
-// TODO: Perhaps it would be better to migrate to the number of bytes directly...???
-static const mm_byte message_num_params[] = {
-    0,
-    3,
-    3,
-    0,
-    0,
-    0,
-    1,
-    2,
-    2,
-    2,
-    2,
-    2,
-    2,
-    0,
-    0,
-    1,
-    0,
-    3,
-    3,
-    0,
-    0,
-    3,
-    0,
-    0,
-    0,
-    0,
-    0,
-    1,
-    1,
-    0
-};
-
-static void SendSimpleExt(mm_hword, mm_byte, enum message_ids);
-static void SendSimple(mm_word, enum message_ids);
-static void SendString(mm_word*, int);
 static mm_sfxhand mmValidateEffectHandle(mm_sfxhand);
 static mm_sfxhand mmCreateEffectHandle(void);
 static void mmReceiveMessage(uint32_t, void*);
@@ -144,37 +107,41 @@ void mmSetupComms(mm_word channel)
     fifoSetValue32Handler(channel, mmReceiveMessage, 0);
 }
 
-// Send data via Value32...?, wrapper
-static void SendSimpleExt(mm_hword data, mm_byte ext, enum message_ids msg_id)
-{
-    SendSimple(data | (ext << 24), msg_id);
-}
-
-// Send data via Value32...? Apparently, it was switched to Datamsg???
-static void SendSimple(mm_word data, enum message_ids msg_id)
-{
-    mm_word buffer[MAX_PARAM_WORDS];
-    mm_byte num_params = 0;
-
-    // Determine number of parameters
-    if (msg_id < sizeof(message_num_params))
-        num_params = message_num_params[msg_id];
-
-    // Store in buffer
-    buffer[0] = (data << 16) | (msg_id << 8) | (num_params + 1);
-    buffer[1] = data >> 24;
-
-    // Send. If they're three bytes, do two transfers
-    if (num_params > 2)
-        SendString(buffer, 2);
-    else
-        SendString(buffer, 1);
-}
-
 // Send data via Datamsg
 static void SendString(mm_word* values, int num_words)
 {
     fifoSendDatamsg(mmFifoChannel, num_words * sizeof(mm_word), (unsigned char*)values);
+}
+
+static void SendCommand(mm_word id)
+{
+    mm_word buffer = (id << 8) | 1;
+
+    SendString(&buffer, 1);
+}
+
+static void SendCommandByte(mm_word id, mm_byte arg)
+{
+    mm_word buffer = (arg << 16) | (id << 8) | 2;
+
+    SendString(&buffer, 1);
+}
+
+static void SendCommandHword(mm_word id, mm_hword arg)
+{
+    mm_word buffer = (arg << 16) | (id << 8) | 3;
+
+    SendString(&buffer, 1);
+}
+
+static void SendCommandHwordByte(mm_word id, mm_hword arg1, mm_byte arg2)
+{
+    mm_word buffer[MAX_PARAM_WORDS];
+
+    buffer[0] = (arg1 << 16) | (id << 8) | 4;
+    buffer[1] = arg2;
+
+    SendString(buffer, 2);
 }
 
 // Send a soundbank to ARM7
@@ -182,7 +149,7 @@ void mmSendBank(mm_word num_songs, mm_addr bank_addr)
 {
     mm_word buffer[MAX_PARAM_WORDS];
 
-    buffer[0] = (num_songs << 16) | (MSG_BANK << 8) | 6;
+    buffer[0] = (num_songs << 16) | (MSG_BANK << 8) | 7;
     buffer[1] = (mm_word)bank_addr;
 
     SendString(buffer, 2);
@@ -193,7 +160,12 @@ void mmSendBank(mm_word num_songs, mm_addr bank_addr)
 // Requires changing the receiving end in arm7 to use 5 bytes.
 void mmLockChannels(mm_word bitmask)
 {
-    SendSimpleExt(bitmask, 1, MSG_SELCHAN);
+    mm_word buffer[MAX_PARAM_WORDS];
+
+    buffer[0] = (bitmask << 24) | (1 << 16) | (MSG_SELCHAN << 8) | (6);
+    buffer[1] = (bitmask >> 8);
+
+    SendString(buffer, 2);
 }
 
 // Unlock channels to allow use by maxmod
@@ -201,80 +173,79 @@ void mmLockChannels(mm_word bitmask)
 // Requires changing the receiving end in arm7 to use 5 bytes.
 void mmUnlockChannels(mm_word bitmask)
 {
-    SendSimpleExt(bitmask, 0, MSG_SELCHAN);
+    mm_word buffer[MAX_PARAM_WORDS];
+
+    buffer[0] = (bitmask << 24) | (0 << 16) | (MSG_SELCHAN << 8) | (6);
+    buffer[1] = (bitmask >> 8);
+
+    SendString(buffer, 2);
 }
 
 // Start module playback
 void mmStart(mm_word module_ID, mm_pmode mode)
 {
     mmActiveStatus = 1;
-    SendSimpleExt(module_ID, mode, MSG_START);
+    SendCommandHwordByte(MSG_START, module_ID, mode);
 }
 
 // Pause module playback
 void mmPause(void)
 {
-    SendSimple(0, MSG_PAUSE);
+    SendCommand(MSG_PAUSE);
 }
 
 // Resume module playback
 void mmResume(void)
 {
-    SendSimple(0, MSG_RESUME);
+    SendCommand(MSG_RESUME);
 }
 
 // Stop module playback
 void mmStop(void)
 {
-    SendSimple(0, MSG_STOP);
+    SendCommand(MSG_STOP);
 }
 
 // Set playback position
 void mmPosition(mm_word position)
 {
-    SendSimple(position, MSG_POSITION);
+    SendCommandByte(MSG_POSITION, position);
 }
 
 // Start jingle
 void mmJingle(mm_word module_ID)
 {
-    SendSimple(module_ID, MSG_STARTSUB);
+    SendCommandHword(MSG_STARTSUB, module_ID);
 }
 
 // Set module volume
 void mmSetModuleVolume(mm_word vol)
 {
-    SendSimple(vol, MSG_MASTERVOL);
+    SendCommandHword(MSG_MASTERVOL, vol);
 }
 
 // Set jingle volume
 void mmSetJingleVolume(mm_word vol)
 {
-    SendSimple(vol, MSG_MASTERVOLSUB);
+    SendCommandHword(MSG_MASTERVOLSUB, vol);
 }
 
 // Set master tempo
 void mmSetModuleTempo(mm_word tempo)
 {
-    SendSimple(tempo, MSG_MASTERTEMPO);
+    SendCommandHword(MSG_MASTERTEMPO, tempo);
 }
 
 // Set master pitch
 void mmSetModulePitch(mm_word pitch)
 {
-    SendSimple(pitch, MSG_MASTERPITCH);
+    SendCommandHword(MSG_MASTERPITCH, pitch);
 }
 
 // Set master effect volume
 void mmSetEffectsVolume(mm_word vol)
 {
-    SendSimple(vol, MSG_MASTEREFFECTVOL);
-}
-
-// Select audio mode
-void mmSelectMode(mm_mode_enum mode)
-{
-    SendSimple(mode, MSG_SELECTMODE);
+    SendCommandHword(MSG_MASTEREFFECTVOL, vol);
 }
 
 // Open audio stream
@@ -292,7 +263,13 @@ void mmStreamBegin(mm_word wave, mm_hword clks, mm_hword len, mm_byte format)
 // Close audio stream
 void mmStreamEnd(void)
 {
-    SendSimple(0, MSG_CLOSESTREAM);
+    SendCommand(MSG_CLOSESTREAM);
+}
+
+// Select audio mode
+void mmSelectMode(mm_mode_enum mode)
+{
+    SendCommandByte(MSG_SELECTMODE, mode);
 }
 
 // Returns same handle, or a newer valid handle
@@ -359,17 +336,18 @@ mm_sfxhand mmEffect(mm_word sample_ID)
 // volume should be a byte... :/
 void mmEffectVolume(mm_sfxhand handle, mm_word volume)
 {
-    SendSimpleExt(handle, volume, MSG_EFFECTVOL);
+    SendCommandHwordByte(MSG_EFFECTVOL, handle, volume);
 }
 
 // Set effect panning
 void mmEffectPanning(mm_sfxhand handle, mm_byte panning)
 {
-    SendSimpleExt(handle, panning, MSG_EFFECTPAN);
+    SendCommandHwordByte(MSG_EFFECTPAN, handle, panning);
 }
 
 // Set effect playback rate
-void mmEffectRate(mm_sfxhand handle, mm_word rate) {
+void mmEffectRate(mm_sfxhand handle, mm_word rate)
+{
     mm_word buffer[MAX_PARAM_WORDS];
 
     buffer[0] = (handle << 16) | (MSG_EFFECTRATE << 8) | (5);
@@ -392,13 +370,23 @@ void mmEffectScaleRate(mm_sfxhand handle, mm_word factor)
 // Release sound effect
 void mmEffectRelease(mm_sfxhand handle)
 {
-    SendSimpleExt(handle, 1, MSG_EFFECTOPT);
+    mm_word buffer[MAX_PARAM_WORDS];
+
+    buffer[0] = (handle << 24) | (1 << 16) | (MSG_EFFECTOPT << 8) | (4);
+    buffer[1] = (handle >> 8);
+
+    SendString(buffer, 2);
 }
 
 // Stop sound effect
 void mmEffectCancel(mm_sfxhand handle)
 {
-    SendSimpleExt(handle, 0, MSG_EFFECTOPT);
+    mm_word buffer[MAX_PARAM_WORDS];
+
+    buffer[0] = (handle << 24) | (0 << 16) | (MSG_EFFECTOPT << 8) | (4);
+    buffer[1] = (handle >> 8);
+
+    SendString(buffer, 2);
 }
 
 // Play sound effect, parameters supplied
@@ -424,22 +412,16 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
     return handle;
 }
 
-// Cancel all sound effects
-void mmEffectCancelAll(void)
-{
-    SendSimple(0, MSG_EFFECTCANCELALL);
-}
-
 // Enable reverb system
 void mmReverbEnable(void)
 {
-    SendSimple(0, MSG_REVERBENABLE);
+    SendCommand(MSG_REVERBENABLE);
 }
 
 // Disable reverb system
 void mmReverbDisable(void)
 {
-    SendSimple(0, MSG_REVERBDISABLE);
+    SendCommand(MSG_REVERBDISABLE);
 }
 
 // Configure reverb system
@@ -494,13 +476,19 @@ void mmReverbConfigure(mm_reverb_cfg* config)
 // Enable reverb output
 void mmReverbStart(mm_reverbch channels)
 {
-    SendSimple(channels, MSG_REVERBSTART);
+    SendCommandByte(MSG_REVERBSTART, channels);
 }
 
 // Disable reverb output
 void mmReverbStop(mm_reverbch channels)
 {
-    SendSimple(channels, MSG_REVERBSTOP);
+    SendCommandByte(MSG_REVERBSTOP, channels);
+}
+
+// Cancel all sound effects
+void mmEffectCancelAll(void)
+{
+    SendCommand(MSG_EFFECTCANCELALL);
 }
 
 // Default maxmod message receiving code
