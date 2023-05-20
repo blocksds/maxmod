@@ -9,6 +9,8 @@
 #include "mp_defs.h"
 #include "mp_format_mas.h"
 #include "mm_mas.h"
+#include "mm_comm_messages_ds.h"
+#include "mm_comms.h"
 #include "mm_types.h"
 #include "multiplatform_defs.h"
 #include "useful_qualifiers.h"
@@ -83,39 +85,6 @@ F: SELECTMODE		2	[mode]				select audio mode
 #define EFFECT_CHANNELS 16
 #define MAX_PARAM_WORDS 4
 #define NO_HANDLES_AVAILABLE 0
-
-enum message_ids{
-    MSG_BANK = 0x00,
-    MSG_SELCHAN,
-    MSG_START,
-    MSG_PAUSE,
-    MSG_RESUME,
-    MSG_STOP,
-    MSG_POSITION,
-    MSG_STARTSUB,
-    MSG_MASTERVOL,
-    MSG_MASTERVOLSUB,
-    MSG_MASTERTEMPO,
-    MSG_MASTERPITCH,
-    MSG_MASTEREFFECTVOL,
-    MSG_OPENSTREAM,
-    MSG_CLOSESTREAM,
-    MSG_SELECTMODE,
-    MSG_EFFECT,
-    MSG_EFFECTVOL,
-    MSG_EFFECTPAN,
-    MSG_EFFECTRATE,
-    MSG_EFFECTMULRATE,
-    MSG_EFFECTOPT,
-    MSG_EFFECTEX,
-    MSG_UNUSED,
-    MSG_REVERBENABLE,
-    MSG_REVERBDISABLE,
-    MSG_REVERBCFG,
-    MSG_REVERBSTART,
-    MSG_REVERBSTOP,
-    MSG_EFFECTCANCELALL
-};
 
 // TODO: Perhaps it would be better to migrate to the number of bytes directly...???
 static const mm_byte message_num_params[] = {
@@ -205,24 +174,30 @@ static void SendString(mm_word* values, int num_words) {
 void mmSendBank(mm_word num_songs, mm_addr bank_addr) {
     mm_word buffer[MAX_PARAM_WORDS];
     
-    buffer[0] = (num_songs << 16) | (MSG_BANK << 8) | 6;
+    buffer[0] = (num_songs << 16) | (MSG_BANK << 8) | (7);
     buffer[1] = (mm_word)bank_addr;
     
     SendString(buffer, 2);
 }
 
 // Lock channels to prevent use by maxmod
-// TODO: Make this work for all channels, not just the PHYS ones.
-// Requires changing the receiving end in arm7 to use 5 bytes.
 void mmLockChannels(mm_word bitmask) {
-    SendSimpleExt(bitmask, 1, MSG_SELCHAN);
+    mm_word buffer[MAX_PARAM_WORDS];
+    
+    buffer[0] = (bitmask << 24) | (1 << 16) | (MSG_SELCHAN << 8) | (6);
+    buffer[1] = (bitmask >> 8);
+    
+    SendString(buffer, 2);
 }
 
 // Unlock channels to allow use by maxmod
-// TODO: Make this work for all channels, not just the PHYS ones.
-// Requires changing the receiving end in arm7 to use 5 bytes.
 void mmUnlockChannels(mm_word bitmask) {
-    SendSimpleExt(bitmask, 0, MSG_SELCHAN);
+    mm_word buffer[MAX_PARAM_WORDS];
+    
+    buffer[0] = (bitmask << 24) | (0 << 16) | (MSG_SELCHAN << 8) | (6);
+    buffer[1] = (bitmask >> 8);
+    
+    SendString(buffer, 2);
 }
 
 // Start module playback
@@ -389,12 +364,22 @@ void mmEffectScaleRate(mm_sfxhand handle, mm_word factor) {
 
 // Release sound effect
 void mmEffectRelease(mm_sfxhand handle) {
-    SendSimpleExt(handle, 1, MSG_EFFECTOPT);
+    mm_word buffer[MAX_PARAM_WORDS];
+    
+    buffer[0] = (handle << 24) | (1 << 16) | (MSG_EFFECTOPT << 8) | (4);
+    buffer[1] = (handle >> 8);
+    
+    SendString(buffer, 2);
 }
 
 // Stop sound effect
 void mmEffectCancel(mm_sfxhand handle) {
-    SendSimpleExt(handle, 0, MSG_EFFECTOPT);
+    mm_word buffer[MAX_PARAM_WORDS];
+    
+    buffer[0] = (handle << 24) | (0 << 16) | (MSG_EFFECTOPT << 8) | (4);
+    buffer[1] = (handle >> 8);
+    
+    SendString(buffer, 2);
 }
 
 // Play sound effect, parameters supplied

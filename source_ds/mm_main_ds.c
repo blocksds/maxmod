@@ -7,12 +7,13 @@
 #include "multiplatform_defs.h"
 #include "useful_qualifiers.h"
 
-static uint32_t previous_irq_state;
+uint32_t previous_irq_state;
 
 // Function to disable interrupts via the status register
 void mmSuspendIRQ_t(void) {
-    previous_irq_state = getCPSR() & CPSR_FLAG_IRQ_DIS;
-    setCPSR(previous_irq_state | CPSR_FLAG_IRQ_DIS);
+    uint32_t base_cpsr_state = getCPSR();
+    previous_irq_state = base_cpsr_state & CPSR_FLAG_IRQ_DIS;
+    setCPSR(base_cpsr_state | CPSR_FLAG_IRQ_DIS);
 }
 
 // Function to enable interrupts via the status register

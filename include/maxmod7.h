@@ -191,6 +191,27 @@ void mmSetModuleVolume( mm_word volume );
 void mmSetJingleVolume( mm_word volume );
 
 /*****************************************************************
+ * mmSetModuleTempo( mm_word tempo )
+ *
+ * Set tempo of playback.
+ *
+ * tempo : Fixed point (Q10) value representing tempo.
+ *         Range = 0x200 -> 0x800 = 0.5 -> 2.0
+ *****************************************************************/
+
+void mmSetModuleTempo( mm_word tempo );
+
+/*****************************************************************
+ * mmSetModulePitch( mm_word pitch )
+ *
+ * Set pitch of playback.
+ *
+ * pitch : Range = 0x200 -> 0x800 = 0.5 -> 2.0
+ *****************************************************************/
+ 
+void mmSetModulePitch( mm_word pitch );
+
+/*****************************************************************
  * mmPlayModule( mm_word address, mm_word mode, mm_word layer )
  *
  * Play direct MAS file
@@ -469,7 +490,9 @@ void mmReverbDisable( void );
 
 // TODO: Remove this
 // main/sub layer attributes
-extern mm_modlayer mmLayerMain;
-extern mm_modlayer mmLayerSub;
+//extern mm_modlayer mmLayerMain;
+//extern mm_modlayer mmLayerSub;
+//extern mpl_layer_information mmLayerMain;
+//extern mpl_layer_information mmLayerSub;
 
 #endif

@@ -16,4 +16,6 @@ extern mm_addr mmSampleBank;
 extern mm_voidfunc mm_vblank_function;
 extern mm_byte mmInitialized;
 
+void mmSetEventHandler(mm_callback);
+
 #endif // MM_MAIN_H
