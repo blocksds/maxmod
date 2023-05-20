@@ -3,13 +3,12 @@
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
 // Copyright (c) 2023, Lorenzooone (lollo.lollo.rbiz@gmail.com)
 
-#ifndef MM_COMMS7_H__
-#define MM_COMMS7_H__
+#ifndef MM_STREAM_H__
+#define MM_STREAM_H__
 
 #include "mm_types.h"
 
-mm_bool mmARM9msg(mm_word);
-mm_bool mmSendUpdateToARM9(void);
-void mmProcessComms(void);
+void mmStreamBegin(mm_word, mm_hword, mm_hword, mm_byte);
+void mmStreamEnd(void);
 
 #endif

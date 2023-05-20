@@ -11,4 +11,6 @@
 void mmResetEffects(void);
 void mmUpdateEffects(void);
 
+extern mm_word mm_sfx_clearmask;
+
 #endif // MM_EFFECT_H
