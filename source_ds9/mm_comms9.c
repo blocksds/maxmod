@@ -249,12 +249,12 @@ void mmSetEffectsVolume(mm_word vol)
 }
 
 // Open audio stream
-void mmStreamBegin(mm_word wave, mm_hword clks, mm_hword len, mm_byte format)
+void mmStreamBegin(mm_word wave_memory, mm_hword clks, mm_hword len, mm_byte format)
 {
     mm_word buffer[MAX_PARAM_WORDS];
 
-    buffer[0] = (wave << 16) | (MSG_OPENSTREAM << 8) | (10);
-    buffer[1] = (wave >> 16) | (clks << 16);
+    buffer[0] = (((mm_word)wave_memory) << 16) | (MSG_OPENSTREAM << 8) | (10);
+    buffer[1] = (((mm_word)wave_memory) >> 16) | (clks << 16);
     buffer[2] = len | (format << 16);
 
     SendString(buffer, 3);

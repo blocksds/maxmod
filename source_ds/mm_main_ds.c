@@ -7,7 +7,7 @@
 
 #include "mm_main_ds.h"
 
-uint32_t previous_irq_state;
+static uint32_t previous_irq_state;
 
 // Function to disable interrupts via the status register
 void mmSuspendIRQ_t(void)

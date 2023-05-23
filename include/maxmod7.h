@@ -306,7 +306,7 @@ void mmEffectRelease( mm_sfxhand handle );
 void mmSetEffectsVolume( mm_word volume );
 
 /// Stop all sound effects and reset the effect system.
-void mmEffectCancelAll();
+void mmEffectCancelAll( void );
 
 // ***************************************************************************
 /// @}

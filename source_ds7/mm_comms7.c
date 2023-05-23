@@ -260,10 +260,10 @@ static ARM_CODE void ProcessNextMessage(void)
             break;
         case MSG_OPENSTREAM:
         {
-            mm_word wavebuffer = ReadNFifoBytes(4);
+            mm_addr wavebuffer = (mm_addr)ReadNFifoBytes(4);
             mm_word clks = ReadNFifoBytes(2);
             mm_word len = ReadNFifoBytes(2);
-            mm_byte format = ReadNFifoBytes(1);
+            mm_stream_formats format = ReadNFifoBytes(1);
             mmStreamBegin(wavebuffer, clks, len, format);
             break;
         }
