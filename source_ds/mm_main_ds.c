@@ -7,7 +7,7 @@
 #include "multiplatform_defs.h"
 #include "useful_qualifiers.h"
 
-uint32_t previous_irq_state;
+static uint32_t previous_irq_state;
 
 // Function to disable interrupts via the status register
 void mmSuspendIRQ_t(void) {

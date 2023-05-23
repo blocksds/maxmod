@@ -331,7 +331,7 @@ void mmSetEffectsVolume( mm_word volume );
  * Stop all sound effects
  *****************************************************************/
  
-void mmEffectCancelAll();
+void mmEffectCancelAll( void );
 
 
 
@@ -379,7 +379,7 @@ void mmStreamClose( void );
  * The 32-bit value will wrap every 36 hours or so (at 32khz)
  *****************************************************************/
  
-mm_word mmStreamGetPosition();
+mm_word mmStreamGetPosition( void );
 
 
 
