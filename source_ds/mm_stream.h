@@ -8,7 +8,7 @@
 
 #include "mm_types.h"
 
-void mmStreamBegin(mm_word, mm_hword, mm_hword, mm_byte);
+void mmStreamBegin(mm_addr, mm_hword, mm_hword, mm_stream_formats);
 void mmStreamEnd(void);
 
 #endif

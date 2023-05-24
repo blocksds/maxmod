@@ -47,6 +47,11 @@ typedef enum
 //	MM_STREAM_ADPCM_MONO				= 0x4,	// 100b
 //	MM_STREAM_ADPCM_STEREO				= 0x5,	// 101b
 
+#ifdef MM_SUPPORT_4BIT_STREAM
+	MM_STREAM_4BIT_MONO					= 0x4,	// 100b
+	MM_STREAM_4BIT_STEREO				= 0x5,	// 101b
+#endif
+
 //	adpcm streaming is not supported by the ds hardware
 //	(the loop point data gets recorded so ring buffers are not possible)
 
@@ -237,26 +242,48 @@ typedef struct t_mmstream
 } mm_stream;
 //-----------------------------------------------------------------------------
 
+typedef struct t_mmstreamdata
+{
+	mm_bool is_active;
+	mm_stream_formats format;
+	mm_bool is_auto;
+	mm_byte hw_timer_num;
+	mm_hword clocks;
+	mm_hword timer;
+	mm_hword length_cut;
+	mm_hword length_words;
+	mm_hword position;
+	mm_hword reserved2;
+	volatile mm_hword* hw_timer;
+	mm_addr wave_memory;
+	mm_addr work_memory;
+	mm_stream_func callback;
+	mm_word remainder;
+	
+//-----------------------------------------------------------------------------
+} mm_stream_data;
+//-----------------------------------------------------------------------------
+
 /*
 typedef struct t_mmsoundcnt_ds
 {
-    mm_word volume_mul : 7;
-    mm_word unused : 1;
-    mm_word volume_div : 2;
-    mm_word unused2 : 5;
-    mm_word hold : 1;
-    mm_word panning : 7;
-    mm_word unused3 : 1;
-    mm_word wave_duty : 3;
-    mm_word repeat_mode : 2;
-    mm_word format : 2;
-    mm_word status : 1;
-    mm_word src : 27;
-    mm_word unused4 : 5;
-    mm_hword timer;
-    mm_hword loop_start;
-    mm_word word_length : 22;
-    mm_word unused5 : 10;
+	mm_word volume_mul : 7;
+	mm_word unused : 1;
+	mm_word volume_div : 2;
+	mm_word unused2 : 5;
+	mm_word hold : 1;
+	mm_word panning : 7;
+	mm_word unused3 : 1;
+	mm_word wave_duty : 3;
+	mm_word repeat_mode : 2;
+	mm_word format : 2;
+	mm_word status : 1;
+	mm_word src : 27;
+	mm_word unused4 : 5;
+	mm_hword timer;
+	mm_hword loop_start;
+	mm_word word_length : 22;
+	mm_word unused5 : 10;
 //-----------------------------------------------------------------------------
 } __attribute__((packed)) mmsoundcnt_ds;
 //-----------------------------------------------------------------------------

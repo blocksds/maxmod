@@ -271,7 +271,7 @@ static ARM_TARGET void ProcessNextMessage(mm_word* curr_pos_r) {
             mmSetEffectsVolume(ReadNFifoBytes(curr_pos_r, 2));
             break;
         case MSG_OPENSTREAM:
-            mmStreamBegin(ReadNFifoBytes(curr_pos_r, 4), ReadNFifoBytes(curr_pos_r, 2), ReadNFifoBytes(curr_pos_r, 2), ReadNFifoBytes(curr_pos_r, 1));
+            mmStreamBegin((mm_addr)ReadNFifoBytes(curr_pos_r, 4), ReadNFifoBytes(curr_pos_r, 2), ReadNFifoBytes(curr_pos_r, 2), (mm_stream_formats)ReadNFifoBytes(curr_pos_r, 1));
             break;
         case MSG_CLOSESTREAM:
             mmStreamEnd();
