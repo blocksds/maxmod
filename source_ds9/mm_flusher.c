@@ -16,11 +16,26 @@ void mmFlushBank(void) {
 // Flush address for size bytes
 ARM_TARGET void FlushDataSize(mm_addr address, size_t size) {
     uintptr_t addr = (uintptr_t)address;
-    for(size_t i = 0; i < ((size + 32 - 1 + (addr & 31)) / 32); i++)
-        CP15_CleanAndFlushDCacheEntry((addr & (~31)) + (i * 32));
+    
+    if(size == 0)
+        return;
+
+    // Make sure this is 32 bytes-aligned
+    CP15_CleanAndFlushDCacheEntry((addr & (~31)));
+    
+    if(size <= (32-(addr & 31)))
+        return;
+    
+    // Skip the bytes we already covered
+    size -= (32-(addr & 31));
+    
+    // Clean the various 32 bytes-aligned slates
+    // Until all bytes are flushed
+    for(size_t i = 0; i < (size + 32 - 1) / 32; i++)
+        CP15_CleanAndFlushDCacheEntry((addr & (~31)) + ((i + 1) * 32));
 }
 
-// Wait until a byte magically becomes 'wanted_value'.
+// Wait until a byte magically becomes 'wanted_value'
 ARM_TARGET void WaitUntilValue(mm_addr address, mm_byte wanted_value) {
     uintptr_t addr = (uintptr_t)address;
     while(((mm_byte*)addr)[0] != wanted_value)
