@@ -7,4 +7,7 @@ void mmMixerInit(void);
 void mmMixerMix(void);
 void mmMixerPre(void);
 
+extern mm_byte mmVolumeDivTable[];
+extern mm_byte mmVolumeShiftTable[];
+
 #endif

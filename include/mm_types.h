@@ -123,7 +123,7 @@ typedef enum
 {
 	MMRC_LEFT = 1,  ///< Select left reverb channel.
 	MMRC_RIGHT = 2, ///< Select right reverb channel.
-	MMRC_BOTH = 3   ///< Select both reverb channels.
+	MMRC_BOTH = MMRC_LEFT | MMRC_RIGHT ///< Select both reverb channels.
 } mm_reverbch;
 
 /// Reverb configuration settings.
