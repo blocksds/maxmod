@@ -56,6 +56,8 @@
 	.type	mmSelectMode STT_FUNC
 
 	.global	mmVolumeTable
+	.global	mmVolumeDivTable
+	.global	mmVolumeShiftTable
 	
 //----------------------------------------------------------------------
 	
@@ -1246,10 +1248,12 @@ mmMixC:
  * value and shift amount for the hardware channels
  **************************************************************************************/
 mmVolumeTable:
+mmVolumeDivTable:
 
 // divider values
 	.byte	3,2,2,2,1,1,1,1,0,0,0,0,0,0,0,0
 
+mmVolumeShiftTable:
 // shift values
 	.byte	0,2,2,2,3,3,3,3,4,4,4,4,4,4,4,4
 
