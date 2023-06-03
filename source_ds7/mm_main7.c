@@ -29,11 +29,6 @@
 #include "mm_mixer_super.h"
 #endif
 
-static void mmInit7(void);
-static void mmInitialize(mm_bool);
-static mm_word mmEventForwarder(mm_word, mm_word);
-static void StopActiveChannel(mm_word);
-
 #define NUM_CHANNELS 32
 #define NUM_PHYS_CHANNELS 16
 
@@ -43,10 +38,13 @@ static void StopActiveChannel(mm_word);
 #define BASE_PITCH 0x400
 #define ALL_PHYS_CHANNELS_UNLOCK ((1<<NUM_PHYS_CHANNELS)-1)
 
-extern mm_byte mm_mixing_mode;
-
 mm_module_channel mm_rds_pchannels[NUM_CHANNELS];
 mm_active_channel mm_rds_achannels[NUM_CHANNELS];
+
+static void mmInit7(void);
+static void mmInitialize(mm_bool);
+static mm_word mmEventForwarder(mm_word, mm_word);
+static void StopActiveChannel(mm_word);
 
 // Returns true if the system is ready for playback
 mm_bool mmIsInitialized(void) {
