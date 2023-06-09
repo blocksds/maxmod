@@ -62,7 +62,7 @@
 .equ	MPV_VOLPLUS	,10
 .equ	MPV_NOTEDELAY	,11
 .equ	MPV_PANPLUS	,12
-.equ	MPV_SIZE	,14
+.equ	MPV_SIZE	,16
 
 @ Module Channel = mm_module_channel
 @ --------------

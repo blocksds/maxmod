@@ -57,7 +57,7 @@ static_assert(sizeof(mpl_layer_information) == 56);
 // Active Information
 // ------------------
 
-typedef struct __attribute__ ((packed)) { // TODO: Unpack
+typedef struct {
     mm_word     reserved;
     mm_word     pattread_p;
     mm_byte     afvol;
@@ -65,9 +65,10 @@ typedef struct __attribute__ ((packed)) { // TODO: Unpack
     mm_byte     volplus;
     mm_byte     notedelay;
     mm_hword    panplus;
+    mm_hword    reserved2;
 } mpv_active_information;
 
-static_assert(sizeof(mpv_active_information) == 14);
+static_assert(sizeof(mpv_active_information) == 16);
 
 // Active Channel Flags
 // --------------------

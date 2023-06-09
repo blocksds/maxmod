@@ -46,6 +46,11 @@
 	blx	r2
 .endm
 
+.macro fjump3 function
+	ldr	r3,=function
+	blx	r3
+.endm
+
 #else
 
 .macro ret0		@ arm7 requires pop/bx combo
@@ -82,9 +87,22 @@
 #endif
 .endm
 
+.macro jump3
+#ifdef USE_IWRAM
+	bl	mpp_call_r3i
+#else
+	bl	mpp_call_r3
+#endif
+.endm
+
 .macro fjump2 function
 	ldr	r2,=\function
 	jump2
+.endm
+
+.macro fjump3 function
+	ldr	r3,=\function
+	jump3
 .endm
 
 .macro jump1
