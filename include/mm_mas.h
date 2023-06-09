@@ -61,12 +61,14 @@ typedef struct tmm_mas_instrument
 	mm_byte		global_volume;
 	mm_byte		fadeout;
 	mm_byte		random_volume;
-	mm_byte		nna;
 	mm_byte		dct;
-	mm_byte		dca;
+	mm_byte		nna;
 	mm_byte		env_flags;
 	mm_byte		panning;
-	mm_hword	note_map[120];
+	mm_byte		dca;
+	mm_hword	note_map_offset : 15;
+	mm_hword	is_note_map_invalid : 1;
+	mm_hword	note_map[119];
 
 #ifdef _____badbear_____
 	mm_byte		envelopes[];
@@ -94,13 +96,13 @@ typedef struct tmm_mas_envelope
 
 typedef struct tmm_mas_sample_info
 {
-	mm_byte		global_volume;
 	mm_byte		default_volume;
+	mm_byte		panning;
 	mm_hword	frequency;
 	mm_byte		av_type; // (auto vibrato)
 	mm_byte		av_depth;
 	mm_byte		av_speed;
-	mm_byte		panning;
+	mm_byte		global_volume;
 	mm_hword	av_rate;
 	mm_hword	msl_id;
 
@@ -168,7 +170,8 @@ typedef struct tmm_mas_ds_sample
 extern mpl_layer_information mmLayerMain;
 extern mpl_layer_information mmLayerSub;
 
-extern mpl_layer_information *mpp_layerp;
+extern mpl_layer_information* mpp_layerp;
+extern mpv_active_information mpp_vars;
 extern mm_addr mpp_channels;
 extern mm_word mpp_resolution;
 
@@ -183,8 +186,16 @@ extern mm_word mm_num_mch;
 extern mm_word mm_num_ach;
 extern mm_module_channel mm_schannels[]; // [MP_SCHANNELS]
 
+extern mm_word IT_PitchTable[];
+extern mm_hword ST3_FREQTABLE[];
+
 void mmPulse(void);
 void mppUpdateSub(void);
 void mppProcessTick(void); // TODO: Mark this as IWRAM in GBA?
+// TODO: Convert these methods
+mm_word mpp_Process_VolumeCommand_Wrapper(mpl_layer_information*, mm_active_channel*, mm_module_channel*, mm_word);
+mm_word mpp_Process_Effect_Wrapper(mpl_layer_information*, mm_active_channel*, mm_module_channel*, mm_word);
+mm_word mpp_Update_ACHN_notest_Wrapper(mpl_layer_information*, mm_active_channel*, mm_module_channel*, mm_word);
+void mpp_Channel_NewNote(mm_module_channel*, mpl_layer_information*);
 
 #endif
