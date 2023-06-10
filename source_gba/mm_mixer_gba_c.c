@@ -12,7 +12,6 @@
 
 #include "mm_main_gba.h"
 #include "mm_mixer_gba.h"
-#include "mp_mixer_gba.h"
 #include "useful_qualifiers.h"
 
 // Set channel volume
