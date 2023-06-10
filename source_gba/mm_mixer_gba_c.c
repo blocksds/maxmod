@@ -13,6 +13,7 @@
 #include "mm_main_gba.h"
 #include "mm_mixer_gba.h"
 #include "mp_mixer_gba.h"
+#include "useful_qualifiers.h"
 
 // Set channel volume
 void mmMixerSetVolume(int channel, mm_word volume)
@@ -92,7 +93,7 @@ static int vblank_handler_enabled = 0;
 
 // VBL wrapper, used to reset DMA. It needs the highest priority.
 // TODO: Build this as ARM code in IWRAM
-void mmVBlank(void)
+IWRAM_CODE ARM_TARGET void mmVBlank(void)
 {
     // Disable until ready
     if (vblank_handler_enabled != 0)
