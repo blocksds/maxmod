@@ -10,7 +10,7 @@
 
 #include "mm_types.h"
 
-// There is an incomplete version of this struct in mm_types: mm_modlayer
+// There was an incomplete version of this struct in mm_types: mm_modlayer
 typedef struct {
     mm_byte     tick;       // Current tick count
     mm_byte     row;        // Current row being played

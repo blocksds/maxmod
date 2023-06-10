@@ -23,8 +23,8 @@ void mmInitDefault(mm_addr soundbank, mm_word number_of_channels)
     size_t size_of_channel = MM_SIZEOF_MODCH + sizeof(mm_active_channel) + MM_SIZEOF_MIXCH;
     size_t size_of_buffer = mixlen + number_of_channels * size_of_channel;
     mm_addr buffer = malloc(size_of_buffer);
-
-    // TODO: The original library didn't check the return value of malloc.
+    if (buffer == NULL)
+        return;
 
     // Split up buffer
     mm_addr wave_memory, module_channels, active_channels, mixing_channels;
