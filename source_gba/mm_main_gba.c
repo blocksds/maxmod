@@ -25,12 +25,10 @@ void mmInit(mm_gba_system* setup)
 {
     mp_solution = setup->soundbank;
 
-    // TODO: WTF is this?
-    mm_word *achannels = (mm_word *)&mm_achannels;
-    achannels[0] = (mm_word)setup->active_channels;
-    achannels[1] = (mm_word)setup->module_channels;
-    achannels[2] = (mm_word)setup->mod_channel_count;
-    achannels[3] = (mm_word)setup->mix_channel_count;
+    mm_achannels = (mm_active_channel*)setup->active_channels;
+    mm_pchannels = (mm_addr)setup->module_channels;
+    mm_num_mch = (mm_word)setup->mod_channel_count;
+    mm_num_ach = (mm_word)setup->mix_channel_count;
 
     mmMixerInit(setup); // Initialize software/hardware mixer
 
@@ -107,10 +105,12 @@ void mmFrame(void)
         // Calc tickrate-counter
         sample_num -= sampcount;
 
+        // Make it >= 0
         if (sample_num < 0)
             sample_num = 0;
 
-        if (sample_num >= remaining_len)
+        // Cast to mm_word is fine, as the sample_num is cleaned before
+        if (((mm_word)sample_num) >= remaining_len)
             break; // Mix remaining samples
 
         // Mix and process tick
