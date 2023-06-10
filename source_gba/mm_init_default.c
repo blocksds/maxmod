@@ -14,14 +14,12 @@
 
 static uint32_t mixbuffer[mixlen / sizeof(uint32_t)];
 
-#define MM_SIZEOF_MODCH     40
-#define MM_SIZEOF_MIXCH     24
-
 void mmInitDefault(mm_addr soundbank, mm_word number_of_channels)
 {
     // Allocate buffer
-    size_t size_of_channel = MM_SIZEOF_MODCH + sizeof(mm_active_channel) + MM_SIZEOF_MIXCH;
-    size_t size_of_buffer = mixlen + number_of_channels * size_of_channel;
+    size_t size_of_channel = sizeof(mm_module_channel) + sizeof(mm_active_channel) + sizeof(mm_mixer_channel);
+    size_t size_of_buffer = mixlen + (number_of_channels * size_of_channel);
+
     mm_addr buffer = calloc(1, size_of_buffer);
     if (buffer == NULL)
         return;
@@ -30,9 +28,9 @@ void mmInitDefault(mm_addr soundbank, mm_word number_of_channels)
     mm_addr wave_memory, module_channels, active_channels, mixing_channels;
 
     wave_memory = buffer;
-    module_channels = wave_memory + mixlen;
-    active_channels = module_channels + number_of_channels * MM_SIZEOF_MODCH;
-    mixing_channels = active_channels + number_of_channels * sizeof(mm_active_channel);
+    module_channels = (mm_addr)(((mm_word)wave_memory) + mixlen);
+    active_channels = (mm_addr)(((mm_word)module_channels) + (number_of_channels * sizeof(mm_module_channel)));
+    mixing_channels = (mm_addr)(((mm_word)active_channels) + (number_of_channels * sizeof(mm_active_channel)));
 
     mm_gba_system setup =
     {

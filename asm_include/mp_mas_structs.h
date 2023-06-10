@@ -9,6 +9,7 @@
 #include <assert.h>
 
 #include "mm_types.h"
+#include "mm_channel_types.h"
 
 // There was an incomplete version of this struct in mm_types: mm_modlayer
 typedef struct {
@@ -67,62 +68,6 @@ typedef struct __attribute__ ((packed)) { // TODO: Unpack
 } mpv_active_information;
 
 static_assert(sizeof(mpv_active_information) == 14);
-
-// Module Channel
-// --------------
-
-typedef struct {
-    mm_byte     alloc;  // Allocated active channel number
-    mm_byte     cflags; // Pattern comression flags, called "maskvariable" in ITTECH.TXT
-    mm_byte     panning;
-    mm_byte     volcmd; // Volume column command
-    mm_byte     effect; // Effect number    } Combined
-    mm_byte     param;  // Effect parameter }
-    mm_byte     fxmem;  // Effect memory
-    mm_byte     note;   // Translated note
-    mm_byte     flags;  // Channel flags
-    mm_byte     inst;   // Instrument#
-    mm_byte     pflags; // Playback flags (unused)
-    mm_byte     vibdep;
-    mm_byte     vibspd;
-    mm_byte     vibpos;
-    mm_byte     volume;  // } Combined
-    mm_byte     cvolume; // }
-    mm_word     period;
-    mm_hword    bflags;
-    mm_byte     pnoter;  // Pattern note
-    mm_byte     memory[15];
-    mm_byte     padding[2];
-} mm_module_channel;
-
-static_assert(sizeof(mm_module_channel) == 40);
-
-// Active Channel
-// --------------
-
-typedef struct {
-    mm_word     period;     // internal period
-    mm_hword    fade;       //    }
-    mm_hword    envc_vol;   //    }
-    mm_hword    envc_pan;   //    } COMBINED
-    mm_hword    envc_pic;   //    } during volume reset
-    mm_hword    avib_dep;   //    } AND NEWNOTE, CHECK NEWNOTE ON CHANGES
-    mm_hword    avib_pos;   //    }
-    mm_byte     fvol;       // } COMBINED for SPEED
-    mm_byte     type;       // }
-    mm_byte     inst;
-    mm_byte     panning;
-    mm_byte     volume;
-    mm_byte     sample;
-    mm_byte     parent;     // } COMBINED
-    mm_byte     flags;      // }
-    mm_byte     envn_vol;
-    mm_byte     envn_pan;
-    mm_byte     envn_pic;
-    mm_byte     sfx;        // can store this anywhere
-} mm_active_channel;
-
-static_assert(sizeof(mm_active_channel) == 28);
 
 // Active Channel Flags
 // --------------------

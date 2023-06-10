@@ -12,7 +12,6 @@
 
 #include "mm_main_gba.h"
 #include "mm_mixer_gba.h"
-#include "mp_mixer_gba.h"
 
 #define ARM_CODE   __attribute__((target("arm")))
 #define IWRAM_CODE __attribute__((section(".iwram"), long_call))

@@ -12,7 +12,6 @@
 #include "mp_mas_structs.h"
 
 #include "mm_mixer_gba.h"
-#include "mp_mixer_gba.h"
 
 // Pointer to a user function to be called during the vblank irq
 mm_voidfunc mm_vblank_function;

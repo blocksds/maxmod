@@ -6,7 +6,7 @@
 #ifndef MM_MIXER_DS_H
 #define MM_MIXER_DS_H
 
-#include "mp_mixer_ds.h"
+#include "mm_channel_types.h"
 
 #define MM_nDSCHANNELS 32 // TODO: Move this to source_ds7/mm_mixer_super.h
 

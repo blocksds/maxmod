@@ -6,7 +6,7 @@
 #ifndef MM_MIXER_GBA_H
 #define MM_MIXER_GBA_H
 
-#include "mp_mixer_gba.h"
+#include "mm_channel_types.h"
 
 #define REG_SOUNDCNT_L  *(volatile uint16_t *)0x4000080
 #define REG_SOUNDCNT_H  *(volatile uint16_t *)0x4000082

@@ -3,7 +3,11 @@
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
 // Copyright (c) 2021, Antonio Niño Díaz (antonio_nd@outlook.com)
 
+#if defined(SYS_GBA)
 #include "maxmod.h"
+#elif defined(SYS_NDS)
+#include "maxmod7.h"
+#endif
 
 #include "mm_mas_arm.h"
 #include "mm_mas.h"
@@ -15,11 +19,9 @@
 #if defined(SYS_GBA)
 #include "mm_main_gba.h"
 #include "mm_mixer_gba.h"
-#include "mp_mixer_gba.h"
 #elif defined(SYS_NDS)
 #include "mm_main_ds.h"
 #include "mm_mixer_ds.h"
-#include "mp_mixer_ds.h"
 #endif
 
 #define channelCount    16

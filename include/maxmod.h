@@ -25,6 +25,8 @@ extern "C" {
 #endif
 
 #include <mm_types.h>
+#include <mm_channel_types.h>
+#include <mm_types.h>
 
 // ***************************************************************************
 /// @defgroup gba_init GBA: Initialization/Main Functions
@@ -44,12 +46,10 @@ typedef enum
 	 MM_MIXLEN_31KHZ = 2112, ///< (31536 hz)
 } mm_mixlen_enum;
 
-/// Size of mod channel (bytes)
-#define MM_SIZEOF_MODCH		40
-/// Size of act channel (bytes)
-#define MM_SIZEOF_ACTCH		28
-/// Size of mix channel (bytes)
-#define MM_SIZEOF_MIXCH		24
+// measurements of channel types (bytes)
+#define MM_SIZEOF_MODCH		sizeof(mm_module_channel)
+#define MM_SIZEOF_ACTCH		sizeof(mm_active_channel)
+#define MM_SIZEOF_MIXCH		sizeof(mm_mixer_channel)
 
 /// Initialize Maxmod with default settings.
 ///
