@@ -321,7 +321,7 @@ IWRAM_CODE ARM_TARGET void mmUpdateChannel_T0(mm_module_channel* module_channel,
             mm_mas_instrument* instrument = get_instrument(mpp_layer, module_channel->inst);
 
             module_channel->bflags &= ~(3 << 6);
-            module_channel->bflags |= (instrument->nna << 6);
+            module_channel->bflags |= ((instrument->nna & 3) << 6);
 
             active_channel->flags &= ~MCAF_VOLENV;
             if(instrument->env_flags & ENVFLAG_A)
