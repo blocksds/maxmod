@@ -289,6 +289,7 @@ typedef struct t_mmsoundcnt_ds
 //-----------------------------------------------------------------------------
 */
 
+/*
 typedef struct t_mmlayer
 {
 
@@ -317,8 +318,9 @@ typedef struct t_mmlayer
 	mm_byte	bpm;
 
 //-----------------------------------------------------------------------------
-} mm_modlayer; // TODO: Remove this. mpl_layer_information is more complete
+} mm_modlayer; // mpl_layer_information is more complete
 //-----------------------------------------------------------------------------
+*/
 
 typedef struct tmm_voice
 {

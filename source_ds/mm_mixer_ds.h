@@ -6,7 +6,7 @@
 #ifndef MM_MIXER_DS_H
 #define MM_MIXER_DS_H
 
-#include "mp_mixer_ds.h"
+#include "mm_channel_types.h"
 
 extern mm_mixer_channel mm_mix_channels[];
 

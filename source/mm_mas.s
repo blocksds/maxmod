@@ -387,6 +387,7 @@ mppProcessTick:					@@      @@@ @    @@
 	bne	.mpp_pt_skippatternread
 	
 	PROF_START
+	mov r0,r8
 	fjump2 mmReadPattern
 	//bl	mpp_ReadPattern
 	PROF_END 4
@@ -416,7 +417,10 @@ pchannel_loop_first:
 @---------------------------------------------------	
 	lsr	r4, #1
 	bcc	pchannel_empty
-	fjump2	mmUpdateChannel_T0
+	mov r0,r7
+	mov r1,r8
+	mov r2,r10
+	fjump3	mmUpdateChannel_T0
 pchannel_empty:
 	mov	r0, #1
 	add	r10, r0
@@ -433,6 +437,8 @@ pchannel_loop_other:
 	#ifdef FOO_UC
 	bl	mpp_Update_Channel
 	#else
+	mov r0,r7
+	mov r1,r8
 	fjump2	mmUpdateChannel_TN
 	#endif
 	
@@ -650,15 +656,20 @@ mppProcessTick_incframe:
  * mpp_Channel_NewNote()
  *
  * Process new note.
- * Input r7 = pchannel address
+ * Input r0 = pchannel address
+ * Input r1 = layer information address
  ******************************************************************************/
 						.global mpp_Channel_NewNote
 						.thumb_func
 mpp_Channel_NewNote:
 	
-	@ r7 = pchannel address
-	push	{r4,lr}
-
+	@ r0 = pchannel address
+	push {lr}
+	push {r4,r6-r7}
+	mov r7, r8
+	push {r7}
+    mov r7, r0
+    mov r8, r1
 	ldrb	r0, [r7, #MCH_INST]		@ get instrument#
 	sub	r0, #1
 	bcc	.mppt_skipnna
@@ -838,7 +849,9 @@ b	.mppt_NNA_FADE
 .mppt_samechannel:
 	
 .mppt_skipnna:
-	pop	{r4}
+    pop {r7}
+    mov r8, r7
+	pop	{r4,r6-r7}
 	pop	{r3}
 	bx	r3
 	
@@ -867,6 +880,26 @@ mpp_Channel_GetACHN:
 1:	mov	r6, #0
 	bx	lr
 .pool
+
+.align 2
+					.global mpp_Update_ACHN_notest_Wrapper
+					.thumb_func
+mpp_Update_ACHN_notest_Wrapper:
+    push {r4-r7,lr}
+    mov r7, r8
+    push {r7}
+    mov r8, r0
+    mov r6, r1
+    mov r7, r2
+    mov r5, r3
+	ldrb r4, [r7, #MCH_ALLOC]
+    bl mpp_Update_ACHN_notest
+    mov r0, r5
+    pop {r7}
+    mov r8, r7
+    pop {r4-r7}
+    pop {r1}
+    bx r1
 
 .align 2
 .thumb_func
@@ -1805,8 +1838,23 @@ mpp_Channel_ExchangeGxx:
  * Volume Commands
  *
  ******************************************************************************/
-
-
+					.global mpp_Process_VolumeCommand_Wrapper
+					.thumb_func
+mpp_Process_VolumeCommand_Wrapper:
+    push {r5-r7,lr}
+    mov r7, r8
+    push {r7}
+    mov r8, r0
+    mov r6, r1
+    mov r7, r2
+    mov r5, r3 
+    bl mpp_Process_VolumeCommand
+    mov r0, r5
+    pop {r7}
+    mov r8, r7
+    pop {r5-r7}
+    pop {r1}
+    bx r1
 
 /******************************************************************************
  * mpp_Process_VolumeCommand()
@@ -2255,6 +2303,7 @@ vcmd_glissando_table:
 2:	ldrb	r0, [r7, r1]
 	mov	r1, r0
 	
+	push {r1,lr}
 	b	.mppe_glis_backdoor
 	
 1:	bx	lr
@@ -2266,8 +2315,23 @@ vcmd_glissando_table:
  * Module Effects
  *
  ******************************************************************************/
-
-
+					.global mpp_Process_Effect_Wrapper
+					.thumb_func
+mpp_Process_Effect_Wrapper:
+    push {r5-r7,lr}
+    mov r7, r8
+    push {r7}
+    mov r8, r0
+    mov r6, r1
+    mov r7, r2
+    mov r5, r3 
+    bl mpp_Process_Effect
+    mov r0, r5
+    pop {r7}
+    mov r8, r7
+    pop {r5-r7}
+    pop {r1}
+    bx r1
 
 /******************************************************************************
  * mpp_ProcessEffect()
@@ -2501,9 +2565,9 @@ mppe_Glissando:					@ EFFECT Gxy: Glissando
 
 	ldrb	r1, [r7, #MCH_MEMORY+MPP_GLIS_MEM]
 
-.mppe_glis_backdoor:
-
 	push	{r1}
+
+.mppe_glis_backdoor:
 	
 	cmp	r6, #0					// exit if no active channel
 	bne	1f					//
@@ -2517,6 +2581,7 @@ mppe_Glissando:					@ EFFECT Gxy: Glissando
 	ldrh	r1, [r0, #C_MASS_FREQ]			//
 	LSL	R1, #2					//
 	ldrb	r2, [r7, #MCH_NOTE]			//
+	mov r0,r8
 	ldr	r3,=mmGetPeriod				//
 	bl	mpp_call_r3				//
 	
@@ -3650,6 +3715,7 @@ mpph_FastForward:
 	bge	.mpph_ff_exitf
 	strb	r1, [r0, #MPL_ROW]
 	push	{r7,lr}
+	mov r0,r8
 	ldr	r7,=mmReadPattern //mpp_ReadPattern
 .mpph_ff_loop:
 	push	{r1,r7}

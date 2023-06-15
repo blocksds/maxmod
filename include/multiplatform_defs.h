@@ -5,7 +5,7 @@
 #ifndef MULTIPLATFORM_DEFS__
 #define MULTIPLATFORM_DEFS__
 
-#include "mm_types.h"
+#include <mm_types.h>
 
 #ifdef SYS_NDS
 

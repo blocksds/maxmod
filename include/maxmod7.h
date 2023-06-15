@@ -303,7 +303,7 @@ void mmEffectScaleRate( mm_sfxhand handle, mm_word factor );
  * handle : Sound effect handle.
  *****************************************************************/
 
-void mmEffectCancel( mm_sfxhand handle );
+mm_word mmEffectCancel( mm_sfxhand handle );
 
 /*****************************************************************
  * mmEffectRelease( mm_sfxhand handle )
@@ -488,7 +488,6 @@ void mmReverbDisable( void );
 // misc definitions / references
 //=======================================================================================
 
-// TODO: Remove this
 // main/sub layer attributes
 //extern mm_modlayer mmLayerMain;
 //extern mm_modlayer mmLayerSub;
