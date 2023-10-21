@@ -381,6 +381,7 @@ void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
     }
 
     // using 60hz vsync for timing
+    // Should this be better approximated?!
     layer_info->tickrate = (bpm / mpp_resolution) >> 1;
 #endif
 }

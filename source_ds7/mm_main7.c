@@ -29,14 +29,10 @@
 #include "mm_mixer_super.h"
 #endif
 
-#define NUM_CHANNELS 32
-#define NUM_PHYS_CHANNELS 16
-
 #define INITIALIZED_VALUE 42
 #define BASE_VOLUME 0x400
 #define BASE_TEMPO 0x400
 #define BASE_PITCH 0x400
-#define ALL_PHYS_CHANNELS_UNLOCK ((1<<NUM_PHYS_CHANNELS)-1)
 
 mm_module_channel mm_rds_pchannels[NUM_CHANNELS];
 mm_active_channel mm_rds_achannels[NUM_CHANNELS];
@@ -59,18 +55,30 @@ ALWAYS_INLINE void mmInitialize(mm_bool do_initialize) {
 }
 
 // Unlock audio channels so they can be used by the sequencer.
+// Does not prevent this from working for MM_MODE_B.
+void mmUnlockChannelsQuick(mm_word mask) {
+    mm_ch_mask |= mask;
+}
+
+// Unlock audio channels so they can be used by the sequencer.
 void mmUnlockChannels(mm_word mask) {
 #ifdef SYS_NDS
     // Can NOT unlock channels in mode b
-    if(mm_mixing_mode == 1)
+    if(mm_mixing_mode == MM_MODE_B)
         return;
 #endif
-    mm_ch_mask |= mask;
+    mmUnlockChannelsQuick(mask);
+}
+
+// Lock audio channels to prevent the sequencer from using them.
+// Does not Stop the channels themselves.
+void mmLockChannelsQuick(mm_word mask) {
+    mm_ch_mask &= ~mask;
 }
 
 // Lock audio channels to prevent the sequencer from using them.
 void mmLockChannels(mm_word mask) {
-    mm_ch_mask &= ~mask;
+    mmLockChannelsQuick(mask);
 
     // It stops them, even if they were already locked
     for(int i = 0; i < NUM_CHANNELS; i++)
@@ -147,7 +155,7 @@ static void mmInit7(void) {
     
     mmInitialize(1);
     
-    mmUnlockChannels(ALL_PHYS_CHANNELS_UNLOCK);
+    mmUnlockChannels(ALL_PHYS_CHANNELS_MASK);
     
     // Setup channel addresses
     mm_achannels = mm_rds_achannels;
