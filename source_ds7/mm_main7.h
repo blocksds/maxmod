@@ -8,6 +8,13 @@
 
 #include "mm_types.h"
 
+void mmLockChannelsQuick(mm_word);
+void mmUnlockChannelsQuick(mm_word);
 void mmGetSoundBank(mm_word, mm_addr);
+
+#define NUM_CHANNELS 32
+#define NUM_PHYS_CHANNELS 16
+#define ALL_PHYS_CHANNELS_MASK ((1<<NUM_PHYS_CHANNELS)-1)
+#define ALL_SOFT_CHANNELS_MASK (~ALL_PHYS_CHANNELS_MASK)
 
 #endif

@@ -201,53 +201,6 @@ mm_schannels:		.space MP_SCHANNELS*MCH_SIZE
 
 	.text
 	.align 2
-#ifdef SYS_NDS
-
-/******************************************************************************
- * mm_reset_channels()
- *
- * Reset all channels.
- ******************************************************************************/
-						.global mm_reset_channels
-						.thumb_func
-mm_reset_channels:
-
-	push	{lr}
-	
-	ldr	r0,=mm_achannels		// clear active channel data
-	ldr	r0, [r0]			//
-	movs	r1, #0				//
-	ldr	r2,=MCA_SIZE*32/4		//
-						//
-1:	stmia	r0!, {r1}			//
-	subs	r2, #1				//
-	bne	1b				//
-	
-	ldr	r0,=mm_pchannels		// reset channel allocation
-	ldr	r0, [r0]			//
-	movs	r1, #255			//
-	movs	r2, #32				//
-						//
-1:	strb	r1, [r0, #MCH_ALLOC]		//
-	adds	r0, #MCH_SIZE			//
-	subs	r2, #1				//
-	bne	1b				//
-	
-	ldr	r0,=mm_schannels		// reset channel allocation
-	movs	r2, #4				//
-						//
-1:	strb	r1, [r0, #MCH_ALLOC]		//
-	adds	r0, #MCH_SIZE			//
-	subs	r2, #1				//
-	bne	1b				//
-	
-	bl	mmResetEffects
-	
-	pop	{r3}
-	bx	r3
-	
-#endif
-
 //-----------------------------------------------------------------------------
 #ifdef SYS_NDS
 //-----------------------------------------------------------------------------
