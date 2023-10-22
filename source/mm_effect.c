@@ -254,7 +254,9 @@ got_handle:
 
         if (source == 0)
         {
-            mx_ch->samp_cnt = 0;
+            mx_ch->key_on = 0;
+            mx_ch->samp = 0;
+            mx_ch->tpan = 0;
             return 0;
         }
 
@@ -262,7 +264,8 @@ got_handle:
         source += 0x2000000;
     }
 
-    mx_ch->samp_cnt = source;
+    mx_ch->key_on = 0;
+    mx_ch->samp = source;
 
     // Set pitch to original * pitch
     mm_word dfreq = *(mm_hword *)(source + C_SAMPLEC_DFREQ);
@@ -272,9 +275,8 @@ got_handle:
     mx_ch->read = 0;
 
     // Set panning + startbit
-    mm_word panning = (sound->panning >> 1) + 0x80;
-    mx_ch->samp_cnt &= 0xFFFFFF;
-    mx_ch->samp_cnt |= panning << 24;
+    mx_ch->tpan = sound->panning >> 1;
+    mx_ch->key_on = 1;
 
     // Set volume
     mx_ch->vol = (sound->volume * mm_sfx_mastervolume) >> 2;
@@ -450,7 +452,7 @@ void mmUpdateEffects(void)
         if ((mx_ch->src & (1u << 31)) == 0)
             continue;
 #elif defined(SYS_NDS)
-        if ((mx_ch->samp_cnt & 0xFFFFFF) != 0)
+        if (mx_ch->samp)
             continue;
 #endif
 

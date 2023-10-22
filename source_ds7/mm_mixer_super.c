@@ -12,9 +12,11 @@
 #include "mm_main7.h"
 #include "mm_mixer_super.h"
 #include "mm_mixer_ds.h"
+#include "mm_mixer.h"
 #include "mm_mas.h"
 #include "mm_effect.h"
 #include "mp_defs.h"
+#include "mp_format_mas.h"
 #include "multiplatform_defs.h"
 
 #define SWM_CHANNEL_1 6
@@ -75,7 +77,7 @@ static void mm_reset_channels(void)
 
 static void mm_startup_wait(void)
 {
-	//delay 12 samples (pcm startup time + extra)
+    //delay 12 samples (pcm startup time + extra)
     volatile int val = 1024 * (16 / 4);
     while(val--);
 }
@@ -188,6 +190,65 @@ void mmMixerInit(void)
     mmSelectMode(MM_MODE_A);
 }
 
+// Set channel source
+void mmMixerSetSource(int channel, mm_word p_sample)
+{
+    mm_mix_channels[channel].samp = p_sample;
+    //mm_mix_channels[channel].tpan = (p_sample >> 24) - 2;
+    mm_mix_channels[channel].key_on = 1;
+}
+
+// Set channel volume
+void mmMixerSetVolume(int channel, mm_word volume)
+{
+    mm_mix_channels[channel].cvol = volume;
+}
+
+// Set channel panning
+void mmMixerSetPan(int channel, mm_byte panning)
+{
+    mm_mix_channels[channel].tpan = panning;
+}
+
+// Set channel frequency
+// Rate is 3.10 fixed point (value of 2048 will raise original pitch by 1 octave)
+void mmMixerSetFreq(int channel, mm_word rate)
+{
+    mm_hword dfreq = *((mm_hword*)(mm_mix_channels[channel].samp + 0x2000000 + C_SAMPLEC_DFREQ));
+    mm_word freq = ROUND_CLOSEST(dfreq * rate, 1024);
+
+    if(freq >= 0x1FFF)
+        freq = 0x1FFF;
+
+    mm_mix_channels[channel].freq = freq;
+}
+
+// Multiply channel frequency by a value
+void mmMixerMulFreq(int channel, mm_word factor)
+{
+    mm_word freq = ROUND_CLOSEST(mm_mix_channels[channel].freq * factor, 1024);
+
+    if(freq >= 0x1FFF)
+        freq = 0x1FFF;
+
+    mm_mix_channels[channel].freq = freq;
+}
+
+// Stop mixing channel
+void mmMixerStopChannel(int channel)
+{
+    mm_mix_channels[channel].key_on = 0;
+    mm_mix_channels[channel].samp = 0;
+    mm_mix_channels[channel].tpan = 0;
+}
+
+// Test active status of channel
+// returns nonzero if active
+mm_word mmMixerChannelActive(int channel)
+{
+    return mm_mix_channels[channel].samp;
+}
+
 // Select audio mode
 void mmSelectMode(mm_mode_enum mode)
 {
@@ -195,9 +256,8 @@ void mmSelectMode(mm_mode_enum mode)
     REG_IME = IME_DISABLE;
 
     // reset mixer channels
-    mm_mixer_channel *mix_ch = &mm_mix_channels[0];
     for(size_t i = 0; i < NUM_CHANNELS; i++)
-        mix_ch[i].samp_cnt = 0;
+        mmMixerStopChannel(i);
 
     ClearAllChannels();
 

@@ -27,6 +27,10 @@
 void mpp_setbpm(mpl_layer_information*, mm_word);
 void mpp_setposition(mpl_layer_information*, mm_word);
 
+#ifdef SYS_NDS
+static void mppUpdateLayer(mpl_layer_information*);
+#endif
+
 mm_word mpp_resolution;
 
 // Suspend main module and associated channels.
@@ -196,7 +200,7 @@ static void mpp_resetchannels(mpl_layer_information* UNUSED(layer_info),
 
         // Disabled mixer channel. Disabled status differs between systems.
 #ifdef SYS_NDS
-        mix_ch->samp_cnt = 1U << 31;
+        mix_ch->key_on = 1;
 #endif
 #ifdef SYS_GBA
         mix_ch->src = 0;
@@ -551,3 +555,35 @@ void mppUpdateSub(void)
 }
 
 #endif
+
+#ifdef SYS_NDS
+
+// Update module layer
+static void mppUpdateLayer(mpl_layer_information* layer)
+{
+    mpp_layerp = layer;
+    mm_word new_tick = (layer->tickrate * 2) + layer->tickfrac; 
+    layer->tickfrac = new_tick;
+    
+    for(mm_word i = 0; i < (new_tick >> 16); i++)
+        mppProcessTick();
+}
+
+// NDS Work Routine
+void mmPulse(void)
+{
+    // Update main layer
+    mpp_channels = mm_pchannels;
+    mpp_nchannels = mm_num_mch;
+    mpp_clayer = 0;
+    mppUpdateLayer(&mmLayerMain);
+
+    // Update sub layer
+    mpp_channels = mm_schannels;
+    mpp_nchannels = MP_SCHANNELS;
+    mpp_clayer = 1;
+    mppUpdateLayer(&mmLayerSub);
+}
+
+#endif
+
