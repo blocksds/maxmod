@@ -191,7 +191,9 @@ static void mpp_resetchannels(mpl_layer_information *layer_info,
 
         // Disabled mixer channel. Disabled status differs between systems.
 #ifdef SYS_NDS
-        mix_ch->samp_cnt = 1U << 31;
+        mix_ch->key_on = 1;
+        mix_ch->samp = 0;
+        mix_ch->tpan = 0;
 #endif
 #ifdef SYS_GBA
         mix_ch->src = 0;

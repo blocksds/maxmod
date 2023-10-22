@@ -180,7 +180,11 @@ void mmSelectMode(mm_mode_enum mode)
     // reset mixer channels
     mm_mixer_channel *mix_ch = &mm_mix_channels[0];
     for (size_t i = 0; i < NUM_CHANNELS; i++)
-        mix_ch[i].samp_cnt = 0;
+    {
+        mix_ch[i].key_on = 0;
+        mix_ch[i].samp = 0;
+        mix_ch[i].tpan = 0;
+    }
 
     ClearAllChannels();
 

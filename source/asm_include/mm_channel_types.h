@@ -68,13 +68,15 @@ static_assert(sizeof(mm_active_channel) == 28);
 #ifdef SYS_NDS
 
 typedef struct {
-    mm_word     samp_cnt;   // 0:23  mainram address
-                            // 24:31 LSBs = target panning 0..127, MSB = key-on
-    mm_hword    freq;       // unsigned 3.10, top 3 cleared
-    mm_hword    vol;        // target volume   0..65535
-    mm_word     read;       // unsigned 22.10
-    mm_hword    cvol;       // current volume  0..65535
-    mm_hword    cpan;       // current panning 0..65535
+    mm_word     samp   : 24;    // 0:23  mainram address
+    mm_word     tpan   : 7;     // 24:30 = target panning
+    mm_word     key_on : 1;     // 31 = key-on
+
+    mm_hword    freq;           // unsigned 3.10, top 3 cleared
+    mm_hword    vol;            // target volume   0..65535
+    mm_word     read;           // unsigned 22.10
+    mm_hword    cvol;           // current volume  0..65535
+    mm_hword    cpan;           // current panning 0..65535
 } mm_mixer_channel;
 
 static_assert(sizeof(mm_mixer_channel) == 16);

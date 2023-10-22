@@ -127,7 +127,9 @@ static void StopActiveChannel(mm_word index)
     mix_ch->src = -1;
 #endif
 #ifdef SYS_NDS
-    mix_ch->samp_cnt = 0;
+    mix_ch->key_on = 0;
+    mix_ch->samp = 0;
+    mix_ch->tpan = 0;
     mix_ch->vol = 0;
     mix_ch->cvol = 0;
 #endif
