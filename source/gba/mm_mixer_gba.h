@@ -47,6 +47,7 @@ extern mm_word mm_bpmdv;
 
 
 void mmMixerInit(mm_gba_system* setup);
+void mmMixerMix(mm_word samples_count);
 void mmMixerSetRead(int channel, mm_word value);
 
 #endif // MM_MIXER_GBA_H
