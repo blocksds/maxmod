@@ -10,7 +10,7 @@
 #include <stddef.h>
 
 void mmFlushBank(void) {
-    FlushDataSize(mmMemoryBank, mmModuleCount + mmSampleCount);
+    FlushDataSize(mmMemoryBank, (mmModuleCount + mmSampleCount) * 4);
 }
 
 // Flush address for size bytes
@@ -31,7 +31,7 @@ ARM_TARGET void FlushDataSize(mm_addr address, size_t size) {
     
     // Clean the various 32 bytes-aligned slates
     // Until all bytes are flushed
-    for(size_t i = 0; i < (size + 32 - 1) / 32; i++)
+    for(size_t i = 0; i < ((size + 32 - 1) / 32); i++)
         CP15_CleanAndFlushDCacheEntry((addr & (~31)) + ((i + 1) * 32));
 }
 
