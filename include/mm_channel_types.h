@@ -82,7 +82,7 @@ static_assert(sizeof(mm_active_channel) == 28);
 
 typedef struct {
     mm_word     samp : 24;  // 0:23  mainram address
-    mm_word     tpan : 7;       // 24:31 = target panning
+    mm_word     tpan : 7;       // 24:30 = target panning
     mm_word     key_on : 1;     // 31 = key-on
     mm_hword    freq;           // unsigned 3.10, top 3 cleared
     mm_hword    vol;            // target volume   0..65535
