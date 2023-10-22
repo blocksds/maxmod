@@ -189,6 +189,7 @@ extern mm_module_channel mm_schannels[]; // [MP_SCHANNELS]
 extern mm_word IT_PitchTable[];
 extern mm_hword ST3_FREQTABLE[];
 
+void mmSetResolution(mm_word);
 void mmPulse(void);
 void mppUpdateSub(void);
 void mppProcessTick(void); // TODO: Mark this as IWRAM in GBA?

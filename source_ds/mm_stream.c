@@ -350,7 +350,7 @@ static void StreamExecuteUpdate(mm_word stream_position) {
     }
     
     #ifdef SYS_NDS9
-    FlushDataSize(mmsData.wave_memory, mmsData.length_words);
+    FlushDataSize(mmsData.wave_memory, mmsData.length_words * 4);
     #endif
 }
 
