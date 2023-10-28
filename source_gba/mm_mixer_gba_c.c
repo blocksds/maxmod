@@ -145,6 +145,8 @@ void mmMixerInit(mm_gba_system *setup)
 
     mm_wavebuffer = (uintptr_t)setup->wave_memory;
 
+    mp_writepos = mm_wavebuffer;
+
     mm_word mode = setup->mixing_mode;
 
     // round(rate / 59.737)
