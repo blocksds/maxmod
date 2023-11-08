@@ -31,18 +31,18 @@
 #define MIX_TIMER_194_8125_HZ_DIV TIMER_DIV_256
 
 // Get the value closest to -((BUS_CLOCK / frequency) / hz), where hz can be a non-integer value
-#define MIX_TIMER_SET_VALUE(x, divisor, frequency) (-ROUND_CLOSEST(BUS_CLOCK, ROUND_CLOSEST(x * frequency, divisor)))
+#define MIX_TIMER_SET_VALUE(x, divisor, frequency) (-ROUND_CLOSEST(BUS_CLOCK, ROUND_CLOSEST((x) * (frequency), divisor)))
 #define MIX_TIMER_SET_256_HZ_VALUE(x, divisor) MIX_TIMER_SET_VALUE(x, divisor, MIX_TIMER_256_HZ_FREQ)
 #define MIX_TIMER_SET_194_8125_HZ_VALUE(x, divisor) MIX_TIMER_SET_VALUE(x, divisor, MIX_TIMER_194_8125_HZ_FREQ)
 
 // Get the sound timer value closest to the effective frequency of the previously calculated timer -((BUS_CLOCK / 2) / (real_freq * num_samples))
 // num_samples is the amount of samples per "regular timer" call.
-#define MIX_SOUND_TIMER_SET_VALUE(timer_value, frequency, num_samples) (-ROUND_CLOSEST(BUS_CLOCK, ROUND_CLOSEST(((int64_t)BUS_CLOCK) * 2 * num_samples, timer_value * frequency)))
+#define MIX_SOUND_TIMER_SET_VALUE(timer_value, frequency, num_samples) (-ROUND_CLOSEST(BUS_CLOCK, ROUND_CLOSEST(((int64_t)BUS_CLOCK) * 2 * (num_samples), (timer_value) * (frequency))))
 #define MIX_SOUND_TIMER_SET_256_HZ_VALUE(x, divisor, num_samples) MIX_SOUND_TIMER_SET_VALUE(-MIX_TIMER_SET_256_HZ_VALUE(x, divisor), MIX_TIMER_256_HZ_FREQ, num_samples)
 #define MIX_SOUND_TIMER_SET_194_8125_HZ_VALUE(x, divisor, num_samples) MIX_SOUND_TIMER_SET_VALUE(-MIX_TIMER_SET_194_8125_HZ_VALUE(x, divisor), MIX_TIMER_194_8125_HZ_FREQ, num_samples)
 
 // Get the resolution closest to the effective frequency of the previously calculated timer (BUS_CLOCK * 2.5 * 64) / real_freq
-#define RESOLUTION_VALUE(timer_value, frequency) (ROUND_CLOSEST(((int64_t)BUS_CLOCK) * 5 * (64 / 2), timer_value * frequency))
+#define RESOLUTION_VALUE(timer_value, frequency) (ROUND_CLOSEST(((int64_t)BUS_CLOCK) * 5 * (64 / 2), (timer_value) * (frequency)))
 #define RESOLUTION_256_HZ_VALUE(x, divisor) RESOLUTION_VALUE(-MIX_TIMER_SET_256_HZ_VALUE(x, divisor), MIX_TIMER_256_HZ_FREQ)
 #define RESOLUTION_194_8125_HZ_VALUE(x, divisor) RESOLUTION_VALUE(-MIX_TIMER_SET_194_8125_HZ_VALUE(x, divisor), MIX_TIMER_194_8125_HZ_FREQ)
 
