@@ -18,6 +18,10 @@
 #ifndef MM_TYPES_H
 #define MM_TYPES_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef unsigned int	mm_word;	// 32 bits
 typedef unsigned short	mm_hword;	// 16 bits
 typedef unsigned char	mm_byte;	// 8 bits
@@ -317,4 +321,8 @@ enum {
 
 //-----------------------------------------------------------------------------
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // MM_TYPES_H

@@ -16,11 +16,11 @@
 #ifndef MAXMOD_H
 #define MAXMOD_H
 
-#include <mm_types.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include <mm_types.h>
 
 // precalculated mix buffer lengths (in bytes)
 #define MM_MIXLEN_8KHZ		544		// (8121 hz)
@@ -370,11 +370,6 @@ void mmSetEffectsVolume( mm_word volume );
 void mmEffectCancelAll();
 
 
-
-#ifdef __cplusplus
-}
-#endif
-
 /****************************************************************************
  * Playback events
  ****************************************************************************/
@@ -400,4 +395,9 @@ void mmEffectCancelAll();
 extern mm_byte	mp_mix_seg;			// current mixing segment
 extern mm_word	mp_writepos;		// mixer's write position
 
+
+#ifdef __cplusplus
+}
 #endif
+
+#endif // MAXMOD_H

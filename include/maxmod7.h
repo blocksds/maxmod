@@ -17,19 +17,14 @@
 #error "maxmod7.h is for ARM7!"
 #endif
 
-//----------------------------------------------------------------
 #ifndef MAXMOD_H
-//----------------------------------------------------------------
-
 #define MAXMOD_H
 
-#include <mm_types.h>
-
-//----------------------------------------------------------------
 #ifdef __cplusplus
 extern "C" {
 #endif
-//----------------------------------------------------------------
+
+#include <mm_types.h>
 
 /*****************************************************************
  * mmInstall( channel )
@@ -438,13 +433,6 @@ static inline mm_word mmReverbBufferSize( mm_word bit_depth, mm_word sampling_ra
 void mmReverbDisable( void );
 
 
-
-//----------------------------------------------------------------
-#ifdef __cplusplus
-}
-#endif
-//----------------------------------------------------------------
-
 /*****************************************************************
  * Playback events
  *****************************************************************/
@@ -471,4 +459,8 @@ void mmReverbDisable( void );
 extern mm_modlayer mmLayerMain;
 extern mm_modlayer mmLayerSub;
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // MAXMOD_H

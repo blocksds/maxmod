@@ -18,6 +18,10 @@
 #ifndef MM_MAS_H
 #define MM_MAS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define _____badbear_____
 
 #include "mm_types.h"
@@ -160,5 +164,9 @@ typedef struct tmm_mas_ds_sample
 
 #define MM_SREPEAT_FORWARD	1
 #define MM_SREPEAT_OFF		2
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

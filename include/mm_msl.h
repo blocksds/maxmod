@@ -18,6 +18,10 @@
 #ifndef MM_MSL_H
 #define MM_MSL_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "mm_types.h"
 
 typedef struct tmslhead
@@ -29,5 +33,8 @@ typedef struct tmslhead
 	mm_addr		moduleTable[MSL_NSONGS];
 } msl_head;
 
+#ifdef __cplusplus
+}
 #endif
 
+#endif // MM_MSL_H
