@@ -184,10 +184,10 @@ With these examples combined with the ones above, white noise should be produced
 through the speakers. Note that when using automatic filling you should always
 output the full 'length' amount unless you really know what you are doing.
 
-Another note: the callback will only be called with length being a multiple of
-4. **The amount that you output must also be a multiple of 4** (zero is okay, to
-skip the update), the internal routines are optimized with this in mind and they
-do not handle situations where the callback returns an amount that is not a
+Another note: The callback will only be called with a length that is a multiple
+of 4. **The amount that you output must also be a multiple of 4** (zero is okay,
+to skip the update), the internal routines are optimized with this in mind and
+they do not handle situations where the callback returns an amount that is not a
 multiple of 4.
 
 ## Manual Filling
