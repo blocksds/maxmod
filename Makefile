@@ -28,7 +28,7 @@ endif
 # Targets
 # -------
 
-.PHONY: all clean ds7 ds9 gba install
+.PHONY: all clean docs ds7 ds9 gba install
 
 all: gba ds7 ds9 ds
 
@@ -58,3 +58,7 @@ install: ds
 	$(V)$(RM) $(INSTALLDIR_ABS)
 	$(V)$(INSTALL) -d $(INSTALLDIR_ABS)
 	$(V)$(CP) -r include lib COPYING $(INSTALLDIR_ABS)
+
+docs:
+	@echo "  DOXYGEN"
+	doxygen Doxyfile
