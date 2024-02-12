@@ -231,7 +231,7 @@ void mmPosition( mm_word position );
 /// Set playback position (alias for mmPosition()).
 ///
 /// @param position New position in module sequence.
-inline void mmSetPosition( mm_word position )
+static inline void mmSetPosition( mm_word position )
 {
     mmPosition( position );
 }
