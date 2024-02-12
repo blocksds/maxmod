@@ -236,9 +236,9 @@ typedef struct t_mmsoundeffect
 /// will place any global variables in IWRAM. The size of this buffer depeds on
 /// the mixing rate selected.
 ///
-/// Check the MM_MIXLEN_*** definitions. These definitions contain the size of
-/// the mixing buffer in bytes. If you're using 16KHz mixing rate, your mixing
-/// buffer should be defined like this (as a global array):
+/// Check the mm_mixlen_enum values. These values contain the size of the mixing
+/// buffer in bytes. If you're using 16KHz mixing rate, your mixing buffer
+/// should be defined like this (as a global array):
 ///
 /// ```c
 /// u8 my_mixing_buffer[ MM_MIXEN_16KHZ ] __attribute__((aligned(4)));

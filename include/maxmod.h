@@ -31,18 +31,19 @@ extern "C" {
 /// @{
 // ***************************************************************************
 
-// TODO
-// Precalculated mix buffer lengths (in bytes)
-#define MM_MIXLEN_8KHZ		544		// (8121 hz)
-#define MM_MIXLEN_10KHZ		704		// (10512 hz)
-#define MM_MIXLEN_13KHZ		896		// (13379 hz)
-#define MM_MIXLEN_16KHZ		1056	// (15768 hz)
-#define MM_MIXLEN_18KHZ 	1216	// (18157 hz)
-#define MM_MIXLEN_21KHZ 	1408	// (21024 hz)
-#define MM_MIXLEN_27KHZ		1792	// (26758 hz)
-#define MM_MIXLEN_31KHZ		2112	// (31536 hz)
+/// Precalculated mix buffer lengths (in bytes)
+typedef enum
+{
+	 MM_MIXLEN_8KHZ  = 544  ///< (8121 hz)
+	 MM_MIXLEN_10KHZ = 704  ///< (10512 hz)
+	 MM_MIXLEN_13KHZ = 896  ///< (13379 hz)
+	 MM_MIXLEN_16KHZ = 1056 ///< (15768 hz)
+	 MM_MIXLEN_18KHZ = 1216 ///< (18157 hz)
+	 MM_MIXLEN_21KHZ = 1408 ///< (21024 hz)
+	 MM_MIXLEN_27KHZ = 1792 ///< (26758 hz)
+	 MM_MIXLEN_31KHZ = 2112 ///< (31536 hz)
+} mm_mixlen_enum;
 
-// measurements of channel types (bytes)
 /// Size of mod channel (bytes)
 #define MM_SIZEOF_MODCH		40
 /// Size of act channel (bytes)
