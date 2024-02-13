@@ -23,11 +23,13 @@ used. Hard panned channels will mix faster than center/other panning positions.
 
 Base Usage: ~2.6% CPU usage
 
+<center>
 Channel Panning | CPU Per Active Channel
 ----------------|-----------------------
 Hard-Left/Right | ~1.23%
 Center          | ~1.29%
 Arbitrary       | ~1.49%
+</center>
 
 Another process that adds to the CPU load is module playback. This can
 effectively round up the CPU usage per channel to ~2%. Notice in the above graph
