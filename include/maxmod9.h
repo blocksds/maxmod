@@ -351,8 +351,7 @@ void mmEffectScaleRate( mm_sfxhand handle, mm_word factor );
 /// Stops a sound effect. The handle will be invalidated.
 ///
 /// @param handle Sound effect handle received from mmEffect() or mmEffectEx().
-/// @return       Non-zero if the sound was found and stopped, zero on error.
-mm_word mmEffectCancel( mm_sfxhand handle );
+void mmEffectCancel( mm_sfxhand handle );
 
 /// Marks a sound effect as unimportant.
 ///
