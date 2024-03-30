@@ -374,7 +374,7 @@ mm_sfxhand mmEffectExt( mm_sound_effect* sound, mm_ds_sample* sample );
 void mmSetEffectsVolume( mm_word volume );
 
 /// Stop all sound effects and reset the effect system.
-void mmEffectCancelAll();
+void mmEffectCancelAll( void );
 
 // ***************************************************************************
 /// @}
@@ -410,7 +410,7 @@ void mmStreamClose( void );
 ///
 /// The 32-bit value will wrap every 36 hours or so (at 32khz).
 /// @return The nummber of samples.
-mm_word mmStreamGetPosition(void);
+mm_word mmStreamGetPosition( void );
 
 // ***************************************************************************
 /// @}
