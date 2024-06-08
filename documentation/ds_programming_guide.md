@@ -1,20 +1,15 @@
 # DS Programming Guide
 
 Here is a guide to step through the basics of installation/usage in a DS
-project. This tutorial will assume that you are using the default ARM7 program
-from devkitPro along with the default ARM9 template.
+project. This tutorial will assume that you are using one of the templates of
+BlocksDS.
 
 ## Linking
 
-This is probably the hardest part of this tutorial (but it's still very simple).
-
 Firstly, **libmm9** must be added to your library references. Add **-lmm9** to
-the **LIBS** in your makefile.
+the **LIBS** in your makefile like this:
 
 ```make
-#---------------------------------------------------------------------------------
-# any extra libraries we wish to link with the project
-#---------------------------------------------------------------------------------
 LIBS    := -lmm9 -lnds9
 ```
 
@@ -22,64 +17,25 @@ Next, you need to tell the makefile to make a soundbank file for you. What is a
 soundbank file? It's a file that contains all the samples and modules for your
 project!
 
-Add a new directory to your project; I'll call it "audio". Add a variable to the
-directory section of the makefile.
+Add a new directory to your project; I'll call it "audio". Then, set the
+variable `AUDIODIR` to point to that folder:
 
 ```make
-#---------------------------------------------------------------------------------
-# TARGET is the name of the output
-# BUILD is the directory where object files & intermediate files will be placed
-# SOURCES is a list of directories containing source code
-# INCLUDES is a list of directories containing extra header files
-# AUDIO is a list of directories containing sound and music files
-#---------------------------------------------------------------------------------
-TARGET   :=  $(shell basename $(CURDIR))
-BUILD    :=  build
-SOURCES  :=  gfx source data
-INCLUDES :=  include build
-AUDIO    :=  audio
+AUDIODIRS :=  audio
 ```
 
-Next, you need to build a list of the files in the audio directory. Also add
-the soundbank output file to your binary file list.
+The Makefile will look for all `.mod`, `.s3m`, `.xm`, `.it` and `.wav` files in
+that folder and generate a soundbank from it.
 
-```make
-CFILES    :=  $(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
-CPPFILES  :=  $(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
-SFILES    :=  $(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
-BINFILES  :=  $(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.bin))) soundbank.bin
+If you're using NitroFS in your project, the soundbank will be stored in the
+NitroFS filesystem. If not, it will be added to the ARM9 binary as data, and it
+will be available in memory from the start.
 
-# build audio file list, include full path
-export AUDIOFILES := $(foreach dir,$(notdir $(wildcard $(AUDIO)/*.*)),$(CURDIR)/$(AUDIO)/$(dir))
-```
-
-Finally, you need a rule to make the soundbank file with the *Maxmod Utility*.
-Scroll down to the bottom somewhere and add something like this. You also need a
-rule to convert the output binary so it can be linked in.
-
-```make
-#-------------------------------------------------------------
-# rule for converting the output into an object file
-#-------------------------------------------------------------
-%.bin.o: %.bin
-#-------------------------------------------------------------
-	@$(bin2o)
-
-#-------------------------------------------------------------
-# rule for generating soundbank file from audio files
-#-------------------------------------------------------------
-soundbank.bin: $(AUDIOFILES)
-#-------------------------------------------------------------
-	@mmutil $^ -osoundbank.bin -hsoundbank.h -d
-```
-
-Don't forget the **-d** flag! This flag makes the soundbank file suitable for a
-DS project. Now the soundbank file should be generated and linked into the
-project automatically. Load the audio folder with a few modules to test with!
-
-By the way, this section assumes you want to load the entire soundbank into
-memory. If you want to use the filesystem instead, do not tell the makefile to
-link the soundbank in, just generate the soundbank file only.
+Keeping it in memory means that you won't be able to use that memory for
+anything else! If you're making a very small game, that's okay. If not, by
+keeping the soundbank in the filesystem, Maxmod will only load the parts that
+are required for the songs and audio efects that you're playing right in that
+moment, leaving more RAM available for you to use however you want.
 
 ## Setup
 
