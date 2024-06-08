@@ -63,10 +63,10 @@ the 4 hardware timers available on ARM9.
 ```c
 typedef enum
 {
-    MM_TIMER0,  // Hardware timer 0
-    MM_TIMER1,  // Hardware timer 1
-    MM_TIMER2,  // Hardware timer 2
-    MM_TIMER3   // Hardware timer 3
+    MM_TIMER0, // Hardware timer 0
+    MM_TIMER1, // Hardware timer 1
+    MM_TIMER2, // Hardware timer 2
+    MM_TIMER3  // Hardware timer 3
 
 } mm_stream_timer;
 ```
@@ -87,18 +87,18 @@ Here is an example to open a monoural stream with 22KHz playback rate and 8-bit
 output.
 
 ```c
-void open_stream( void )
+void open_stream(void)
 {
     mm_stream stream;
 
     stream.sampling_rate = 22000;        // 22khz
-    stream.buffer_length = 800;          // should be adequate
-    stream.callback = fill_stream;       // give fill routine
+    stream.buffer_length = 800;          // Should be adequate
+    stream.callback = fill_stream;       // Give fill routine
     stream.format = MM_STREAM_8BIT_MONO; // 8-bit mono
-    stream.timer = MM_TIMER0;            // use timer0
-    stream.manual = 0;                   // auto filling
+    stream.timer = MM_TIMER0;            // Use timer 0
+    stream.manual = 0;                   // Auto filling
 
-    mmOpenStream( &si );
+    mmOpenStream(&si);
 }
 ```
 
@@ -106,19 +106,19 @@ And... another example that opens a stereo stream with 16KHz playback rate and
 16-bit output.
 
 ```c
-void open_stream( void )
+void open_stream(void)
 {
     mm_stream stream;
 
     stream.sampling_rate = 16384;         // 16KHZ
-    stream.buffer_length = 800;           // should be adequate
-    stream.callback = my_stereo_filler;   // give stereo filling routine
-    stream.format = MM_STREAM_16BIT_STEREO; // select format
-    stream.timer = MM_TIMER0;             // use timer0
-    stream.manual = 0;                    // auto filling
+    stream.buffer_length = 800;           // Should be adequate
+    stream.callback = my_stereo_filler;   // Give stereo filling routine
+    stream.format = MM_STREAM_16BIT_STEREO; // Select format
+    stream.timer = MM_TIMER0;             // Use timer 0
+    stream.manual = 0;                    // Auto filling
 
     // open the stream
-    mmOpenStream( &si );
+    mmOpenStream(&si);
 }
 ```
 
@@ -140,7 +140,7 @@ callback entry.
 Here is the format for the callback function.
 
 ```c
-typedef mm_word (*mm_stream_func)( mm_word length, mm_addr dest, mm_stream_formats format );
+typedef mm_word (* mm_stream_func)(mm_word length, mm_addr dest, mm_stream_formats format);
 ```
 
 The **dest** parameter contains the address that you must output the new data
@@ -154,10 +154,10 @@ Here is a filling routine to output white noise (for the mono opening example
 above).
 
 ```c
-mm_word fill_stream( mm_word length, mm_addr dest, mm_stream_formats format )
+mm_word fill_stream(mm_word length, mm_addr dest, mm_stream_formats format)
 {
-    s8* output = (s8*)dest;
-    for( ; length; length-- )
+    s8 *output = (s8*)dest;
+    for ( ; length; length--)
     {
         *output++ = rand();
     }
@@ -168,13 +168,13 @@ mm_word fill_stream( mm_word length, mm_addr dest, mm_stream_formats format )
 And... an example to fill the stereo output with white noise (16-bit).
 
 ```c
-mm_word my_stereo_filler( mm_word length, mm_addr dest, mm_stream_formats format )
+mm_word my_stereo_filler(mm_word length, mm_addr dest, mm_stream_formats format)
 {
-    s16* output = (s16*)dest;
-    for( ; length; length-- )
+    s16 *output = (s16*)dest;
+    for ( ; length; length--)
     {
-        *output++ = rand();   // output left sample
-        *output++ = rand();   // output right sample (data is interleaved)
+        *output++ = rand(); // Output left sample
+        *output++ = rand(); // Output right sample (data is interleaved)
     }
     return length;
 }
@@ -207,7 +207,7 @@ Here is an example program loop that will fill the stream after the program
 logic executes.
 
 ```c
-while( true )
+while(true)
 {
     // ... Update game logic ...
 
@@ -241,4 +241,3 @@ When you want to stop the stream, call **mmStreamClose()**.
 
 For a better understanding, please have a look at the streaming example source
 code.
-

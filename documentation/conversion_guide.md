@@ -6,10 +6,8 @@ Let's start with the *usage*. Run the program without any arguments to bring it
 up.
 
 ```
-C:\dev>mmutil
-
 ************************
-* Maxmod Utility v1.8e *
+* Maxmod Utility 1.10.1 *
 ************************
 
 Usage:
@@ -47,8 +45,6 @@ Usage:
 | mmutil -d -b input1.xm input2.s3m testsound.wav                 |
 `-----------------------------------------------------------------'
  www.maxmod.org
-
-C:\dev>
 ```
 
 Let's pretend we have 4 music files named song1.mod, song2.s3m, song3.xm, and
@@ -56,7 +52,7 @@ song4.it. Let's also throw in a couple sound effects too: sound1.wav and
 sound2.wav. Produce a soundbank file like this:
 
 ```
-C:\dev>mmutil -osoundbank.bin -hsoundbank.h -d song1.mod song2.s3m song3.xm song4.it sound1.wav sound2.wav
+mmutil -osoundbank.bin -hsoundbank.h -d song1.mod song2.s3m song3.xm song4.it sound1.wav sound2.wav
 ```
 
 You should now have **soundbank.bin** which is the actual soundbank file, and
@@ -87,8 +83,8 @@ The example shown above should produce a header file similar to this:
 #define SFX_SOUND1  0
 #define SFX_SOUND2  1
 #define MSL_NSONGS  4
-#define MSL_NSAMPS  46    // 44 module samples + 2 WAVs
-#define MSL_BANKSIZE 50   // sum of modules + samples
+#define MSL_NSAMPS  46  // 44 module samples + 2 WAVs
+#define MSL_BANKSIZE 50 // Sum of modules + samples
 ```
 
 ## ROM Output
@@ -97,13 +93,13 @@ To make a test ROM with a certain module, use the **-b** option. This will
 produce a GBA image that features the song listed.
 
 ```
-C:\dev>mmutil -b test.xm test2.xm -oMyTestROM.gba
+mmutil -b test.xm test2.xm -oMyTestROM.gba
 ```
 
 To make a DS image, specify the **-d** option too.
 
 ```
-C:\dev>mutil -b -d test3.it test6.it sound1.wav sound2.wav -oMyAwesomeTestROM.nds
+mutil -b -d test3.it test6.it sound1.wav sound2.wav -oMyAwesomeTestROM.nds
 ```
 
 You should now have either have a GBA or NDS file depending on the **-d** flag.

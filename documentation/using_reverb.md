@@ -22,7 +22,7 @@ the *feedback* level of the left output to 80%.
 mm_reverb_cfg config;
 config.flags = MMRF_FEEDBACK | MMRF_LEFT;
 config.feedback = 80 * 2047 / 100;
-mmReverbConfigure( &config );
+mmReverbConfigure(&config);
 ```
 
 The *flags* member of the configuration struct selects which data in the
@@ -215,13 +215,13 @@ Here is an example that configures the reverb unit.
 
 ```c
 enum {
-    rv_delay_left = 280,   // milliseconds
+    rv_delay_left = 280,  // Milliseconds
     rv_delay_right = 288,
-    rv_rate = 32768,       // Hertz
-    rv_format = 16         // 16-bit
+    rv_rate = 32768,      // Hertz
+    rv_format = 16        // 16-bit
 };
 
-void setupReverb( void )
+void setupReverb(void)
 {
     // Enable reverb system
     mmReverbEnable();
@@ -231,12 +231,12 @@ void setupReverb( void )
 
     int rv_size_left;
     int rv_size_right;
-    rv_size_left = mmReverbBufferSize( rv_format, rv_rate, rv_delay_left );
-    rv_size_right = mmReverbBufferSize( rv_format, rv_rate, rv_delay_right );
+    rv_size_left = mmReverbBufferSize(rv_format, rv_rate, rv_delay_left);
+    rv_size_right = mmReverbBufferSize(rv_format, rv_rate, rv_delay_right);
 
     // allocate memory for both reverb channels
-    rv_buffer_left  = malloc( rv_size_left * 4 );
-    rv_buffer_right = malloc( rv_size_right * 4 );
+    rv_buffer_left  = malloc(rv_size_left * 4);
+    rv_buffer_right = malloc(rv_size_right * 4);
 
     mm_reverb_cfg config;
 
@@ -262,7 +262,7 @@ void setupReverb( void )
     config.rate = 16777216 / rv_rate;
 
     // Do configuration...
-    mmReverbConfigure( &config );
+    mmReverbConfigure(&config);
 
     // Give the right channel slightly more delay and set the memory buffer
     config.flags = MMRF_MEMORY | MMRF_DELAY | MMRF_RIGHT;
@@ -270,9 +270,9 @@ void setupReverb( void )
     config.delay = rv_size_right;
     config.memory = rv_buffer_right;
 
-    mmReverbConfigure( &config );
+    mmReverbConfigure(&config);
 
-    mmReverbStart( MMRC_BOTH );
+    mmReverbStart(MMRC_BOTH);
 }
 ```
 

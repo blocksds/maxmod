@@ -93,18 +93,19 @@ soundbank header too.
 ```
 
 There are multiple ways of setting up Maxmod to fit your needs. The easiest way
-is to use the mmInitDefault()/mmInitDefaultMem() functions. mmInitDefault() is
-for when your soundbank is in the filesystem, mmInitDefaultMem is for when your
-soundbank is loaded into memory (as described above).
+is to use the **mmInitDefault()** or **mmInitDefaultMem()** functions.
+**mmInitDefault()** is used when your soundbank is in the filesystem,
+**mmInitDefaultMem()** is used when your soundbank is loaded into memory (as
+described above).
 
 ```c
-void main( void )
+void main(void)
 {
     // Use this if you have the soundbank loaded into memory
-    mmInitDefaultMem( (mm_addr)soundbank_bin );
+    mmInitDefaultMem((mm_addr)soundbank_bin);
 
     // OR, use this if you have it in the filesystem
-    //mmInitDefault( "soundbank.bin" );
+    //mmInitDefault("nitro:/soundbank.bin");
 }
 ```
 
@@ -135,13 +136,13 @@ Before playing a song, the song must be loaded into memory. Use **mmLoad()** to
 load songs into memory (or acknowledge their existence in memory).
 
 ```c
-mmLoad( MOD_TITLE );
+mmLoad(MOD_TITLE);
 ```
 
 Now that **MOD_TITLE** is loaded. You may begin playing it with **mmStart()**.
 
 ```c
-mmStart( MOD_TITLE, MM_PLAY_LOOP );
+mmStart(MOD_TITLE, MM_PLAY_LOOP);
 ```
 
 There are two modes for playback: **MM_PLAY_ONCE** and **MM_PLAY_LOOP**. If
@@ -152,7 +153,7 @@ playing again from its restart position if it reaches the end.
 When you are finished with a module, unload it from memory with **mmUnload()**.
 
 ```c
-mmUnload( MOD_TITLE );
+mmUnload(MOD_TITLE);
 ```
 
 ## Sound Effects
@@ -160,14 +161,14 @@ mmUnload( MOD_TITLE );
 To load a sound effect into memory, use **mmLoadEffect()**.
 
 ```c
-mmLoadEffect( SFX_BLASTER );
+mmLoadEffect(SFX_BLASTER);
 ```
 
 Now it can be played with **mmEffect()**.
 
 ```c
 // Play a sound at its default frequency
-mmEffect( SFX_BLASTER );
+mmEffect(SFX_BLASTER);
 ```
 
 **mmEffectEx()** is a more flexible version of **mmEffect()**. It will let you
@@ -176,29 +177,29 @@ specify all of the attributes for the sound.
 ```c
 // Play sound at half playback rate, 200/255 volume, and center panning
 mm_sound_effect sound;
-sound.id      = SFX_BLASTER; // sample ID (make sure it is loaded)
-sound.rate    = 0x400/2;     // playback rate, 1024 = original sound
+sound.id      = SFX_BLASTER; // Sample ID (make sure it is loaded)
+sound.rate    = 0x400/2;     // Playback rate, 1024 = original sound
 sound.handle  = 0;           // 0 = allocate new handle
 sound.volume  = 200;         // 200/255 volume level
-sound.panning = 128;         // centered panning
+sound.panning = 128;         // Centered panning
 
-mmEffectEx( &sound );
+mmEffectEx(&sound);
 ```
 
-Both mmEffect and mmEffectEx return a sound effect handle that can be used later
-to modify the sound.
+Both **mmEffect()** and **mmEffectEx()** return a sound effect handle that can
+be used later to modify the sound.
 
 ```c
-mysound = mmEffect( SFX_BLASTER );
+mysound = mmEffect(SFX_BLASTER);
 
 // Change pitch to +1 octave
-mmEffectRate( mysound, 1024*2 );
+mmEffectRate(mysound, 1024 * 2);
 
-// Change volume to half level (128/255)
-mmEffectVolume( mysound, 128 );
+// Change volume to half level (128 / 255)
+mmEffectVolume(mysound, 128);
 
 // Change panning to far-right
-mmEffectPanning( mysound, 255 );
+mmEffectPanning(mysound, 255);
 ```
 
 If the effect isn't so important, you can mark it for *interruption*. This means
@@ -207,14 +208,14 @@ available).
 
 ```c
 // Allow effect to be interrupted
-mmEffectRelease( mysound );
+mmEffectRelease(mysound);
 ```
 
 You can stop a sound effect like this:
 
 ```c
 // Stop sound effect
-mmEffectCancel( mysound );
+mmEffectCancel(mysound);
 ```
 
 When you are done using a sound effect, you can unload it from memory with
@@ -222,7 +223,7 @@ When you are done using a sound effect, you can unload it from memory with
 
 ```c
 // Unload sound from memory
-mmUnloadEffect( SFX_BLASTER );
+mmUnloadEffect(SFX_BLASTER);
 ```
 
 ## Closing
