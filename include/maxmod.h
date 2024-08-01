@@ -58,11 +58,12 @@ typedef enum
 /// mixing buffer in IWRAM. It also links the VBlank interrupt to mmVBlank with
 /// the libgba interrupt handler.
 ///
-/// @param soundbank          Memory address of soundbank (in ROM). A soundbank
-///                           file can be created with the Maxmod Utility.
-/// @param number_of_channels Number of module/mixing channels to allocate. Must
-///                           be greater or equal to the channel count in your
-///                           modules.
+/// @param soundbank
+///     Memory address of soundbank (in ROM). A soundbank file can be created
+///     with the Maxmod Utility.
+/// @param number_of_channels
+///     Number of module/mixing channels to allocate. Must be greater or equal
+///     to the channel count in your modules.
 void mmInitDefault( mm_addr soundbank, mm_word number_of_channels );
 
 /// Initializes Maxmod with the settings specified.
@@ -71,7 +72,8 @@ void mmInitDefault( mm_addr soundbank, mm_word number_of_channels );
 ///
 /// For GBA projects, irqInit() should be called before this function.
 ///
-/// @param setup Maxmod setup configuration.
+/// @param setup
+///     Maxmod setup configuration.
 ///
 /// Example:
 ///
@@ -151,7 +153,8 @@ void mmVBlank( void );
 /// If you need to have a function linked to the VBlank interrupt, use this
 /// function (the actual VBlank interrupt must be linked directly to mmVBlank).
 ///
-/// @param function Pointer to your VBlank handler.
+/// @param function
+///     Pointer to your VBlank handler.
 void mmSetVBlankHandler( void* function );
 
 /// Install handler to receive song events.
@@ -165,7 +168,8 @@ void mmSetVBlankHandler( void* function );
 /// module processing. Avoid using any Maxmod related functions during your song
 /// event handler since they may cause problems in this situation.
 ///
-/// @param handler Function pointer to event handler.
+/// @param handler
+///     Function pointer to event handler.
 void mmSetEventHandler( mm_callback handler );
 
 /// This is the main routine-function that processes music and updates the sound
@@ -186,10 +190,12 @@ void mmFrame( void ) __attribute((long_call));
 /// For GBA, the module data is read directly from the cartridge space, so no
 /// loading is needed.
 ///
-/// @param module_ID Index of module to be played. Values are defined in the
-///                  soundbank header output. (prefixed with "MOD_")
-/// @param mode      Mode of playback. Can be MM_PLAY_LOOP (play and loop until
-///                  stopped manually) or MM_PLAY_ONCE (play until end).
+/// @param module_ID
+///     Index of module to be played. Values are defined in the soundbank header
+///     output. (prefixed with "MOD_")
+/// @param mode
+///     Mode of playback. Can be MM_PLAY_LOOP (play and loop until stopped
+///     manually) or MM_PLAY_ONCE (play until end).
 void mmStart( mm_word id module_ID, mm_pmode mode );
 
 /// Pauses playback of the active module.
@@ -211,27 +217,32 @@ void mmStop( void );
 
 /// Get current number of elapsed ticks in the row being played.
 ///
-/// @return Number of elapsed ticks.
+/// @return
+///     Number of elapsed ticks.
 mm_word mmGetPositionTick( void );
 
 /// Get current row being played.
 ///
-/// @return The current row.
+/// @return
+///     The current row.
 mm_word mmGetPositionRow( void );
 
 /// Get current pattern order being played.
 ///
-/// @return The current pattern.
+/// @return
+///     The current pattern.
 mm_word mmGetPosition( void );
 
 /// Set the current sequence [aka order-list] position for the active module.
 ///
-/// @param position New position in module sequence.
+/// @param position
+///     New position in module sequence.
 void mmPosition( mm_word position );
 
 /// Set playback position (alias for mmPosition()).
 ///
-/// @param position New position in module sequence.
+/// @param position
+///     New position in module sequence.
 static inline void mmSetPosition( mm_word position )
 {
     mmPosition( position );
@@ -239,7 +250,8 @@ static inline void mmSetPosition( mm_word position )
 
 /// Used to determine if a module is playing.
 ///
-/// @return Nonzero if a module is currently playing.
+/// @return
+///     Nonzero if a module is currently playing.
 mm_bool mmActive( void );
 
 /// Plays a jingle.
@@ -252,22 +264,26 @@ mm_bool mmActive( void );
 ///
 /// Note that jingles must be limited to 4 channels only.
 ///
-/// @param module_ID Index of module to be played. (Defined in soundbank header)
+/// @param module_ID
+///     Index of module to be played. (Defined in soundbank header)
 void mmJingle( mm_word module_ID );
 
 /// Check if a jingle is playing or not.
 ///
-/// @return Returns nonzero if a jingle is actively playing.
+/// @return
+///     Returns nonzero if a jingle is actively playing.
 mm_bool mmActiveSub( void );
 
 /// Use this function to change the master volume scale for module playback.
 ///
-/// @param volume New volume level. Ranges from 0 (silent) to 1024 (normal).
+/// @param volume
+///     New volume level. Ranges from 0 (silent) to 1024 (normal).
 void mmSetModuleVolume( mm_word volume );
 
 /// Use this function to change the master volume scale for jingle playback.
 ///
-/// @param volume New volume level. Ranges from 0 (silent) to 1024 (normal).
+/// @param volume
+///     New volume level. Ranges from 0 (silent) to 1024 (normal).
 void mmSetJingleVolume( mm_word volume );
 
 /// Change the master tempo for module playback.
@@ -280,7 +296,8 @@ void mmSetJingleVolume( mm_word volume );
 ///
 /// Range = 0x200 -> 0x800 = 0.5 -> 2.0
 ///
-/// @param tempo New tempo value. Tempo = (speed_percentage * 1024) / 100.
+/// @param tempo
+///     New tempo value. Tempo = (speed_percentage * 1024) / 100.
 void mmSetModuleTempo( mm_word tempo );
 
 /// Change the master pitch scale for module playback.
@@ -290,14 +307,18 @@ void mmSetModuleTempo( mm_word tempo );
 ///
 /// Range = 0x200 -> 0x800 = 0.5 -> 2.0
 ///
-/// @param pitch New pitch scale. Value = 1024 * 2^(semitones/12)
+/// @param pitch
+///     New pitch scale. Value = 1024 * 2^(semitones/12)
 void mmSetModulePitch( mm_word pitch );
 
 /// Play direct MAS file.
 ///
-/// @param address TODO
-/// @param mode    TODO
-/// @param layer   TODO
+/// @param address
+///     TODO
+/// @param mode
+///     TODO
+/// @param layer
+///     TODO
 void mmPlayModule( mm_word address, mm_word mode, mm_word layer );
 
 // ***************************************************************************
@@ -314,30 +335,40 @@ void mmPlayModule( mm_word address, mm_word mode, mm_word layer );
 /// The value returned from this function is a handle and can be used to modify
 /// the sound effect while it's actively playing.
 ///
-/// @param sample_ID Index of sample to be played. Values are defined in the
-///                  soundbank header. (prefixed with "SFX_")
-/// @return          Sound effect handle. This value can be used to modify
-///                  parameters of the sound effect while it is playing.
+/// @param sample_ID
+///     Index of sample to be played. Values are defined in the soundbank
+///     header. (prefixed with "SFX_")
+///
+/// @return
+///     Sound effect handle. This value can be used to modify parameters of the
+///     sound effect while it is playing.
 mm_sfxhand mmEffect( mm_word sample_ID );
 
 /// Plays a sound effect with custom settings.
 ///
-/// @param sound Structure containing information about the sound to be played.
-/// @return Sound effect handle that may be used to modify the sound later.
+/// @param sound
+///     Structure containing information about the sound to be played.
+///
+/// @return
+///     Sound effect handle that may be used to modify the sound later.
 mm_sfxhand mmEffectEx( mm_sound_effect* sound );
 
 /// Changes the volume of a sound effect.
 ///
 /// TODO: Does volume go from 0 to 65535?
 ///
-/// @param handle Sound effect handle received from mmEffect() or mmEffectEx().
-/// @param volume New volume level. Ranges from 0 (silent) to 255 (normal).
+/// @param handle
+///     Sound effect handle received from mmEffect() or mmEffectEx().
+/// @param volume
+///     New volume level. Ranges from 0 (silent) to 255 (normal).
 void mmEffectVolume( mm_sfxhand handle, mm_word volume );
 
 /// Changes the panning of a sound effect.
 ///
-/// @param handle  Sound effect handle received from mmEffect() or mmEffectEx().
-/// @param panning New panning level. Ranges from 0 (left) to 255 (right).
+/// @param handle
+///     Sound effect handle received from mmEffect() or mmEffectEx().
+/// @param panning
+///     New panning level. Ranges from 0 (left) to 255 (right).
 void mmEffectPanning( mm_sfxhand handle, mm_byte panning );
 
 /// Changes the playback rate for a sound effect.
@@ -349,26 +380,36 @@ void mmEffectPanning( mm_sfxhand handle, mm_byte panning );
 /// semitones: Rate = 1024 * 2^(Semitones/12). (please don't try to do that with
 /// integer maths)
 ///
-/// @param handle Sound effect handle received from mmEffect() or mmEffectEx().
-/// @param rate   New playback rate.
+/// @param handle
+///     Sound effect handle received from mmEffect() or mmEffectEx().
+/// @param rate
+///     New playback rate.
 void mmEffectRate( mm_sfxhand handle, mm_word rate );
 
 /// Scales the rate of the sound effect by a certain factor.
 ///
-/// @param handle Sound effect handle received from mmEffect() or mmEffectEx().
-/// @param factor 6.10 fixed point factor.
+/// @param handle
+///     Sound effect handle received from mmEffect() or mmEffectEx().
+/// @param factor
+///     6.10 fixed point factor.
 void mmEffectScaleRate( mm_sfxhand handle, mm_word factor );
 
 /// Indicates if a sound effect is active or not.
 ///
-/// @param handle Sound effect handle received from mmEffect() or mmEffectEx().
-/// @return       Non-zero if the sound effect is active, zero if it isn't.
+/// @param handle
+///     Sound effect handle received from mmEffect() or mmEffectEx().
+///
+/// @return
+///     Non-zero if the sound effect is active, zero if it isn't.
 mm_bool mmEffectActive( mm_sfxhand handle );
 
 /// Stops a sound effect. The handle will be invalidated.
 ///
-/// @param handle Sound effect handle received from mmEffect() or mmEffectEx().
-/// @return       Non-zero if the sound was found and stopped, zero on error.
+/// @param handle
+///     Sound effect handle received from mmEffect() or mmEffectEx().
+///
+/// @return
+///     Non-zero if the sound was found and stopped, zero on error.
 mm_word mmEffectCancel( mm_sfxhand handle );
 
 /// Marks a sound effect as unimportant.
@@ -376,12 +417,14 @@ mm_word mmEffectCancel( mm_sfxhand handle );
 /// This enables the sound effect to be interrupted by music/other sound effects
 /// if the need arises. The handle will be invalidated.
 ///
-/// @param handle Sound effect handle received from mmEffect() or mmEffectEx().
+/// @param handle
+///     Sound effect handle received from mmEffect() or mmEffectEx().
 void mmEffectRelease( mm_sfxhand handle );
 
 /// Set master volume scale for effect playback.
 ///
-/// @param volume Master volume. 0->1024 representing 0%->100% volume
+/// @param volume
+///     Master volume. 0->1024 representing 0%->100% volume
 void mmSetEffectsVolume( mm_word volume );
 
 /// Stop all sound effects and reset the effect system.
