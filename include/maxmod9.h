@@ -43,7 +43,7 @@ extern "C" {
 /// @param soundbank_file
 ///     Filename of soundbank. A soundbank file can be created with the Maxmod
 ///     Utility.
-void mmInitDefault( char* soundbank_file );
+void mmInitDefault( const char* soundbank_file );
 
 /// Initialize Maxmod with default settings.
 ///
