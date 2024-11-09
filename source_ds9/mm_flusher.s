@@ -16,6 +16,7 @@
 .global mmFlushBank
 
 .text
+.syntax unified
 .thumb
 .align 2
 
@@ -30,11 +31,11 @@ mmFlushBank:
 	ldr	r1, [r1]		@
 	ldr	r2,=mmSampleCount	@ get memory bank size (mods+samps)
 	ldr	r2, [r2]		@
-	add	r1, r2			@}
+	adds	r1, r2			@}
 	
-	lsr	r0, #5			@{align memory bank address
-	lsl	r0, #5			@}(is this neccesary?)
-	add	r1, r1, #1		@-catch last bit (bug? should be #8?)
+	lsrs	r0, #5			@{align memory bank address
+	lsls	r0, #5			@}(is this neccesary?)
+	adds	r1, r1, #1		@-catch last bit (bug? should be #8?)
 	 
 @ r0 = bank address
 @ r1 = module+sample count
