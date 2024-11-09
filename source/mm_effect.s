@@ -50,9 +50,9 @@ MM_SFX_SIZE:					// 8 bytes total
  *
  ***********************************************************************/
 
-	.BSS
-	.ALIGN 2
-	.GLOBAL mm_sfx_bitmask, mm_sfx_clearmask
+	.bss
+	.align 2
+	.global mm_sfx_bitmask, mm_sfx_clearmask
 
 mm_sfx_mastervolume:	.space 4
 mm_sfx_channels:	.space 2*channelCount
@@ -67,9 +67,10 @@ mm_sfx_counter:		.space 1
  *
  ***********************************************************************/
  
-	.TEXT
-	.THUMB
-	.ALIGN 2
+	.text
+	.syntax unified
+	.thumb
+	.align 2
 	
 /***********************************************************************
  * mmResetEffects
@@ -78,13 +79,13 @@ mm_sfx_counter:		.space 1
 						.thumb_func
 mmResetEffects:
 	
-	mov	r0, #0
-	mov	r1, #channelCount
+	movs	r0, #0
+	movs	r1, #channelCount
 	ldr	r2,=mm_sfx_channels
 	
 1:	strh	r0, [r2]
-	add	r2, #2
-	sub	r1, #1
+	adds	r2, #2
+	subs	r1, #1
 	bne	1b
 	
 	ldr	r2,=mm_sfx_bitmask
@@ -102,22 +103,22 @@ mmGetFreeEffectChannel:
 	
 	ldr	r0,=mm_sfx_bitmask		// r0 = bitmask
 	ldr	r0, [r0]			//
-	mov	r1, #1				// r1 = channel counter
+	movs	r1, #1				// r1 = channel counter
 	
 .channel_search:				// shift out bits until we find a cleared one
-	lsr	r0, #1				//
+	lsrs	r0, #1				//
 	bcc	.found_channel			//
-	add	r1, #1				// r1 = index value
+	adds	r1, #1				// r1 = index value
 	b	.channel_search			//
 	
 .found_channel:
 	
 	cmp	r1, #channelCount+1		// if r1 == cc+1 then r1 = 0 (no handles avail.)
 	bne	.found_valid_channel		//
-	mov	r1, #0				//
+	movs	r1, #0				//
 .found_valid_channel:				//
 	
-	mov	r0, r1				// return value
+	movs	r0, r1				// return value
 	bx	lr				//
 
 /***********************************************************************
@@ -130,8 +131,8 @@ mmGetFreeEffectChannel:
 mmEffect:
 	push	{lr}
 						// r0 = ssssssss
-	mov	r1, #1				// r1 = hhhhrrrr
-	lsl	r1, #10				//
+	movs	r1, #1				// r1 = hhhhrrrr
+	lsls	r1, #10				//
 	ldr	r2,=0x000080FF			// r2 = ----ppvv
 	
 	push	{r0-r2}				// mmEffectEx( sound )
@@ -152,26 +153,26 @@ mmEffectEx:
 	
 	push	{r4-r6, lr}
 	
-	mov	r4, r0
+	movs	r4, r0
 	ldrh	r5, [r4, #MM_SFX_HANDLE]	// test if handle was given
 	
 	cmp	r5, #255
 	bne	1f
-	mov	r5, #0
+	movs	r5, #0
 	b	.got_handle
 	
 1:	cmp	r5, #0				//
 	beq	.generate_new_handle		//
 	
-	lsl	r1, r5, #24			// check if channel is in use
-	lsr	r1, #23				//
-	sub	r1, #2				//
+	lsls	r1, r5, #24			// check if channel is in use
+	lsrs	r1, #23				//
+	subs	r1, #2				//
 	ldr	r0,=mm_sfx_channels		//
 	ldrb	r0, [r0, r1]			//
 	cmp	r0, #0				//
 	beq	.got_handle			// [valid handle otherwise]
 	
-	mov	r0, r5
+	movs	r0, r5
 	bl	mmEffectCancel			// attempt to stop active channel
 	cmp	r0, #0				//
 	bne	.got_handle			//
@@ -179,17 +180,17 @@ mmEffectEx:
 .generate_new_handle:
 	
 	bl	mmGetFreeEffectChannel		// generate handle
-	mov	r5, r0				//
+	movs	r5, r0				//
 	beq	.got_handle			//-(no available channels)
 						//
 	ldr	r0,=mm_sfx_counter		// (counter = ((counter+1) & 255))
 	ldrb	r1, [r0]			//
-	add	r1, #1				//
+	adds	r1, #1				//
 	strb	r1, [r0]			//
-	lsl	r1, #8
-	orr	r5, r1
-	lsl	r5, #16
-	lsr	r5, #16
+	lsls	r1, #8
+	orrs	r5, r1
+	lsls	r5, #16
+	lsrs	r5, #16
 	
 .got_handle:
 	
@@ -198,82 +199,82 @@ mmEffectEx:
 	cmp	r0, #255			//
 	bge	.no_available_channels		//
 	
-	mov	r6, r0
+	movs	r6, r0
 	
 	cmp	r5, #0
 	beq	1f 
 	
 	ldr	r1,=mm_sfx_channels		// register data
-	sub	r2, r5, #1			// r3 = bit
-	lsl	r2, #24				//
-	lsr	r2, #24				//
-	mov	r3, #1				//
-	lsl	r3, r2				//
-	lsl	r2, #1				//
-	add	r1, r2				//
-	add	r2, r0, #1			//
+	subs	r2, r5, #1			// r3 = bit
+	lsls	r2, #24				//
+	lsrs	r2, #24				//
+	movs	r3, #1				//
+	lsls	r3, r2				//
+	lsls	r2, #1				//
+	adds	r1, r2				//
+	adds	r2, r0, #1			//
 	strb	r2, [r1, #0]			//
-	lsr	r2, r5, #8			//
+	lsrs	r2, r5, #8			//
 	strb	r2, [r1, #1]			//
 	
 	ldr	r1,=mm_sfx_bitmask		// set bit
 	ldr	r2, [r1]			//
-	orr	r2, r3				//
+	orrs	r2, r3				//
 	str	r2, [r1]			//
 	
 1:	
 
 	ldr	r1,=mm_achannels		// setup channel
 	ldr	r1, [r1]			//
-	mov	r2, #MCA_SIZE			//
-	mul	r2, r0				//
-	add	r1, r2				//
+	movs	r2, #MCA_SIZE			//
+	muls	r2, r0				//
+	adds	r1, r2				//
 						//
-	mov	r2, #releaseLevel		//
+	movs	r2, #releaseLevel		//
 	strb	r2, [r1, #MCA_FVOL]		//
 	
 	cmp	r5, #0				//
 	bne	1f				//
-	mov	r2, #ACHN_BACKGROUND		//
+	movs	r2, #ACHN_BACKGROUND		//
 	b	2f				//
-1:	mov	r2, #ACHN_CUSTOM		//
+1:	movs	r2, #ACHN_CUSTOM		//
 2:						//
 	strb	r2, [r1, #MCA_TYPE]		//
-	mov	r2, #MCAF_EFFECT		//
+	movs	r2, #MCAF_EFFECT		//
 	strb	r2, [r1, #MCA_FLAGS]		//
 	
 	GET_MIXCH r1				// setup voice
-	mov	r2, #MIXER_CHN_SIZE		//
-	mul	r2, r0				//
-	add	r3, r1, r2			//
+	movs	r2, #MIXER_CHN_SIZE		//
+	muls	r2, r0				//
+	adds	r3, r1, r2			//
 	
 #ifdef SYS_GBA
 
 	ldr	r0,=mp_solution			// set sample data address
 	ldr	r0, [r0]			//
 	ldrh	r1, [r4, #MM_SFX_SOURCE]	//
-	lsl	r1, #2				//
-	add	r1, #12				//
+	lsls	r1, #2				//
+	adds	r1, #12				//
 	ldr	r1, [r0, r1]			//
-	add	r1, r0				//
+	adds	r1, r0				//
 	ldrh	r2, [r1, #8+C_SAMPLEC_DFREQ]	//
-	add	r1, #8+C_SAMPLE_DATA		//
+	adds	r1, #8+C_SAMPLE_DATA		//
 	str	r1, [r3, #MIXER_CHN_SRC]	//
 	
 	ldrh	r0, [r4, #MM_SFX_RATE]		// set pitch to original * pitch
-	mul	r2, r0				//
-	lsr	r2, #10-2 			//
+	muls	r2, r0				//
+	lsrs	r2, #10-2 			//
 	str	r2, [r3, #MIXER_CHN_FREQ]	//
 	
-	mov	r1, #0				// reset read position
+	movs	r1, #0				// reset read position
 	str	r1, [r3, #MIXER_CHN_READ]	//
 	
 	ldrb	r0, [r4, #MM_SFX_VOLUME]	// set volume
 	
 	ldr	r1,=mm_sfx_mastervolume
 	ldr	r1, [r1]
-	mul	r0, r1
-	lsr	r0, #10
+	muls	r0, r1
+	lsrs	r0, #10
 	
 	strb	r0, [r3, #MIXER_CHN_VOL]	//
 	
@@ -282,61 +283,61 @@ mmEffectEx:
 	
 #else
 	ldr	r1, [r4, #MM_SFX_SOURCE]	// set sample address
-	lsr	r0, r1, #16			// > 0x10000 = external sample
+	lsrs	r0, r1, #16			// > 0x10000 = external sample
 	bne	1f				//
 	ldr	r0,=mmSampleBank		// ID# otherwise
 	ldr	r0, [r0]			//
-	lsl	r1, #2				//
+	lsls	r1, #2				//
 	ldr	r1, [r0, r1]			//
-	lsl	r1, #8				//
-	lsr	r1, #8				//
+	lsls	r1, #8				//
+	lsrs	r1, #8				//
 	beq	.invalid_sample
-	add	r1, #8				//
+	adds	r1, #8				//
 	ldr	r0,=0x2000000			//
-	add	r1, r0				//
+	adds	r1, r0				//
 1:						//
 	str	r1, [r3, #MIXER_CHN_SAMP]	//
 
 	
 	ldrh	r0, [r4, #MM_SFX_RATE]		// set pitch to original * pitch
 	ldrh	r1, [r1, #C_SAMPLEC_DFREQ]	//
-	mul	r1, r0				//
-	lsr	r1, #10 			//
+	muls	r1, r0				//
+	lsrs	r1, #10 			//
 	strh	r1, [r3, #MIXER_CHN_FREQ]	//
 	
-	mov	r1, #0				// clear sample offset
+	movs	r1, #0				// clear sample offset
 	str	r1, [r3, #MIXER_CHN_READ]	//
 	
 	ldrb	r1, [r4, #MM_SFX_PANNING]	// set panning + startbit
-	lsr	r1, #1				//
-	add	r1, #0x80			//
+	lsrs	r1, #1				//
+	adds	r1, #0x80			//
 	strb	r1, [r3, #MIXER_CHN_CNT]	//
 	
 	ldrb	r1, [r4, #MM_SFX_VOLUME]	// set volume
 	ldr	r0,=mm_sfx_mastervolume
 	ldr	r0, [r0]
-	mul	r1, r0
-//	lsr	r0, #10
-	lsr	r2, r1, #2
-//	lsl	r2, r1, #8
+	muls	r1, r0
+//	lsrs	r0, #10
+	lsrs	r2, r1, #2
+//	lsls	r2, r1, #8
 
 	strh	r2, [r3, #MIXER_CHN_VOL]	//
 	
 	b	.valid_sample
 .invalid_sample:
-	mov	r0, #0
+	movs	r0, #0
 	str	r0, [r3, #MIXER_CHN_SAMP]
 	
 .valid_sample:
 	
 #endif
 
-	mov	r0, r5				// return handle
+	movs	r0, r5				// return handle
 	pop	{r4-r6}				//
 	ret1					//
 	
 .no_available_channels:	
-	mov	r0, #0				// return bad
+	movs	r0, #0				// return bad
 	pop	{r4-r6}				//
 	ret1					//
 
@@ -350,8 +351,8 @@ mmEffectEx:
 						.thumb_func
 mme_get_channel_index:
 
-	lsl	r1, r0, #24			// mask and test channel#
-	lsr	r1, #24-1			//
+	lsls	r1, r0, #24			// mask and test channel#
+	lsrs	r1, #24-1			//
 	cmp	r1, #0				//
 	beq	.invalid_handle			//
 	cmp	r1, #channelCount*2		//
@@ -359,19 +360,19 @@ mme_get_channel_index:
 	
 	ldr	r2,=mm_sfx_channels-2		// check if instances match
 	ldrh	r3, [r2, r1]			//
-	lsr	r1, r3, #8			//
-	lsr	r2, r0, #8			//
+	lsrs	r1, r3, #8			//
+	lsrs	r2, r0, #8			//
 	cmp	r1, r2				//
 	bne	.invalid_handle			//
 	
-	lsl	r3, #24				// mask channel#
-	lsr	r3, #24				//
-	sub	r3, #1				//
+	lsls	r3, #24				// mask channel#
+	lsrs	r3, #24				//
+	subs	r3, #1				//
 	bx	lr				//
 	
 .invalid_handle:				// return invalid handle
-	mov	r3, #0				//
-	mvn	r3, r3				//
+	movs	r3, #0				//
+	mvns	r3, r3				//
 	bx	lr				//
 
 /***********************************************************************
@@ -386,12 +387,12 @@ mmEffectActive:
 	bl	mme_get_channel_index	//
 	cmp	r3, #0					// if r3 >= 0, it is active
 	bge	.active					//
-	mov	r0, #0					// return false
+	movs	r0, #0					// return false
 	pop	{r3}					//
 	bx	r3						//
 	
 .active:						// 
-	mov	r0, #1					// return true
+	movs	r0, #1					// return true
 	pop	{r3}					//
 	bx	r3						//
 	
@@ -403,20 +404,20 @@ mmEffectActive:
  ***********************************************************************/
 						.thumb_func
 mme_clear_channel:
-	mov	r1, #0
+	movs	r1, #0
 	ldr	r2,=mm_sfx_channels		// clear effect channel
-	lsl	r0, #1				//
+	lsls	r0, #1				//
 	strh	r1, [r2, r0]			//
 	
-	mov	r1, #1				// clear effect bitmask
-	lsr	r0, #1				//
-	lsl	r1, r0				//
+	movs	r1, #1				// clear effect bitmask
+	lsrs	r0, #1				//
+	lsls	r1, r0				//
 	ldr	r2,=mm_sfx_bitmask		//
 	ldr	r0, [r2, #4]
-	orr	r0, r1
+	orrs	r0, r1
 	str	r0, [r2, #4]
 	ldr	r0, [r2]			//
-	bic	r0, r1				//
+	bics	r0, r1				//
 	str	r0, [r2]			//
 	bx	lr
 
@@ -439,21 +440,21 @@ mmEffectVolume:
 	
 	ldr	r0,=mm_sfx_mastervolume
 	ldr	r0, [r0]
-	mul	r1, r0
+	muls	r1, r0
 	
 	#ifdef SYS_NDS
 	
-	lsr	r1, #2
+	lsrs	r1, #2
 	
 	#endif
 	
 	#ifdef SYS_GBA
 	
-	lsr	r1, #10
+	lsrs	r1, #10
 	
 	#endif
 	
-	mov	r0, r3
+	movs	r0, r3
 	
 	bl	mmMixerSetVolume
 
@@ -475,7 +476,7 @@ mmEffectPanning:
 	pop	{r1}
 	bmi	1f
 	
-	mov	r0, r3
+	movs	r0, r3
 	bl	mmMixerSetPan
 	
 1:	ret0
@@ -494,7 +495,7 @@ mmEffectRate:
 	pop	{r1}
 	bmi	1f
 	
-	mov	r0, r3
+	movs	r0, r3
 	bl	mmMixerSetFreq
 	
 1:	ret0
@@ -516,29 +517,29 @@ mmEffectCancel:
 	
 	bmi	1f
 	
-	mov	r1, #MCA_SIZE			// free achannel
-	mul	r1, r3				//
+	movs	r1, #MCA_SIZE			// free achannel
+	muls	r1, r3				//
 	ldr	r2,=mm_achannels		//
 	ldr	r2, [r2]			//
-	add	r2, r1				//
-	mov	r1, #ACHN_BACKGROUND		//
+	adds	r2, r1				//
+	movs	r1, #ACHN_BACKGROUND		//
 	strb	r1, [r2, #MCA_TYPE]		//
-	mov	r1, #0				//
+	movs	r1, #0				//
 	strb	r1, [r2, #MCA_FVOL]		// clear volume for channel allocator
 	
-	lsl	r0, #24
-	lsr	r0, #24
-	sub	r0, #1
+	lsls	r0, #24
+	lsrs	r0, #24
+	subs	r0, #1
 	bl	mme_clear_channel
 	
-	mov	r1, #0				// zero voice volume
-	mov	r0, r3				//
+	movs	r1, #0				// zero voice volume
+	movs	r0, r3				//
 	bl	mmMixerSetVolume		//
 	
-	mov	r0, #1
+	movs	r0, #1
 	ret1
 1:	
-	mov	r0, #0
+	movs	r0, #0
 	ret1
 
 /***********************************************************************
@@ -557,17 +558,17 @@ mmEffectRelease:
 	
 	bmi	1f
 	
-	mov	r1, #MCA_SIZE			// release achannel
-	mul	r1, r3				//
+	movs	r1, #MCA_SIZE			// release achannel
+	muls	r1, r3				//
 	ldr	r2,=mm_achannels		//
 	ldr	r2, [r2]			//
-	add	r2, r1				//
-	mov	r1, #ACHN_BACKGROUND		//
+	adds	r2, r1				//
+	movs	r1, #ACHN_BACKGROUND		//
 	strb	r1, [r2, #MCA_TYPE]		//
 	
-	lsl	r0, #24
-	lsr	r0, #24
-	sub	r0, #1
+	lsls	r0, #24
+	lsrs	r0, #24
+	subs	r0, #1
 	bl	mme_clear_channel
 	
 1:	ret0
@@ -588,7 +589,7 @@ mmEffectScaleRate:
 	
 	bmi	1f
 	
-	mov	r0, r3
+	movs	r0, r3
 	bl	mmMixerMulFreq
 	
 1:	ret0
@@ -602,10 +603,10 @@ mmEffectScaleRate:
 						.thumb_func
 mmSetEffectsVolume:
 
-	lsr	r1, r0, #10
+	lsrs	r1, r0, #10
 	beq	1f
-	mov	r0, #1
-	lsl	r0, #10
+	movs	r0, #1
+	lsls	r0, #10
 	
 1:	ldr	r1,=mm_sfx_mastervolume
 	str	r0, [r1]
@@ -625,34 +626,34 @@ mmEffectCancelAll:
 	ldr	r4,=mm_sfx_bitmask
 	ldr	r4, [r4]
 	ldr	r6,=mm_sfx_channels
-	mov	r5, #0
+	movs	r5, #0
 	
 	
-	lsr	r4, #1
+	lsrs	r4, #1
 	bcc	.mmeca_next
 .mmeca_process:
 
 	ldrb	r7, [r6, r5]
-	sub	r7, #1
+	subs	r7, #1
 	bmi	.mmeca_next
 	
-	mov	r0, r7
-	mov	r1, #0
+	movs	r0, r7
+	movs	r1, #0
 	bl	mmMixerSetVolume
 	
 	ldr	r0,=mm_achannels		// free achannel
 	ldr	r0, [r0]			//
-	mov	r1, #MCA_SIZE			//
-	mul	r1, r7				//
-	add	r0, r1				//
-	mov	r1, #ACHN_BACKGROUND		//
+	movs	r1, #MCA_SIZE			//
+	muls	r1, r7				//
+	adds	r0, r1				//
+	movs	r1, #ACHN_BACKGROUND		//
 	strb	r1, [r0, #MCA_TYPE]		//
-	mov	r1, #0
+	movs	r1, #0
 	strb	r1, [r0, #MCA_FVOL]		//
 	
 .mmeca_next:
-	add	r5, #2
-	lsr	r4, #1
+	adds	r5, #2
+	lsrs	r4, #1
 	bcs	.mmeca_process
 	bne	.mmeca_next
 	
@@ -676,79 +677,79 @@ mmUpdateEffects:
 	ldr	r4,=mm_sfx_bitmask
 	ldr	r4, [r4]
 	ldr	r6,=mm_sfx_channels
-	mov	r5, #0
+	movs	r5, #0
 	
-	lsr	r4, #1
+	lsrs	r4, #1
 	bcc	.next_channel
 .process_channel:
 
 	ldrb	r0, [r6, r5]			// get channel index
-	sub	r0, #1				//
+	subs	r0, #1				//
 	bmi	.next_channel			//
 	
 	GET_MIXCH r1
 	
-	mov	r2, #MIXER_CHN_SIZE		// get mixing channel pointer
-	mul	r2, r0				//
-	add	r1, r2				//
+	movs	r2, #MIXER_CHN_SIZE		// get mixing channel pointer
+	muls	r2, r0				//
+	adds	r1, r2				//
 	
 	#ifdef SYS_NDS				// test if channel is still active
 						//
 	ldr	r2, [r1, #MIXER_CHN_SAMP]	//
-	lsl	r2, #8				//
+	lsls	r2, #8				//
 	bne	.next_channel			//
 						//
 	#else					//
 						//
 	ldr	r2, [r1, #MIXER_CHN_SRC]	//
-	asr	r2, #31				//
+	asrs	r2, #31				//
 	beq	.next_channel			//
 						//
 	#endif					//
 	
 	ldr	r1,=mm_achannels		// free achannel
 	ldr	r1, [r1]			//
-	mov	r2, #MCA_SIZE			//
-	mul	r2, r0				//
-	add	r1, r2				//
-	mov	r0, #0				//
+	movs	r2, #MCA_SIZE			//
+	muls	r2, r0				//
+	adds	r1, r2				//
+	movs	r0, #0				//
 	strb	r0, [r1, #MCA_TYPE]		//
 	strb	r0, [r1, #MCA_FLAGS]		//
 	strb	r0, [r6, r5]
 	
 .next_channel:
-	add	r5, #2				// look for another set bit
-	lsr	r4, #1				//
+	adds	r5, #2				// look for another set bit
+	lsrs	r4, #1				//
 	bcs	.process_channel		//
-	add	r5, #2				//
-	lsr	r4, #1				//
+	adds	r5, #2				//
+	lsrs	r4, #1				//
 	bcs	.process_channel		//
 	bne	.next_channel			//
 	
-	mov	r4, #0
-	mov	r5, #1
-	lsl	r5, #32-channelCount
+	movs	r4, #0
+	movs	r5, #1
+	lsls	r5, #32-channelCount
 	ldr	r6,=mm_sfx_channels
 	 
 .build_new_bitmask:
 	ldrb	r0, [r6]
-	add	r6, #2
+	adds	r6, #2
 	cmp	r0, #0
 	beq	1f
-	orr	r4, r5
-1:	lsl	r5, #1
+	orrs	r4, r5
+1:	lsls	r5, #1
 	bne	.build_new_bitmask
 	
-	lsr	r4, #32-channelCount
+	lsrs	r4, #32-channelCount
 	ldr	r0,=mm_sfx_bitmask
 	ldr	r1, [r0]			// r1 = bits that change from 1->0
-	mov	r2, r1
-	eor	r1, r4
-	and	r1, r2
+	movs	r2, r1
+	eors	r1, r4
+	ands	r1, r2
 
 	str	r4, [r0]
 	ldr	r4, [r0, #4]
-	orr	r4, r1
+	orrs	r4, r1
 	str	r4, [r0, #4]			// write 1->0 mask
 	
 	pop	{r4-r6,pc}
