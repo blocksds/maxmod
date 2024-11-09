@@ -4743,12 +4743,12 @@ mpph_VolumeSlide:
 	lsls	r3, #32-4			@ ..
 	lsrs	r3, #32-4
 	cmp	r3, #0x0F			@ ..
-	beq	.mpph_vs_fadds			@ branch
+	beq	.mpph_vs_fadd			@ branch
 	
 	movs	r3, r1				@ test for DFx
 	lsrs	r3, #4				@ ..
 	cmp	r3, #0x0F			@ ..
-	beq	.mpph_vs_fsubs			@ branch
+	beq	.mpph_vs_fsub			@ branch
 .mpph_vs_exit:
 
 	pop	{r1}
