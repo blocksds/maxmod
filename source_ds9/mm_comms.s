@@ -133,8 +133,9 @@ MM_SFX_PANNING:	.space 1			// byte:  panning
 MM_SFX_SIZE:
 
 //----------------------------------------------------------------------
-	.BSS
-	.ALIGN 2
+	.bss
+	.syntax unified
+	.align 2
 //----------------------------------------------------------------------
 
 /***********************************************************************
@@ -149,9 +150,9 @@ sfx_bitmask:			.space 4
 sfx_instances:			.space EFFECT_CHANNELS
 
 //----------------------------------------------------------------------
-	.TEXT
-	.THUMB
-	.ALIGN 2
+	.text
+	.thumb
+	.align 2
 //----------------------------------------------------------------------
 
 /***********************************************************************
@@ -167,7 +168,7 @@ mmSetupComms:
 	str	r0, [r1]
 	
 	ldr	r1,=mmReceiveMessage
-	mov	r2, #0
+	movs	r2, #0
 	bl	fifoSetValue32Handler
 	
 	pop	{pc}
@@ -179,31 +180,31 @@ mmSetupComms:
  ***********************************************************************/
 						.thumb_func
 SendSimpleExt:
-	lsl	r1, #24				// assemble data
-	orr	r0, r1				//
+	lsls	r1, #24				// assemble data
+	orrs	r0, r1				//
 .thumb_func
 SendSimple:
-	lsl	r2, #16				//
-	orr	r0, r2				//
+	lsls	r2, #16				//
+	orrs	r0, r2				//
 	
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 					// use datamsg instead:
-	lsl	r2, r0, #8		// r2 = param count
-	lsr	r2, #32-2
-	lsr	r1, r0, #24		// r1 = param3
-	lsl	r3, r0, #8+2		// r3 = message number
-	lsr	r3, #24+2
-	add	r2, #1
-	lsl	r0, #8
-	orr	r0, r3
-	lsl	r0, #8
-	orr	r0, r2
+	lsls	r2, r0, #8		// r2 = param count
+	lsrs	r2, #32-2
+	lsrs	r1, r0, #24		// r1 = param3
+	lsls	r3, r0, #8+2		// r3 = message number
+	lsrs	r3, #24+2
+	adds	r2, #1
+	lsls	r0, #8
+	orrs	r0, r3
+	lsls	r0, #8
+	orrs	r0, r2
 	cmp	r2, #3
 	bgt	SendString2
 	b	SendString1
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-@	mov	r1, r0				//
+@	movs	r1, r0				//
 @	ldr	r0,=mmFifoChannel		// send message
 @	ldr	r0, [r0]			//
 @	ldr	r2,=fifoSendValue32		//
@@ -218,24 +219,24 @@ SendSimple:
 						.thumb_func
 SendString1:
 	push	{r0,r4,lr}
-	mov	r4, #1*4
+	movs	r4, #1*4
 	b	SendString
 						.thumb_func
 SendString2:
 	
 	push	{r0,r1,r4,lr}
-	mov	r4, #2*4
+	movs	r4, #2*4
 	b	SendString
 						.thumb_func
 SendString3:
 	push	{r0,r1,r2,r4,lr}
-	mov	r4, #3*4
+	movs	r4, #3*4
 	
 SendString:
 	
 	ldr	r0,=mmFifoChannel		//
 	ldr	r0, [r0]			//
-	mov	r1, r4				//
+	movs	r1, r4				//
 	mov	r2, sp				//
 	bl	fifoSendDatamsg			//
 	
@@ -251,10 +252,10 @@ SendString:
 						.thumb_func
 mmSendBank:
 						// r1 = --bbbbbb
-	lsl	r0, #8				// r0 = --ssss--
-	add	r0, #MSG_BANK			// r0 = --ssssmm
-	lsl	r0, #8				// r0 = ssssmm--
-	add	r0, #6				// r0 = ssssmm06 (size)
+	lsls	r0, #8				// r0 = --ssss--
+	adds	r0, #MSG_BANK			// r0 = --ssssmm
+	lsls	r0, #8				// r0 = ssssmm--
+	adds	r0, #6				// r0 = ssssmm06 (size)
 	b	SendString2
 	
 /***********************************************************************
@@ -265,8 +266,8 @@ mmSendBank:
 						.global mmLockChannels
 						.thumb_func
 mmLockChannels:
-	mov	r2, #MSG_SELCHAN
-	mov	r1, #1
+	movs	r2, #MSG_SELCHAN
+	movs	r1, #1
 	b	SendSimpleExt
 	
 /***********************************************************************
@@ -277,8 +278,8 @@ mmLockChannels:
 						.global mmUnlockChannels
 						.thumb_func
 mmUnlockChannels:
-	mov	r2, #MSG_SELCHAN
-	mov	r1, #0				// nonzero = unlock channels
+	movs	r2, #MSG_SELCHAN
+	movs	r1, #0				// nonzero = unlock channels
 	b	SendSimpleExt
 
 /***********************************************************************
@@ -290,10 +291,10 @@ mmUnlockChannels:
 						.thumb_func
 mmStart:
 	ldr	r2,=mmActiveStatus
-	mov	r3, #1
+	movs	r3, #1
 	strb	r3, [r2]
 	
-	mov	r2, #MSG_START
+	movs	r2, #MSG_START
 	b	SendSimpleExt
 
 /***********************************************************************
@@ -304,7 +305,7 @@ mmStart:
 						.global mmPause
 						.thumb_func
 mmPause:
-	mov	r2, #MSG_PAUSE
+	movs	r2, #MSG_PAUSE
 	b	SendSimple
 
 /***********************************************************************
@@ -315,7 +316,7 @@ mmPause:
 						.global mmResume
 						.thumb_func
 mmResume:
-	mov	r2, #MSG_RESUME
+	movs	r2, #MSG_RESUME
 	b	SendSimple
 
 /***********************************************************************
@@ -326,7 +327,7 @@ mmResume:
 						.global mmStop
 						.thumb_func
 mmStop:
-	mov	r2, #MSG_STOP
+	movs	r2, #MSG_STOP
 	b	SendSimple
 
 /***********************************************************************
@@ -338,7 +339,7 @@ mmStop:
 						.thumb_func
 mmPosition:
 	
-	mov	r2, #MSG_POSITION
+	movs	r2, #MSG_POSITION
 	b	SendSimple
 	
 /***********************************************************************
@@ -349,7 +350,7 @@ mmPosition:
 						.global mmJingle
 						.thumb_func
 mmJingle:
-	mov	r2, #MSG_STARTSUB
+	movs	r2, #MSG_STARTSUB
 	b	SendSimple
 
 /***********************************************************************
@@ -360,7 +361,7 @@ mmJingle:
 						.global mmSetModuleVolume
 						.thumb_func
 mmSetModuleVolume:
-	mov	r2, #MSG_MASTERVOL
+	movs	r2, #MSG_MASTERVOL
 	b	SendSimple
 
 /***********************************************************************
@@ -371,7 +372,7 @@ mmSetModuleVolume:
 						.global mmSetJingleVolume
 						.thumb_func
 mmSetJingleVolume:
-	mov	r2, #MSG_MASTERVOLSUB
+	movs	r2, #MSG_MASTERVOLSUB
 	b	SendSimple
 
 /***********************************************************************
@@ -382,7 +383,7 @@ mmSetJingleVolume:
 						.global mmSetModuleTempo
 						.thumb_func
 mmSetModuleTempo:
-	mov	r2, #MSG_MASTERTEMPO
+	movs	r2, #MSG_MASTERTEMPO
 	b	SendSimple
 
 /***********************************************************************
@@ -393,7 +394,7 @@ mmSetModuleTempo:
 						.global mmSetModulePitch
 						.thumb_func
 mmSetModulePitch:
-	mov	r2, #MSG_MASTERPITCH
+	movs	r2, #MSG_MASTERPITCH
 	b	SendSimple
 
 /***********************************************************************
@@ -404,7 +405,7 @@ mmSetModulePitch:
 						.global mmSetEffectsVolume
 						.thumb_func
 mmSetEffectsVolume:
-	mov	r2, #MSG_MASTEREFFECTVOL
+	movs	r2, #MSG_MASTEREFFECTVOL
 	b	SendSimple
 	
 /***********************************************************************
@@ -415,7 +416,7 @@ mmSetEffectsVolume:
 						.global mmSelectMode
 						.thumb_func
 mmSelectMode:
-	mov	r2, #MSG_SELECTMODE
+	movs	r2, #MSG_SELECTMODE
 	b	SendSimple
 
 /***********************************************************************
@@ -431,15 +432,15 @@ mmStreamBegin:
 	// [cccc,wwww]
 	// [--,ff,llll]
 	
-	lsl	r3, #16				// r3 = --ff----
-	orr	r2, r3				// r2 = --ffllll
-	lsl	r1, #16				// r1 = cccc----
-	lsr	r3, r0, #16			// r3 = ----wwww
-	orr	r1, r3				// r1 = ccccwwww
-	lsl	r0, #8				// r0 = --wwww--
-	add	r0, #MSG_OPENSTREAM		// r0 = --wwwwmm
-	lsl	r0, #8				// r0 = wwwwmm--
-	add	r0, #10				// r0 = wwwwmm0A
+	lsls	r3, #16				// r3 = --ff----
+	orrs	r2, r3				// r2 = --ffllll
+	lsls	r1, #16				// r1 = cccc----
+	lsrs	r3, r0, #16			// r3 = ----wwww
+	orrs	r1, r3				// r1 = ccccwwww
+	lsls	r0, #8				// r0 = --wwww--
+	adds	r0, #MSG_OPENSTREAM		// r0 = --wwwwmm
+	lsls	r0, #8				// r0 = wwwwmm--
+	adds	r0, #10				// r0 = wwwwmm0A
 	
 	b	SendString3
 	
@@ -451,7 +452,7 @@ mmStreamBegin:
 						.global mmStreamEnd
 						.thumb_func
 mmStreamEnd:
-	mov	r2, #MSG_CLOSESTREAM
+	movs	r2, #MSG_CLOSESTREAM
 	b	SendSimple
 	
 	
@@ -473,11 +474,11 @@ mmStreamEnd:
 mmValidateEffectHandle:
 	
 	ldr	r1,=sfx_instances		// check if instance # matches value in array
-	lsl	r2, r0, #24			//
-	lsr	r2, #24				//
-	sub	r2, #1				//
+	lsls	r2, r0, #24			//
+	lsrs	r2, #24				//
+	subs	r2, #1				//
 	ldrb	r1, [r1, r2]			//
-	lsr	r2, r0, #8			//
+	lsrs	r2, r0, #8			//
 	cmp	r1, r2				//
 	bne	1f				//
 	bx	lr				//-exit on match
@@ -499,9 +500,9 @@ mmCreateEffectHandle:
 	ldr	r0,=sfx_bitmask
 	ldr	r0, [r0]
 	
-	mov	r1, #0				// search for channel
-2:	add	r1, #1				//
-	lsr	r0, #1				//
+	movs	r1, #0				// search for channel
+2:	adds	r1, #1				//
+	lsrs	r0, #1				//
 	bcs	2b				//
 	
 	cmp	r1, #EFFECT_CHANNELS		// catch invalid index
@@ -509,15 +510,15 @@ mmCreateEffectHandle:
 	
 	ldr	r2,=0x4000208			// disable IRQ
 	ldrh	r4, [r2]			// (cannot be interrupted by sfx update!)
-	mov	r3, #0				//
+	movs	r3, #0				//
 	strh	r3, [r2]			//
 	
 	ldr	r3,=sfx_bitmask			// set sfx bit
 	ldr	r5, [r3]			//
-	sub	r6, r1, #1			//
-	mov	r7, #1				//
-	lsl	r7, r6				//
-	orr	r5, r7				//
+	subs	r6, r1, #1			//
+	movs	r7, #1				//
+	lsls	r7, r6				//
+	orrs	r5, r7				//
 	str	r5, [r3]			//
 	
 	strh	r4, [r2]			// enable IRQ
@@ -525,18 +526,18 @@ mmCreateEffectHandle:
 	
 	ldr	r0,=sfx_instances		// add instance #
 	ldrb	r2, [r0, r6]			//
-	add	r2, #1				//
+	adds	r2, #1				//
 	strb	r2, [r0, r6]			//
 //	ldr	r0,=sfx_instances		//-save instance # to array
 //	strb	r2, [r0, r6]			//-
-	lsl	r2, #24				//
-	lsr	r0, r2, #16			//
-	orr	r0, r1				//
+	lsls	r2, #24				//
+	lsrs	r0, r2, #16			//
+	orrs	r0, r1				//
 	
 	b	.mmgeh_exit
 	
 .mmgeh_invalid:	
-	mov	r0, #0
+	movs	r0, #0
 	
 .mmgeh_exit:
 	pop	{r4-r7,pc}
@@ -551,14 +552,14 @@ mmCreateEffectHandle:
 mmEffect:
 	
 	push	{lr}
-	lsl	r0, #8				// r0 = xxxxmm05
-	add	r0, #MSG_EFFECT			//
-	lsl	r0, #8				//
-	add	r0, #0x05			//
+	lsls	r0, #8				// r0 = xxxxmm05
+	adds	r0, #MSG_EFFECT			//
+	lsls	r0, #8				//
+	adds	r0, #0x05			//
 	push	{r0}				//
 	
 	bl	mmCreateEffectHandle		// r1 = ----hhhh
-	mov	r1, r0				//
+	movs	r1, r0				//
 	pop	{r0}				//
 	
 	cmp	r1, #0
@@ -570,7 +571,7 @@ mmEffect:
 	pop	{r0,pc}				// return handle
 	
 .no_handles_avail:
-	mov	r0, #0
+	movs	r0, #0
 	pop	{pc}
 	
 /***********************************************************************
@@ -581,7 +582,7 @@ mmEffect:
 						.global mmEffectVolume
 						.thumb_func
 mmEffectVolume:
-	mov	r2, #MSG_EFFECTVOL
+	movs	r2, #MSG_EFFECTVOL
 	b	SendSimpleExt
 	
 /***********************************************************************
@@ -592,7 +593,7 @@ mmEffectVolume:
 						.global mmEffectPanning
 						.thumb_func
 mmEffectPanning:
-	mov	r2, #MSG_EFFECTPAN
+	movs	r2, #MSG_EFFECTPAN
 	b	SendSimpleExt
 
 /***********************************************************************
@@ -603,10 +604,10 @@ mmEffectPanning:
 						.global mmEffectRate
 						.thumb_func
 mmEffectRate:
-	lsl	r0, #8
-	add	r0, #MSG_EFFECTRATE
-	lsl	r0, #8
-	add	r0, #5
+	lsls	r0, #8
+	adds	r0, #MSG_EFFECTRATE
+	lsls	r0, #8
+	adds	r0, #5
 	
 	b	SendString2
 	
@@ -618,10 +619,10 @@ mmEffectRate:
 						.global mmEffectScaleRate
 						.thumb_func
 mmEffectScaleRate:
-	lsl	r0, #8
-	add	r0, #MSG_EFFECTMULRATE
-	lsl	r0, #8
-	add	r0, #5
+	lsls	r0, #8
+	adds	r0, #MSG_EFFECTMULRATE
+	lsls	r0, #8
+	adds	r0, #5
 	
 	b	SendString2
 	
@@ -633,8 +634,8 @@ mmEffectScaleRate:
 						.global mmEffectRelease
 						.thumb_func
 mmEffectRelease:
-	mov	r1, #1
-	mov	r2, #MSG_EFFECTOPT
+	movs	r1, #1
+	movs	r2, #MSG_EFFECTOPT
 	b	SendSimpleExt
 	
 /***********************************************************************
@@ -645,8 +646,8 @@ mmEffectRelease:
 						.global mmEffectCancel
 						.thumb_func
 mmEffectCancel:
-	mov	r1, #0
-	mov	r2, #MSG_EFFECTOPT
+	movs	r1, #0
+	movs	r2, #MSG_EFFECTOPT
 	b	SendSimpleExt
 
 /***********************************************************************
@@ -659,7 +660,7 @@ mmEffectCancel:
 mmEffectEx:
 	push	{r4,r5,lr}
 	
-	mov	r4, r0				// save struct address
+	movs	r4, r0				// save struct address
 	
 	ldrh	r0, [r4, #MM_SFX_HANDLE]	// test handle and validate/create new one
 	cmp	r0, #0				//	
@@ -668,33 +669,33 @@ mmEffectEx:
 	b	2f				//
 1:	bl	mmValidateEffectHandle		//
 2:
-	mov	r2, r0				//
+	movs	r2, r0				//
 	beq	.no_sfx_handles_availble
-	mov	r5, r0				//-save for return value
+	movs	r5, r0				//-save for return value
 	
 	ldrh	r0, [r4, #MM_SFX_SRC]		// r0 = ssssmm0B
-	lsl	r0, #8				//
-	add	r0, #MSG_EFFECTEX		//
-	lsl	r0, #8				//
-	add	r0, #11				//
+	lsls	r0, #8				//
+	adds	r0, #MSG_EFFECTEX		//
+	lsls	r0, #8				//
+	adds	r0, #11				//
 	
 	ldrh	r1, [r4, #MM_SFX_SRC+2]		// r1 = rrrrssss
 	ldrh	r3, [r4, #MM_SFX_RATE]		//
-	lsl	r3, #16				//
-	orr	r1, r3				//
+	lsls	r3, #16				//
+	orrs	r1, r3				//
 	
 	ldrh	r3, [r4, #MM_SFX_VOLUME]	// r2 = ppvvhhhh
-	lsl	r3, #16
-	orr	r2, r3
+	lsls	r3, #16
+	orrs	r2, r3
 	
 	bl	SendString3
 	
 
-	mov	r0, r5				// return handle
+	movs	r0, r5				// return handle
 	pop	{r4,r5,pc}
 	
 .no_sfx_handles_availble:
-	mov	r0, #0
+	movs	r0, #0
 	pop	{r4,r5,pc}
 
 /***********************************************************************
@@ -705,7 +706,7 @@ mmEffectEx:
 						.global mmEffectCancelAll
 						.thumb_func
 mmEffectCancelAll:
-	mov	r2, #MSG_EFFECTCANCELALL
+	movs	r2, #MSG_EFFECTCANCELALL
 	b	SendSimple
 	
 	
@@ -727,7 +728,7 @@ mmEffectCancelAll:
 						.thumb_func
 mmReverbEnable:
 
-	mov	r2, #MSG_REVERBENABLE
+	movs	r2, #MSG_REVERBENABLE
 	b	SendSimple
 	
 /***********************************************************************
@@ -739,7 +740,7 @@ mmReverbEnable:
 						.thumb_func
 mmReverbDisable:
 
-	mov	r2, #MSG_REVERBDISABLE
+	movs	r2, #MSG_REVERBDISABLE
 	b	SendSimple
 	
 /***********************************************************************
@@ -754,61 +755,61 @@ mmReverbConfigure:
 	sub	sp, #24
 	mov	r3, sp
 						// byte0 = size... (calculate)
-	mov	r2, #MSG_REVERBCFG		// byte1 = reverbcfg
+	movs	r2, #MSG_REVERBCFG		// byte1 = reverbcfg
 	strb	r2, [r3, #1]			//
 	
 	ldrh	r2, [r0, #mmrc_flags]		// write flags
 	strh	r2, [r3, #2]			//
-	add	r3, #4				//
+	adds	r3, #4				//
 	
-	lsr	r2, #1				// write memory
+	lsrs	r2, #1				// write memory
 	bcc	.mmrc_memory			//
 						//
 	ldr	r1, [r0, #mmrc_memory]		//
 	str	r1, [r3]			//
-	add	r3, #4				//
+	adds	r3, #4				//
 .mmrc_memory:					//
 	
-	lsr	r2, #1				// delay...
+	lsrs	r2, #1				// delay...
 	bcc	.mmrc_delay			//
 						//
 	ldrh	r1, [r0, #mmrc_delay]		//
 	strh	r1, [r3]			//
-	add	r3, #2				//
+	adds	r3, #2				//
 .mmrc_delay:					//
 	
-	lsr	r2, #1				// rate...
+	lsrs	r2, #1				// rate...
 	bcc	.mmrc_rate			//
 						//
 	ldrh	r1, [r0, #mmrc_rate]		//
 	strh	r1, [r3]			//
-	add	r3, #2				//
+	adds	r3, #2				//
 .mmrc_rate:					//
 	
-	lsr	r2, #1				// feedback...
+	lsrs	r2, #1				// feedback...
 	bcc	.mmrc_feedback			//
 						//
 	ldrh	r1, [r0, #mmrc_feedback]	//
 	strh	r1, [r3]			//
-	add	r3, #2				//
+	adds	r3, #2				//
 .mmrc_feedback:					//
 	
-	lsr	r2, #1				// panning...
+	lsrs	r2, #1				// panning...
 	bcc	.mmrc_panning			//
 						//
 	ldrb	r1, [r0, #mmrc_panning]		//
 	strb	r1, [r3]			//
-	add	r3, #1				//
+	adds	r3, #1				//
 .mmrc_panning:					//
 	
 	mov	r2, sp				// r2 = data pointer
-	sub	r3, r2				// get byte count
-	sub	r3, #1				//
+	subs	r3, r2				// get byte count
+	subs	r3, #1				//
 	strb	r3, [r2]			// 
 	
-	add	r3, #3	+1			// r1 = wordcount
-	lsr	r1, r3, #2			//
-	lsl	r1, #2
+	adds	r3, #3	+1			// r1 = wordcount
+	lsrs	r1, r3, #2			//
+	lsls	r1, #2
 	
 	ldr	r0,=mmFifoChannel		// r0 = channel
 	ldr	r0, [r0]			//
@@ -826,7 +827,7 @@ mmReverbConfigure:
 						.global mmReverbStart
 						.thumb_func
 mmReverbStart:
-	mov	r2, #MSG_REVERBSTART
+	movs	r2, #MSG_REVERBSTART
 	b	SendSimple
 	
 /***********************************************************************
@@ -837,7 +838,7 @@ mmReverbStart:
 						.global mmReverbStop
 						.thumb_func
 mmReverbStop:
-	mov	r2, #MSG_REVERBSTOP
+	movs	r2, #MSG_REVERBSTOP
 	b	SendSimple
 	
 	
@@ -861,7 +862,7 @@ mmReceiveMessage:
 	// 1 = event
 	// 0 = sfx
 
-	lsr	r1, r0, #20
+	lsrs	r1, r0, #20
 	cmp	r1, #1
 	beq	.got_event
 //	blt	.got_sfx
@@ -869,13 +870,13 @@ mmReceiveMessage:
 	
 	ldr	r1,=sfx_bitmask
 	ldrh	r2, [r1]
-	bic	r2, r0
+	bics	r2, r0
 	strh	r2, [r1]
 	//strh	r0, [r1]
 	
 	ldr	r1,=mmActiveStatus
-	lsl	r0, #15
-	lsr	r0, #31
+	lsls	r0, #15
+	lsrs	r0, #31
 	strb	r0, [r1]
 	
 	bx	lr
@@ -887,10 +888,10 @@ mmReceiveMessage:
 	cmp	r2, #0
 	beq	1f
 	
-	lsl	r1, r0, #16			// r1 = param
-	lsr	r1, #24				//
-	lsl	r0, #24				// r0 = msg
-	lsr	r0, #24				//
+	lsls	r1, r0, #16			// r1 = param
+	lsrs	r1, #24				//
+	lsls	r0, #24				// r0 = msg
+	lsrs	r0, #24				//
 	bx	r2				// jump to callback
 1:
 	bx	lr
