@@ -27,6 +27,7 @@
 @----------------------------------------------
 
 .text
+.syntax unified
 .thumb
 .align 2
 
@@ -45,8 +46,8 @@ mmLoad:			@ params={ module_ID }
 	
 	ldr	r1,=mmModuleBank
 	ldr	r1, [r1]
-	lsl	r2, r0, #2
-	add	r4, r1, r2
+	lsls	r2, r0, #2
+	adds	r4, r1, r2
 	ldr	r2, [r4]
 	cmp	r2, #0
 	beq	1f
@@ -57,14 +58,14 @@ mmLoad:			@ params={ module_ID }
 @ load module into memory
 @---------------------------------------
 	
-1:	mov	r1, r0
-	mov	r0, #MMCB_SONGREQUEST
+1:	movs	r1, r0
+	movs	r0, #MMCB_SONGREQUEST
 	
 	blx	r7
 	str	r0, [r4]
 	
-	mov	r4, r0
-	add	r4, #8
+	movs	r4, r0
+	adds	r4, #8
 	
 @---------------------------------------
 @ load samples into memory
@@ -73,11 +74,11 @@ mmLoad:			@ params={ module_ID }
 @ calculate sample numbers offset
 	ldrb	r0, [r4, #C_MAS_INSTN]
 	ldrb	r6, [r4, #C_MAS_SAMPN]
-	mov	r5, r4
-	add	r5, #255
-	add	r5, #C_MAS_TABLES-255
-	lsl	r0, #2
-	add	r5, r0
+	movs	r5, r4
+	adds	r5, #255
+	adds	r5, #C_MAS_TABLES-255
+	lsls	r0, #2
+	adds	r5, r0
 	
 @ r5 = sample table
 	
@@ -85,16 +86,16 @@ mmLoad:			@ params={ module_ID }
 	
 .mppl_samples:
 	ldr	r0, [r5]
-	add	r5, #4
-	add	r0, r4
+	adds	r5, #4
+	adds	r0, r4
 	ldrh	r0, [r0, #C_MASS_MSLID]
 	
 	bl	mmLoadEffect
 	
-	sub	r6, #1
+	subs	r6, #1
 	bne	.mppl_samples
 	
-@----------------------------------------	
+@----------------------------------------
 @ ready for playback! :D
 @----------------------------------------
 	bl	mmFlushBank @ arm function
@@ -112,36 +113,36 @@ mmUnload:		@ params={ module_ID }
 	push	{r0}
 	ldr	r7,=mmcbMemory
 	ldr	r7, [r7]
-	mov	r6, #0
+	movs	r6, #0
 	ldr	r1,=mmModuleBank
 	ldr	r1, [r1]
-	lsl	r0, #2
+	lsls	r0, #2
 	ldr	r4, [r1, r0]
 	cmp	r4, #0
 	beq	1f
 	
-	add	r4, r4, #8
-	mov	r6, r4
+	adds	r4, r4, #8
+	movs	r6, r4
 	ldrb	r5, [r4, #C_MAS_SAMPN]
 	
 	ldrb	r0, [r4, #C_MAS_INSTN]
-	lsl	r0, #2
-	add	r4, r0
-	add	r4, #255
-	add	r4, #C_MAS_TABLES-255
+	lsls	r0, #2
+	adds	r4, r0
+	adds	r4, #255
+	adds	r4, #C_MAS_TABLES-255
 	
 @------------------------------------
 @ free samples
 @------------------------------------
 	
 3:	ldr	r0, [r4]
-	add	r0, r6
-	add	r4, #4
+	adds	r0, r6
+	adds	r4, #4
 	ldrh	r0, [r0, #C_MASS_MSLID]
 	
 	bl	mmUnloadEffect
 	
-	sub	r5, #1		@ dec sample counter
+	subs	r5, #1		@ dec sample counter
 	bne	3b
 	
 @------------------------------------
@@ -149,13 +150,13 @@ mmUnload:		@ params={ module_ID }
 @------------------------------------
 	
 	pop	{r0}
-	lsl	r0, #2
+	lsls	r0, #2
 	ldr	r2,=mmModuleBank
 	ldr	r2, [r2]
 	ldr	r1, [r2,r0]
-	mov	r3, #0
+	movs	r3, #0
 	str	r3, [r2,r0]
-	mov	r0, #MMCB_DELETESONG
+	movs	r0, #MMCB_DELETESONG
 	blx	r7
 
 @------------------------------------
@@ -181,25 +182,25 @@ mmLoadEffect:		@ params={ msl_id }
 	ldr	r1,=mmSampleBank	@ get sample bank
 	ldr	r1, [r1]
 	
-	lsl	r2, r0, #2		@ read sample entry
+	lsls	r2, r0, #2		@ read sample entry
 	ldr	r3, [r1, r2]
 	cmp	r3, #0			@ check if instance exists
 	bne	.mppls_exists
 	
 	push	{r1-r2}
-	mov	r1, r0			@ no instance
-	mov	r0, #MMCB_SAMPREQUEST	@ request sample from user
+	movs	r1, r0			@ no instance
+	movs	r0, #MMCB_SAMPREQUEST	@ request sample from user
 	ldr	r2,=mmcbMemory
 	ldr	r2, [r2]
 	blx	r2
 	pop	{r1-r2}
-	lsl	r0, #8			@ clear high byte of address
-	lsr	r3, r0, #8		@ 
+	lsls	r0, #8			@ clear high byte of address
+	lsrs	r3, r0, #8		@
 	
 .mppls_exists:
 	
 	ldr	r0,=0x1000000		@ increment instance count
-	add	r3, r0
+	adds	r3, r0
 	str	r3, [r1, r2]		@ write sample entry
 	
 	bl	mmFlushBank
@@ -221,28 +222,28 @@ mmUnloadEffect:		@ params={ msl_id }
 	ldr	r1,=mmSampleBank	@ get sample bank
 	ldr	r1, [r1]
 	
-	lsl	r0, #2			@ load sample entry
+	lsls	r0, #2			@ load sample entry
 	ldr	r2, [r1, r0]
-	lsr	r3, r2, #24		@ mask counter value
+	lsrs	r3, r2, #24		@ mask counter value
 	
 	beq	1f			@ exit if already zero
 	ldr	r3,=0x1000000		@ subtract 1 from instance counter
-	sub	r2, r3
-	lsr	r3, r2, #24		@ mask counter vaue
+	subs	r2, r3
+	lsrs	r3, r2, #24		@ mask counter vaue
 	bne	2f			@ skip unload if sample
 					@   is still referenced
 	
 	push	{r0-r2, r7}
 	ldr	r3,=0x2000000		@ unload sample from memory
-	add	r1, r2, r3		@ param_b = sample address
-	mov	r0, #MMCB_DELETESAMPLE	@ param_a = message
+	adds	r1, r2, r3		@ param_b = sample address
+	movs	r0, #MMCB_DELETESAMPLE	@ param_a = message
 	ldr	r7,=mmcbMemory		@ jump to callback
 	ldr	r7, [r7]
 	blx	r7
 	pop	{r0-r2, r7}
 	
 1:
-	mov	r2, #0			@ clear sample entry
+	movs	r2, #0			@ clear sample entry
 	
 2:
 	str	r2, [r1, r0]		@ save sample entry
