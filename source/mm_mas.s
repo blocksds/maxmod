@@ -53,8 +53,9 @@
 
 
 
-	.BSS
-	.ALIGN 2
+	.bss
+	.syntax unified
+	.align 2
 
 /******************************************************************************
  * mmLayerMain
@@ -171,12 +172,12 @@ mm_schannels:		.space MP_SCHANNELS*MCH_SIZE
  * Trashes r1, r2
  ******************************************************************************/
 .macro mpp_InstrumentPointer
-	mov	r1, r8	
+	mov	r1, r8
 	ldr	r2,[r1,#MPL_SONGADR]	
 	ldr	r1,[r1,#MPL_INSTTABLE]	
-	lsl	r0, #2			
+	lsls	r0, #2
 	ldr	r0,[r1,r0]		
-	add	r0, r2
+	adds	r0, r2
 .endm
 
 /******************************************************************************
@@ -188,12 +189,12 @@ mm_schannels:		.space MP_SCHANNELS*MCH_SIZE
  * Trashes r1, r2
  ******************************************************************************/
 .macro mpp_SamplePointer	
-	mov	r1, r8		
+	mov	r1, r8
 	ldr	r2,[r1,#MPL_SONGADR]	
 	ldr	r1,[r1,#MPL_SAMPTABLE]	
-	lsl	r0, #2			
+	lsls	r0, #2
 	ldr	r0,[r1,r0]		
-	add	r0, r2
+	adds	r0, r2
 .endm
 
 
@@ -220,21 +221,21 @@ mpp_resetchannels:
 
 	push	{r4-r6}
 
-	mov	r0, r6					// clear channel data to 0
-	mov	r1, #MCH_SIZE/4				//
-	mul	r1, r7					//
-	mov	r2, #0					//
+	movs	r0, r6					// clear channel data to 0
+	movs	r1, #MCH_SIZE/4				//
+	muls	r1, r7					//
+	movs	r2, #0					//
 1:	stmia	r0!, {r2}				//
-	sub	r1, #1					//
+	subs	r1, #1					//
 	bne	1b					//
 	
-	mov	r0, r6					// reset channel indexes
-	sub	r0, #MCH_SIZE-MCH_ALLOC			//
-	mov	r1, #MCH_SIZE				//
-	mul	r1, r7					//
-	mov	r2, #255				//
+	movs	r0, r6					// reset channel indexes
+	subs	r0, #MCH_SIZE-MCH_ALLOC			//
+	movs	r1, #MCH_SIZE				//
+	muls	r1, r7					//
+	movs	r2, #255				//
 1:	strb	r2, [r0, r1]				//
-	sub	r1, #MCH_SIZE				//
+	subs	r1, #MCH_SIZE				//
 	bne	1b					//
 
 	GET_MIXCH r4					// reset active channels linked to this layer
@@ -245,35 +246,35 @@ mpp_resetchannels:
 	ldr	r5,=1<<31				//
 #endif							//
 #ifdef SYS_NDS						//
-	mov	r5, #0					//
+	movs	r5, #0					//
 #endif							//
 
 	ldr	r0,=mm_achannels			// r0 = achannels
 	ldr	r0, [r0]				//
 	ldr	r1,=mm_num_ach				// r1 = #achannels
 	ldr	r1, [r1]				//
-	mov	r2, #0					// r2 = 0 (for clearing)
+	movs	r2, #0					// r2 = 0 (for clearing)
 	
 .mpic_loop3:
 	ldrb	r3, [r0, #MCA_FLAGS]			// test if layer matches
-	lsr	r3, #6					//
+	lsrs	r3, #6					//
 	cmp	r3, r6					//
 	bne	.mpic_l3_skip				//
 
-	mov	r3, #MCA_SIZE-4				// clear achannel data to zero
+	movs	r3, #MCA_SIZE-4				// clear achannel data to zero
 .mpic_loop4:						//
 	str	r2, [r0, r3]				//
-	sub	r3, r3, #4				//
+	subs	r3, r3, #4				//
 	bpl	.mpic_loop4				//
 
 	str	r5, [r4]				// disable mixer channel
 	
 .mpic_l3_skip:
 	
-	add	r0, #MCA_SIZE				// increment stuff and loop
-	add	r4, #MIXER_CHN_SIZE			//
+	adds	r0, #MCA_SIZE				// increment stuff and loop
+	adds	r4, #MIXER_CHN_SIZE			//
 							//
-	sub	r1, #1					//
+	subs	r1, #1					//
 	bne	.mpic_loop3				//
 	
 	pop	{r4-r6}
@@ -294,29 +295,29 @@ mm_reset_channels:
 	
 	ldr	r0,=mm_achannels		// clear active channel data
 	ldr	r0, [r0]			//
-	mov	r1, #0				//
+	movs	r1, #0				//
 	ldr	r2,=MCA_SIZE*32/4		//
 						//
 1:	stmia	r0!, {r1}			//
-	sub	r2, #1				//
+	subs	r2, #1				//
 	bne	1b				//
 	
 	ldr	r0,=mm_pchannels		// reset channel allocation
 	ldr	r0, [r0]			//
-	mov	r1, #255			//
-	mov	r2, #32				//
+	movs	r1, #255			//
+	movs	r2, #32				//
 						//
 1:	strb	r1, [r0, #MCH_ALLOC]		//
-	add	r0, #MCH_SIZE			//
-	sub	r2, #1				//
+	adds	r0, #MCH_SIZE			//
+	subs	r2, #1				//
 	bne	1b				//
 	
 	ldr	r0,=mm_schannels		// reset channel allocation
-	mov	r2, #4				//
+	movs	r2, #4				//
 						//
 1:	strb	r1, [r0, #MCH_ALLOC]		//
-	add	r0, #MCH_SIZE			//
-	sub	r2, #1				//
+	adds	r0, #MCH_SIZE			//
+	subs	r2, #1				//
 	bne	1b				//
 	
 	bl	mmResetEffects
@@ -340,10 +341,10 @@ mpp_suspend:
 	GET_MIXCH r1
 	ldr	r2,=mm_num_ach
 	ldr	r2, [r2]
-	mov	r4, #0
+	movs	r4, #0
 .mpps_loop:
 	ldrb	r3, [r0, #MCA_FLAGS]
-	lsr	r3, #6
+	lsrs	r3, #6
 	bne	.mpps_next
 #ifdef SYS_GBA 
 	str	r4, [r1, #MIXER_CHN_FREQ]
@@ -353,9 +354,9 @@ mpp_suspend:
 #endif
 
 .mpps_next:
-	add	r0, #MCA_SIZE
-	add	r1, #MIXER_CHN_SIZE
-	sub	r2, #1
+	adds	r0, #MCA_SIZE
+	adds	r1, #MIXER_CHN_SIZE
+	subs	r2, #1
 	bne	.mpps_loop
 	
 	pop	{r4, pc}
@@ -382,16 +383,16 @@ mpp_suspend:
 							.thumb_func
 mmStart:
 	
-	mov	r2, #0
+	movs	r2, #0
 .mpps_backdoor:
-	lsl	r0, #2
+	lsls	r0, #2
 	ldr	r3,=mmModuleBank
 	ldr	r3, [r3]
 	ldr	r0, [r3, r0]
 	
 	cmp	r0, #0
 	beq	1f
-	add	r0, #8
+	adds	r0, #8
 	b	mmPlayModule
 1:	bx	lr
 
@@ -406,8 +407,8 @@ mmStart:
 							.thumb_func
 mmJingle:
 	
-	mov	r2, #1
-	mov	r1, #MPP_PLAY_ONCE
+	movs	r2, #1
+	movs	r1, #MPP_PLAY_ONCE
 	b	.mpps_backdoor
 	
 //-----------------------------------------------------------------------------
@@ -436,23 +437,23 @@ mmJingle:
 							.thumb_func
 mmStart:
 
-	mov	r2, #0
+	movs	r2, #0
 .mpps_backdoor:
 	push	{r2}
 	ldr	r2,=mp_solution		@ resolve song address
 	ldr	r2, [r2]
 	ldrh	r3, [r2, #0]
-	lsl	r3, #2
-	add	r3, #12
-	add	r3, r2
-	lsl	r0, #2
-	add	r0, r3
+	lsls	r3, #2
+	adds	r3, #12
+	adds	r3, r2
+	lsls	r0, #2
+	adds	r0, r3
 	ldr	r0, [r0]
-	add	r0, r2
+	adds	r0, r2
 	
 	pop	{r2}
 	
-	add	r0, #8
+	adds	r0, #8
 
 	b	mmPlayModule
 1:	bx	lr
@@ -468,8 +469,8 @@ mmStart:
 							.thumb_func
 mmJingle:
 
-	mov	r2, #1
-	mov	r1, #MPP_PLAY_ONCE
+	movs	r2, #1
+	movs	r1, #MPP_PLAY_ONCE
 	b	.mpps_backdoor
 
 //-----------------------------------------------------------------------------
@@ -497,40 +498,40 @@ mmPlayModule:
 	@ldr	r6,=mpp_pchannels
 	ldr	r6,=mm_pchannels
 	ldr	r6,[r6]
-	@mov	r7, #MP_MCHANNELS
+	@movs	r7, #MP_MCHANNELS
 	ldr	r7,=mm_num_mch
 	ldr	r7,[r7]
 	b	2f
 1:	ldr	r5,=mmLayerSub
 	ldr	r6,=mm_schannels
-	mov	r7, #MP_SCHANNELS
+	movs	r7, #MP_SCHANNELS
 2:
 //	push	{r2}
 	
-	mov	r2, #MPL_MODE
+	movs	r2, #MPL_MODE
 	strb	r1, [r5, r2]
 
-	mov	r4, r0
+	movs	r4, r0
 	str	r4, [r5, #MPL_SONGADR]
 	
 	bl	mpp_resetchannels
 	
 	ldrb	r3, [r4, #C_MAS_INSTN]
 	ldrb	r2, [r4, #C_MAS_SAMPN]
-	lsl	r3, #2
-	lsl	r2, #2
+	lsls	r3, #2
+	lsls	r2, #2
 	
-	mov	r0, r4
-	add	r0, #255
-	add	r0, #C_MAS_TABLES-255
+	movs	r0, r4
+	adds	r0, #255
+	adds	r0, #C_MAS_TABLES-255
 	
 	str	r0, [r5, #MPL_INSTTABLE]	@ setup instrument table
-	add	r0, r3
+	adds	r0, r3
 	str	r0, [r5, #MPL_SAMPTABLE]	@ setup sample table
-	add	r0, r2
+	adds	r0, r2
 	str	r0, [r5, #MPL_PATTTABLE]	@ setup pattern table
 
-	mov	r0, #0		@ set pattern to 0
+	movs	r0, #0		@ set pattern to 0
 	
 	@ldr	r1,=mpp_setposition
 	@bl	mpp_call_r1
@@ -548,46 +549,46 @@ mmPlayModule:
 	ldrb	r0, [r4, #C_MAS_FLAGS]	@ read song flags
 	strb	r0, [r5, #MPL_FLAGS]	@ save
 	
-	lsl	r0, #32-2
-	lsr	r0, #32-2+1
+	lsls	r0, #32-2
+	lsrs	r0, #32-2+1
 	strb	r0, [r5, #MPL_OLDEFFECTS]
 
 	ldrb	r0, [r4, #C_MAS_SPEED]	@ speed
 	strb	r0, [r5, #MPL_SPEED]		@ and set
 	
-	mov	r0, #1				// mpp_playing=true
+	movs	r0, #1				// mpp_playing=true
 	strb	r0, [r5, #MPL_ISPLAYING]
 	
-	mov	r1, #MPL_VALID			// set valid flag
+	movs	r1, #MPL_VALID			// set valid flag
 	strb	r0, [r5, r1]			//
 
 	bl	mpp_resetvars
 	
 	@ setup channel volumes
-	mov	r0, r6
-	add	r0, #MCH_CVOLUME
-	mov	r3, r7
-	add	r4, #C_MAS_CHANVOL
+	movs	r0, r6
+	adds	r0, #MCH_CVOLUME
+	movs	r3, r7
+	adds	r4, #C_MAS_CHANVOL
 .cvol_setup:
 	ldrb	r1, [r4]
 	strb	r1, [r0]
-	add	r0, #MCH_SIZE
-	add	r4, #1
-	sub	r3, #1
+	adds	r0, #MCH_SIZE
+	adds	r4, #1
+	subs	r3, #1
 	bne	.cvol_setup
 	
-	add	r4, #32
-	sub	r4, r7
+	adds	r4, #32
+	subs	r4, r7
 	
-	mov	r0, r6
-	add	r0, #MCH_PANNING
-	mov	r3, r7
+	movs	r0, r6
+	adds	r0, #MCH_PANNING
+	movs	r3, r7
 .cpan_setup:
 	ldrb	r1, [r4]
 	strb	r1, [r0]
-	add	r0, #MCH_SIZE
-	add	r4, #1
-	sub	r3, #1
+	adds	r0, #MCH_SIZE
+	adds	r4, #1
+	subs	r3, #1
 	bne	.cpan_setup
 
 //	pop	{r2}		@ <-- FIX.2 WHY WAS THIS PRESERVED
@@ -612,12 +613,12 @@ mmPause:
 	
 	ldr	r5,=mmLayerMain
 	
-	mov	r0, #MPL_VALID
+	movs	r0, #MPL_VALID
 	ldrb	r0, [r5, r0]
 	cmp	r0, #0
 	beq	1f
 	
-	mov	r0, #0
+	movs	r0, #0
 	strb	r0, [r5, #MPL_ISPLAYING]
 	
 	bl	mpp_suspend
@@ -635,12 +636,12 @@ mmPause:
 mmResume:
 
 	ldr	r1,=mmLayerMain
-	mov	r0, #MPL_VALID
+	movs	r0, #MPL_VALID
 	ldrb	r0, [r1, r0]
 	cmp	r0, #0
 	beq	1f
 	
-	mov	r0, #1
+	movs	r0, #1
 	strb	r0, [r1, #MPL_ISPLAYING]
 1:	bx	lr
 
@@ -682,14 +683,14 @@ mmActiveSub:
 mmSetModuleVolume:
 
 @ clamp volume 0->1024
-	lsr	r1, r0, #10
+	lsrs	r1, r0, #10
 	beq	1f
-	mov	r0, #1
-	lsl	r0, #10
+	movs	r0, #1
+	lsls	r0, #10
 
 @ set volume
 1:	ldr	r1,=mmLayerMain
-	mov	r2, #MPL_VOLUME
+	movs	r2, #MPL_VOLUME
 	strh	r0, [r1, r2]
 	bx	lr
 
@@ -705,14 +706,14 @@ mmSetModuleVolume:
 mmSetJingleVolume:
 
 @ clamp volume 0->1024
-	lsr	r1, r0, #10
+	lsrs	r1, r0, #10
 	beq	1f
-	mov	r0, #1
-	lsl	r0, #10
+	movs	r0, #1
+	lsls	r0, #10
 
 @ set volume
 1:	ldr	r1,=mmLayerSub @mpp_layerB
-	mov	r2, #MPL_VOLUME
+	movs	r2, #MPL_VOLUME
 	strh	r0, [r1, r2]
 	bx	lr
 
@@ -733,21 +734,21 @@ mppStop:
 	beq	1f
 	ldr	r5,=mmLayerSub
 	ldr	r6,=mm_schannels
-	mov	r7, #MP_SCHANNELS
+	movs	r7, #MP_SCHANNELS
 	b	2f
 1:	ldr	r5,=mmLayerMain
 	@ldr	r6,=mpp_pchannels
 	ldr	r6,=mm_pchannels
 	ldr	r6,[r6]
-	@mov	r7, #MP_MCHANNELS
+	@movs	r7, #MP_MCHANNELS
 	ldr	r7,=mm_num_mch
 	ldr	r7,[r7]
 2:
 	
-	mov	r0, #0
+	movs	r0, #0
 	strb	r0, [r5, #MPL_ISPLAYING]
 	
-	mov	r1, #MPL_VALID
+	movs	r1, #MPL_VALID
 	strb	r0, [r5, r1]
 	
 	bl	mpp_resetchannels
@@ -832,16 +833,16 @@ mmSetModuleTempo:
 	
 	push	{r5,lr}
 	
-	mov	r1, #1				// clamp value: 512->2048
-	lsl	r1, #11				//
+	movs	r1, #1				// clamp value: 512->2048
+	lsls	r1, #11				//
 	cmp	r0, r1				//
 	ble	1f				//
-	mov	r0, r1				//
-1:	mov	r1, #1				//
-	lsl	r1, #9				//
+	movs	r0, r1				//
+1:	movs	r1, #1				//
+	lsls	r1, #9				//
 	cmp	r0, r1				//
 	bge	1f				//
-	mov	r0, r1				//
+	movs	r0, r1				//
 1:
 	
 	ldr	r1,=mm_mastertempo
@@ -849,7 +850,7 @@ mmSetModuleTempo:
 	
 	ldr	r5,=mmLayerMain
 	ldr	r0,=mpp_clayer
-	mov	r1, #0
+	movs	r1, #0
 	strb	r1, [r0]
 	
 	ldrb	r0, [r5, #MPL_BPM]
@@ -873,16 +874,16 @@ mmSetModuleTempo:
 mmSetModulePitch:
 	push	{r5,lr}
 	
-	mov	r1, #1				// clamp value: 512->2048
-	lsl	r1, #11				//
+	movs	r1, #1				// clamp value: 512->2048
+	lsls	r1, #11				//
 	cmp	r0, r1				//
 	ble	1f				//
-	mov	r0, r1				//
-1:	mov	r1, #1				//
-	lsl	r1, #9				//
+	movs	r0, r1				//
+1:	movs	r1, #1				//
+	lsls	r1, #9				//
 	cmp	r0, r1				//
 	bge	1f				//
-	mov	r0, r1				//
+	movs	r0, r1				//
 1:
 	
 	ldr	r1,=mm_masterpitch
@@ -915,7 +916,7 @@ mmSetResolution:
 	ldr	r5,=mmLayerMain
 	
 	ldr	r0,=mpp_clayer
-	mov	r1, #0
+	movs	r1, #0
 	strb	r1, [r0]
 	
 	ldrb	r0, [r5, #MPL_BPM]
@@ -925,7 +926,7 @@ mmSetResolution:
 1:	ldr	r5,=mmLayerSub
 
 	ldr	r0,=mpp_clayer
-	mov	r1, #1
+	movs	r1, #1
 	strb	r1, [r0]
 	
 	ldrb	r0, [r5, #MPL_BPM]
@@ -949,7 +950,7 @@ mmStop:
 
 	push	{r4-r7,lr}
 	ldr	r1,=mpp_clayer
-	mov	r0, #0
+	movs	r0, #0
 	strb	r0, [r1]
 	bl	mppStop
 	pop	{r4-r7}
@@ -964,9 +965,9 @@ mmStop:
 							.thumb_func
 mpp_resetvars:
 
-	mov	r0, #255
+	movs	r0, #255
 	strb	r0, [r5, #MPL_PATTJUMP]
-	mov	r0, #0
+	movs	r0, #0
 	strb	r0, [r5, #MPL_PATTJUMP_ROW]
 	bx	lr
 
@@ -990,28 +991,28 @@ mpp_setbpm:
 	
 	ldr	r1,=mm_mastertempo	// multiply by master tempo
 	ldr	r1, [r1]		//
-	mul	r1, r0			//
-	lsr	r1, #10			//
+	muls	r1, r0			//
+	lsrs	r1, #10			//
 	
 	ldr	r0,=mm_bpmdv		@ samples per tick ~= mixfreq / (bpm/2.5) ~= mixfreq*2.5/bpm
 	ldr	r0,[r0]
 	
 	swi	SWI_DIVIDE		@ SWI 07h, divide r1/r0
-	lsr	r0, #1			@ multiple of two
-	lsl	r0, #1			@ ---------------
-	mov	r1, #MPL_TICKRATE
-	strh	r0, [r5, r1]		@ 
-	mov	r1, #MPL_SAMPCOUNT
-//	mov	r0, #0
+	lsrs	r0, #1			@ multiple of two
+	lsls	r0, #1			@ ---------------
+	movs	r1, #MPL_TICKRATE
+	strh	r0, [r5, r1]		@
+	movs	r1, #MPL_SAMPCOUNT
+//	movs	r0, #0
 //	strh	r0, [r5, r1]
 	bx	lr			@ return
 	
 1:	@ SUB LAYER, time using vsync (rate = bpm/2.5 / 59.7)
 	
-	lsl	r0, #15
-	mov	r1, #149
+	lsls	r0, #15
+	movs	r1, #149
 	swi	SWI_DIVIDE
-	mov	r1, #MPL_TICKRATE
+	movs	r1, #MPL_TICKRATE
 	strh	r0, [r5, r1]
 	bx	lr
 	
@@ -1028,21 +1029,21 @@ mpp_setbpm:
 	bne	1f
 	ldr	r1,=mm_mastertempo	// multiply by master tempo
 	ldr	r1, [r1]		//
-	mul	r0, r1			//
-//	lsr	r1, #10			//
+	muls	r0, r1			//
+//	lsrs	r1, #10			//
 
-	lsl	r0, #16+6-10
+	lsls	r0, #16+6-10
 	b	2f
 1:
-	lsl	r0, #16+6
+	lsls	r0, #16+6
 2:
 	@ using 60hz vsync for timing
-//	lsl	r0, #16+6
+//	lsls	r0, #16+6
 	ldr	r1,=mpp_resolution
 	ldr	r1, [r1]
 	swi	SWI_DIVIDE
-	lsr	r0, #1
-	mov	r1, #MPL_TICKRATE
+	lsrs	r0, #1
+	movs	r1, #MPL_TICKRATE
 	strh	r0, [r5, r1]
 	bx	lr
 	
@@ -1066,13 +1067,13 @@ mpp_setpositionA:
 	strb	r0, [r5, #MPL_POSITION]
 	
 	ldr	r1, [r5, #MPL_SONGADR]
-	mov	r3, r1
-	add	r1, #C_MAS_ORDER	@ get sequence entry
+	movs	r3, r1
+	adds	r1, #C_MAS_ORDER	@ get sequence entry
 	ldrb	r1, [r1, r0]		@
 	
 	cmp	r1, #254
 	bne	.mpsp_skippatt
-	add	r0, #1
+	adds	r0, #1
 	b	mpp_setpositionA
 .mpsp_skippatt:
 	
@@ -1082,7 +1083,7 @@ mpp_setpositionA:
 	@ END OF SONG!!! WOOPHEE!!!!
 	
 
-	mov	r0, #MPL_MODE @mpp_playmode
+	movs	r0, #MPL_MODE @mpp_playmode
 	ldrb	r0, [r5, r0]
 	
 	cmp	r0, #MPP_PLAY_ONCE
@@ -1093,7 +1094,7 @@ mpp_setpositionA:
 1:	@ its playing once:
 
 	bl	mppStop
-	mov	r0, #MPCB_SONGFINISHED
+	movs	r0, #MPCB_SONGFINISHED
 	ldr	r2,=mmCallback
 	ldr	r2,[r2]
 	cmp	r2, #0
@@ -1116,33 +1117,33 @@ mpp_setpositionA:
 	b	mpp_setpositionA
 .mpsp_endsong:
 	
-	mov	r0, r1
+	movs	r0, r1
 	
 	ldr	r1, [r5, #MPL_PATTTABLE]
-	lsl	r0, #2
+	lsls	r0, #2
 	
 	@ r1 = pattern address( in table )
 	
 	ldr	r1, [r1, r0]
-	add	r1, r3		@ add song address
+	adds	r1, r3		@ add song address
 	
 	@ r1 = pattern address
 	
 	ldrb	r2, [r1]		@ set pattern size
 	strb	r2, [r5, #MPL_NROWS]	@
 	
-	mov	r2, #0			@ reset tick/row
+	movs	r2, #0			@ reset tick/row
 	strh	r2, [r5, #MPL_TICK]
 	strb	r2, [r5, #MPL_FPATTDELAY]
 	strb	r2, [r5, #MPL_PATTDELAY]
 
-	mov	r0, #MPL_PATTREAD
-	add	r1, #1
+	movs	r0, #MPL_PATTREAD
+	adds	r1, #1
 	str	r1, [r5, r0]		@ store pattern data address
 
-	mov	r0, #MPL_PLOOP_ADR		@ reset pattern loop
+	movs	r0, #MPL_PLOOP_ADR		@ reset pattern loop
 	str	r1, [r5, r0]
-	mov	r0, #0
+	movs	r0, #0
 	strb	r0, [r5, #MPL_PLOOP_ROW]
 	strb	r0, [r5, #MPL_PLOOP_TIMES]
 	
@@ -1163,20 +1164,20 @@ mppUpdateLayer:
 	push	{lr}
 	ldr	r1,=mpp_layerp
 	str	r0, [r1]
-	mov	r1, #MPL_TICKRATE
+	movs	r1, #MPL_TICKRATE
 	ldrh	r1, [r0, r1]	
-	mov	r2, #MPL_TICKFRAC
+	movs	r2, #MPL_TICKFRAC
 	ldrh	r3, [r0, r2]
-	lsl	r1, #1
-	add	r3, r1
+	lsls	r1, #1
+	adds	r3, r1
 	strh	r3, [r0, r2]
-	lsr	r3, #16
+	lsrs	r3, #16
 	beq	1f
 2:	push	{r3}
 	
 	bl	mppProcessTick
 	pop	{r3}
-	sub	r3, #1
+	subs	r3, #1
 	bne	2b
 1:	pop	{pc}
 
@@ -1200,7 +1201,7 @@ mmPulse:
 	ldr	r1,[r1]				//
 	strb	r1, [r0]			//
 	ldr	r0,=mpp_clayer			//
-	mov	r1, #0				//
+	movs	r1, #0				//
 	strb	r1, [r0]			//
 						//
 	ldr	r0,=mmLayerMain			//
@@ -1210,10 +1211,10 @@ mmPulse:
 	ldr	r1,=mm_schannels		//
 	str	r1, [r0]			//
 	ldr	r0,=mpp_nchannels		//
-	mov	r1, #MP_SCHANNELS		//
+	movs	r1, #MP_SCHANNELS		//
 	strb	r1, [r0]			//
 	ldr	r0,=mpp_clayer			//
-	mov	r1, #1				//
+	movs	r1, #1				//
 	strb	r1, [r0]			//
 						//
 	ldr	r0,=mmLayerSub			//
@@ -1249,10 +1250,10 @@ mppUpdateSub:
 	ldr	r1,=mm_schannels
 	str	r1, [r0]
 	ldr	r0,=mpp_nchannels
-	mov	r1, #MP_SCHANNELS
+	movs	r1, #MP_SCHANNELS
 	strb	r1, [r0]
 	ldr	r0,=mpp_clayer
-	mov	r1, #1
+	movs	r1, #1
 	strb	r1, [r0]
 	
 	push	{lr}
@@ -1260,20 +1261,20 @@ mppUpdateSub:
 	ldr	r1,=mpp_layerp
 	str	r0, [r1]
 	
-	mov	r1, #MPL_TICKRATE
+	movs	r1, #MPL_TICKRATE
 	ldrh	r1, [r0, r1]
-	mov	r2, #MPL_TICKFRAC
+	movs	r2, #MPL_TICKFRAC
 	ldrh	r3, [r0, r2]
-	lsl	r1, #1
-	add	r3, r1
+	lsls	r1, #1
+	adds	r3, r1
 	strh	r3, [r0, r2]
-	lsr	r3, #16
+	lsrs	r3, #16
 	beq	1f
 2:	push	{r3}
 	ldr	r1,=mppProcessTick
 	bl	mpp_call_r1
 	pop	{r3}
-	sub	r3, #1
+	subs	r3, #1
 	bgt	2b
 1:	pop	{pc}
 	
@@ -1340,11 +1341,11 @@ mppProcessTick:					@@      @@@ @    @@
 	//bl	mpp_ReadPattern
 	PROF_END 4
 
-@-----------------------------------------	
+@-----------------------------------------
 .mpp_pt_skippatternread:
 	
 	mov	r0, r8
-	mov	r4, #MPL_MCH_UPDATE
+	movs	r4, #MPL_MCH_UPDATE
 	ldr	r4, [r0, r4]
 	
 @---------------------------------------------------
@@ -1353,7 +1354,7 @@ mppProcessTick:					@@      @@@ @    @@
 	
 	ldr	r7,=mpp_channels
 	ldr	r7, [r7]
-	mov	r0, #0
+	movs	r0, #0
 	mov	r10, r0	@ use r10 as channel counter
 	mov	r0, r8
 	ldrb	r0, [r0, #MPL_TICK]
@@ -1362,14 +1363,14 @@ mppProcessTick:					@@      @@@ @    @@
 	
 @---------------------------------------------------
 pchannel_loop_first:
-@---------------------------------------------------	
-	lsr	r4, #1
+@---------------------------------------------------
+	lsrs	r4, #1
 	bcc	pchannel_empty
 	fjump2	mmUpdateChannel_T0
 pchannel_empty:
-	mov	r0, #1
+	movs	r0, #1
 	add	r10, r0
-	add	r7, #MCH_SIZE
+	adds	r7, #MCH_SIZE
 	cmp	r4, #0
 	bne	pchannel_loop_first
 	b	pchannel_loop_finished
@@ -1377,7 +1378,7 @@ pchannel_empty:
 @---------------------------------------------------
 pchannel_loop_other:
 @---------------------------------------------------
-	lsr	r4, #1
+	lsrs	r4, #1
 	bcc	pchannel_empty2
 	#ifdef FOO_UC
 	bl	mpp_Update_Channel
@@ -1386,9 +1387,9 @@ pchannel_loop_other:
 	#endif
 	
 pchannel_empty2:
-	mov	r0, #1
+	movs	r0, #1
 	add	r10, r0
-	add	r7, #MCH_SIZE
+	adds	r7, #MCH_SIZE
 	cmp	r4, #0
 	bne	pchannel_loop_other
 	
@@ -1401,9 +1402,9 @@ pchannel_loop_finished:
 	ldr	r6,=mm_achannels
 	ldr	r6, [r6]
 	@ldr	r6,=mpp_achannels
-	mov	r4, #0
+	movs	r4, #0
 	
-@---------------------------------------------------	
+@---------------------------------------------------
 .mpp_pt_achn_loop:
 @---------------------------------------------------
 
@@ -1413,14 +1414,14 @@ pchannel_loop_finished:
 	ldr	r0,=mpp_clayer
 	ldrb	r0, [r0]
 	ldrb	r1, [r6, #MCA_FLAGS]
-	lsr	r1, #6
+	lsrs	r1, #6
 	cmp	r1, r0
 	bne	.mpp_pt_achn_next
 	
 	ldr	r1,=mpp_vars
 	ldrb	r0, [r6, #MCA_VOLUME]
 	strb	r0, [r1, #MPV_AFVOL]
-	mov	r0, #0
+	movs	r0, #0
 	strh	r0, [r1, #MPV_PANPLUS]
 	
 	ldr	r5, [r6, #MCA_PERIOD]
@@ -1429,9 +1430,9 @@ pchannel_loop_finished:
 	
 	b	.mpp_pt_achn_next
 	
-@---------------------------------------------------	
+@---------------------------------------------------
 .mpp_pt_achn_disabled:
-@	mov	r0, r4
+@	movs	r0, r4
 @	bl	mp_Mixer_StopChannel
 	
 @---------------------------------------------------
@@ -1439,11 +1440,11 @@ pchannel_loop_finished:
 @---------------------------------------------------
 
 	ldrb	r0, [r6, #MCA_FLAGS]
-	mov	r1, #MCAF_UPDATED
-	bic	r0, r1
+	movs	r1, #MCAF_UPDATED
+	bics	r0, r1
 	strb	r0, [r6, #MCA_FLAGS]
-	add	r6, #MCA_SIZE
-	add	r4, #1
+	adds	r6, #MCA_SIZE
+	adds	r4, #1
 	ldr	r0,=mm_num_ach
 	ldr	r0,[r0]
 	
@@ -1480,7 +1481,7 @@ mppProcessTick_incframe:
 	
 	mov	r5, r8				@ get tick#
 	ldrb	r1, [r5, #MPL_TICK]		@ ..
-	add	r1, #1				@ increment
+	adds	r1, #1				@ increment
 	
 	ldrb	r2, [r5, #MPL_SPEED]		@ compare with speed
 	cmp	r1, r2				@ ..
@@ -1489,12 +1490,12 @@ mppProcessTick_incframe:
 	ldrb	r2, [r5, #MPL_FPATTDELAY]
 	cmp	r2, #0
 	beq	.mppt_nofpd
-	sub	r2, #1
+	subs	r2, #1
 	strb	r2, [r5, #MPL_FPATTDELAY]
 	b	.mppt_continuerow
 .mppt_nofpd:
 	
-	mov	r1, #0				@  .. otherwise clear tick count
+	movs	r1, #0				@  .. otherwise clear tick count
 	b	.mppt_nextrow			@  and advance to next row
 	
 .mppt_continuerow:				@ continue current row:
@@ -1506,7 +1507,7 @@ mppProcessTick_incframe:
 	ldrb	r2, [r5, #MPL_PATTDELAY]
 	cmp	r2, #0
 	beq	.mppt_nopd
-	sub	r2, #1
+	subs	r2, #1
 	strb	r2, [r5, #MPL_PATTDELAY]
 	beq	.mppt_nopd
 	b	.mppt_continuerow
@@ -1517,15 +1518,15 @@ mppProcessTick_incframe:
 	cmp	r1, #255
 	beq	.mppt_no_pj
 	
-	mov	r2, #255
+	movs	r2, #255
 	strb	r2, [r5, #MPL_PATTJUMP]
-	mov	r0, r1
+	movs	r0, r1
 	bl	mpp_setposition
 	
 	ldrb	r1, [r5, #MPL_PATTJUMP_ROW]
 	cmp	r1, #0
 	beq	.mppt_pj_no_offset
-	mov	r2, #0
+	movs	r2, #0
 	strb	r2, [r5, #MPL_PATTJUMP_ROW]
 	bl	mpph_FastForward
 .mppt_pj_no_offset:
@@ -1534,32 +1535,32 @@ mppProcessTick_incframe:
 	
 .mppt_no_pj:
 	
-	mov	r3, #MPL_PLOOP_JUMP
+	movs	r3, #MPL_PLOOP_JUMP
 	ldrb	r1, [r5, r3]
 	cmp	r1, #0
 	beq	.mppt_no_ploop
-	mov	r1, #0
+	movs	r1, #0
 	strb	r1, [r5, r3]
 	ldrb	r1, [r5, #MPL_PLOOP_ROW]
 	strb	r1, [r5, #MPL_ROW]
-	mov	r3, #MPL_PLOOP_ADR
+	movs	r3, #MPL_PLOOP_ADR
 	ldr	r1, [r5, r3]
 
-	mov	r3, #MPL_PATTREAD
+	movs	r3, #MPL_PATTREAD
 	str	r1, [r5, r3]
 	b	.mppt_exit
 .mppt_no_ploop:
 	ldrb	r1, [r5, #MPL_ROW]			@ ..
-	add	r1, #1					@ increment
-	ldrb	r2, [r5, #MPL_NROWS]			@ 
-	add	r2, #1
+	adds	r1, #1					@ increment
+	ldrb	r2, [r5, #MPL_NROWS]			@
+	adds	r2, #1
 	cmp	r1, r2					@ check with #rows for pattern
 	bne	.mppt_continuepattern			@ if !=, then continue playing this pattern
 	
 .mppt_nextposition:					@ advance position
 	
 	ldrb	r0, [r5, #MPL_POSITION]			@ increment position
-	add	r0, #1
+	adds	r0, #1
 	
 	bl	mpp_setposition
 	b	.mppt_exit
@@ -1608,7 +1609,7 @@ mpp_Channel_NewNote:
 	push	{r4,lr}
 
 	ldrb	r0, [r7, #MCH_INST]		@ get instrument#
-	sub	r0, #1
+	subs	r0, #1
 	bcc	.mppt_skipnna
 
 	bl	mpp_Channel_GetACHN
@@ -1616,19 +1617,19 @@ mpp_Channel_NewNote:
 	beq	.mppt_alloc_channel	
 	
 	ldrb	r0, [r7, #MCH_INST]		@ get instrument#
-	sub	r0, #1
+	subs	r0, #1
 	
 	mpp_InstrumentPointer
 	
 	ldrb	r1, [r7, #MCH_BFLAGS]		@ fetch NNA
-	lsr	r1, #6
+	lsrs	r1, #6
 	
 	beq	.mppt_NNA_CUT			@ skip if zero
 	
 	ldrb	r1, [r0, #C_MASI_DCT]		@ otherwise check duplicate check type
-	lsl	r1, #32-2
-	lsr	r1, #32-2
-	lsl	r1, #1				@ jump to mppt_DCT_TABLE[dct]
+	lsls	r1, #32-2
+	lsrs	r1, #32-2
+	lsls	r1, #1				@ jump to mppt_DCT_TABLE[dct]
 	add	r1, pc
 	mov	pc, r1
 
@@ -1639,8 +1640,8 @@ b	.mppt_DCT_SAMP
 b	.mppt_DCT_INST
 .mppt_DCT_NOTE:					@ DCT note ---------------------
 	ldrb	r1, [r7, #MCH_PNOTE]		@ get pattern note
-	lsl	r1, #1				@ translate to real note
-	add	r1, #C_MASI_MAP			@ with note/sample map
+	lsls	r1, #1				@ translate to real note
+	adds	r1, #C_MASI_MAP			@ with note/sample map
 	ldrb	r1, [r0, r1]			@ r1 = real note
 	ldrb	r2, [r7, #MCH_NOTE]		@ compare with last note
 	cmp	r1, r2				@
@@ -1651,8 +1652,8 @@ b	.mppt_DCT_INST
 	
 	// **WARNING: code not functional with new instrument table
 	ldrb	r1, [r7, #MCH_PNOTE]		@ get pattern note
-	lsl	r1, #1				@ translate to sample#
-	add	r1, #C_MASI_MAP+1		@ with note/sample map
+	lsls	r1, #1				@ translate to sample#
+	adds	r1, #C_MASI_MAP+1		@ with note/sample map
 	ldrb	r1, [r0, r1]			@ r1 = sample#
 	ldrb	r2, [r6, #MCA_SAMPLE]		@ compare with achn's sample
 	cmp	r1, r2				@
@@ -1676,8 +1677,8 @@ b	.mppt_DCT_INST
 .mppt_DCNA:
 	
 	ldrb	r1, [r7, #MCH_BFLAGS]
-	lsr	r1, #6				@ get NNA
-	lsl	r1, #1				@ and jump to
+	lsrs	r1, #6				@ get NNA
+	lsls	r1, #1				@ and jump to
 	add	r1, pc				@ NNA_TABLE[NNA]
 	mov	pc, r1
 .mppt_NNA_TABLE:
@@ -1695,9 +1696,9 @@ b	.mppt_NNA_FADE
 	ldrb	r1, [r6, #MCA_TYPE]
 	cmp	r1, #0
 	BEQ	.mppt_samechannel
-	mov	r1, #ACHN_BACKGROUND
+	movs	r1, #ACHN_BACKGROUND
 	strb	r1, [r6, #MCA_TYPE]
-	mov	r1, #0
+	movs	r1, #0
 	strb	r1, [r6, #MCA_VOLUME]
 	b	.mppt_NNA_FINISHED
 	
@@ -1709,7 +1710,7 @@ b	.mppt_NNA_FADE
 .mppt_NNA_CONTINUE:
 @---------------------------------------------------------------------------------
 	
-	mov	r1, #ACHN_BACKGROUND	@ use different channel
+	movs	r1, #ACHN_BACKGROUND	@ use different channel
 	strb	r1, [r6, #MCA_TYPE]	@ set active channel to "background"
 	b	.mppt_NNA_FINISHED	@ finished
 
@@ -1718,11 +1719,11 @@ b	.mppt_NNA_FADE
 @---------------------------------------------------------------------------------
 
 	ldrb	r1, [r6, #MCA_FLAGS]	@ clear KEYON in flags byte
-	mov	r2, #MCAF_KEYON
-	bic	r1, r2
+	movs	r2, #MCAF_KEYON
+	bics	r1, r2
 
 	strb	r1, [r6, #MCA_FLAGS]
-	mov	r1, #ACHN_BACKGROUND	@ set type to "background"
+	movs	r1, #ACHN_BACKGROUND	@ set type to "background"
 	strb	r1, [r6, #MCA_TYPE]
 	b	.mppt_NNA_FINISHED	@ finished
 
@@ -1731,17 +1732,17 @@ b	.mppt_NNA_FADE
 @---------------------------------------------------------------------------------
 
 	ldrb	r1, [r6, #MCA_FLAGS]	@ set NOTE FADE in flags byte
-	mov	r2, #MCAF_FADE
-	orr	r1, r2
+	movs	r2, #MCAF_FADE
+	orrs	r1, r2
 	strb	r1, [r6, #MCA_FLAGS]
-	mov	r1, #ACHN_BACKGROUND	@ set type to "background"
+	movs	r1, #ACHN_BACKGROUND	@ set type to "background"
 	strb	r1, [r6, #MCA_TYPE]	@
 	
 .mppt_NNA_FINISHED:
 	
 .mppt_alloc_channel:
 
-	mov	r4, r6
+	movs	r4, r6
 
 	ldr	r1,=mmAllocChannel
 	jump1				@ find new active channel
@@ -1752,16 +1753,16 @@ b	.mppt_NNA_FADE
 	cmp	r4, #0
 	beq	.mppt_samechannel
 
-	mov	r1, #MCA_SIZE		@ copy data from previous channel
-	mul	r0, r1			@ (for volume ramping wierdness)
+	movs	r1, #MCA_SIZE		@ copy data from previous channel
+	muls	r0, r1			@ (for volume ramping wierdness)
 	ldr	r1,=mm_achannels	@
 	ldr	r1,[r1]			@
-	add	r0, r1			@
+	adds	r0, r1			@
 					@
-	mov	r2, #MCA_SIZE/4
+	movs	r2, #MCA_SIZE/4
 1:	ldmia	r4!, {r1}
 	stmia	r0!, {r1}
-	sub	r2, #1
+	subs	r2, #1
 	bne	1b
 	
 /*	ldr	r1, [r4, #MCA_FADE]	@
@@ -1807,12 +1808,12 @@ mpp_Channel_GetACHN:
 	bge	1f
 	ldr	r6,=mm_achannels
 	ldr	r6,[r6]
-	mov	r1, #MCA_SIZE
-	mul	r0, r1
-	add	r6, r0
+	movs	r1, #MCA_SIZE
+	muls	r0, r1
+	adds	r6, r0
 	bx	lr
 	
-1:	mov	r6, #0
+1:	movs	r6, #0
 	bx	lr
 .pool
 
@@ -1830,7 +1831,7 @@ mpp_Update_ACHN:
 @ check updated flag & exit if already updated
 	
 	ldrb	r0, [r6, #MCA_FLAGS]
-	mov	r1, #MCAF_UPDATED
+	movs	r1, #MCAF_UPDATED
 	tst	r0, r1
 	beq	.mpp_achn_update
 	pop	{pc}
@@ -1851,38 +1852,38 @@ mpp_Update_ACHN_notest:
 @------------------------------------------------------------------------
 	
 	ldrb	r0, [r6, #MCA_INST]
-	sub	r0, #1
+	subs	r0, #1
 	bCS	1f
 	b	.mppt_achn_noinst
 1:	mpp_InstrumentPointer
 
 @ get envelope flags
 	
-	mov	r1, r0
+	movs	r1, r0
 	ldrb	r2, [r1, #C_MASI_ENVFLAGS]
-	add	r1, #C_MASI_ENVELOPES
+	adds	r1, #C_MASI_ENVELOPES
 	
-	lsr	r2, #1				@ shift out volume envelope bit
+	lsrs	r2, #1				@ shift out volume envelope bit
 	bcc	.mppt_no_volenv
 
 	ldrb	r3, [r6, #MCA_FLAGS]
-	lsr	r3, #6
+	lsrs	r3, #6
 	
 	bcs	.mppt_achn_ve_enabled
 	ldrb	r0, [r1]
-	add	r1, r0
+	adds	r1, r0
 	b	.mppt_no_volenv
 .mppt_achn_ve_enabled:
 	
 	push	{r1, r2}
 	
 	ldrh	r0, [r6, #MCA_ENVC_VOL]
-	mov	r2, r1
+	movs	r2, r1
 	ldrb	r1, [r6, #MCA_ENVN_VOL]
 	bl	mpph_ProcessEnvelope
 	strb	r1, [r6, #MCA_ENVN_VOL]
 	strh	r0, [r6, #MCA_ENVC_VOL]
-	mov	r1, r3
+	movs	r1, r3
 	
 	cmp	r2, #1
 	bne	.mpph_volenv_notend
@@ -1890,13 +1891,13 @@ mpp_Update_ACHN_notest:
 	
 	mov	r3, r8				@ stupid xm doesn't fade out at envelope end
 	ldrb	r3, [r3, #MPL_FLAGS]
-	lsr	r3, #C_FLAGS_XS
+	lsrs	r3, #C_FLAGS_XS
 	
-	mov	r3, #MCAF_ENVEND
+	movs	r3, #MCAF_ENVEND
 	bcs	1f
-	mov	r3, #MCAF_ENVEND+MCAF_FADE
+	movs	r3, #MCAF_ENVEND+MCAF_FADE
 1:
-	orr	r0, r3
+	orrs	r0, r3
 	strb	r0, [r6, #MCA_FLAGS]
 .mpph_volenv_notend:
 
@@ -1905,83 +1906,83 @@ mpp_Update_ACHN_notest:
 	
 	@ check keyon and turn on fade...
 	ldrb	r0, [r6, #MCA_FLAGS]
-	mov	r2, #MCAF_KEYON
+	movs	r2, #MCAF_KEYON
 	tst	r0, r2
 	bne	.mpph_volenv_normal
 .mpph_volenv_notefade:
-	mov	r2, #MCAF_FADE
-	orr	r0, r2
+	movs	r2, #MCAF_FADE
+	orrs	r0, r2
 	strb	r0, [r6, #MCA_FLAGS]
 	
 .mpph_volenv_normal:
 	
 	ldr	r0,=mpp_vars
 	ldrb	r2, [r0, #MPV_AFVOL]
-	mul	r2, r1
-	lsr	r2, #6+6
+	muls	r2, r1
+	lsrs	r2, #6+6
 	strb	r2, [r0, #MPV_AFVOL]
 	pop	{r1, r2}
 	ldrb	r0, [r1]
-	add	r1, r0
+	adds	r1, r0
 	b	.mppt_has_volenv
 .mppt_no_volenv:
 	
 	ldrb	r0, [r6, #MCA_FLAGS]
-	mov	r3, #MCAF_ENVEND
-	orr	r0, r3
-	mov	r3, #MCAF_KEYON
+	movs	r3, #MCAF_ENVEND
+	orrs	r0, r3
+	movs	r3, #MCAF_KEYON
 	tst	r0, r3
 	bne	.mppt_has_volenv
-	mov	r3, #MCAF_FADE
-	orr	r0, r3
+	movs	r3, #MCAF_FADE
+	orrs	r0, r3
 	strb	r0, [r6, #MCA_FLAGS]
 	
 	mov	r0, r8		@ check XM MODE and cut note
 	ldrb	r0, [r0, #MPL_FLAGS]
-	lsr	r0, #C_FLAGS_XS
+	lsrs	r0, #C_FLAGS_XS
 	bcc	.mppt_has_volenv
-	mov	r0, #0
+	movs	r0, #0
 	strh	r0, [r6, #MCA_FADE]
 .mppt_has_volenv:
 	
-	lsr	r2, #1
+	lsrs	r2, #1
 	bcc	.mppt_no_panenv
 	push	{r1, r2}
 	ldrh	r0, [r6, #MCA_ENVC_PAN]
-	mov	r2, r1
+	movs	r2, r1
 	ldrb	r1, [r6, #MCA_ENVN_PAN]
 	bl	mpph_ProcessEnvelope
 	strb	r1, [r6, #MCA_ENVN_PAN]
 	strh	r0, [r6, #MCA_ENVC_PAN]
-	mov	r1, r3
+	movs	r1, r3
 
 	ldr	r0,=mpp_vars
-	mov	r3, #MPV_PANPLUS
+	movs	r3, #MPV_PANPLUS
 	ldrsh	r2, [r0,r3]
-	lsr	r1, #4
-	sub	r1, #128
-	add	r2, r1
+	lsrs	r1, #4
+	subs	r1, #128
+	adds	r2, r1
 	strh	r2, [r0,r3]
 	pop	{r1, r2}
 .mppt_no_panenv:
 	
-	lsr	r2, #1
+	lsrs	r2, #1
 	bcc	.mppt_no_pitchenv
 	ldrb	r0, [r1, #C_MASIE_FILTER]
 	cmp	r0, #0
 	bne	.mppt_no_pitchenv
 	push	{r1, r2}
 	ldrh	r0, [r6, #MCA_ENVC_PIC]
-	mov	r2, r1
+	movs	r2, r1
 	ldrb	r1, [r6, #MCA_ENVN_PIC]
 	bl	mpph_ProcessEnvelope
 	strb	r1, [r6, #MCA_ENVN_PIC]
 	strh	r0, [r6, #MCA_ENVC_PIC]
-	mov	r1, r3
-	lsr	r1, #3
-	sub	r1, #255
-	mov	r0, r5
-	sub	r1, #1
+	movs	r1, r3
+	lsrs	r1, #3
+	subs	r1, #255
+	movs	r0, r5
+	subs	r1, #1
 	bmi	.mppt_pitchenv_minus
 #ifdef USE_IWRAM
 	ldr	r2,=mpph_LinearPitchSlide_Up
@@ -1991,7 +1992,7 @@ mpp_Update_ACHN_notest:
 #endif
 	b	.mppt_pitchenv_plus
 .mppt_pitchenv_minus:
-	neg	r1, r1
+	negs	r1, r1
 #ifdef USE_IWRAM
 	ldr	r2,=mpph_LinearPitchSlide_Down
 	jump2
@@ -1999,25 +2000,25 @@ mpp_Update_ACHN_notest:
 	bl	mpph_LinearPitchSlide_Down
 #endif
 .mppt_pitchenv_plus:
-	mov	r5, r0
+	movs	r5, r0
 	pop	{r1, r2}
 .mppt_no_pitchenv:
 	
 	ldrb	r0, [r6, #MCA_FLAGS]
-	mov	r1, #MCAF_FADE
+	movs	r1, #MCAF_FADE
 	tst	r0, r1
 	beq	.mppt_achn_nofade
 	ldrb	r0, [r6, #MCA_INST]
-	sub	r0, #1
+	subs	r0, #1
 	
 	mpp_InstrumentPointer
 	ldrb	r0, [r0, #C_MASI_FADE]
 
 	ldrh	r1, [r6, #MCA_FADE]
 
-	sub	r1, r0
+	subs	r1, r0
 	bcs	.mppt_achn_fadeout_clip
-	mov	r1, #0
+	movs	r1, #0
 .mppt_achn_fadeout_clip:
 	strh	r1, [r6, #MCA_FADE]
 
@@ -2031,7 +2032,7 @@ mpp_Update_ACHN_notest:
 @----------------------------------------------------------------------------------
 	
 	ldrb	r0, [r6, #MCA_SAMPLE]
-	sub	r0, #1
+	subs	r0, #1
 	bcc	.mppt_achn_nostart	@ no sample!!
 	
 	@bl	mpp_SamplePointer
@@ -2040,30 +2041,30 @@ mpp_Update_ACHN_notest:
 	cmp	r1, #0			@ 0?
 	beq	.mppt_av_disabled	@  if 0 then its disabled
 	ldrh	r2, [r6, #MCA_AVIB_DEP]	@ get depth counter
-	add	r2, r1			@ add rate
-	lsr	r1, r2, #15		@ check for 15-bit overflow
+	adds	r2, r1			@ add rate
+	lsrs	r1, r2, #15		@ check for 15-bit overflow
 	beq	.mppt_av_depclip	@ ..
 	
 	ldr	r2,=32768		@ and clamp to 32768
 .mppt_av_depclip:			
 	strh	r2, [r6, #MCA_AVIB_DEP]	@ save depth counter
 	ldrb	r1, [r0, #C_MASS_VID]	@ get av-depth
-	mul	r1, r2			@ multiply
+	muls	r1, r2			@ multiply
 
 	ldrb	r3, [r6, #MCA_AVIB_POS]	@ get table position
 	ldrb	r2, [r0, #C_MASS_VIS]	@ get av-speed
-	add	r3, r2			@ add to position
-	lsl	r3, #32-8		@ wrap position to 0->255
-	lsr	r3, #32-8		@ ..
+	adds	r3, r2			@ add to position
+	lsls	r3, #32-8		@ wrap position to 0->255
+	lsrs	r3, #32-8		@ ..
 	strb	r3, [r6, #MCA_AVIB_POS]		@ save position
 	ldr	r2,=mpp_TABLE_FineSineData	@ get table pointer
 	ldrsb	r2, [r2, r3]			@ load table value at position
-	mul	r2, r1				@ multiply with depth
-	asr	r2, #23				@ shift value
+	muls	r2, r1				@ multiply with depth
+	asrs	r2, #23				@ shift value
 	bmi	.mppt_av_minus			@ and perform slide...
 .mppt_av_plus:					@ --slide up
-	mov	r1, r2				@ r1 = slide value
-	mov	r0, r5				@ r0 = frequency
+	movs	r1, r2				@ r1 = slide value
+	movs	r0, r5				@ r0 = frequency
 #ifdef USE_IWRAM
 	fjump2	mpph_PitchSlide_Up
 #else
@@ -2071,8 +2072,8 @@ mpp_Update_ACHN_notest:
 #endif
 	b	.mppt_av_finished		@
 .mppt_av_minus:					@ --slide down
-	neg	r1, r2				@ r1 = slide value
-	mov	r0, r5				@ r0 = frequency
+	negs	r1, r2				@ r1 = slide value
+	movs	r0, r5				@ r0 = frequency
 #ifdef USE_IWRAM
 	ldr	r2,=mpph_PitchSlide_Down
 	jump2
@@ -2081,7 +2082,7 @@ mpp_Update_ACHN_notest:
 #endif
 
 .mppt_av_finished:
-	mov	r5, r0				@ affect frequency
+	movs	r5, r0				@ affect frequency
 .mppt_av_disabled:
 	
 @---------------------------------------------------------------------------------
@@ -2089,60 +2090,60 @@ mpp_Update_ACHN_notest:
 .mppt_achn_noinst:
 	
 	push	{r4}
-	mov	r0, #MIXER_CHN_SIZE
-	mul	r4, r0
+	movs	r0, #MIXER_CHN_SIZE
+	muls	r4, r0
 	@ldr	r0,=mp_channels
 @	ldr	r0,=mm_mixchannels
 @	ldr	r0,[r0]
 	GET_MIXCH r0
-	add	r4, r0
+	adds	r4, r0
 	
 	@ *** UPDATE MIXING INFORMATION
 	
 	ldrb	r0, [r6, #MCA_FLAGS]		@ read flags
-	mov	r1, #MCAF_START			@ test start bit
+	movs	r1, #MCAF_START			@ test start bit
 	tst	r0, r1				@ ..
 	beq	.mppt_achn_nostart		@
 .mppt_achn_start:				@ START NOTE
-	bic	r0, r1				@ clear bit
+	bics	r0, r1				@ clear bit
 	strb	r0, [r6, #MCA_FLAGS]		@ save flags
 	ldrb	r0, [r6, #MCA_SAMPLE]		@ get sample #
 
-	sub	r0, #1				@ ..
+	subs	r0, #1				@ ..
 	bcc	.mppt_achn_nostart		@ quit if invalid
 	@bl	mpp_SamplePointer		@ get sample address
 	mpp_SamplePointer
 	
 	ldrh	r3, [r0, #C_MASS_MSLID]
 	
-	add	r1,r3,#1			@ msl id == 0xFFFF?
-	lsr	r1, #17
+	adds	r1,r3,#1			@ msl id == 0xFFFF?
+	lsrs	r1, #17
 	
 	bcc	.mppt_achn_msl_sample 
 
 .mppt_achn_direct_sample:			@ then sample follows
 	
-	add	r0, #12
+	adds	r0, #12
 	
 //------------------------------------------------
 #ifdef SYS_GBA
 //	ldr	r1, [r0,#C_SAMPLE_LEN]	@ setup mixer (GBA)
-//	lsl	r1, #MP_SAMPFRAC
+//	lsls	r1, #MP_SAMPFRAC
 //	str	r1, [r4,#MIXER_CHN_LEN]
 //	ldr	r1, [r0,#C_SAMPLE_LOOP]
 //	str	r1, [r4,#MIXER_CHN_LOOP]
-	add	r0, #C_SAMPLE_DATA
+	adds	r0, #C_SAMPLE_DATA
 	str	r0, [r4,#MIXER_CHN_SRC]
 	
 #else
 //-------------------------------------------
 
 	ldr	r1,=0x2000000
-	sub	r0, r1
+	subs	r0, r1
 	str	r0, [r4, #MIXER_CHN_SAMP]
 	ldrb	r1, [r4, #MIXER_CHN_CNT]
-	mov	r0, #MIXER_CF_START
-	orr	r1, r0
+	movs	r0, #MIXER_CF_START
+	orrs	r1, r0
 	strb	r1, [r4, #MIXER_CHN_CNT]
 	
 #endif
@@ -2155,21 +2156,21 @@ mpp_Update_ACHN_notest:
 
 	ldr	r2,=mp_solution
 	ldr	r2, [r2]
-	mov	r1, r2
-	add	r1, #12
-	lsl	r3, #2
+	movs	r1, r2
+	adds	r1, #12
+	lsls	r3, #2
 	ldr	r1, [r1, r3]
-	add	r1, #8
-	add	r0, r1, r2
+	adds	r1, #8
+	adds	r0, r1, r2
 	
 	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ NOTICE, USE LDM HERE
 	
 //	ldr	r1, [r0,#C_SAMPLE_LEN]	@ setup mixer (GBA)
-//	lsl	r1, #MP_SAMPFRAC
+//	lsls	r1, #MP_SAMPFRAC
 //	str	r1, [r4,#MIXER_CHN_LEN]
 //	ldr	r1, [r0,#C_SAMPLE_LOOP]
 //	str	r1, [r4,#MIXER_CHN_LOOP]
-	add	r0, #C_SAMPLE_DATA
+	adds	r0, #C_SAMPLE_DATA
 	str	r0, [r4,#MIXER_CHN_SRC]
 
 	#endif
@@ -2178,17 +2179,17 @@ mpp_Update_ACHN_notest:
 			
 	ldr	r2,=mmSampleBank	@ get samplebank pointer
 	ldr	r2, [r2]
-	lsl	r3, #2		@ add msl_id *4
+	lsls	r3, #2		@ add msl_id *4
 	ldr	r1, [r2, r3]
 	
-	lsl	r1, #8		@ mask out counter value
-	lsr	r1, #8
-	add	r1, #8
+	lsls	r1, #8		@ mask out counter value
+	lsrs	r1, #8
+	adds	r1, #8
 
 	str	r1, [r4,#MIXER_CHN_SAMP]
 	ldrb	r1, [r4,#MIXER_CHN_CNT]		// read control		**CNT was cleared, no need to read it
-	mov	r0, #MIXER_CF_START		// set start bit
-	orr	r1, r0
+	movs	r0, #MIXER_CF_START		// set start bit
+	orrs	r1, r0
 	strb	r1, [r4,#MIXER_CHN_CNT]		// save control
 
 	#endif
@@ -2197,7 +2198,7 @@ mpp_Update_ACHN_notest:
 	ldr	r1,=mpp_vars
 	ldrb	r1, [r1, #MPV_SAMPOFF]
 #ifdef SYS_GBA
-	lsl	r1, #MP_SAMPFRAC+8
+	lsls	r1, #MP_SAMPFRAC+8
 	str	r1, [r4, #MIXER_CHN_READ]
 #else
 	str	r1, [r4, #MIXER_CHN_READ]
@@ -2207,7 +2208,7 @@ mpp_Update_ACHN_notest:
 	@ set pitch
 	
 	ldrb	r0, [r6, #MCA_SAMPLE]		@ get sample#
-	sub	r0, #1				@ ..
+	subs	r0, #1				@ ..
 	bcc	.mppt_achn_setvolumeA
 	@bl	mpp_SamplePointer		@ quit if invalid
 	mpp_SamplePointer
@@ -2215,16 +2216,16 @@ mpp_Update_ACHN_notest:
 	
 	mov	r1, r8
 	ldrb	r1, [r1, #MPL_FLAGS]
-	lsr	r1, #C_FLAGS_SS
+	lsrs	r1, #C_FLAGS_SS
 	bcc	.mppt_achn_amigafreqs
 .mppt_achn_linearfreqs:
 	
 	ldrh	r0, [r0, #C_MASS_FREQ]		@ get C5SPEED
-	LSL	R0, #2
-	lsr	r1, r5, #8			@ do some stuff...
-	mul	r1, r0				@ ... period * freq?
+	lsls	R0, #2
+	lsrs	r1, r5, #8			@ do some stuff...
+	muls	r1, r0				@ ... period * freq?
 	
-	lsr	r1, #8
+	lsrs	r1, #8
 	
 	ldr	r0,=mpp_clayer
 	ldrb	r0, [r0]
@@ -2232,8 +2233,8 @@ mpp_Update_ACHN_notest:
 	bne	1f
 	ldr	r0,=mm_masterpitch
 	ldr	r0, [r0]
-	mul	r1, r0
-	lsr	r1, #10
+	muls	r1, r0
+	lsrs	r1, #10
 1:
 
 	#ifdef SYS_GBA
@@ -2242,15 +2243,15 @@ mpp_Update_ACHN_notest:
 //	ldr	r0,=mm_freqscalar
 //	ldr	r0, [r0]
 	ldr	r0,=(4096*65536)/15768
-	mul	r0, r1
-	lsr	r0, #16
+	muls	r0, r1
+	lsrs	r0, #16
 	str	r0, [r4, #MIXER_CHN_FREQ]
 	
 	#else
 
 	ldr	r0,=MIXER_SCALE
-	mul	r0, r1
-	lsr	r0, #16+1
+	muls	r0, r1
+	lsrs	r0, #16+1
 	strh	r0, [r4, #MIXER_CHN_FREQ]
 	
 	//strh	r1, [r4, #MIXER_CHN_FREQ]
@@ -2271,8 +2272,8 @@ mpp_Update_ACHN_notest:
 	bne	1f
 	ldr	r1,=mm_masterpitch
 	ldr	r1, [r1]
-	mul	r0, r1
-	lsr	r0, #10
+	muls	r0, r1
+	lsrs	r0, #10
 1:
 
 	#ifdef SYS_GBA
@@ -2280,19 +2281,19 @@ mpp_Update_ACHN_notest:
 //	ldr	r1,=mm_freqscalar
 //	ldr	r1,[r1]
 	ldr	r1,=(4096*65536)/15768
-	mul	r0, r1
-	lsr	r0, #16
+	muls	r0, r1
+	lsrs	r0, #16
 
 	str	r0, [r4, #MIXER_CHN_FREQ]
 	#else
-//	mov	r1, r0
+//	movs	r1, r0
 //	ldr	r0,=16756991			@ calculate ds mixer timing
 //	swi	SWI_DIVIDE
-//	neg	r0,r0
-	//lsr	r0, #5
+//	negs	r0,r0
+	//lsrs	r0, #5
 	ldr	r1,=MIXER_SCALE
-	mul	r0, r1
-	lsr	r0, #16+1
+	muls	r0, r1
+	lsrs	r0, #16+1
 	strh	r0, [r4, #MIXER_CHN_FREQ]
 	#endif
 
@@ -2303,69 +2304,69 @@ mpp_Update_ACHN_notest:
 	@ set volume
 	
 	pop	{r0}
-						@ <-- stepped oct 28, 3:27pm 
+						@ <-- stepped oct 28, 3:27pm
 	ldrb	r3, [r0, #C_MASS_GV]		@ SV, 6-bit
 	ldrb	r0, [r6, #MCA_INST]
-	sub	r0, #1
+	subs	r0, #1
 	bcs	1f
 	
 .thumb_func
 .mppt_achn_setvolumeA:	
-	mov	r1, #0
+	movs	r1, #0
 	b	.mppt_achn_badinstrument
 1:	
 	mpp_InstrumentPointer
 	ldrb	r0, [r0, #C_MASI_GVOL]	@ IV, 7-bit
-	mul	r3, r0
+	muls	r3, r0
 	
 	ldr	r1,=mpp_vars
 	ldrb	r0, [r1, #MPV_AFVOL]	@ ((CV*VOL)/32*VEV/64) 7-bit
 	
-	mul	r3, r0
+	muls	r3, r0
 	
 	mov	r1, r8			@ get global vollume
 	ldrb	r0, [r1, #MPL_FLAGS]
-	lsr	r0, #4
+	lsrs	r0, #4
 	ldrb	r0, [r1, #MPL_GV]	@ ..		     7-bit
 	
 	bcc	1f
-	lsl	r0, #1			@ xm mode global volume is only 0->64, shift to 0->128
+	lsls	r0, #1			@ xm mode global volume is only 0->64, shift to 0->128
 	
-1:	mul	r3, r0			@ multiply
+1:	muls	r3, r0			@ multiply
 	
-	lsr	r3, #10
+	lsrs	r3, #10
 	
 	ldrh	r0, [r6, #MCA_FADE]
 	
 	
-	mul	r3, r0
+	muls	r3, r0
 	
-	lsr	r3, r3, #10
+	lsrs	r3, r3, #10
 	
 	mov	r0, r8
-	mov	r1, #MPL_VOLUME
+	movs	r1, #MPL_VOLUME
 	ldrh	r0, [r0, r1]
-	mul	r3, r0
+	muls	r3, r0
 	
 //------------------------------------------------
 #ifdef SYS_NDS
-	lsr	r1, r3, #19-3-5 ///#19-3	(new 16-bit levels!)
+	lsrs	r1, r3, #19-3-5 ///#19-3	(new 16-bit levels!)
 	ldr	r3,=65535  //2047
 	cmp	r1, r3				@ clip values over 255
 	blt	1f
-	mov	r1, r3
+	movs	r1, r3
 1:
 .mppt_achn_badinstrument:
-//	lsr	r3, r1, #3		(new 16-bit levels!)
-	lsr	r3, r1, #8		
+//	lsrs	r3, r1, #3		(new 16-bit levels!)
+	lsrs	r3, r1, #8
 	strb	r3, [r6, #MCA_FVOL]
 
 #else
 
-	lsr	r1, r3, #19
+	lsrs	r1, r3, #19
 	cmp	r1, #255			@ clip values over 255
 	blt	1f
-	mov	r1, #255
+	movs	r1, #255
 1:
 .mppt_achn_badinstrument:
 	strb	r1, [r6, #MCA_FVOL]
@@ -2389,10 +2390,10 @@ mpp_Update_ACHN_notest:
 	#endif
 	
 1:	ldrb	r3, [r6, #MCA_FLAGS]
-	mov	r2, #MCAF_ENVEND
+	movs	r2, #MCAF_ENVEND
 	tst	r3, r2
 	beq	.mppt_achn_audible
-	mov	r2, #MCAF_KEYON
+	movs	r2, #MCAF_KEYON
 	tst	r3, r2
 	bne	.mppt_achn_audible
 	
@@ -2409,7 +2410,7 @@ mpp_Update_ACHN_notest:
 	ldr	r0,=1<<31
 	str	r0,[r4,#MIXER_CHN_SRC]	@ stop mixer channel
 #else
-	mov	r0,#0
+	movs	r0,#0
 	str	r0,[r4,#MIXER_CHN_SAMP]	@ stop mixer channel
 #endif
 
@@ -2417,16 +2418,16 @@ mpp_Update_ACHN_notest:
 	cmp	r3, #ACHN_FOREGROUND
 	bne	.mpp_achn_noparent
 	ldrb	r1, [r6, #MCA_PARENT]
-	mov	r3, #MCH_SIZE
-	mul	r1, r3
+	movs	r3, #MCH_SIZE
+	muls	r1, r3
 	ldr	r0,=mpp_channels
 	ldr	r0, [r0]
-	add	r0, r1
-	mov	r1, #255
+	adds	r0, r1
+	movs	r1, #255
 	strb	r1, [r0, #MCH_ALLOC]
 .mpp_achn_noparent:
 	
-	mov	r1, #ACHN_DISABLED
+	movs	r1, #ACHN_DISABLED
 	strb	r1, [r6, #MCA_TYPE]
 	b	.mpp_achn_updated
 .mppt_achn_audible:
@@ -2444,13 +2445,13 @@ mpp_Update_ACHN_notest:
 #ifdef SYS_GBA						// check if mixer channel has ended
 
 	ldr	r0, [r4, #MIXER_CHN_SRC]
-	asr	r0, #31
+	asrs	r0, #31
 	beq	1f
 
 #else
 
 	ldr	r0, [r4, #MIXER_CHN_SAMP]
-	lsl	r0, #8
+	lsls	r0, #8
 	bne	1f
 	
 #endif
@@ -2460,12 +2461,12 @@ mpp_Update_ACHN_notest:
 	bne	2f
 
 	ldrb	r1, [r6, #MCA_PARENT]			// stop channel if channel ended
-	mov	r3, #MCH_SIZE
-	mul	r1, r3
+	movs	r3, #MCH_SIZE
+	muls	r1, r3
 	ldr	r0,=mpp_channels
 	ldr	r0, [r0]
-	add	r0, r1
-	mov	r1, #255
+	adds	r0, r1
+	movs	r1, #255
 	strb	r1, [r0, #MCH_ALLOC]
 2:
 
@@ -2473,37 +2474,37 @@ mpp_Update_ACHN_notest:
 	ldr	r0,=1<<31
 	str	r0,[r4,#MIXER_CHN_SRC]	@ stop mixer channel
 #else
-	mov	r0,#0
+	movs	r0,#0
 	str	r0,[r4,#MIXER_CHN_SAMP]	@ stop mixer channel
 #endif
 
-	mov	r1, #ACHN_DISABLED
+	movs	r1, #ACHN_DISABLED
 	strb	r1, [r6, #MCA_TYPE]
 	b	.mpp_achn_updated
 
 	@ set panning
 1:	ldr	r1,=mpp_vars
-	mov	r3, #MPV_PANPLUS
+	movs	r3, #MPV_PANPLUS
 	ldrsh	r0, [r1,r3]
 	ldrb	r1, [r6, #MCA_PANNING]
 	
-	add	r1, r0
+	adds	r1, r0
 
 	cmp	r1, #0
 	bge	.mpp_achn_clippan1
-	mov	r1, #0
+	movs	r1, #0
 .mpp_achn_clippan1:
 	cmp	r1, #255
 	ble	.mpp_achn_clippan2
-	mov	r1, #255
+	movs	r1, #255
 .mpp_achn_clippan2:
 
 	#ifdef SYS_NDS
-	lsr	r1, #1
+	lsrs	r1, #1
 	ldrb	r0, [r4, #MIXER_CHN_CNT]
-	lsr	r0, #7
-	lsl	r0, #7
-	orr	r0, r1
+	lsrs	r0, #7
+	lsls	r0, #7
+	orrs	r0, r1
 	strb	r0, [r4, #MIXER_CHN_CNT]
 	#endif
 	
@@ -2535,13 +2536,13 @@ mpph_ProcessEnvelope:			@ params={count,node,address}
 	push	{r4,r5}
 
 @ get node and base
-	lsl	r4, r1, #2
-	add	r4, #C_MASIE_NODES
-	add	r4, r2
+	lsls	r4, r1, #2
+	adds	r4, #C_MASIE_NODES
+	adds	r4, r2
 	
 	ldrh	r3, [r4, #2]
-	lsl	r3, #32-7
-	lsr	r3, #32-7-6
+	lsls	r3, #32-7
+	lsrs	r3, #32-7-6
 
 @ check for zero count
 	
@@ -2555,55 +2556,55 @@ mpph_ProcessEnvelope:			@ params={count,node,address}
 	cmp	r1, r5
 	bne	1f
 	ldrb	r1, [r2, #C_MASIE_LSTART]
-	mov	r2, #2
+	movs	r2, #2
 	b	.mpph_pe_exit
 
 @ process envelope sustain loop
 
 1:	ldrb	r5, [r6, #MCA_FLAGS]
-	lsr	r5, #1	@ locked
+	lsrs	r5, #1	@ locked
 	bcc	1f
 	ldrb	r5, [r2, #C_MASIE_SEND]
 	cmp	r1, r5
 	bne	1f
 	ldrb	r1, [r2, #C_MASIE_SSTART]
-	mov	r2, #0
+	movs	r2, #0
 	b	.mpph_pe_exit
 
 @ check for end
 
 1:	ldrb	r5, [r2, #C_MASIE_NODEC]
-	sub	r5, #1
+	subs	r5, #1
 	cmp	r1, r5
 	bne	.mpph_count
-	mov	r2, #2
+	movs	r2, #2
 	b	.mpph_pe_exit
 
 .mpph_pe_between:
 
-@                            delta * count 
+@                            delta * count
 @ formula : y = base*2^6 + -----------------
 @                                 2^3
-	mov	r5, #0
+	movs	r5, #0
 	ldrsh	r5, [r4,r5]
-	mul	r5, r0
-	asr	r5, #3
-	add	r3, r5
+	muls	r5, r0
+	asrs	r5, #3
+	adds	r3, r5
 	
 .mpph_count:
 
 @ increment count and check if == read count
 
-	add	r0, #1
+	adds	r0, #1
 	ldrh	r5, [r4, #2]
-	lsr	r5, #7
+	lsrs	r5, #7
 	cmp	r0, r5
 	bne	.mpph_pe_exit
 
 @ increment node and reset counter
 
-	mov	r0, #0
-	add	r1, #1
+	movs	r0, #0
+	adds	r1, #1
 
 .mpph_pe_exit:
 	
@@ -2627,21 +2628,21 @@ mpp_Alloc_Channel:
 	@ldr	r1,=mpp_achannels		@ load pointer
 	ldr	r1,=mm_achannels
 	ldr	r1,[r1]
-	mov	r0, #0				@ load counter
-	mov	r2, #255			@ r2 = MAXVOL+1 (highest)
-	add	r2, #1
-	mov	r3, #255			@ r3 = 255 (none found)
+	movs	r0, #0				@ load counter
+	movs	r2, #255			@ r2 = MAXVOL+1 (highest)
+	adds	r2, #1
+	movs	r3, #255			@ r3 = 255 (none found)
 	b	.mppac_start
 
 .mppac_next:
-	add	r1, #MCA_SIZE		@ change pointer
-	add	r0, #1			@ count
+	adds	r1, #MCA_SIZE		@ change pointer
+	adds	r0, #1			@ count
 .mppac_start:
-	lsr	r5, #1
+	lsrs	r5, #1
 	bcs	.mppac_check
 	bne	.mppac_next
 .mppac_end:
-	mov	r0, r3			@ if no disabled channels are found, use lowest volume channel
+	movs	r0, r3			@ if no disabled channels are found, use lowest volume channel
 .mppac_found:
 
 	pop	{r4,r5}
@@ -2657,8 +2658,8 @@ mpp_Alloc_Channel:
 	ldrb	r4, [r1, #MCA_FVOL]	@ compare volumes
 	cmp	r4, r2			@
 	bge	.mppac_next
-	mov	r3, r0			@ save channel#
-	mov	r2, r4			@ and volume
+	movs	r3, r0			@ save channel#
+	movs	r2, r4			@ and volume
 	b	.mppac_next
 */
 
@@ -2671,9 +2672,9 @@ mpp_PatternPointer:
 	mov	r1, r8
 	ldr	r2,[r1,#MPL_SONGADR]
 	ldr	r1,[r1,#MPL_PATTTABLE]
-	lsl	r0, #2
+	lsls	r0, #2
 	ldr	r0,[r1,r0]
-	add	r0, r2
+	adds	r0, r2
 	bx	lr
 .pool
 #ifdef FOO_UC
@@ -2686,40 +2687,40 @@ mpp_GetPeriod:
 	@ RETURN
 	@ r0 = IT/S3M PERIOD
 
-	mov	r1, r8
+	movs	r1, r8
 	ldrb	r1, [r1, #MPL_FLAGS]
-	lsr	r1, #C_FLAGS_SS
+	lsrs	r1, #C_FLAGS_SS
 	bcs	.mpp_gp_linear
 .mpp_gp_amiga:
 	
-	mov	r3, r0
+	movs	r3, r0
 	ldr	r0,=note_table_mod
 	ldrb	r1, [r0, r3]
-	sub	r0, #3*10
-	lsr	r3, #2
+	subs	r0, #3*10
+	lsrs	r3, #2
 	ldrb	r0, [r0, r3]
 	
 	@ r0 = octave
 	@ r1 = note
-	lsl	r1, #1
+	lsls	r1, #1
 	ldr	r3,=ST3_FREQTABLE
 	ldrh	r1, [r3, r1]
 	
 	ldr	r3,=133808
-	mul	r1, r3
-	lsr	r1, r0
+	muls	r1, r3
+	lsrs	r1, r0
 	
-	lsr	r0, r1, #3
-	mov	r1, r2
+	lsrs	r0, r1, #3
+	movs	r1, r2
 	
 	swi	SWI_DIVIDE
-	lsl	r0, #3
+	lsls	r0, #3
 	
 	bx	lr
 
 .mpp_gp_linear:
 	ldr	r1,=IT_PitchTable
-	lsl	r0, #2
+	lsls	r0, #2
 	ldr	r0, [r1, r0]
 	
 	bx	lr
@@ -2766,10 +2767,10 @@ mpp_Channel_ExchangeMemory:
 	
 	mov	r2, r8
 	ldrb	r2, [r2, #MPL_FLAGS]
-	lsr	r2, #C_FLAGS_XS
+	lsrs	r2, #C_FLAGS_XS
 	bcs	1f
 
-@ IT effects 
+@ IT effects
 	
 	ldr	r2,=mpp_effect_memmap_it
 	b	2f
@@ -2779,12 +2780,12 @@ mpp_Channel_ExchangeMemory:
 
 	ldr	r2,=mpp_effect_memmap_xm
 2:	ldrb	r2, [r2, r0]
-	sub	r2, #1
+	subs	r2, #1
 	bcc	3f
 	
 @ if param=0 then load memory value, otherwise save param to memory
 	
-	add	r2, #MCH_MEMORY
+	adds	r2, #MCH_MEMORY
 	cmp	r1, #0
 	bne	1f
 	ldrb	r1, [r7, r2]
@@ -2822,13 +2823,13 @@ mpp_Process_VolumeCommand:
 	ldrb	r2, [r0, #MPL_TICK]
 	ldr	r0, [r0, #MPL_SONGADR]
 	ldrb	r0, [r0, #C_MAS_FLAGS]
-	lsr	r0, #4
+	lsrs	r0, #4
 	ldrb	r0, [r7, #MCH_VOLCMD]
 	bcc	.mppuv_it
 	b	.mppuv_xm
 .mppuv_it:
 
-@ determine which command to use 
+@ determine which command to use
 
 	cmp	r0, #64
 	ble	.mppuv_setvol
@@ -2868,31 +2869,31 @@ mpp_Process_VolumeCommand:
 	cmp	r2, #0				@ only slide on tick0
 	bne	.mppuv_exit1			@ ..
 	ldrb	r1, [r7, #MCH_VOLUME]		@ load channel volume
-	mov	r2, #MCH_MEMORY+MPP_IT_VFX_MEM
+	movs	r2, #MCH_MEMORY+MPP_IT_VFX_MEM
 	cmp	r0, #75				@ check slide direction
 	bge	.mppuv_fvoldown			@ jump to slide down if value is 75+ (75-84 is slide down)
 .mppuv_fvolup:					@ ------ slide up ----------
-	sub	r0, #65				@ 65->74 , 0->9
+	subs	r0, #65				@ 65->74 , 0->9
 .mppuv_volup:					@ ** entry for volume slide up
 	bne	1f				@ is value 0?
 	ldrb	r0, [r7, r2]			@  then fetch value from memory
 1:	strb	r0, [r7, r2]			@ save value
 .mppuv_volupA:
-	add	r1, r0				@ add to volume
+	adds	r1, r0				@ add to volume
 	cmp	r1, #64				@ clamp to 0->64
 	blt	.mppuv_fvol_exit		@ ..
-	mov	r1, #64				@ ..
+	movs	r1, #64				@ ..
 	b	.mppuv_fvol_exit		@ ..
 .mppuv_fvoldown:				@ ------ slide down --------
-	sub	r0, #75				@ 75->84 , 0->9
+	subs	r0, #75				@ 75->84 , 0->9
 .mppuv_voldown:					@ ** entry for volume slide down
 	bne	1f				@ is value 0?
 	ldrb	r0, [r7, r2]			@  then fetch value from memory
 1:	strb	r0, [r7, r2]			@ save value
 .mppuv_voldownA:
-	sub	r1, r0				@ subtract from volume
+	subs	r1, r0				@ subtract from volume
 	bcs	.mppuv_fvol_exit		@ check overflow and clamp
-	mov	r1, #0				@ ..
+	movs	r1, #0				@ ..
 .mppuv_fvol_exit:				@ ..
 	strb	r1, [r7, #MCH_VOLUME]		@ store volume
 .mppuv_exit2:
@@ -2909,13 +2910,13 @@ mpp_Process_VolumeCommand:
 	cmp	r0, #95				@ check slide direction
 	bge	.mppuv_vs_down			
 .mppuv_vs_up:					@ slide up...
-	mov	r2, #MCH_MEMORY+MPP_IT_VFX_MEM
-	sub	r0, #85				@ 85->94 , 0->9
+	movs	r2, #MCH_MEMORY+MPP_IT_VFX_MEM
+	subs	r0, #85				@ 85->94 , 0->9
 	b	.mppuv_volup			@ branch to function (use fvol code)
 
 .mppuv_vs_down:					@ slide down...
-	mov	r2, #MCH_MEMORY+MPP_IT_VFX_MEM
-	sub	r0, #95				@ 95->104 , 0->9
+	movs	r2, #MCH_MEMORY+MPP_IT_VFX_MEM
+	subs	r0, #95				@ 95->104 , 0->9
 	b	.mppuv_voldown			@ branch to function (use fvol code)
 
 .align 2
@@ -2927,15 +2928,15 @@ mpp_Process_VolumeCommand:
 	beq	.mppuv_exit2
 	
 	push	{lr}				@ save return address
-	mov	r1, r0				@ get period value
-	mov	r0, #MCH_PERIOD
+	movs	r1, r0				@ get period value
+	movs	r0, #MCH_PERIOD
 	ldr	r0, [r7, r0]
 	
 	cmp	r1, #115			@ check slide direction
 	bge	.mppuv_porta_up
 .mppuv_porta_down:
-	sub	r1, #105			@ map value 0->9
-	lsl	r1, #2				@ volume command slides are
+	subs	r1, #105			@ map value 0->9
+	lsls	r1, #2				@ volume command slides are
 	bne	1f
 	ldrb	r1, [r7, #MCH_MEMORY+MPP_IT_PORTAMEM]
 1:	strb	r1, [r7, #MCH_MEMORY+MPP_IT_PORTAMEM]
@@ -2943,19 +2944,19 @@ mpp_Process_VolumeCommand:
 	b	.mppuv_porta_set
 	
 .mppuv_porta_up:
-	sub	r1, #115			@ slide up...
-	lsl	r1, #2
+	subs	r1, #115			@ slide up...
+	lsls	r1, #2
 	bne	1f
 	ldrb	r1, [r7, #MCH_MEMORY+MPP_IT_PORTAMEM]
 1:	strb	r1, [r7, #MCH_MEMORY+MPP_IT_PORTAMEM]
 	bl	mpph_PitchSlide_Up
 
 .mppuv_porta_set:
-	mov	r2, #MCH_PERIOD			@ store new period
+	movs	r2, #MCH_PERIOD			@ store new period
 	ldr	r1, [r7, r2]
 	str	r0, [r7, r2]
-	sub	r0, r1				@ and edit temp period
-	add	r5, r0
+	subs	r0, r1				@ and edit temp period
+	adds	r5, r0
 	
 	pop	{r0}
 	bx	r0
@@ -2968,11 +2969,11 @@ mpp_Process_VolumeCommand:
 
 	cmp	r2, #0				@ only set on tick 0
 	bne	.mppuv_exit1			@ ..
-	sub	r0, #128			@ map to 0->64
-	lsl	r0, #2
+	subs	r0, #128			@ map to 0->64
+	lsls	r0, #2
 	cmp	r0, #255
 	blt	.mppuv_p_store
-	mov	r0, #255
+	movs	r0, #255
 .mppuv_p_store:
 	strb	r0, [r7, #MCH_PANNING]		@ save to active channel
 .mppuv_p_exit:
@@ -2986,13 +2987,13 @@ mpp_Process_VolumeCommand:
 	cmp	r2, #0
 	beq	.mppuv_p_exit
 
-	sub	r0, #193
+	subs	r0, #193
 	ldr	r1,=vcmd_glissando_table
 	ldrb	r0, [r1, r0]
 
 	mov	r1, r8
 	ldrb	r1, [r1, #MPL_FLAGS]
-	lsr	r1, #C_FLAGS_GS
+	lsrs	r1, #C_FLAGS_GS
 	bcs	2f
 @ single gxx
 
@@ -3024,9 +3025,9 @@ vcmd_glissando_table:
 	@ vibrato... sets speed
 	cmp	r2, #0
 	beq	.mppuv_vib_exit
-	sub	r0, #203
+	subs	r0, #203
 	beq	1f
-	lsl	r0, #2
+	lsls	r0, #2
 	strb	r0, [r7, #MCH_VIBSPD]
 1:	b	mppe_DoVibrato
 .mppuv_vib_exit:
@@ -3048,7 +3049,7 @@ vcmd_glissando_table:
 .mppuv_xm:
 @---------------------------------------------------------------------------------------
 
-@ determine command type 
+@ determine command type
 	
 	cmp	r0, #0		@ 0 = none
 	beq	.mppuv_exit4
@@ -3074,7 +3075,7 @@ vcmd_glissando_table:
 
 	cmp	R2, #0
 	bne	.mppuv_exit4
-	sub	r0, #0x10
+	subs	r0, #0x10
 	strb	r0, [r7, #MCH_VOLUME]
 .mppuv_exit4:
 	bx	lr
@@ -3088,35 +3089,35 @@ vcmd_glissando_table:
 	cmp	r2, #0
 	beq	.mppuv_exit2
 	ldrb	r1, [r7, #MCH_VOLUME]
-	mov	r3, #MCH_MEMORY+MPP_XM_VFX_MEM_VS
+	movs	r3, #MCH_MEMORY+MPP_XM_VFX_MEM_VS
 	ldrb	r2, [r7, r3]
 	cmp	r0, #0x70
 	bge	.mppuv_xm_volslide_up
-	sub	r0, #0x60
+	subs	r0, #0x60
 .mppuv_xm_volslide_dn_check:
 	bne	1f
-	mov	r0, r2
-	lsl	r0, #32-4
-	lsr	r0, #32-4
+	movs	r0, r2
+	lsls	r0, #32-4
+	lsrs	r0, #32-4
 	b	2f
-1:	lsr	r2, #4
-	lsl	r2, #4
-	orr	r2, r0
+1:	lsrs	r2, #4
+	lsls	r2, #4
+	orrs	r2, r0
 	strb	r2, [r7, r3]	
 2:	b	.mppuv_voldownA
 
 .mppuv_xm_volslide_up:
-	sub	r0, #0x70
+	subs	r0, #0x70
 .mppuv_xm_volslide_up_check:
 	bne	1f
-	mov	r0, r2
-	lsr	r0, #4
+	movs	r0, r2
+	lsrs	r0, #4
 	b	2f
-1:	lsl	r2, #32-4
-	lsr	r2, #32-4
-	lsl	r0, #4
-	orr	r2, r0
-	lsr	r0, #4
+1:	lsls	r2, #32-4
+	lsrs	r2, #32-4
+	lsls	r0, #4
+	orrs	r2, r0
+	lsrs	r0, #4
 	strb	r2, [r7, r3]
 2:	b	.mppuv_volupA
 
@@ -3129,14 +3130,14 @@ vcmd_glissando_table:
 	cmp	r2, #0
 	bne	.mppuv_exit4
 	ldrb	r1, [r7, #MCH_VOLUME]
-	mov	r3, #MCH_MEMORY+MPP_XM_VFX_MEM_FVS
+	movs	r3, #MCH_MEMORY+MPP_XM_VFX_MEM_FVS
 	ldrb	r2, [r7, r3]
 	cmp	r0, #0x90
 	bge	.mppuv_xm_fvolslide_up
-	sub	r0, #0x80
+	subs	r0, #0x80
 	b	.mppuv_xm_volslide_dn_check
 .mppuv_xm_fvolslide_up:
-	sub	r0, #0x90
+	subs	r0, #0x90
 	b	.mppuv_xm_volslide_up_check
 
 .align 2
@@ -3154,15 +3155,15 @@ vcmd_glissando_table:
 	bge	.mppuv_xm_vibdepth
 
 .mppuv_xm_vibspd:
-	sub	r0, #0xA0
-	lsl	r0, #2
+	subs	r0, #0xA0
+	lsls	r0, #2
 	beq	1f
 	strb	r0, [r7, #MCH_VIBSPD]
 1:	b	mppe_DoVibrato
 	
 .mppuv_xm_vibdepth:
-	sub	r0, #0xB0
-	lsl	r0, #3
+	subs	r0, #0xB0
+	lsls	r0, #3
 	beq	1f
 	strb	r0, [r7, #MCH_VIBDEP]
 1:	b	mppe_DoVibrato
@@ -3178,14 +3179,14 @@ vcmd_glissando_table:
 	
 	cmp	r2, #0
 	bne	.mppuv_exit3
-	sub	r0, #0xC0
-	lsl	r0, #4
+	subs	r0, #0xC0
+	lsls	r0, #4
 	cmp	r0, #240
 	beq	.mppuv_xm_panhack
 	strb	r0, [r7, #MCH_PANNING]
 	bx	lr
 .mppuv_xm_panhack:
-	mov	r0, #255
+	movs	r0, #255
 	strb	r0, [r7, #MCH_PANNING]
 .mppuv_exit3:
 	bx	lr
@@ -3202,37 +3203,37 @@ vcmd_glissando_table:
 	ldrb	r3, [r7, #MCH_MEMORY + MPP_XM_VFX_MEM_PANSL]
 	cmp	r0, #0xE0
 	bge	.mppuv_xm_panslide_right
-	sub	r0, #0xD0
+	subs	r0, #0xD0
 	bne	1f
-	lsr	r0, r3, #4
+	lsrs	r0, r3, #4
 	b	2f
-1:	lsl	r3, #32-4
-	lsr	r3, #32-4
-	lsl	r0, #4
-	orr	r3, r0
-	lsr	r0, #4
+1:	lsls	r3, #32-4
+	lsrs	r3, #32-4
+	lsls	r0, #4
+	orrs	r3, r0
+	lsrs	r0, #4
 	strb	r3, [r7, #MCH_MEMORY + MPP_XM_VFX_MEM_PANSL]
 
-2:	lsl	r0, #2
-	sub	r2, r0
+2:	lsls	r0, #2
+	subs	r2, r0
 	bcs	.mppuv_xm_panslide_set
-	mov	r2, #0
+	movs	r2, #0
 	b	.mppuv_xm_panslide_set
 .mppuv_xm_panslide_right:
-	sub	r0, #0xE0
+	subs	r0, #0xE0
 	bne	1f
-	lsl	r0, r3, #32-4
-	lsr	r0, #32-4
+	lsls	r0, r3, #32-4
+	lsrs	r0, #32-4
 	b	2f
-1:	lsr	r3, #4
-	lsl	r3, #4
-	orr	r3, r0
+1:	lsrs	r3, #4
+	lsls	r3, #4
+	orrs	r3, r0
 	strb	r3, [r7, #MCH_MEMORY + MPP_XM_VFX_MEM_PANSL]
-2:	lsl	r0, #2
-	add	r2, r0
+2:	lsls	r0, #2
+	adds	r2, r0
 	cmp	r2, #255
 	blt	.mppuv_xm_panslide_set
-	mov	r2, #255
+	movs	r2, #255
 .mppuv_xm_panslide_set:
 	strb	r2, [r7, #MCH_PANNING]
 	bx	lr
@@ -3248,13 +3249,13 @@ vcmd_glissando_table:
 	cmp	r2, #0
 	beq	1f
 	
-	sub	r0, #0xF0
-	lsl	r0, #4
+	subs	r0, #0xF0
+	lsls	r0, #4
 	beq	2f
-	mov	r1, #MCH_MEMORY+MPP_XM_VFX_MEM_GLIS
+	movs	r1, #MCH_MEMORY+MPP_XM_VFX_MEM_GLIS
 	strb	r0, [r7, r1]
 2:	ldrb	r0, [r7, r1]
-	mov	r1, r0
+	movs	r1, r0
 	
 	b	.mppe_glis_backdoor
 	
@@ -3284,7 +3285,7 @@ mpp_Process_Effect:
 	ldrb	r1, [r7, #MCH_PARAM]	@ r1 = param
 	bl	mpp_Channel_ExchangeMemory
 
-	lsl	r0, #1
+	lsls	r0, #1
 
 	pop	{r2}
 	mov	lr, r2
@@ -3371,7 +3372,7 @@ mppe_PatternBreak:				@ EFFECT Cxy: PATTERN BREAK
 	cmp	r1, #255			@ 255=empty
 	bne	.mppe_pb_exit			@ ...
 	ldrb	r1, [r0, #MPL_POSITION]		@ if empty, set pattjump=position+1
-	add	r1, #1
+	adds	r1, #1
 	strb	r1, [r0, #MPL_PATTJUMP]
 .mppe_pb_exit:
 	bx	lr				@ finished
@@ -3403,25 +3404,25 @@ mppe_Portamento:				@ EFFECT Exy/Fxy: Portamento
 	push	{lr}
 	
 .mppe_pd_ot:
-	mov	r3, #0
-	mov	r0, r1
-	lsr	r0, #4				@ test for Ex param (Extra fine slide)
+	movs	r3, #0
+	movs	r0, r1
+	lsrs	r0, #4				@ test for Ex param (Extra fine slide)
 	cmp	r0, #0xE			@ ..
 .mppe_pd_checkE:				@ ..
 	bne	.mppe_pd_checkF			@ ..
 	cmp	r2, #0				@ Extra fine slide: only slide on tick0
 	bne	.mppe_pd_exit			@ ..
-	lsl	r1, #32-4			@ mask out slide value
-	lsr	r1, #32-4			@ ..
-	mov	r3, #1
+	lsls	r1, #32-4			@ mask out slide value
+	lsrs	r1, #32-4			@ ..
+	movs	r3, #1
 	b	.mppe_pd_otherslide		@ skip the *4 multiplication
 .mppe_pd_checkF:				@ ------------------------------------
 	cmp	r0, #0xF			@ test for Fx param (Fine slide)
 	bne	.mppe_pd_regslide		@ ..
 	cmp	r2, #0				@ Fine slide: only slide on tick0
 	bne	.mppe_pd_exit			@ ..
-	lsl	r1, #32-4			@ mask out slide value
-	lsr	r1, #32-4			@ ..
+	lsls	r1, #32-4			@ mask out slide value
+	lsrs	r1, #32-4			@ ..
 	b	.mppe_pd_otherslide
 .mppe_pd_regslide:
 	cmp	r2, #0
@@ -3429,7 +3430,7 @@ mppe_Portamento:				@ EFFECT Exy/Fxy: Portamento
 .mppe_pd_otherslide:
 	
 	ldrb	r0, [r7, #MCH_EFFECT]		@ check slide direction
-	mov	r2, #MCH_PERIOD
+	movs	r2, #MCH_PERIOD
 	cmp	r0, #5				@ .. (5 = portamento down)
 	ldr	r0, [r7, r2]			@ get period
 	
@@ -3456,11 +3457,11 @@ mppe_Portamento:				@ EFFECT Exy/Fxy: Portamento
 	bl	mpph_FinePitchSlide_Up
 
 .mppe_pd_store:
-	mov	r2, #MCH_PERIOD
+	movs	r2, #MCH_PERIOD
 	ldr	r1, [r7, #MCH_PERIOD]
 	str	r0, [r7, #MCH_PERIOD]
-	sub	r0, r1
-	add	r5, r0
+	subs	r0, r1
+	adds	r5, r0
 .mppe_pd_exit:
 	pop	{r0}
 	bx	r0				@ exit
@@ -3475,7 +3476,7 @@ mppe_Glissando:					@ EFFECT Gxy: Glissando
 	
 	mov	r0, r8
 	ldrb	r0, [r0, #MPL_FLAGS]
-	lsr	r0, #C_FLAGS_GS
+	lsrs	r0, #C_FLAGS_GS
 	bcc	2f
 	@ gxx is shared, IT MODE ONLY!!
 	cmp	r1, #0
@@ -3513,10 +3514,10 @@ mppe_Glissando:					@ EFFECT Gxy: Glissando
 1:							//
 	
 	ldrb	r0, [r6, #MCA_SAMPLE]			// get target period
-	sub	r0, #1					//
+	subs	r0, #1					//
 	mpp_SamplePointer				//
 	ldrh	r1, [r0, #C_MASS_FREQ]			//
-	LSL	R1, #2					//
+	lsls	R1, #2					//
 	ldrb	r2, [r7, #MCH_NOTE]			//
 	ldr	r3,=mmGetPeriod				//
 	bl	mpp_call_r3				//
@@ -3524,12 +3525,12 @@ mppe_Glissando:					@ EFFECT Gxy: Glissando
 	pop	{r1}					// r1 = parameter
 	push	{r0}					// 
 	
-	mov	r3, r0					// r3 = target period
-	mov	r2, #MCH_PERIOD				// r0 = current period
+	movs	r3, r0					// r3 = target period
+	movs	r2, #MCH_PERIOD				// r0 = current period
 	ldr	r0, [r7, r2]				//
 	mov	r2, r8					// test S flag
 	ldrb	r2, [r2, #MPL_FLAGS]			//
-	lsr	r2, #C_FLAGS_SS				//
+	lsrs	r2, #C_FLAGS_SS				//
 	bCC	.mppe_glis_amiga
 	cmp	r0, r3
 	blt	.mppe_glis_slideup
@@ -3545,21 +3546,21 @@ mppe_Glissando:					@ EFFECT Gxy: Glissando
 	
 	cmp	r0, r1
 	blt	.mppe_glis_store
-	mov	r0, r1
+	movs	r0, r1
 	b	.mppe_glis_store
 .mppe_glis_slidedown:
 	bl	mpph_PitchSlide_Down
 	pop	{r1}
 	cmp	r0, r1
 	bgt	.mppe_glis_store
-	mov	r0, r1
+	movs	r0, r1
 .mppe_glis_store:
 	
-	mov	r2, #MCH_PERIOD
+	movs	r2, #MCH_PERIOD
 	ldr	r1, [r7, r2] @#MCA_PERIOD]
 	str	r0, [r7, r2] @#MCA_PERIOD]
-	sub	r0, r1
-	add	r5, r0
+	subs	r0, r1
+	adds	r5, r0
 	
 .mppe_glis_exit:
 	pop	{r3}
@@ -3582,14 +3583,14 @@ mppe_Glissando:					@ EFFECT Gxy: Glissando
 	pop	{r1}
 	cmp	r0, r1
 	bgt	.mppe_glis_store
-	mov	r0, r1
+	movs	r0, r1
 	b	.mppe_glis_store
 .mppe_glis_amiga_up:
 	bl	mpph_PitchSlide_Down
 	pop	{r1}
 	cmp	r0, r1
 	blt	.mppe_glis_store
-	mov	r0, r1
+	movs	r0, r1
 	b	.mppe_glis_store
 
 .align 2
@@ -3599,18 +3600,18 @@ mppe_Vibrato:					@ EFFECT Hxy: Vibrato
 @---------------------------------------------------------------------------------
 
 	bne	.mppe_v_ot
-	lsr	r0, r1, #4			@ if (x != 0) {
+	lsrs	r0, r1, #4			@ if (x != 0) {
 	beq	.mppe_v_nospd			@   speed = 4*x;
-	lsl	r0, #2				@   ..
+	lsls	r0, #2				@   ..
 	strb	r0, [r7, #MCH_VIBSPD]		@   ..
 .mppe_v_nospd:
 	
-	lsl	r0, r1, #32-4		 	@ if (y != 0) {
+	lsls	r0, r1, #32-4		 	@ if (y != 0) {
 	beq	.mppe_v_nodep			@ ..
-	lsr	r0, #32-6			@   depth = y * 4;
+	lsrs	r0, #32-6			@   depth = y * 4;
 	mov	r1, r8
 	ldrb	r1, [r1, #MPL_OLDEFFECTS]	@   if(OldEffects)
-	lsl	r0, r1				@      depth <<= 1;
+	lsls	r0, r1				@      depth <<= 1;
 	strb	r0, [r7, #MCH_VIBDEP]		@
 	b	mppe_DoVibrato
 .mppe_v_nodep:
@@ -3639,26 +3640,26 @@ mppe_DoVibrato:
 	push	{lr}
 	ldrb	r0, [r7, #MCH_VIBSPD]
 	ldrb	r1, [r7, #MCH_VIBPOS]
-	add	r1, r0
-	lsl	r1, #32-8
-	lsr	r1, #32-8
+	adds	r1, r0
+	lsls	r1, #32-8
+	lsrs	r1, #32-8
 	strb	r1, [r7, #MCH_VIBPOS]
 .mppe_dv_notupdate:
 	ldr	r2,=mpp_TABLE_FineSineData
 	ldrsb	r1, [r2, r1]
 	ldrb	r0, [r7, #MCH_VIBDEP]
-	mul	r1, r0
-	asr	r1, #8
-	mov	r0, r5
+	muls	r1, r0
+	asrs	r1, #8
+	movs	r0, r5
 	cmp	r1, #0
 	blt	.mppe_dv_negative
 	bl	mpph_PitchSlide_Up
 	b	.mppe_dv_store
 .mppe_dv_negative:
-	neg	r1, r1
+	negs	r1, r1
 	bl	mpph_PitchSlide_Down
 .mppe_dv_store:
-	mov	r5, r0
+	movs	r5, r0
 	pop	{r0}
 	bx	r0
 //	pop	{pc}		@ return THUMB
@@ -3679,7 +3680,7 @@ mppe_Arpeggio:					@ EFFECT Jxy: Arpeggio
 
 	bne	.mppe_arp_ot
 
-	mov	r0, #0
+	movs	r0, #0
 	strb	r0, [r7, #MCH_FXMEM]
 .mppe_arp_ot:
 	cmp	r6, #0
@@ -3690,40 +3691,40 @@ mppe_Arpeggio:					@ EFFECT Jxy: Arpeggio
 	bgt	.mppe_arp_2
 	beq	.mppe_arp_1
 .mppe_arp_0:
-	mov	r0, #1
+	movs	r0, #1
 	strb	r0, [r7, #MCH_FXMEM]
 	@ do nothing! :)
 1:	bx	lr
 	
 .mppe_arp_1:
 	
-	mov	r0, #2			@ set next tick to '2'
+	movs	r0, #2			@ set next tick to '2'
 	strb	r0, [r7, #MCH_FXMEM]	@ save...
-	mov	r0, r5
-	lsr	r1, #4			@ mask out high nibble of param
+	movs	r0, r5
+	lsrs	r1, #4			@ mask out high nibble of param
 .mppe_arp_others:
-	mov	r2, r5
+	movs	r2, r5
 	cmp	r1, #12			@ see if its >= 12
 	blt	.mppea1_12		@ ..
-	add	r2, r5			@  add period if so... (octave higher)
+	adds	r2, r5			@  add period if so... (octave higher)
 .mppea1_12:				@  ..
-	lsl	r1, #4			@ *16*hword
+	lsls	r1, #4			@ *16*hword
 	
-	mov	r0, r5
+	movs	r0, r5
 	push	{lr}
 	bl	mpph_LinearPitchSlide_Up
 
-	mov	r5, r0
+	movs	r5, r0
 	pop	{r0}
 	bx	r0
 //	pop	{pc}
 	
 .mppe_arp_2:
-	mov	r0, #0
+	movs	r0, #0
 	strb	r0, [r7, #MCH_FXMEM]
-	mov	r0, r5
-	lsl	r1, #32-4
-	lsr	r1, #32-4
+	movs	r0, r5
+	lsls	r1, #32-4
+	lsrs	r1, #32-4
 	b	.mppe_arp_others
 
 .align 2
@@ -3810,7 +3811,7 @@ mppe_PanningSlide:				@ EFFECT Pxy Panning Slide
 
 	push	{lr}
 
-	mov	r0, #255
+	movs	r0, #255
 	push	{r0}
 	ldrb	r0, [r7, #MCH_PANNING]		@ load panning
 	
@@ -3831,20 +3832,20 @@ mppe_Retrigger:					@ EFFECT Qxy Retrigger Note
 	cmp	r0, #0
 	bne	.mppe_retrig_refillN
 .mppe_retrig_refill:
-	lsl	r0, r1, #32-4
-	lsr	r0, #32-4
-	add	r0, #1
+	lsls	r0, r1, #32-4
+	lsrs	r0, #32-4
+	adds	r0, #1
 .mppe_retrig_exitcount:
 	strb	r0, [r7, #MCH_FXMEM]
 	bx	lr
 .mppe_retrig_refillN:
-	sub	r0, #1
+	subs	r0, #1
 	cmp	r0, #1
 	bne	.mppe_retrig_exitcount
 .mppe_retrig_fire:
 	
 	ldrb	r2, [r7, #MCH_VOLUME]
-	lsr	r0, r1, #4
+	lsrs	r0, r1, #4
 	beq	.mppe_retrig_v_change0
 	cmp	r0, #5
 	ble	.mppe_retrig_v_change_sub
@@ -3861,48 +3862,48 @@ mppe_Retrigger:					@ EFFECT Qxy Retrigger Note
 	cmp	r0, #0xF
 	beq	.mppe_retrig_v_change_21
 .mppe_retrig_v_change_21:
-	lsl	r2, #1
+	lsls	r2, #1
 	cmp	r2, #64
 	blt	.mppe_retrig_finish
-	mov	r2, #64
+	movs	r2, #64
 .mppe_retrig_v_change0:
 	b	.mppe_retrig_finish
 .mppe_retrig_v_change_sub:
-	sub	r0, #1
-	mov	r3, #1
-	lsl	r3, r0
-	sub	r2, r3
+	subs	r0, #1
+	movs	r3, #1
+	lsls	r3, r0
+	subs	r2, r3
 	bcs	.mppe_retrig_finish
-	mov	r2, #0
+	movs	r2, #0
 	b	.mppe_retrig_finish
 .mppe_retrig_v_change_23:
-	mov	r0, #171
-	mul	r2, r0
-	lsr	r2, #8
+	movs	r0, #171
+	muls	r2, r0
+	lsrs	r2, #8
 	b	.mppe_retrig_finish
 .mppe_retrig_v_change_12:
-	lsr	r2, #1
+	lsrs	r2, #1
 	b	.mppe_retrig_finish
 .mppe_retrig_v_change_add:
-	sub	r0, #9
-	mov	r3, #1
-	lsl	r3, r0
-	add	r2, r3
+	subs	r0, #9
+	movs	r3, #1
+	lsls	r3, r0
+	adds	r2, r3
 	cmp	r2, #64
 	blt	.mppe_retrig_finish
-	mov	r2, #64
+	movs	r2, #64
 	b	.mppe_retrig_finish
 .mppe_retrig_v_change_32:
-	mov	r0, #192
-	mul	r2, r0
-	lsr	r2, #7
+	movs	r0, #192
+	muls	r2, r0
+	lsrs	r2, #7
 .mppe_retrig_finish:
 	strb	r2, [r7, #MCH_VOLUME]
 	cmp	r6, #0
 	beq	.mppe_retrig_refill
 	ldrb	r0, [r6, #MCA_FLAGS]
-	mov	r2, #MCAF_START
-	orr	r0, r2
+	movs	r2, #MCAF_START
+	orrs	r0, r2
 	strb	r0, [r6, #MCA_FLAGS]
 	b	.mppe_retrig_refill
 
@@ -3919,23 +3920,23 @@ mppe_Tremolo:					@ EFFECT Rxy: Tremolo
 .mppe_trem_ot:
 	@ X = speed, Y = depth
 	ldrb	r0, [r7, #MCH_FXMEM]		@ get sine position
-	lsr	r3, r1, #4			@ mask out SPEED
-	lsl	r3, #2				@ speed*4 to compensate for larger sine table
-	add	r0, r3				@ add to position
+	lsrs	r3, r1, #4			@ mask out SPEED
+	lsls	r3, #2				@ speed*4 to compensate for larger sine table
+	adds	r0, r3				@ add to position
 	strb	r0, [r7, #MCH_FXMEM]		@ save (value & 255)
 .mppe_trem_zt:
 	ldrb	r0, [r7, #MCH_FXMEM]		@ get sine position
 	ldr	r3,=mpp_TABLE_FineSineData	@ load sine table value
 	ldrsb	r0, [r3, r0]
-	lsl	r1, #32-4			@ mask out DEPTH
-	lsr	r1, #32-4
-	mul	r0, r1				@ SINE*DEPTH / 64
-	asr	r0, #6
+	lsls	r1, #32-4			@ mask out DEPTH
+	lsrs	r1, #32-4
+	muls	r0, r1				@ SINE*DEPTH / 64
+	asrs	r0, #6
 	mov	r1, r8
 	ldrb	r1, [r1, #MPL_FLAGS]
-	lsr	r1, #C_FLAGS_XS
+	lsrs	r1, #C_FLAGS_XS
 	bcs	1f
-	asr	r0, #1
+	asrs	r0, #1
 1:	ldr	r1,=mpp_vars			@ set volume addition variable
 	strb	r0, [r1, #MPV_VOLPLUS]
 	bx	lr
@@ -3947,8 +3948,8 @@ mppe_Tremolo:					@ EFFECT Rxy: Tremolo
 mppe_Extended:				@ EFFECT Sxy: Extended Effects
 @---------------------------------------------------------------------------------
 	
-	lsr	r0, r1, #4
-	lsl	r0, #1
+	lsrs	r0, r1, #4
+	lsls	r0, #1
 	cmp	r2, #0
 	add	r0, pc
 	mov	pc, r0
@@ -3984,12 +3985,12 @@ mppex_Unused:
 mppex_XM_FVolSlideUp:
 	bne	2f
 	ldrb	r0, [r7, #MCH_VOLUME]
-	lsl	r1, #32-4
-	lsr	r1, #32-4
-	add	r0, r1
+	lsls	r1, #32-4
+	lsrs	r1, #32-4
+	adds	r0, r1
 	cmp	r0, #64
 	blt	1f
-	mov	r0, #64
+	movs	r0, #64
 1:	strb	r0, [r7, #MCH_VOLUME]
 2:	bx	lr
 
@@ -3997,11 +3998,11 @@ mppex_XM_FVolSlideUp:
 mppex_XM_FVolSlideDown:
 	bne	2f
 	ldrb	r0, [r7, #MCH_VOLUME]
-	lsl	r1, #32-4
-	lsr	r1, #32-4
-	sub	r0, r1
+	lsls	r1, #32-4
+	lsrs	r1, #32-4
+	subs	r0, r1
 	bcs	1f
-	mov	r0, #0
+	movs	r0, #0
 1:	strb	r0, [r7, #MCH_VOLUME]
 2:	bx	lr
 
@@ -4009,26 +4010,26 @@ mppex_XM_FVolSlideDown:
 .thumb_func
 mppex_OldRetrig:
 	bne	1f
-	lsl	r1, #32-4
-	lsr	r1, #32-4
+	lsls	r1, #32-4
+	lsrs	r1, #32-4
 	strb	r1, [r7, #MCH_FXMEM]
 	bx	lr
 	
 1:	ldrb	r0, [r7, #MCH_FXMEM]
-	sub	r0, #1
+	subs	r0, #1
 
 	bne	1f
 	
-	lsl	r0, r1, #32-4
-	lsr	r0, #32-4
+	lsls	r0, r1, #32-4
+	lsrs	r0, #32-4
 	strb	r0, [r7, #MCH_FXMEM]
 
 	cmp	r6, #0
 	beq	1f
 	ldrb	r1, [r6, #MCA_FLAGS]
-	mov	r2, #MCAF_START
+	movs	r2, #MCAF_START
 	
-	orr	r1, r2
+	orrs	r1, r2
 	strb	r1, [r6, #MCA_FLAGS]
 	
 1:	strb	r0, [r7, #MCH_FXMEM]
@@ -4053,8 +4054,8 @@ mppex_PanbForm:
 .thumb_func
 mppex_FPattDelay:
 	bne	.mppex_fpd_exit
-	lsl	r1, #32-4
-	lsr	r1, #32-4
+	lsls	r1, #32-4
+	lsrs	r1, #32-4
 	mov	r0, r8
 	strb	r1, [r0, #MPL_FPATTDELAY]
 .mppex_fpd_exit:
@@ -4064,8 +4065,8 @@ mppex_FPattDelay:
 .thumb_func
 mppex_InstControl:
 	bne	.mppex_ic_exit
-	lsl	r1, #32-4
-	lsr	r1, #32-4
+	lsls	r1, #32-4
+	lsrs	r1, #32-4
 	cmp	r1, #2
 	ble	.mppex_ic_pastnotes
 	cmp	r1, #6
@@ -4078,23 +4079,23 @@ mppex_InstControl:
 	bx	lr
 .mppex_ic_nna:
 	@ overwrite NNA
-	sub	r1, #3
+	subs	r1, #3
 	ldrb	r2, [r7, #MCH_BFLAGS]
-	lsl	r2, #32-6
-	lsr	r2, #32-6
-	lsl	r1, #6
-	orr	r2, r1
+	lsls	r2, #32-6
+	lsrs	r2, #32-6
+	lsls	r1, #6
+	orrs	r2, r1
 	strb	r2, [r7, #MCH_BFLAGS]
 	bx	lr
 .mppex_ic_envelope:
 	cmp	r6, #0
 	beq	.mppex_ic_exit
 	ldrb	r2, [r6, #MCA_FLAGS]
-	mov	r0, #32
-	bic	r2, r0
-	sub	r1, #7
-	lsl	r1, #5
-	orr	r2, r1
+	movs	r0, #32
+	bics	r2, r0
+	subs	r1, #7
+	lsls	r1, #5
+	orrs	r2, r1
 	strb	r2, [r6, #MCA_FLAGS]
 
 .mppex_ic_exit:
@@ -4103,7 +4104,7 @@ mppex_InstControl:
 @-------------------------------------------
 .thumb_func
 mppex_SetPanning:
-	lsl	r1, #4
+	lsls	r1, #4
 	strb	r1, [r7, #MCH_PANNING]
 	bx	lr
 
@@ -4129,15 +4130,15 @@ mppex_PatternLoop:
 	bne	.mppex_pl_exit				@ dont update on nonzero ticks
 	mov	r2, r8
 
-	lsl	r1, #32-4				@ mask low nibble of parameter
-	lsr	r1, #32-4				@ ...
+	lsls	r1, #32-4				@ mask low nibble of parameter
+	lsrs	r1, #32-4				@ ...
 	bne	.mppex_pl_not0				@ is zero?
 	
 	ldrb	r1, [r2, #MPL_ROW]			@   ...
 	strb	r1, [r2, #MPL_PLOOP_ROW]		@    ...
 	ldr	r1,=mpp_vars				@    ....
 	ldr	r1, [r1, #MPV_PATTREAD_P]		@   .. ...
-	mov	r3, #MPL_PLOOP_ADR
+	movs	r3, #MPL_PLOOP_ADR
 	str	r1, [r2, r3]				@  ...  ...
 	bx	lr					@ ...    ...
 .mppex_pl_not0:						@ otherwise...
@@ -4147,12 +4148,12 @@ mppex_PatternLoop:
 	strb	r1, [r2, #MPL_PLOOP_TIMES]		@     zero: save parameter to counter
 	b	.mppex_pl_exit_enable			@     exit & enable jump
 .mppex_pl_active:					@  nonzero:
-	sub	r0, #1					@    decrement counter
+	subs	r0, #1					@    decrement counter
 	strb	r0, [r2, #MPL_PLOOP_TIMES]		@    save
 	beq	.mppex_pl_exit				@    enable jump if not 0
 .mppex_pl_exit_enable:
-	mov	r0, #1					@    enable jump
-	mov	r3, #MPL_PLOOP_JUMP
+	movs	r0, #1					@    enable jump
+	movs	r3, #MPL_PLOOP_JUMP
 	strb	r0, [r2, r3]				@    ..
 .mppex_pl_exit:						@    exit
 	bx	lr					@    ....
@@ -4161,11 +4162,11 @@ mppex_PatternLoop:
 @-------------------------------------------
 .thumb_func
 mppex_NoteCut:
-	lsl	r1, #32-4			@ mask parameter
-	lsr	r1, #32-4			@ ..
+	lsls	r1, #32-4			@ mask parameter
+	lsrs	r1, #32-4			@ ..
 	cmp	r1, r2				@ compare with tick#
 	bne	.mppex_nc_exit			@ if equal:
-	mov	r0, #0				@   cut volume
+	movs	r0, #0				@   cut volume
 	strb	r0, [r7, #MCH_VOLUME]		@   ..
 .mppex_nc_exit:					@ exit
 	bx	lr				@ ..
@@ -4176,8 +4177,8 @@ mppex_NoteDelay:
 	
 	mov	r0, r8
 	ldrb	r2, [r0, #MPL_TICK]
-	lsl	r1, #32-4
-	lsr	r1, #32-4
+	lsls	r1, #32-4
+	lsrs	r1, #32-4
 	cmp	r2, r1
 	bge	1f
 	ldr	r0,=mpp_vars
@@ -4188,13 +4189,13 @@ mppex_NoteDelay:
 .thumb_func
 mppex_PatternDelay:
 	bne	.mppex_pd_quit			@ update on tick0
-	lsl	r1, #32-4			@ mask parameter
-	lsr	r1, #32-4			@ ..
+	lsls	r1, #32-4			@ mask parameter
+	lsrs	r1, #32-4			@ ..
 	mov	r0, r8
 	ldrb	r2, [r0, #MPL_PATTDELAY]	@ get patterndelay
 	cmp	r2, #0				@ only update if it's 0
 	bne	.mppex_pd_quit			@ ..
-	add	r1, #1				@ set to param+1
+	adds	r1, #1				@ set to param+1
 	strb	r1, [r0, #MPL_PATTDELAY]	@ ..
 .mppex_pd_quit:					@ exit
 	bx	lr				@ ..
@@ -4205,13 +4206,13 @@ mppex_SongMessage:
 
 	bne	.mppex_pd_quit			@ update on tick0
 	push	{lr}				@ save return address
-	lsl	r1, #32-4			@ mask parameter
-	lsr	r1, #32-4			@ ..
+	lsls	r1, #32-4			@ mask parameter
+	lsrs	r1, #32-4			@ ..
 	ldr	r2,=mmCallback
 	ldr	r2, [r2]
 	cmp	r2, #0
 	beq	1f
-	mov	r0, #MPCB_SONGMESSAGE
+	movs	r0, #MPCB_SONGMESSAGE
 	
 	bl	mpp_call_r2
 	@jump2
@@ -4244,27 +4245,27 @@ mppe_SetTempo:					@ EFFECT Txy: Set Tempo / Tempo Slide
 	cmp	r1, #0x10
 	bge	.mppe_st_slideup
 .mppe_st_slidedown:
-	sub	r2, r1
+	subs	r2, r1
 	cmp	r2, #32
 	bge	.mppe_st_save
-	mov	r2, #32
+	movs	r2, #32
 .mppe_st_save:
-	mov	r0, r2
+	movs	r0, r2
 	b	.mppe_st_set2
 .mppe_st_slideup:
 	
-	lsl	r1, #32-4
-	lsr	r1, #32-4
+	lsls	r1, #32-4
+	lsrs	r1, #32-4
 	
-	add	r2, r1
+	adds	r2, r1
 	cmp	r2, #255
 	blt	.mppe_st_save
-	mov	r2, #255
+	movs	r2, #255
 	b	.mppe_st_save
 .mppe_st_set:
 	cmp	r2, #0
 	bne	.mppe_st_exit
-	mov	r0, r1
+	movs	r0, r1
 .mppe_st_set2:
 	push	{r5,lr}
 	mov	r5, r8
@@ -4285,19 +4286,19 @@ mppe_FineVibrato:				@ EFFECT Uxy: Fine Vibrato
 @----------------------------------------------------------------------------------------
 
 	bne	.mppe_fv_ot
-	lsr	r0, r1, #4
+	lsrs	r0, r1, #4
 	beq	.mppe_fv_nospd
-	lsl	r0, #2
+	lsls	r0, #2
 	strb	r0, [r7, #MCH_VIBSPD]
 .mppe_fv_nospd:
 	
-	lsl	r0, r1, #32-4
+	lsls	r0, r1, #32-4
 	beq	.mppe_fv_nodep
-//	lsr	r0, #32			heh...
-	lsr	r0, #32-4
+//	lsrs	r0, #32			heh...
+	lsrs	r0, #32-4
 	mov	r1, r8
 	ldrb	r1, [r1, #MPL_OLDEFFECTS]
-	lsl	r0, r1
+	lsls	r0, r1
 	strb	r0, [r7, #MCH_VIBDEP]
 .mppe_fv_nodep:
 
@@ -4314,16 +4315,16 @@ mppe_SetGlobalVolume:			@ EFFECT Vxy: Set Global Volume
 	bne	.mppe_sgv_exit		@ on tick0:
 	mov	r0, r8
 	ldrb	r2, [r0, #MPL_FLAGS]
-	mov	r3, #(1<<(C_FLAGS_XS-1))+(1<<(C_FLAGS_LS-1))
+	movs	r3, #(1<<(C_FLAGS_XS-1))+(1<<(C_FLAGS_LS-1))
 	tst	r2, r3
 	beq	1f
-	mov	r2, #0x40
+	movs	r2, #0x40
 	b	2f
-1:	mov	r2, #0x80
+1:	movs	r2, #0x80
 2:
 	cmp	r1, r2
 	blt	1f
-	mov	r1, r2
+	movs	r1, r2
 1:	strb	r1, [r0, #MPL_GV]	@ save param to global volume
 .mppe_sgv_exit:
 	bx	lr
@@ -4341,19 +4342,19 @@ mppe_GlobalVolumeSlide:				@ EFFECT Wxy: Global Volume Slide
 .mppe_gvs_ot:
 	mov	r0, r8
 	ldrb	r0, [r0, #MPL_FLAGS]
-	lsr	r0, #C_FLAGS_XS
+	lsrs	r0, #C_FLAGS_XS
 	bcs	1f
 	
-	mov	r0, #128
+	movs	r0, #128
 	b	2f
 
-1:	mov	r0, #64
+1:	movs	r0, #64
 
 2:	push	{r0}
 	mov	r0, r8
 	ldrb	r0, [r0, #MPL_GV]		@ load global volume
 	
-	bl	mpph_VolumeSlide		@ slide..	
+	bl	mpph_VolumeSlide		@ slide..
 	
 	mov	r1, r8
 	strb	r0, [r1, #MPL_GV]		@ save global volume
@@ -4415,12 +4416,12 @@ mppe_SetVolume:				@ EFFECT 0xx: Set Volume
 mppe_KeyOff:				@ EFFECT 1xx: Key Off
 @-----------------------------------------------------------------------------------
 	cmp	r1, r2			@ if tick=param:
-	bne	.mppe_ko_exit		@ 
+	bne	.mppe_ko_exit		@
 	cmp	r6, #0
 	beq	.mppe_ko_exit
 	ldrb	r0, [r6, #MCA_FLAGS]	@   clear keyon from flags
-	mov	r1, #MCAF_KEYON		@
-	bic	r0, r1			@
+	movs	r1, #MCAF_KEYON		@
+	bics	r0, r1			@
 	strb	r0, [r6, #MCA_FLAGS]	@
 .mppe_ko_exit:
 	bx	lr			@ finished
@@ -4457,32 +4458,32 @@ mppe_OldTremor:				@ EFFECT 3xy: Old Tremor
 	bne	.mppe_ot_old
 .mppe_ot_new:
 	ldrb	r0, [r7, #MCH_BFLAGS+1]
-	mov	r3, #0b110
-	eor	r0, r3
+	movs	r3, #0b110
+	eors	r0, r3
 	strb	r0, [r7, #MCH_BFLAGS+1]
-	lsr	r0, #3
+	lsrs	r0, #3
 	bcc	.mppe_ot_low
-	lsr	r1, #4
-	add	r1, #1
+	lsrs	r1, #4
+	adds	r1, #1
 	strb	r1, [r7, #MCH_FXMEM]
 	b	.mppe_ot_apply
 .mppe_ot_low:
-	lsl	r1, #32-4
-	lsr	r1, #32-4
-	add	r1, #1
+	lsls	r1, #32-4
+	lsrs	r1, #32-4
+	adds	r1, #1
 	strb	r1, [r7, #MCH_FXMEM]
 	b	.mppe_ot_apply
 	
 .mppe_ot_old:
-	sub	r0, #1
+	subs	r0, #1
 	strb	r0, [r7, #MCH_FXMEM]
 
 .mppe_ot_apply:
 	ldrb	r2, [r7, #MCH_BFLAGS+1]
 	
-	lsr	r2, #3
+	lsrs	r2, #3
 	bcs	.mppe_ot_cut
-	mov	r1, #-64&255 
+	movs	r1, #-64&255
 	ldr	r2,=mpp_vars
 	strb	r1, [r2, #MPV_VOLPLUS]
 .mppe_ot_cut:
@@ -4502,7 +4503,7 @@ mpph_PitchSlide_Down:				@ Linear/Amiga slide down
 	@ r1 = slide value (/4)
 	mov	r2, r8
 	ldrb	r2, [r2, #MPL_FLAGS]
-	lsr	r2, #C_FLAGS_SS
+	lsrs	r2, #C_FLAGS_SS
 	bcc	.mpph_psd_amiga
 	b	.mpph_psd
 
@@ -4513,30 +4514,30 @@ mpph_LinearPitchSlide_Down:			@ Linear slide down
 
 	mov	r2, r8
 	ldrb	r2, [r2, #MPL_FLAGS]
-	lsr	r2, #C_FLAGS_SS
+	lsrs	r2, #C_FLAGS_SS
 	bcc	.mpph_psu
 .mpph_psd:
 	ldr	r2,=mpp_TABLE_LinearSlideDownTable
 .mpph_psd_fine:
-	lsl	r1, #1
+	lsls	r1, #1
 	ldrh	r1, [r2, r1]
-	lsr	r0, #5
-	mul	r0, r1
-	lsr	r0, #16 -5
+	lsrs	r0, #5
+	muls	r0, r1
+	lsrs	r0, #16 -5
 .mpph_psd_clip:
 	cmp	r0, #0
 	bge	.mpph_psd_clipdone
-	mov	r0, #0
+	movs	r0, #0
 .mpph_psd_clipdone:
 	bx	lr
 .mpph_psd_amiga:
-	lsl	r1, #4
+	lsls	r1, #4
 .mpph_psd_amiga_fine:
-	add	r0, r1
-	lsr	r1, r0, #16+5
+	adds	r0, r1
+	lsrs	r1, r0, #16+5
 	beq	.mpph_psd_clipdone
-	mov	r0, #1
-	lsl	r0, #16+5
+	movs	r0, #1
+	lsls	r0, #16+5
 	b	.mpph_psd_clip
 
 .align 2
@@ -4550,43 +4551,43 @@ mpph_PitchSlide_Up:			@ Linear/Amiga slide up
 
 	mov	r2, r8
 	ldrb	r2, [r2, #MPL_FLAGS]
-	lsr	r2, #C_FLAGS_SS
+	lsrs	r2, #C_FLAGS_SS
 	bcc	.mpph_psu_amiga
 	b	.mpph_psu
 .thumb_func
 mpph_LinearPitchSlide_Up:		@ Linear slide up
 	mov	r2, r8
 	ldrb	r2, [r2, #MPL_FLAGS]
-	lsr	r2, #C_FLAGS_SS
+	lsrs	r2, #C_FLAGS_SS
 	bcc	.mpph_psd
 .mpph_psu:
 	ldr	r2,=mpp_TABLE_LinearSlideUpTable
-	mov	r3, r0
+	movs	r3, r0
 	cmp	r1, #192
 	blt	.mpph_psu_notdouble
-	add	r3, r3
+	adds	r3, r3
 .mpph_psu_notdouble:
 .mpph_psu_fine:
-	lsl	r1, #1
+	lsls	r1, #1
 	ldrh	r1, [r2, r1]
-	lsr	r0, #5
-	mul	r0, r1
-	lsr	r0, #16-5
-	add	r0, r3
+	lsrs	r0, #5
+	muls	r0, r1
+	lsrs	r0, #16-5
+	adds	r0, r3
 .mpph_psu_clip:
-	mov	r1, r0
-	lsr	r1, #16+5
+	movs	r1, r0
+	lsrs	r1, #16+5
 	beq	.mpph_psu_clipped
-	mov	r0, #1
-	lsl	r0, #16+5
+	movs	r0, #1
+	lsls	r0, #16+5
 .mpph_psu_clipped:
 	bx	lr
 .mpph_psu_amiga:
-	lsl	r1, #4
+	lsls	r1, #4
 .mpph_psu_amiga_fine:
-	sub	r0, r1
+	subs	r0, r1
 	bcs	.mpph_psu_clipped
-	mov	r0, #0
+	movs	r0, #0
 	bx	lr
 
 .align 2
@@ -4599,13 +4600,13 @@ mpph_FinePitchSlide_Up:
 	@ r1 = slide value (0-15)
 	mov	r2, r8
 	ldrb	r2, [r2, #MPL_FLAGS]
-	lsr	r2, #C_FLAGS_SS
+	lsrs	r2, #C_FLAGS_SS
 	bcc	.mpph_fpsu_amiga
 	ldr	r2,=mpp_TABLE_FineLinearSlideUpTable
-	mov	r3, r0
+	movs	r3, r0
 	b	.mpph_psu_fine
 .mpph_fpsu_amiga:
-	lsl	r1, #2
+	lsls	r1, #2
 	b	.mpph_psu_amiga_fine
 
 .align 2
@@ -4619,12 +4620,12 @@ mpph_FinePitchSlide_Down:
 	
 	mov	r2, r8
 	ldrb	r2, [r2, #MPL_FLAGS]
-	lsr	r2, #C_FLAGS_SS
+	lsrs	r2, #C_FLAGS_SS
 	bcc	.mpph_fpsd_amiga
 	ldr	r2,=mpp_TABLE_FineLinearSlideDownTable
 	b	.mpph_psd_fine
 .mpph_fpsd_amiga:
-	lsl	r1, #2
+	lsls	r1, #2
 	b	.mpph_psd_amiga_fine
 .pool
 
@@ -4646,7 +4647,7 @@ mpph_FastForward:
 	
 	mov	r0, r8
 	ldrb	r2, [r0, #MPL_NROWS]
-	add	r2, #1
+	adds	r2, #1
 	cmp	r1, r2
 	bge	.mpph_ff_exitf
 	strb	r1, [r0, #MPL_ROW]
@@ -4656,7 +4657,7 @@ mpph_FastForward:
 	push	{r1,r7}
 	bl	mpp_call_r7
 	pop	{r1,r7}
-	sub	r1, #1
+	subs	r1, #1
 	bne	.mpph_ff_loop
 
 	pop	{r7}
@@ -4676,7 +4677,7 @@ mpph_FastForward:
 mpph_VolumeSlide64:
 @-----------------------------------------------------------------------------
 
-	mov	r3, #64
+	movs	r3, #64
 	push	{r3}
 
 .thumb_func
@@ -4691,7 +4692,7 @@ mpph_VolumeSlide:
 	
 	mov	r3, r8
 	ldrb	r3, [r3, #MPL_FLAGS]
-	lsr	r3, #C_FLAGS_XS
+	lsrs	r3, #C_FLAGS_XS
 	bcs	.mpph_vs_XM
 	
 	cmp	r1, #0x0F			@  is value 15?
@@ -4705,49 +4706,49 @@ mpph_VolumeSlide:
 	b	.mpph_vs_fadd
 .mpph_vs_hack2:
 
-	mov	r3, r1				@ test for Dx0
-	lsl	r3, #32-4			@ ..
+	movs	r3, r1				@ test for Dx0
+	lsls	r3, #32-4			@ ..
 	bne	.mpph_vs_next1			@ ..
 .mpph_vs_add:					@ Dx0:			(used for DxF too)
 	cmp	r2, #0
 	beq	.mpph_vs_exit
 .mpph_vs_fadd:
-	lsr	r1, #4				@  fix value
-	add	r0, r1				@  add to volume
+	lsrs	r1, #4				@  fix value
+	adds	r0, r1				@  add to volume
 	pop	{r1}
 	cmp	r0, r1				@  clip values past 64
 	blt	.mpph_vs_exit2			@  ..
-	mov	r0, r1				@  ..
+	movs	r0, r1				@  ..
 	b	.mpph_vs_exit2			@  ..
 .mpph_vs_next1:					@---------------------
-	mov	r3, r1				@ test for D0x
-	lsr	r3, #4				@ ..
+	movs	r3, r1				@ test for D0x
+	lsrs	r3, #4				@ ..
 	bne	.mpph_vs_next2			@ ..
 .mpph_vs_sub:					@ D0x:
 	cmp	r2, #0
 	beq	.mpph_vs_exit
 .mpph_vs_fsub:
-	lsl	r1, #32-4			@  mask value
-	lsr	r1, #32-4			@  ..
+	lsls	r1, #32-4			@  mask value
+	lsrs	r1, #32-4			@  ..
 	
-	sub	r0, r1				@  subtract from volume
+	subs	r0, r1				@  subtract from volume
 	bcs	.mpph_vs_exit			@  clip values under 0
-	mov	r0, #0				@  ..
+	movs	r0, #0				@  ..
 	b	.mpph_vs_exit			@  ..
 .mpph_vs_next2:					@---------------------
 	cmp	r2, #0				@ fine slides now... only slide on tick0
 	bne	.mpph_vs_exit			@ ..
 	
-	mov	r3, r1				@ test for DxF
-	lsl	r3, #32-4			@ ..
-	lsr	r3, #32-4
+	movs	r3, r1				@ test for DxF
+	lsls	r3, #32-4			@ ..
+	lsrs	r3, #32-4
 	cmp	r3, #0x0F			@ ..
-	beq	.mpph_vs_fadd			@ branch
+	beq	.mpph_vs_fadds			@ branch
 	
-	mov	r3, r1				@ test for DFx
-	lsr	r3, #4				@ ..
+	movs	r3, r1				@ test for DFx
+	lsrs	r3, #4				@ ..
 	cmp	r3, #0x0F			@ ..
-	beq	.mpph_vs_fsub			@ branch
+	beq	.mpph_vs_fsubs			@ branch
 .mpph_vs_exit:
 
 	pop	{r1}
@@ -4759,19 +4760,19 @@ mpph_VolumeSlide:
 	cmp	r2, #0
 	beq	.mpph_vs_exit
 	
-	lsr	r3, r1, #4
-	lsl	r1, #32-4
-	lsr	r1, #32-4
-	sub	r3, r1
-	add	r0, r3
+	lsrs	r3, r1, #4
+	lsls	r1, #32-4
+	lsrs	r1, #32-4
+	subs	r3, r1
+	adds	r0, r3
 	pop	{r1}
 	cmp	r0, r1
 	blt	.mpph_vsxm_testlow
-	mov	r0, r1
+	movs	r0, r1
 .mpph_vsxm_testlow:
 	cmp	r0, #0
 	bgt	.mpph_vs_exit2
-	mov	r0, #0
+	movs	r0, #0
 	bx	lr
 .pool
 
@@ -4793,7 +4794,7 @@ ST3_FREQTABLE:
 .hword	1712*8, 1616*8, 1524*8, 1440*8, 1356*8, 1280*8, 1208*8, 1140*8, 1076*8, 1016*8, 960*8, 907*8	@ MORE ACCURACY SCALARS
 
 @middle octave is 4.
-@	
+@
 @			 133808 * ( period(NOTE) >> octave )
 @	note_st3period = --------------------------------------------
 @	 		 middle_c_finetunevalue(INSTRUMENT)
