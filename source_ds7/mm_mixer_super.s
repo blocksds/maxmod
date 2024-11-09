@@ -1246,7 +1246,7 @@ mmMixC:
 	str	r0, [r12, #C_SAMP]	// ***hope this works
 	b	.mmc_next
 	
-.POOL
+.pool
 	
 /**************************************************************************************
  * mmVolumeTable

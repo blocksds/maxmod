@@ -67,72 +67,72 @@
 @ Module Channel
 @ --------------
 
-.EQU	MCH_ALLOC,	0 @ ALLOCATED ACTIVE CHANNEL#
-.EQU	MCH_CFLAGS,	1 @ PATTERN COMRESSION FLAGS, called "maskvariable" in ITTECH.TXT
-.EQU	MCH_PANNING,	2
-.EQU	MCH_VOLCMD,	3 @ VOLUME COLUMN COMMAND
-.EQU	MCH_EFFECT,	4 @ EFFECT#				} COMBINED
-.EQU	MCH_PARAM,	5 @ EFFECT PARAMETER	}
-.EQU	MCH_FXMEM,	6 @ EFFECT MEMORY
-.EQU	MCH_NOTE,	7 @ TRANSLATED NOTE
-.EQU	MCH_FLAGS,	8 @ CHANNEL FLAGS
-.EQU	MCH_INST,	9 @ INSTRUMENT#
-//.EQU	MCH_PFLAGS,	10 @ PLAYBACK FLAGS (???)
-.EQU	MCH_VIBDEP,	11
-.EQU	MCH_VIBSPD,	12
-.EQU	MCH_VIBPOS,	13
-.EQU	MCH_VOLUME,	14 //}combined
-.EQU	MCH_CVOLUME,	15 //}
-.EQU	MCH_PERIOD,	16
-.EQU	MCH_BFLAGS,	20
-.EQU	MCH_PNOTE,	22 @ PATTERN NOTE
-.EQU	MCH_MEMORY,	23 @ 15 bytes
-.EQU	MCH_SIZE,	40 @ sizeof( module_channel ) @ 2 extra bytes
+.equ	MCH_ALLOC,	0 @ ALLOCATED ACTIVE CHANNEL#
+.equ	MCH_CFLAGS,	1 @ PATTERN COMRESSION FLAGS, called "maskvariable" in ITTECH.TXT
+.equ	MCH_PANNING,	2
+.equ	MCH_VOLCMD,	3 @ VOLUME COLUMN COMMAND
+.equ	MCH_EFFECT,	4 @ EFFECT#				} COMBINED
+.equ	MCH_PARAM,	5 @ EFFECT PARAMETER	}
+.equ	MCH_FXMEM,	6 @ EFFECT MEMORY
+.equ	MCH_NOTE,	7 @ TRANSLATED NOTE
+.equ	MCH_FLAGS,	8 @ CHANNEL FLAGS
+.equ	MCH_INST,	9 @ INSTRUMENT#
+//.equ	MCH_PFLAGS,	10 @ PLAYBACK FLAGS (???)
+.equ	MCH_VIBDEP,	11
+.equ	MCH_VIBSPD,	12
+.equ	MCH_VIBPOS,	13
+.equ	MCH_VOLUME,	14 //}combined
+.equ	MCH_CVOLUME,	15 //}
+.equ	MCH_PERIOD,	16
+.equ	MCH_BFLAGS,	20
+.equ	MCH_PNOTE,	22 @ PATTERN NOTE
+.equ	MCH_MEMORY,	23 @ 15 bytes
+.equ	MCH_SIZE,	40 @ sizeof( module_channel ) @ 2 extra bytes
 
 @ Active Channel
 @ --------------
 
-.EQU	MCA_PERIOD,	0	@ internal period
-.EQU	MCA_FADE,	4	//   }
-.EQU	MCA_ENVC_VOL,	6	//   }
-.EQU	MCA_ENVC_PAN,	8	//   } COMBINED
-.EQU	MCA_ENVC_PIC,	10	//   } during volume reset
-.EQU	MCA_AVIB_DEP,	12	//   } AND NEWNOTE, CHECK NEWNOTE ON CHANGES
-.EQU	MCA_AVIB_POS,	14	//   }
-.EQU	MCA_FVOL,	16	// } COMBINED for SPEED
-.EQU	MCA_TYPE,	17	// }
-.EQU	MCA_INST,	18
-.EQU	MCA_PANNING,	19
-.EQU	MCA_VOLUME,	20
-.EQU	MCA_SAMPLE,	21
-.EQU	MCA_PARENT,	22 // } COMBINED
-.EQU	MCA_FLAGS,	23 // }
-.EQU	MCA_ENVN_VOL,	24
-.EQU	MCA_ENVN_PAN,	25
-.EQU	MCA_ENVN_PIC,	26
-.EQU	MCA_SFX,	27	@ can store this anywhere
-.EQU	MCA_SIZE,	28
+.equ	MCA_FADE,	4	//   }
+.equ	MCA_ENVC_VOL,	6	//   }
+.equ	MCA_ENVC_PAN,	8	//   } COMBINED
+.equ	MCA_ENVC_PIC,	10	//   } during volume reset
+.equ	MCA_AVIB_DEP,	12	//   } AND NEWNOTE, CHECK NEWNOTE ON CHANGES
+.equ	MCA_AVIB_POS,	14	//   }
+.equ	MCA_FVOL,	16	// } COMBINED for SPEED
+.equ	MCA_TYPE,	17	// }
+.equ	MCA_INST,	18
+.equ	MCA_PANNING,	19
+.equ	MCA_VOLUME,	20
+.equ	MCA_PERIOD,	0	@ internal period
+.equ	MCA_SAMPLE,	21
+.equ	MCA_PARENT,	22 // } COMBINED
+.equ	MCA_FLAGS,	23 // }
+.equ	MCA_ENVN_VOL,	24
+.equ	MCA_ENVN_PAN,	25
+.equ	MCA_ENVN_PIC,	26
+.equ	MCA_SFX,	27	@ can store this anywhere
+.equ	MCA_SIZE,	28
 
 @ Active Channel Flags
 @ --------------------
 
-.EQU	MCAF_KEYON	,1	@ key is on... LOCKED
-.EQU	MCAF_FADE	,2	@ note-fade is activated
-.EQU	MCAF_START	,4	@ [re]start sample
-.EQU	MCAF_UPDATED	,8	@ already updated by pchannel routine
-.EQU	MCAF_ENVEND	,16	@ end of envelope
-.EQU	MCAF_VOLENV	,32	@ volume envelope enabled
-.EQU	MCAF_SUB	,64	@ sublayer.................locked..
-.EQU	MCAF_EFFECT	,128	@ subsublayer.............................LOCKED (mpEffect)
+.equ	MCAF_KEYON	,1	@ key is on... LOCKED
+.equ	MCAF_FADE	,2	@ note-fade is activated
+.equ	MCAF_START	,4	@ [re]start sample
+.equ	MCAF_UPDATED	,8	@ already updated by pchannel routine
+.equ	MCAF_ENVEND	,16	@ end of envelope
+.equ	MCAF_VOLENV	,32	@ volume envelope enabled
+.equ	MCAF_SUB	,64	@ sublayer.................locked..
+.equ	MCAF_EFFECT	,128	@ subsublayer.............................LOCKED (mpEffect)
 
 @ Active Channel Types
 @ --------------------
 
-.EQU	ACHN_DISABLED	,0	@ LOCKED (multiple routines)
-.EQU	ACHN_RESERVED	,1	@ (can't be used [alloc channel])
-.EQU	ACHN_BACKGROUND	,2	@ LOCKED (alloc channel)
-.EQU	ACHN_FOREGROUND	,3
-.EQU	ACHN_CUSTOM	,4
+.equ	ACHN_DISABLED	,0	@ LOCKED (multiple routines)
+.equ	ACHN_RESERVED	,1	@ (can't be used [alloc channel])
+.equ	ACHN_BACKGROUND	,2	@ LOCKED (alloc channel)
+.equ	ACHN_FOREGROUND	,3
+.equ	ACHN_CUSTOM	,4
 
 @ Module Channel Flags
 @ --------------------
@@ -143,16 +143,16 @@
 .equ	MF_HASFX	,8
 .equ	MF_NEWINSTR	,16
 
-.EQU	MF_NOTEOFF	,64	@ LOCKED
-.EQU	MF_NOTECUT	,128	@ LOCKED
+.equ	MF_NOTEOFF	,64	@ LOCKED
+.equ	MF_NOTECUT	,128	@ LOCKED
 
 @.equ	MF_NEWINSTR	,1	@ new instrument
-@.EQU	MF_DVOL		,2
-@.EQU	MF_START	,4
-@.EQU	MF_HASFX	,8
-@.EQU	MF_HASVCMD	,16
-@.EQU	MF_NOTEOFF	,64	@ LOCKED
-@.EQU	MF_NOTECUT	,128	@ LOCKED
+@.equ	MF_DVOL		,2
+@.equ	MF_START	,4
+@.equ	MF_HASFX	,8
+@.equ	MF_HASVCMD	,16
+@.equ	MF_NOTEOFF	,64	@ LOCKED
+@.equ	MF_NOTECUT	,128	@ LOCKED
 
 @ Other Definitions
 @ -----------------

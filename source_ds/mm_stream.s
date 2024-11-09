@@ -90,9 +90,9 @@ mmsData:		.space v_size
  *
  ***********************************************************************/
  
-	.TEXT
-	.THUMB
-	.ALIGN 2
+	.text
+	.thumb
+	.align 2
 
 /***********************************************************************
  * mmStreamOpen( stream )
@@ -485,8 +485,8 @@ ForceStreamRequest:
 	
 	b	STREAM_FORCE_REQUEST
 	
-	.ARM
-	.ALIGN 2
+	.arm
+	.align 2
 	
 	
 #ifdef SYS_NDS9
@@ -788,8 +788,8 @@ mmFlushStream:
 	
 #endif
 	
-	.THUMB
-	.ALIGN 2
+	.thumb
+	.align 2
 	
 /***********************************************************************
  * mmStreamClose
