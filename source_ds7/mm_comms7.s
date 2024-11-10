@@ -94,6 +94,7 @@ F: SELECTMODE		2	[mode]				select audio mode
 
 
 	.bss
+	.syntax unified
 	.align 2
 /*******************************************************************
  * mmFifo
@@ -117,9 +118,9 @@ mmFifoChannel:
 	
 
 //------------------------------------------------------------------
-.TEXT
-.ARM
-.ALIGN 2
+.text
+.arm
+.align 2
 //------------------------------------------------------------------
 
 /*******************************************************************
@@ -329,7 +330,7 @@ mmRestoreIRQ:
 .macro rf16 r, t
 	rfb	\r
 	rfb	\t
-	orr	\r, \t, lsl#8
+	orr	\r, \r, \t, lsl#8
 .endm
 
 /*******************************************************************
@@ -340,9 +341,9 @@ mmRestoreIRQ:
 .macro rf24 r, t
 	rfb	\r
 	rfb	\t
-	orr	\r, \t, lsl#8
+	orr	\r, \r, \t, lsl#8
 	rfb	\t
-	orr	\r, \t, lsl#16
+	orr	\r, \r, \t, lsl#16
 .endm
 
 #define count r7
@@ -376,7 +377,7 @@ mmProcessComms:
 .process_messages:
 	rfb	r0				// read message
 	adr	lr, ProcessNextMessage
-	add	pc, r0, lsl#2
+	add	pc, pc, r0, lsl#2
 	
 IRQ_State:	.space 4			// Variable: IRQ_State
 	
@@ -652,7 +653,7 @@ mmMSG_EFFECT:
 	rf16	r0, r1			// r0 = ssssssss
 	mov	r1, #0x00000400		// r1 = hhhhrrrr
 	rf16	r2, r3			//
-	orr	r1, r2, lsl#16		//
+	orr	r1, r1, r2, lsl#16		//
 	mov	r2, #0x00008100		// r2 = ----ppvv (80,ff)
 	sub	r2, #0x00000001		//
 	
@@ -768,19 +769,19 @@ mmMSG_EFFECTEX:
 	
 	rfb	r0		// r0 = source
 	rfb	r1		//
-	orr	r0, r1, lsl#8	//
+	orr	r0, r0, r1, lsl#8	//
 	rfb	r1		//
-	orr	r0, r1, lsl#16	//
+	orr	r0, r0, r1, lsl#16	//
 	rfb	r1		//
-	orr	r0, r1, lsl#24	//
+	orr	r0, r0, r1, lsl#24	//
 	
 	rfb	r1		// r1 = rate, handle
 	rfb	r2		//
-	orr	r1, r2, lsl#8	//
+	orr	r1, r1, r2, lsl#8	//
 	rfb	r2		//
-	orr	r1, r2, lsl#16	//
+	orr	r1, r1, r2, lsl#16	//
 	rfb	r2		//
-	orr	r1, r2, lsl#24	//
+	orr	r1, r1, r2, lsl#24	//
 	
 	rf16	r2, r3		// r2 = volume,pan
 	
@@ -843,61 +844,61 @@ mmMSG_REVERBCFG:
 	mov	r1, #1				// test bits 0 & 1
 	tst	r1, r0, lsr#1			//
 	
-	ldrcsb	r3, [r6, r5, lsr#32-FIFO_SIZEB]	// copy mem
+	ldrbcs	r3, [r6, r5, lsr#32-FIFO_SIZEB]	// copy mem
 	addcs	r5, #1<<(32-FIFO_SIZEB)		//
-	strcsb	r3, [sp, #mmrc_memory]		//
+	strbcs	r3, [sp, #mmrc_memory]		//
 						//
-	ldrcsb	r3, [r6, r5, lsr#32-FIFO_SIZEB]	//
+	ldrbcs	r3, [r6, r5, lsr#32-FIFO_SIZEB]	//
 	addcs	r5, #1<<(32-FIFO_SIZEB)		//
-	strcsb	r3, [sp, #mmrc_memory+1]	//
+	strbcs	r3, [sp, #mmrc_memory+1]	//
 						//
-	ldrcsb	r3, [r6, r5, lsr#32-FIFO_SIZEB]	//
+	ldrbcs	r3, [r6, r5, lsr#32-FIFO_SIZEB]	//
 	addcs	r5, #1<<(32-FIFO_SIZEB)		//
-	strcsb	r3, [sp, #mmrc_memory+2]	//
+	strbcs	r3, [sp, #mmrc_memory+2]	//
 						//
-	ldrcsb	r3, [r6, r5, lsr#32-FIFO_SIZEB]	//
+	ldrbcs	r3, [r6, r5, lsr#32-FIFO_SIZEB]	//
 	addcs	r5, #1<<(32-FIFO_SIZEB)		//
-	strcsb	r3, [sp, #mmrc_memory+3]	//
+	strbcs	r3, [sp, #mmrc_memory+3]	//
 						//
 	subcs	count, #4			//
 	
-	ldrneb	r3, [r6, r5, lsr#32-FIFO_SIZEB]	// copy delay
+	ldrbne	r3, [r6, r5, lsr#32-FIFO_SIZEB]	// copy delay
 	addne	r5, #1<<(32-FIFO_SIZEB)		//
-	strneb	r3, [sp, #mmrc_delay]		//
+	strbne	r3, [sp, #mmrc_delay]		//
 						//
-	ldrneb	r3, [r6, r5, lsr#32-FIFO_SIZEB]	//
+	ldrbne	r3, [r6, r5, lsr#32-FIFO_SIZEB]	//
 	addne	r5, #1<<(32-FIFO_SIZEB)		//
-	strneb	r3, [sp, #mmrc_delay+1]		//
+	strbne	r3, [sp, #mmrc_delay+1]		//
 						//
 	subne	count, #2			//
 	
 	tst	r1, r0, lsr#3			// test bits 2 & 3
 	
-	ldrcsb	r3, [r6, r5, lsr#32-FIFO_SIZEB]	// copy rate
+	ldrbcs	r3, [r6, r5, lsr#32-FIFO_SIZEB]	// copy rate
 	addcs	r5, #1<<(32-FIFO_SIZEB)		//
-	strcsb	r3, [sp, #mmrc_rate]		//
+	strbcs	r3, [sp, #mmrc_rate]		//
 						//
-	ldrcsb	r3, [r6, r5, lsr#32-FIFO_SIZEB]	//
+	ldrbcs	r3, [r6, r5, lsr#32-FIFO_SIZEB]	//
 	addcs	r5, #1<<(32-FIFO_SIZEB)		//
-	strcsb	r3, [sp, #mmrc_rate+1]		//
+	strbcs	r3, [sp, #mmrc_rate+1]		//
 						//
 	subcs	count, #2			//
 	
-	ldrneb	r3, [r6, r5, lsr#32-FIFO_SIZEB]	// copy feedback
+	ldrbne	r3, [r6, r5, lsr#32-FIFO_SIZEB]	// copy feedback
 	addne	r5, #1<<(32-FIFO_SIZEB)		//
-	strneb	r3, [sp, #mmrc_feedback]	//
+	strbne	r3, [sp, #mmrc_feedback]	//
 						//
-	ldrneb	r3, [r6, r5, lsr#32-FIFO_SIZEB]	//
+	ldrbne	r3, [r6, r5, lsr#32-FIFO_SIZEB]	//
 	addne	r5, #1<<(32-FIFO_SIZEB)		//
-	strneb	r3, [sp, #mmrc_feedback+1]	//
+	strbne	r3, [sp, #mmrc_feedback+1]	//
 						//
 	subne	count, #2			//
 	
 	tst	r1, r0, lsr#5			// test bits 4 & 5
 	
-	ldrcsb	r3, [r6, r5, lsr#32-FIFO_SIZEB]	// copy panning
+	ldrbcs	r3, [r6, r5, lsr#32-FIFO_SIZEB]	// copy panning
 	addcs	r5, #1<<(32-FIFO_SIZEB)		//
-	strcsb	r3, [sp, #mmrc_panning]		//
+	strbcs	r3, [sp, #mmrc_panning]		//
 						//
 	subcs	count, #1			//
 	

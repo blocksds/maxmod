@@ -64,7 +64,7 @@
 .equ	C_MASIE_FILTER	,6
 .equ	C_MASIE_NODES	,8
 
-.EQU	ENVFLAG_A,	0b1000
+.equ	ENVFLAG_A,	0b1000
 
 @ sample structure......................................
 .equ	C_MASS_DV	,0

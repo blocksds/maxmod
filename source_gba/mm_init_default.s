@@ -14,6 +14,7 @@
  ****************************************************************************/
  
 .global mmInitDefault
+.syntax unified
 
 @----------------------------------------------------------------------------
 
@@ -54,25 +55,25 @@ mmInitDefault:
 	//6 mixmem (__mixbuffer)
 	//7 wavemem
 	
-	mov	r6, r1				// r6=#channels
+	movs	r6, r1				// r6=#channels
 	ldr	r0,=MM_SIZEOF_MODCH+MM_SIZEOF_ACTCH+MM_SIZEOF_MIXCH
-	mul	r0, r6
+	muls	r0, r6
 	ldr	r4,=mixlen
-	add	r0, r4
-	mov	r1, #1
+	adds	r0, r4
+	movs	r1, #1
 	bl	calloc
 	
-	mov	r7, r0				// wavemem = beginning of buffer
-	add	r3, r0, r4			// split up buffer into addresses [r3,r4,r5]
-	mov	r0, #MM_SIZEOF_MODCH		//
-	mul	r0, r6				//
-	add	r4, r3, r0			//
-	mov	r0, #MM_SIZEOF_ACTCH		//
-	mul	r0, r6				//
-	add	r5, r4, r0			//
-	mov	r0, #3				//
-	mov	r1, r6				//
-	mov	r2, r6				//
+	movs	r7, r0				// wavemem = beginning of buffer
+	adds	r3, r0, r4			// split up buffer into addresses [r3,r4,r5]
+	movs	r0, #MM_SIZEOF_MODCH		//
+	muls	r0, r6				//
+	adds	r4, r3, r0			//
+	movs	r0, #MM_SIZEOF_ACTCH		//
+	muls	r0, r6				//
+	adds	r5, r4, r0			//
+	movs	r0, #3				//
+	movs	r1, r6				//
+	movs	r2, r6				//
 	ldr	r6,=__mixbuffer			// r6 = mixbuffer (iwram)
 	
 	push	{r0-r7}

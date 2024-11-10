@@ -38,8 +38,9 @@
  *
  ******************************************************************************/
 
-	.BSS
-	.ALIGN 2
+	.bss
+	.syntax unified
+	.align 2
 
 /******************************************************************************
  * mmCallback
@@ -150,9 +151,9 @@ mpp_call_r1i: bx r1
 #endif
 
 //-----------------------------------------------------------------------------
-	.TEXT
-	.THUMB
-	.ALIGN 2
+	.text
+	.thumb
+	.align 2
 //-----------------------------------------------------------------------------
 
 .global mpp_call_r7, mpp_call_r1, mpp_call_r2, mpp_call_r3
@@ -202,17 +203,17 @@ mmLockChannels:
 	push	{r4, r5, lr}
 	ldr	r1,=mm_ch_mask			// clear bits
 	ldr	r2, [r1]			//
-	bic	r2, r0				//
+	bics	r2, r0				//
 	str	r2, [r1]			//
 	
-	mov	r4, r0
-	mov	r5, #0
+	movs	r4, r0
+	movs	r5, #0
 	
-2:	lsr	r4, #1
+2:	lsrs	r4, #1
 	bcc	1f
-	mov	r0, r5
+	movs	r0, r5
 	bl	StopActiveChannel
-1:	add	r5, #1
+1:	adds	r5, #1
 	cmp	r4, #0
 	bne	2b
 	
@@ -230,22 +231,22 @@ StopActiveChannel:
 	push	{r4}
 	
 	GET_MIXCH r1				// stop mixing channel
-	mov	r2, #MIXER_CHN_SIZE		//
-	mul	r2, r0				//
-	add	r1, r2				//
+	movs	r2, #MIXER_CHN_SIZE		//
+	muls	r2, r0				//
+	adds	r1, r2				//
 						//
 						//
 	#ifdef SYS_GBA				//
 						//
-	mov	r2, #0				//
-	sub	r2, #1				//
+	movs	r2, #0				//
+	subs	r2, #1				//
 	str	r2, [r1, #MIXER_CHN_SRC]	//
 						//
 	#endif					//
 						//
 	#ifdef SYS_NDS				//
 						//
-	mov	r2, #0				//
+	movs	r2, #0				//
 	str	r2, [r1, #MIXER_CHN_SAMP]	//
 	strh	r2, [r1, #MIXER_CHN_CVOL]	//
 	strh	r2, [r1, #MIXER_CHN_VOL]	//
@@ -253,24 +254,24 @@ StopActiveChannel:
 	#endif					//
 	
 	ldr	r1,=0x4000400			// stop hardware channel
-	lsl	r2, r0, #4			//
-	mov	r3, #0				//
+	lsls	r2, r0, #4			//
+	movs	r3, #0				//
 	str	r3, [r1, r2]			//
 	
 	ldr	r1,=mm_achannels		// disable achn
 	ldr	r1, [r1]			//
-	mov	r2, #MCA_SIZE			//
-	mul	r2, r0				//
-	add	r1, r2				//
-	mov	r2, #0				//
+	movs	r2, #MCA_SIZE			//
+	muls	r2, r0				//
+	adds	r1, r2				//
+	movs	r2, #0				//
 	ldrb	r4, [r1, #MCA_FLAGS]		//
 	strb	r2, [r1, #MCA_FLAGS]		//
 	strb	r2, [r1, #MCA_TYPE]		//
 	
-	lsr	r1, r4, #8
+	lsrs	r1, r4, #8
 	bcs	.iseffect
 	
-	lsr	r4, #7
+	lsrs	r4, #7
 	bcs	.issub
 	
 	ldr	r1,=mm_pchannels		// stop hooked pchannel
@@ -281,10 +282,10 @@ StopActiveChannel:
 2:	ldrb	r3, [r1, #MCH_ALLOC]		//
 	cmp	r3, r0				//
 	bne	1f				//
-	mov	r3, #255			//
+	movs	r3, #255			//
 	strb	r3, [r1, #MCH_ALLOC]		//
 	b	.iseffect			//
-1:	sub	r2, #1				//
+1:	subs	r2, #1				//
 	bne	2b				//
 	
 	b	.iseffect			//
@@ -292,15 +293,15 @@ StopActiveChannel:
 .issub:
 	// stop sub pchannel
 	ldr	r1,=mm_schannels
-	mov	r2, #4
+	movs	r2, #4
 	
 2:	ldrb	r3, [r1, #MCH_ALLOC]		//
 	cmp	r3, r0				//
 	bne	1f				//
-	mov	r3, #255			//
+	movs	r3, #255			//
 	strb	r3, [r1, #MCH_ALLOC]		//
 	b	.iseffect			//
-1:	sub	r2, #1				//
+1:	subs	r2, #1				//
 	bne	2b				//
 	
 .iseffect:
@@ -329,7 +330,7 @@ mmUnlockChannels:
 	
 	ldr	r1,=mm_ch_mask
 	ldr	r2, [r1]
-	orr	r2, r0
+	orrs	r2, r0
 	str	r2, [r1]
 1:	bx	lr
 #endif
@@ -349,8 +350,8 @@ mmUnlockChannels:
 #ifdef SYS_GBA
 //-----------------------------------------------------------------------------
 
-	.BSS
-	.ALIGN 2
+	.bss
+	.align 2
 
 /******************************************************************************
  * mp_solution
@@ -360,10 +361,10 @@ mmUnlockChannels:
 						.global mp_solution
 mp_solution:	.space 4
 
-	.TEXT
-	.THUMB
-	.ALIGN 2
-	
+	.text
+	.thumb
+	.align 2
+
 /******************************************************************************
  * mmInit(system)
  *
@@ -375,7 +376,7 @@ mmInit:
 	push	{lr}
 	
 	ldr	r2,=mp_solution
-	mov	r1, #MM_GBA_SYSTEM_SOUNDBANK
+	movs	r1, #MM_GBA_SYSTEM_SOUNDBANK
 	ldr	r1, [r0,r1]
 	str	r1, [r2]
 
@@ -393,9 +394,9 @@ mmInit:
 
 	ldr	r1,=mm_num_ach
 	ldr	r1,[r1]
-	mov	r0,#1
-	lsl	r0, r1
-	sub	r0,#1
+	movs	r0,#1
+	lsls	r0, r1
+	subs	r0,#1
 	
 	ldr	r1,=mm_ch_mask
 	str	r0, [r1]
@@ -466,7 +467,7 @@ mmFrame:
 	ldr	r1,[r1]
 	strb	r1, [r0] 
 	ldr	r0,=mpp_clayer		@ layer=0 (main)
-	mov	r1, #0
+	movs	r1, #0
 	strb	r1, [r0]
 
 	ldr	r0,=mmLayerMain @mpp_layerA		@ copy layer pointer
@@ -486,30 +487,30 @@ mmFrame:
 	ldr	r0,=mpp_layerp		@ get layer
 	ldr	r0, [r0]
 	
-	mov	r1, #MPL_TICKRATE	@ get samples/tick
+	movs	r1, #MPL_TICKRATE	@ get samples/tick
 	ldrh	r5, [r0, r1]
 	
-	mov	r1, #MPL_SAMPCOUNT	@ get sample count
+	movs	r1, #MPL_SAMPCOUNT	@ get sample count
 	ldrh	r6, [r0,r1]
 	
-	sub	r5, r6			@ calc tickrate-counter
+	subs	r5, r6			@ calc tickrate-counter
 	cmp	r5, #0
 	bge	1f
-	mov	r5, #0
+	movs	r5, #0
 1:	cmp	r5, r4			@ > mixlen?
 	blt	.mpf_mix_adv		@ no, mix and process tick
 	b	.mpf_mix		@ yes, mix the rest of samples
 	
 .mpf_mix_adv:
 	
-	mov	r1, #MPL_SAMPCOUNT	@ reset sample counter
-	mov	r7, #0			@
+	movs	r1, #MPL_SAMPCOUNT	@ reset sample counter
+	movs	r7, #0			@
 	strh	r7, [r0,r1]		@
-	sub	r4, r5			@ subtract from #samples to mix
+	subs	r4, r5			@ subtract from #samples to mix
 	
 	PROF_START
 	
-	mov	r0, r5
+	movs	r0, r5
 	ldr	r7,=mmMixerMix	@ mix samples
 	bl	_call_via_r7
 	
@@ -524,10 +525,10 @@ mmFrame:
 @ add samples remaining to SAMPCOUNT
 @ and mix more samples
 	
-	mov	r1, #MPL_SAMPCOUNT
-	add	r6, r4
+	movs	r1, #MPL_SAMPCOUNT
+	adds	r6, r4
 	strh	r6, [r0, r1]
-	mov	r0, r4
+	movs	r0, r4
 	PROF_START
 	ldr	r1,=mmMixerMix
 	bl	_call_via_r1
@@ -541,7 +542,7 @@ mmFrame:
 @ main layer isn't active,
 @ mix full amount
 
-	mov	r0, r4
+	movs	r0, r4
 	
 	PROF_START
 	ldr	r1,=mmMixerMix
@@ -571,9 +572,9 @@ mmFrame:
 #ifdef SYS_NDS
 //-----------------------------------------------------------------------------
 
-	.TEXT
-	.THUMB
-	.ALIGN 2
+	.text
+	.thumb
+	.align 2
 
 /******************************************************************************
  * mmSuspendIRQ_t
@@ -643,11 +644,11 @@ mmIsInitialized:
 						.thumb_func
 mmInit7:
 	push	{lr}
-	mov	r0, #0x08
+	movs	r0, #0x08
 	ldr	r1,=mmFrame
 	bl	irqSet
 	
-	mov	r0, #0x08
+	movs	r0, #0x08
 	bl	irqEnable
 	
 	ldr	r0,=0x400			// set volumes
@@ -658,7 +659,7 @@ mmInit7:
 	bl	mmSetEffectsVolume		//
 	
 	ldr	r0,=mmInitialized		// set initialized flag
-	mov	r1, #42				//
+	movs	r1, #42				//
 	strb	r1, [r0]			//
 	
 	ldr	r0,=0xFFFF			// select all hardware channels
@@ -669,7 +670,7 @@ mmInit7:
 	str	r1, [r0]			//
 	ldr	r1,=mm_rds_pchannels		//
 	str	r1, [r0,#4]			//
-	mov	r1, #32				// 32 channels
+	movs	r1, #32				// 32 channels
 	str	r1, [r0,#8]			//
 	str	r1, [r0,#12]			//
 	
@@ -687,7 +688,7 @@ mmInit7:
 	bl	mmSetEventHandler
 	
 	ldr	r0,=mmInitialized		// set initialized flag
-	mov	r1, #42				//
+	movs	r1, #42				//
 	strb	r1, [r0]			//
 	
 .exit_r3:
@@ -705,7 +706,7 @@ mmInstall:
 	push	{lr}
 	
 	ldr	r1,=mmInitialized		// not initialized until we get soundbank data
-	mov	r2, #0				//
+	movs	r2, #0				//
 	strb	r2, [r1]			//
 	
 	bl	mmSetupComms			// setup communication
@@ -721,11 +722,11 @@ mmInstall:
 mmEventForwarder:
 	
 	push	{lr}
-	lsl	r1, #8
-	orr	r0, r1
-	mov	r1, #1
-	lsl	r1, #20
-	orr	r0, r1
+	lsls	r1, #8
+	orrs	r0, r1
+	movs	r1, #1
+	lsls	r1, #20
+	orrs	r0, r1
 	bl	mmARM9msg
 	pop	{pc}
 	
@@ -740,8 +741,8 @@ mmGetSoundBank:
 	ldr	r2,=mmModuleCount		// save data
 	stmia	r2!, {r0,r1}			//
 	
-	lsl	r0, #2				// also sample bank address
-	add	r1, r0				//	
+	lsls	r0, #2				// also sample bank address
+	adds	r1, r0				//
 	stmia	r2!, {r1}			//
 	
 //------------------------------------------------
@@ -769,7 +770,7 @@ mmFrame:
 	bl	mmMixerPre		// <-- critical timing
 	
 	ldr	r0,=0x4000208		// enable irq
-	mov	r1, #1			//
+	movs	r1, #1			//
 	strh	r1, [r0]		//
 	
 	bl	mmUpdateEffects		// update sound effects

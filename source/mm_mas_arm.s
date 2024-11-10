@@ -35,6 +35,7 @@
 __SECTION_IWRAM
 
 .arm
+.syntax unified
 .align 2
 
 .global	mmAllocChannel
@@ -111,18 +112,18 @@ readpattern:
 	movs	r3, r3, lsl#32-7	// mask channel#
 	beq	end_of_row		// 0 = end of row
 	rsb	r3, r10, r3, lsr#32-7	// get channel number
-	orr	r1, r10, lsl r3
+	orr	r1, r1, r10, lsl r3
 	mov	r0, #MCH_SIZE
 	mla	r6, r3, r0, r9		// get channel pointer
-	ldrcsb	r2, [r7], #1		// read new maskvariable if bit was set
-	strcsb	r2, [r6, #MCH_CFLAGS]	// and save it
-	ldrccb	r2, [r6, #MCH_CFLAGS]	// otherwise read previous flags
+	ldrbcs	r2, [r7], #1		// read new maskvariable if bit was set
+	strbcs	r2, [r6, #MCH_CFLAGS]	// and save it
+	ldrbcc	r2, [r6, #MCH_CFLAGS]	// otherwise read previous flags
 	
 	tst	r2, #1			// test note bit
 	beq	no_note
 	ldrb	r0, [r7], #1		// read note value
 	cmp	r0, #254		// test if < 254
-	strltb	r0, [r6, #MCH_PNOTE]	// [most common result]
+	strblt	r0, [r6, #MCH_PNOTE]	// [most common result]
 	blt	no_note
 	orreq	r5, #MF_NOTECUT		// 254 is note-cut
 	orrgt	r5, #MF_NOTEOFF		// 255 is note-off
@@ -146,16 +147,16 @@ same_instrument:
 no_instrument:
 	
 	tst	r10, r2, lsr#3		// test volume & effect bits
-	ldrcsb	r0, [r7], #1		// copy vcmd
-	strcsb	r0, [r6, #MCH_VOLCMD]
+	ldrbcs	r0, [r7], #1		// copy vcmd
+	strbcs	r0, [r6, #MCH_VOLCMD]
 no_vcmd:
 	beq	no_effect
 	ldrb	r0, [r7], #1		// copy effect
 	ldrb	r3, [r7], #1		// copy param
-	orr	r0, r3, lsl#8
+	orr	r0, r0, r3, lsl#8
 	strh	r0, [r6, #MCH_EFFECT]	// write effect+param
 no_effect:
-	orr	r5, r2, lsr#4		// orr in the new flags
+	orr	r5, r5, r2, lsr#4		// orr in the new flags
 	strb	r5, [r6, #MCH_FLAGS]	// save flags
 	b	readpattern		// loop
 end_of_row:
@@ -305,7 +306,7 @@ channel_started:
 	ldr	r1, [r0, #C_MASI_NNA]	// read nna,envflags,pan
 	ldrb	r2, [r7, #MCH_BFLAGS]	// read bflags
 	bic	r2, #0b11000000		// clear old nna
-	orr	r2, r1, lsl#6		// set new nna
+	orr	r2, r2, r1, lsl#6		// set new nna
 	strb	r2, [r7, #MCH_BFLAGS]
 	
 	ldrb	r2, [r6, #MCA_FLAGS]	// read achn flags
@@ -316,7 +317,7 @@ channel_started:
 	
 	movs	r1, r1, lsl#8+1		// shift out panning MSB
 	movcs	r1, r1, lsr#24		// if set, use new panning value
-	strcsb	r1, [r7, #MCH_PANNING]
+	strbcs	r1, [r7, #MCH_PANNING]
 dvol_no_instrument:
 	
 	ldrb	r0, [r6, #MCA_SAMPLE]	// read sample#
@@ -333,7 +334,7 @@ dvol_no_instrument:
 	strb	r1, [r7, #MCH_VOLUME]	// copy volume
 	movs	r1, r1, lsl#24-7
 	mov	r1, r1, lsr#24
-	strcsb	r1, [r7, #MCH_PANNING]
+	strbcs	r1, [r7, #MCH_PANNING]
 dvol_skip:
 dvol_no_sample:
 
@@ -383,7 +384,7 @@ skip_noteoff:
 
 	tst	r5, #MF_NOTECUT		// test notecut bit
 	movne	r0, #0			// clear volume
-	strneb	r0, [r7, #MCH_VOLUME]	// on note-cut
+	strbne	r0, [r7, #MCH_VOLUME]	// on note-cut
 	
 	bic	r5, #MF_START		// clear start flag
 	strb	r5, [r7, #MCH_FLAGS]	// save flags
@@ -449,7 +450,7 @@ mmUpdateChannel_TN___:
 	
 	ldr	r1,=mpp_vars		// 
 	ldrsb	r2, [r1, #MPV_VOLPLUS]	// read volume addition
-	adds	r0, r2, lsl#3		// add to volume
+	adds	r0, r0, r2, lsl#3		// add to volume
 	movmi	r0, #0
 	cmp	r0, #129
 	movcs	r0, #128
@@ -505,12 +506,12 @@ mmChannelStartACHN:		// returns r2=note
 	bic	r0, #0b11000000			// clear SUB, EFFECT
 	ldr	r1,=mpp_clayer			// get layer
 	ldrb	r1, [r1]
-	orr	r0, r1, lsl#6			// orr into flags
+	orr	r0, r0, r1, lsl#6			// orr into flags
 	orr	r0, r10, r0, lsl#8		// orr PARENT
 	strh	r0, [r6, #MCA_PARENT]		// store parent/flags
 	ldrb	r0, [r7, #MCH_INST]		// copy instrument
 	strb	r0, [r6, #MCA_INST]
-1:	ldreqb	r0, [r7, #MCH_INST]
+1:	ldrbeq	r0, [r7, #MCH_INST]
 	subs	r0, #1
 	bcc	invalid_instrument
 	
@@ -526,18 +527,18 @@ mmChannelStartACHN:		// returns r2=note
 	beq	full_notemap			// if set: notemap doesnt exist!
 						// use single entry
 	cmp	r6, #0				// if channel is valid
-	strneb	r1, [r6, #MCA_SAMPLE]		//   write sample value
+	strbne	r1, [r6, #MCA_SAMPLE]		//   write sample value
 	strb	r2, [r7, #MCH_NOTE]		// write note value (without notemap, all entries == PNOTE)
 	bx	lr				// return
 	
 full_notemap:
 	
-	add	r0, r2, lsl#1			// add note offset
+	add	r0, r0, r2, lsl#1			// add note offset
 	ldrh	r2, [r0, r1]			// read notemap entry [instr+note*2+notemap_offset]
 	strb	r2, [r7, #MCH_NOTE]		// write note value
 	cmp	r6, #0				// if channel is valid
 	mov	r0, r2, lsr#8			//   write sample value
-	strneb	r0, [r6, #MCA_SAMPLE]		//   ..
+	strbne	r0, [r6, #MCA_SAMPLE]		//   ..
 	and	r2, #255
 invalid_instrument:
 	bx	lr				// return

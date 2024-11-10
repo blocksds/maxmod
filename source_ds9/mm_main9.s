@@ -25,8 +25,9 @@ MMDS9S_MEM_BANK:	.space 4
 MMDS9S_FIFO_CHANNEL:	.space 4
 
 //-----------------------------------------------------------------------------
-	.BSS
-	.ALIGN 2
+	.bss
+	.syntax unified
+	.align 2
 //-----------------------------------------------------------------------------
 
 /******************************************************************************
@@ -88,9 +89,9 @@ mmCallback: 	.space 4
 mmActiveStatus:	.space 1
 
 //-----------------------------------------------------------------------------
-	.TEXT
-	.THUMB
-	.ALIGN 2
+	.text
+	.thumb
+	.align 2
 //-----------------------------------------------------------------------------
 
 /******************************************************************************
@@ -129,19 +130,19 @@ mmSetEventHandler:
 mmInit:
 	
 	push	{r4-r7, lr}			// preserve registers
-	mov	r7, r0				// r7 = system
+	movs	r7, r0				// r7 = system
 
 	ldmia	r0!, {r1-r3}			// r1,r2,r3,r4 = mod_count, samp_count, mod_bank, samp_bank
-	lsl	r4, r1, #2			//
-	add	r4, r3				//
+	lsls	r4, r1, #2			//
+	adds	r4, r3				//
 	ldr	r5,=mmModuleCount		// write to local memory
 	stmia	r5!, {r1-r4}			//
 	
-	add	r1, r2				// clear the memory bank to zero
+	adds	r1, r2				// clear the memory bank to zero
 	beq	2f
-	mov	r0, #0				//
+	movs	r0, #0				//
 1:	stmia	r3!, {r0}			//
-	sub	r1, #1				//
+	subs	r1, #1				//
 	bne	1b				//
 2:
 	
@@ -168,30 +169,30 @@ mmInitDefault:
 	ldr	r2,=fopen			// open soundbank
 	ldr	r1,=mmstr_rbHAP			// "rb"
 	blx	r2				//
-	mov	r4, r0				// preserve FILE handle
+	movs	r4, r0				// preserve FILE handle
 
 	ldr	r5,=fread			// read first word (push on stack)
 	sub	sp, #4				//
 	mov	r0, sp				//
-	mov	r1, #4				//
-	mov	r2, #1				//
-	mov	r3, r4				//
+	movs	r1, #4				//
+	movs	r2, #1				//
+	movs	r3, r4				//
 	blx	r5				//
 
 	ldr	r1,=fclose			// close soundbank
-	mov	r0, r4				//
+	movs	r0, r4				//
 	blx	r1				//
 
 	pop	{r0}				// r0 = #samples | (#modules << 16)
 	
-	lsl	r1, r0, #16			// r1 = #samples (mask low hword)
-	lsr	r1, #16				//
-	lsr	r0, #16				// r0 = #modules (mask high hword)
-	mov	r3, #FIFO_MAXMOD		// r3 = standard MAXMOD fifo channel
+	lsls	r1, r0, #16			// r1 = #samples (mask low hword)
+	lsrs	r1, #16				//
+	lsrs	r0, #16				// r0 = #modules (mask high hword)
+	movs	r3, #FIFO_MAXMOD		// r3 = standard MAXMOD fifo channel
 	push	{r0, r1, r2, r3}		// push onto stack, r2 = trash/spacer
 	
-	add	r0, r1				// allocate memory ((mod+samp)*4) for the memory bank
-	lsl	r0, #2				// 
+	adds	r0, r1				// allocate memory ((mod+samp)*4) for the memory bank
+	lsls	r0, #2				// 
 	ldr	r1,=malloc			//
 	blx	r1				//
 	str	r0, [sp, #MMDS9S_MEM_BANK]	//
@@ -224,12 +225,12 @@ mmInitDefaultMem:
 	
 	ldrh	r2, [r0, #0]			// r2 = #samples
 	ldrh	r1, [r0, #2]			// r1 = #modules
-	mov	r4, #FIFO_MAXMOD		// r3 = standard maxmod channel
+	movs	r4, #FIFO_MAXMOD		// r3 = standard maxmod channel
 	
 	push	{r0,r1,r2,r3,r4}		// push data onto stack
 	
-	add	r0, r1, r2			// allocate memory for memory bank
-	lsl	r0, #2				// size = (nsamples+nmodules) * 4
+	adds	r0, r1, r2			// allocate memory for memory bank
+	lsls	r0, #2				// size = (nsamples+nmodules) * 4
 	ldr	r3,=malloc			//
 	blx	r3				//
 	str	r0, [sp, #MMDS9S_MEM_BANK+4]	//
@@ -256,8 +257,8 @@ mmSuspendIRQ_t:
 .arm
 .align 2
 1:	mrs	r0, cpsr
-	and	r1, r0, #0x80
-	orr	r0, #0x80
+	ands	r1, r0, #0x80
+	orrs	r0, #0x80
 	msr	cpsr, r0
 	str	r1, previous_irq_state
 	bx	lr

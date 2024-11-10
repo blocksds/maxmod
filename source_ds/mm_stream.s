@@ -72,8 +72,9 @@ v_size:
  *
  ***********************************************************************/
 
-	.BSS
-	.ALIGN 2
+	.bss
+	.syntax unified
+	.align 2
 
 //--------------------------------------------------
 mmsPreviousTimer:	.space 2
@@ -89,9 +90,9 @@ mmsData:		.space v_size
  *
  ***********************************************************************/
  
-	.TEXT
-	.THUMB
-	.ALIGN 2
+	.text
+	.thumb
+	.align 2
 
 /***********************************************************************
  * mmStreamOpen( stream )
@@ -105,7 +106,7 @@ mmStreamOpen:
 	push	{r4,r5,r6,lr}
 	
 	ldr	r6,=mmsData
-	mov	r4, r0
+	movs	r4, r0
 	
 	ldrb	r0, [r6, #v_active]		// catch if stream already opened
 	cmp	r0, #0				//
@@ -119,35 +120,35 @@ mmStreamOpen:
 	str	r2, [r6, #v_workmem]		//
 	#endif					//
 	
-	mov	r0, #1				// set active flag
+	movs	r0, #1				// set active flag
 	strb	r0, [r6, #v_active]		//
 	
 	ldrb	r0, [r4, #mms_timer]		// calc hwtimer address
 	ldr	r5,=TM0CNT			//
-	lsl	r0, #2				//
-	add	r5, r0				//
+	lsls	r0, #2				//
+	adds	r5, r0				//
 	str	r5, [r6, #v_hwtimer]		//
 	
-	mov	r0, #0				// reset timer
+	movs	r0, #0				// reset timer
 	str	r0, [r5]			//
 	
 	
 	ldrb	r1, [r4, #mms_timer]		// setup irq vector
-	mov	r0, #0x8			//
-	lsl	r0, r1				//
+	movs	r0, #0x8			//
+	lsls	r0, r1				//
 	ldr	r1,=mmStreamUpdate		//
 	bl	irqSet				//
 						//
 	ldrb	r1, [r4, #mms_timer]		//
-	mov	r0, #0x8			//
-	lsl	r0, r1				//
+	movs	r0, #0x8			//
+	lsls	r0, r1				//
 	bl	irqEnable			//
 	
 	ldr	r0,=CLOCK			// calc CLKS
 	ldr	r1, [r4, #mms_rate]		//
 	swi	SWI_DIVIDE			//
-	lsr	r0, #1				// CLKS must be divisible by 2 for SOUND
-	lsl	r0, #1				//
+	lsrs	r0, #1				// CLKS must be divisible by 2 for SOUND
+	lsls	r0, #1				//
 	strh	r0, [r6, #v_clks]		//
 	
 //------------------------------------------------
@@ -155,26 +156,26 @@ mmStreamOpen:
 //------------------------------------------------
 
 	ldr	r0, [r4, #mms_len]		// copy len
-	lsr	r0, #4				// cut to multiple of 16
-	lsl	r0, #4
+	lsrs	r0, #4				// cut to multiple of 16
+	lsls	r0, #4
 	strh	r0, [r6, #v_len]		//
 	
 	ldrb	r1, [r4, #mms_format]		// copy format
 	strb	r1, [r6, #v_format]		//
 	
-	lsr	r1, #1				// calculate buffer size
+	lsrs	r1, #1				// calculate buffer size
 	bcc	1f				//
-	lsl	r0, #1				// <- shift if stereo
+	lsls	r0, #1				// <- shift if stereo
 1:						//
 	cmp	r1, #0				//
 	beq	2f				//
 	cmp	r1, #1				//
 	bne	1f				//
-	lsl	r0, #1				// <- shift if 16-bit
+	lsls	r0, #1				// <- shift if 16-bit
 	b	2f				//
-1:	lsr	r0, #1				// <- backshift if 4-bit
+1:	lsrs	r0, #1				// <- backshift if 4-bit
 2:						//
-	lsr	r1, r0, #2			//-- save real length (words)
+	lsrs	r1, r0, #2			//-- save real length (words)
 	strh	r1, [r6, #v_lenw]		//--
 	
 	#ifdef SYS_NDS9				// ARM9: use malloc
@@ -188,48 +189,48 @@ mmStreamOpen:
 	
 	ldrh	r0, [r6, #v_lenw]		// 
 	ldr	r1, [r6, #v_wave]		//
-	mov	r2, #0				//
+	movs	r2, #0				//
 						//
 1:	stmia	r1!, {r2}			//
-	sub	r0, #1				//
+	subs	r0, #1				//
 	bne	1b				//
 	
 	ldr	r0, [r4, #mms_function]		// copy function
 	str	r0, [r6, #v_function]		//
 	
-	mov	r0, #0				// clear remainder
+	movs	r0, #0				// clear remainder
 	str	r0, [r6, #v_remainder]		//
 	
 //	ldrh	r0, [r6, #v_len]
-//	sub	r0, #DELAY_SAMPLES
+//	subs	r0, #DELAY_SAMPLES
 	strh	r0, [r6, #v_pos]		// reset position
 	
 	ldrb	r0, [r4, #mms_manual]		// copy manual flag
 	cmp	r0, #0
 	beq	1f
-	mov	r0, #0
+	movs	r0, #0
 	b	2f
-1:	mov	r0, #1
+1:	movs	r0, #1
 2:
 	strb	r0, [r6, #v_auto]		//
 	
 	ldrh	r0, [r6, #v_clks]		// tmr = (clks * buffer_length / 2) / 1024
 	ldrh	r1, [r6, #v_len]		//
-	mul	r0, r1				//
-	lsr	r0, #10 + 1			//
+	muls	r0, r1				//
+	lsrs	r0, #10 + 1			//
 	strh	r0, [r6, #v_tmr]		//
 
-	mov	r0, #0
+	movs	r0, #0
 	ldr	r1,=mmsPreviousTimer
 	strh	r0, [r1]
 	
 	ldrh	r0, [r6, #v_len]		// force-fill stream with initial data
-	sub	r0, #DELAY_SAMPLES		//
+	subs	r0, #DELAY_SAMPLES		//
 	bl	ForceStreamRequest		//
 //	strh	r0, [r6, #v_pos]
 
 	ldr	r0,=StreamCounter		// reset stream counter
-	mov	r1, #0
+	movs	r1, #0
 	str	r1, [r0]			//
 		
 //	bl	mmSuspendIRQ_t			// ***********************************************
@@ -238,9 +239,9 @@ mmStreamOpen:
 	
 	#ifdef SYS_NDS9
 	ldrh	r1, [r6, #v_lenw]		// set wait flag
-	lsl	r1, #2				//
-	sub	r1, #1				//
-	mov	r2, #1				//
+	lsls	r1, #2				//
+	subs	r1, #1				//
+	movs	r2, #1				//
 	strb	r2, [r0, r1]			//
 	push	{r1}				//	
 	ldr	r1,=DrainWriteBuffer		// <-okay?
@@ -248,7 +249,7 @@ mmStreamOpen:
 	#endif
 	
 	ldrh	r1, [r6, #v_clks]		//
-	lsr	r1, #1				// /2 for sound timer
+	lsrs	r1, #1				// /2 for sound timer
 	ldrh	r2, [r6, #v_len]		//
 	ldrb	r3, [r6, #v_format]		//
 	bl	mmStreamBegin			//
@@ -258,7 +259,7 @@ mmStreamOpen:
 	
 	ldr	r0, [r6, #v_wave]		// wait until stream begins
 	pop	{r1}				//
-	add	r0, r1
+	adds	r0, r1
 	ldr	r1,=WaitUntilZero		//
 	blx	r1
 	
@@ -267,17 +268,17 @@ mmStreamOpen:
 	ldrb	r0, [r6, #v_auto]		// start timer
 	cmp	r0, #0				//
 	bne	1f				//
-	mov	r0, #TIMER_MANUAL		//  manual updates
-	lsl	r0, #16				//
+	movs	r0, #TIMER_MANUAL		//  manual updates
+	lsls	r0, #16				//
 	b	.manual_updates			//
 1:						//
-	mov	r0, #TIMER_AUTO			//  auto updates
-	lsl	r0, #16				//
+	movs	r0, #TIMER_AUTO			//  auto updates
+	lsls	r0, #16				//
 	ldrh	r1, [r6, #v_tmr]		//
-	neg	r1, r1
-	lsl	r1, #16
-	lsr	r1, #16
-	orr	r0, r1				//
+	negs	r1, r1
+	lsls	r1, #16
+	lsrs	r1, #16
+	orrs	r0, r1				//
 						//
 .manual_updates:				//
 						//
@@ -302,7 +303,7 @@ mmStreamGetPosition:
 	
 	cmp	r0, #0			// catch inactive stream
 	bne	1f			//
-2:	mov	r0, #0			//
+2:	movs	r0, #0			//
 _mmsgp_exit:
 	pop	{r4}			//
 	pop	{r3}			//
@@ -318,14 +319,14 @@ _mmsgp_exit:
 	ldrh	r0, [r0]		//
 	ldr	r2,=mmsPreviousTimer	//
 	ldrh	r1, [r2]		//
-	sub	r0, r1			//
+	subs	r0, r1			//
 	bpl	1f			//
 	ldr	r1,=65536		//
-	add	r0, r1			//
+	adds	r0, r1			//
 1:	
-	lsl	r0, #10			// samples = (t * 1024 + r) / clks
+	lsls	r0, #10			// samples = (t * 1024 + r) / clks
 	ldr	r1, [r4, #v_remainder]	//
-	add	r0, r1			//
+	adds	r0, r1			//
 	ldrh	r1, [r4, #v_clks]	//
 					//
 	swi	SWI_DIVIDE		//
@@ -333,7 +334,7 @@ _mmsgp_exit:
 					
 	ldr	r1,=StreamCounter	// add sample counter
 	ldr	r1, [ r1 ]		//
-	add	r0, r1			//
+	adds	r0, r1			//
 	b	_mmsgp_exit
 	
 	
@@ -368,10 +369,10 @@ mmStreamUpdate:
 	ldr	r2,=mmsPreviousTimer		//	
 	ldrh	r1, [r2]			//
 	strh	r0, [r2]			//
-	sub	r0, r1				//
+	subs	r0, r1				//
 	bpl	.mmsu_manual			//
 	ldr	r1,=65536			//
-	add	r0, r1				//
+	adds	r0, r1				//
 	b	.mmsu_manual			//
 .mmsu_auto:					//   auto mode: fixed amount
 						//
@@ -379,47 +380,47 @@ mmStreamUpdate:
 						//
 .mmsu_manual:					//
 	
-	lsl	r0, #10				// samples = (t * 1024 + r) / clks
+	lsls	r0, #10				// samples = (t * 1024 + r) / clks
 	ldr	r1, [r4, #v_remainder]		//
-	add	r0, r1				//
+	adds	r0, r1				//
 	ldrh	r1, [r4, #v_clks]		//
 						//
 	swi	SWI_DIVIDE			//
 						//
 						
-	mov	r2, #0b11			// clip to multiple of 4
-	and	r2, r0				//
+	movs	r2, #0b11			// clip to multiple of 4
+	ands	r2, r0				//
 	ldrh	r3, [r4, #v_clks]		//
-	mul	r2, r3				//
-	add	r1, r2				//
+	muls	r2, r3				//
+	adds	r1, r2				//
 	
 	str	r1, [r4, #v_remainder]		// save remainder
 
 STREAM_FORCE_REQUEST:
 	
-	lsr	r0, #2
-	lsl	r0, #2
+	lsrs	r0, #2
+	lsls	r0, #2
 	
 	ldr	r1,=StreamCounter
 	ldr	r2, [r1]
-	add	r2, r0
+	adds	r2, r0
 	str	r2, [r1]
 	
 //------------------------------------------------
 // request data
 //------------------------------------------------
 	
-	mov	r5, r0
+	movs	r5, r0
 	
 .fill_stream:
-	mov	r0, r5				// r0 = #samples
+	movs	r0, r5				// r0 = #samples
 	beq	.fill_complete
 	ldrh	r1, [r4, #v_len]		// cut r0 to work buffer size
 	cmp	r0, r1				//
 	ble	1f				//
-	mov	r0, r1				//
+	movs	r0, r1				//
 1:						//
-	sub	r5, r0				// subtract from total (SHOULD be 0 unless an underrun occurred)
+	subs	r5, r0				// subtract from total (SHOULD be 0 unless an underrun occurred)
 	
 	ldr	r1, [r4, #v_workmem]		// do callback( nsamples, dest, format )
 	ldrb	r2, [r4, #v_format]		// 
@@ -437,8 +438,8 @@ STREAM_FORCE_REQUEST:
 	bl	_call_via_r1			//
 	pop	{r0, r1}			// r0 = samples filled, r1 = desired amount
 	
-	sub	r1, r0				// r1 = unsatisfied samples
-	add	r5, r1
+	subs	r1, r0				// r1 = unsatisfied samples
+	adds	r5, r1
 	cmp	r0, #0
 	beq	_no_samples_output		// break if 0 samples output
 	
@@ -447,9 +448,9 @@ STREAM_FORCE_REQUEST:
 	
 _no_samples_output:
 	ldrh	r2, [r4, #v_clks]		// add leftover to remaining cycles
-	mul	r2, r5				// (samples * clks)
+	muls	r2, r5				// (samples * clks)
 	ldr	r3, [r4, #v_remainder]		//
-	add	r3, r2				//
+	adds	r3, r2				//
 	str	r3, [r4, #v_remainder]		//
 	
 .fill_complete:
@@ -484,8 +485,8 @@ ForceStreamRequest:
 	
 	b	STREAM_FORCE_REQUEST
 	
-	.ARM
-	.ALIGN 2
+	.arm
+	.align 2
 	
 	
 #ifdef SYS_NDS9
@@ -597,7 +598,7 @@ CopyDataToStream:
 //	cmp	r7, #5			//
 //	beq	.cd_stereo4		//
 	// error :)
-	
+
 /********************************************************************
  * 4-bit mono [not used]
  *
@@ -605,7 +606,7 @@ CopyDataToStream:
  ********************************************************************/
  /*
 .cd_mono4:
-	add	r3, r1, lsr#1
+	adds	r3, r1, lsr#1
 	
 1:	ldrh	r1, [r6], #2
 	subs	r0, #4
@@ -622,27 +623,27 @@ CopyDataToStream:
  ********************************************************************/
  /*
 .cd_stereo4:
-	add	r3, r1, lsr#1
+	adds	r3, r1, lsr#1
 	ldr	r7,=0xFF00FF
 	
-	lsr	r8, #1
+	lsrs	r8, #1
 
 1:	ldr	r1, [r6], #4		// r1 = R2L2R1L1
 					//      43432121
 	subs	r0, #4				
 	and	r10, r7, r1, lsr#8	// r10 = --R2--R1
-	orr	r10, r10, lsr#8		// r10 = --xxR2R1
+	orrs	r10, r10, lsr#8		// r10 = --xxR2R1
 	
 	strh	r10, [r3, r8]
 	
 	and	r10, r7, r1		// r10 = --L2--L1
-	orr	r10, r10, lsr#8		// r10 = --xxL2L1
+	orrs	r10, r10, lsr#8		// r10 = --xxL2L1
 	
 	strh	r10, [r3], #2
 	bne	1b
 	
 	
-	lsl	r8, #1
+	lsls	r8, #1
 	
 	b	.cd_next
  */
@@ -675,16 +676,16 @@ CopyDataToStream:
 					// r1/r2 = R4L4R3L3, R2L2R1L1
 					
 	and	r10, r7, r1, lsl#8	// r10 = L2--L1--
-	orr	r10, r10, lsl#8		// r10 = L2L1xx-- 2 samples deinterleaved
+	orr	r10, r10, r10, lsl#8		// r10 = L2L1xx-- 2 samples deinterleaved
 	and	r11, r7, r2, lsl#8	// r11 = L4--L3--
-	orr	r11, r11, lsl#8		// r11 = L4L3xx-- 2 more samples
+	orr	r11, r11, r11, lsl#8		// r11 = L4L3xx-- 2 more samples
 	bic	r11, #0xFF00		// r11 = L4L3----
 	orr	r12, r11, r10, lsr#16	// r11 = L4L3L2L1 4 samples
 	
 	and	r10, r7, r1		// r10 = R2--R1--
-	orr	r10, r10, lsl#8		// r10 = R2R1xx--
+	orr	r10, r10, r10, lsl#8		// r10 = R2R1xx--
 	and	r11, r7, r2		// r11 = R4--R3--
-	orr	r11, r11, lsl#8		// r11 = R4R3xx--
+	orr	r11, r11, r11, lsl#8		// r11 = R4R3xx--
 	bic	r11, #0xFF00		// r11 = R4R3----
 	orr	r11, r11, r10, lsr#16	// r11 = R4R3R2R1
 	
@@ -702,7 +703,7 @@ CopyDataToStream:
  * Copy doublewords
  ********************************************************************/
 .cd_mono16:
-	add	r3, r1, lsl#1
+	add	r3, r3, r1, lsl#1
 	
 1:	ldmia	r6!, {r1, r2}
 	subs	r0, #4
@@ -717,32 +718,32 @@ CopyDataToStream:
  * De-interleaved copy
  ********************************************************************/
 .cd_stereo16:
-	add	r3, r1, lsl#1
+	add	r3, r3, r1, lsl#1
 	
 1:	ldmia	r6!, {r1, r2, r7, r10}	// read 4 samples
 
 					// r10 r7 r2 r1 = R4L4 R3L3 R2L2 R1L1
 	mov	r11, r1, lsr#16		// r11 = --R1
 	mov	r12, r2, lsr#16		// r12 = --R2
-	orr	r11, r12, lsl#16	// r12 = R2R1
+	orr	r11, r11, r12, lsl#16	// r12 = R2R1
 	
 	str	r11, [r3, r8, lsl#1]	// write to right output
 	
 	mov	r11, r1, lsl#16		// r11 = L1--
 	mov	r12, r2, lsl#16		// r12 = L2--
-	orr	r12, r11, lsr#16	// r12 = L2L1
+	orr	r12, r12, r11, lsr#16	// r12 = L2L1
 	
 	str	r12, [r3], #4		// write to left output & increment
 	
 	mov	r11, r7, lsr#16		// r11 = --R3
 	mov	r12, r10, lsr#16	// r12 = --R4
-	orr	r11, r12, lsl#16	// r12 = R4R3
+	orr	r11, r11, r12, lsl#16	// r12 = R4R3
 	
 	str	r11, [r3, r8, lsl#1]	// write to right output
 	
 	mov	r11, r7, lsl#16		// r11 = L3--
 	mov	r12, r10, lsl#16	// r12 = L4--
-	orr	r12, r11, lsr#16	// r12 = L4L3
+	orr	r12, r12, r11, lsr#16	// r12 = L4L3
 	
 	str	r12, [r3], #4		// write to left output & increment
 	
@@ -775,11 +776,11 @@ mmFlushStream:
 	ldr	r1, [r0, #v_wave]
 	ldrh	r2, [r0, #v_lenw]
 	bic	r1, #0b11111
-	add	r2, #8
+	adds	r2, #8
 	
 .flushstream:
 	mcr	p15, 0, r1, c7, c14, 1		// clean and invalidate cache line
-	add	r1, #32
+	adds	r1, #32
 	subs	r2, #8
 	bpl	.flushstream
 	
@@ -787,8 +788,8 @@ mmFlushStream:
 	
 #endif
 	
-	.THUMB
-	.ALIGN 2
+	.thumb
+	.align 2
 	
 /***********************************************************************
  * mmStreamClose
@@ -805,15 +806,15 @@ mmStreamClose:
 	cmp	r0, #0				//
 	beq	.mmsc_exit			//
 	
-	mov	r0, #0				// disable hardware timer
+	movs	r0, #0				// disable hardware timer
 	ldr	r1, [r4, #v_hwtimer]		//
 	strh	r0, [r1, #2]			//
 	
 	ldr	r0,=TM0CNT			// disable irq
-	sub	r1, r0				//
-	lsr	r1, #2				//
-	mov	r0, #8				//
-	lsl	r0, r1				//
+	subs	r1, r0				//
+	lsrs	r1, #2				//
+	movs	r0, #8				//
+	lsls	r0, r1				//
 	bl	irqDisable			//
 	
 	nop	// ...?
@@ -822,7 +823,7 @@ mmStreamClose:
 	ldr	r5, [r4, #v_wave]		// read byte of wavebuffer (for testing)
 	ldrb	r5, [r5]			//
 	
-	mov	r0, #0				// disable system
+	movs	r0, #0				// disable system
 	strb	r0, [r4, #v_active]		//
 	strb	r0, [r4, #v_auto]		//
 	bl	mmStreamEnd			//
@@ -830,10 +831,10 @@ mmStreamClose:
 	#ifdef SYS_NDS9				// ARM9:
 	
 	ldr	r0, [r4, #v_wave]		// block until arm7 sets 'stop' flag
-	mov	r1, r5				//
-	add	r1, #1				//
-	lsl	r1, #32-8			//
-	lsr	r1, #32-8			//
+	movs	r1, r5				//
+	adds	r1, #1				//
+	lsls	r1, #32-8			//
+	lsrs	r1, #32-8			//
 	ldr	r2,=WaitForMemorySignal		//
 	blx	r2
 	
@@ -878,10 +879,10 @@ mmStreamBegin:
 // lock channels
 //----------------------------------------------------------------------
 
-	mov	r0, #0b00010000			// channel 4 if stereo isn't set
-	lsr	r3, #1
+	movs	r0, #0b00010000			// channel 4 if stereo isn't set
+	lsrs	r3, #1
 	bcc	1f				
-	mov	r0, #0b00110000			// channels 4&5 if stereo is set
+	movs	r0, #0b00110000			// channels 4&5 if stereo is set
 1:
 	bl	mmLockChannels
 	
@@ -890,30 +891,30 @@ mmStreamBegin:
 //----------------------------------------------------------------------
 	
 	ldr	r0,=SOUND4CNT
-	mov	r1, #0
+	movs	r1, #0
 	str	r1, [r0]			// clear cnt
 	str	r1, [r0, #8]			// clear tmr/pnt
 	
 	ldr	r5, [r4, #v_wave]		// copy src
 	str	r5, [r0, #4]			//
 	ldrh	r6, [r4, #v_clks]		// copy tmr
-	neg	r6, r6
+	negs	r6, r6
 	strh	r6, [r0, #8]			//
 	
 	ldrb	r1, [r4, #v_format]		// set len
-	lsr	r2, r1, #1			//
+	lsrs	r2, r1, #1			//
 	cmp	r2, #1				//
 	ldrh	r7, [r4, #v_len]		//
 	beq	.mmbs_16bit			//
 	blt	.mmbs_8bit			//
 .mmbs_4bit:					//
-	lsr	r7, #3				//
+	lsrs	r7, #3				//
 	b	1f				//
 .mmbs_8bit:					//
-	lsr	r7, #2				//
+	lsrs	r7, #2				//
 	b	1f				//
 .mmbs_16bit:					//
-	lsr	r7, #1				//
+	lsrs	r7, #1				//
 1:	str	r7, [r0, #12]			//
 
 	strh	r7, [r4, #v_lenw]		// save word-length
@@ -925,20 +926,20 @@ mmStreamBegin:
 // prepare right channel
 //----------------------------------------------------------------------
 
-	lsr	r1, #1				//
+	lsrs	r1, #1				//
 	bcc	.mmbs_mono			// stereo mode:
 	
-	lsl	r1, r7, #1
+	lsls	r1, r7, #1
 	strh	r1, [r4, #v_lenw]
 	
-	mov	r2, #127			// left panning instead
+	movs	r2, #127			// left panning instead
 	str	r2, [r0, #0]			//
 	
-	mov	r1, #0				// setup right channel
+	movs	r1, #0				// setup right channel
 	str	r1, [r0, #16]			//
 	str	r1, [r0, #16+8]			//
-	lsl	r1, r7, #2			// wave += len (for right buffer)
-	add	r5, r1				// 
+	lsls	r1, r7, #2			// wave += len (for right buffer)
+	adds	r5, r1				// 
 	
 	str	r5, [r0, #16+4]			//
 	strh	r6, [r0, #16+8]			//
@@ -957,15 +958,15 @@ mmStreamBegin:
 	
 	ldr	r0,=SOUND4CNT
 	
-	mov	r1, #0b10001000			// r1 = cnt = enable + format + loop
+	movs	r1, #0b10001000			// r1 = cnt = enable + format + loop
 	ldrb	r2, [r4, #v_format]		//
-	lsr	r3, r2, #1			//
-	lsl	r3, #5				//
-	orr	r1, r3				//
+	lsrs	r3, r2, #1			//
+	lsls	r3, #5				//
+	orrs	r1, r3				//
 	
 	strb	r1, [r0, #3]			// start left/mono channel
 	
-	lsr	r2, #1
+	lsrs	r2, #1
 	bcc	.mmbs_mono2
 	
 	strb	r1, [r0, #16+3]			// start right channel
@@ -974,9 +975,9 @@ mmStreamBegin:
 	
 	ldr	r0, [r4, #v_wave]		// send 'start' signal
 	ldrh	r1, [r4, #v_lenw]		//
-	lsl	r1, #2
-	sub	r1, #1
-	mov	r2, #0				//
+	lsls	r1, #2
+	subs	r1, #1
+	movs	r2, #0				//
 	strb	r2, [r0, r1]			//
 
 	bl	mmRestoreIRQ_t			// restore irq..
@@ -998,11 +999,11 @@ mmStreamEnd:
 	bl	mmSuspendIRQ_t
 	
 	ldr	r1,=SOUND4CNT
-	mov	r2, #0
+	movs	r2, #0
 	ldr	r6,=mmsData
 	ldrb	r0, [r6, #v_format]
 	ldr	r6, [r6, #v_wave]		// <-- for stop signal!!
-	lsr	r0, #1
+	lsrs	r0, #1
 	bcc	1f
 
 //------------------------------------------------
@@ -1020,11 +1021,11 @@ mmStreamEnd:
 //------------------------------------------------
 // restore channels
 //------------------------------------------------
-	mov	r0, #0b00110000			// 4&5
+	movs	r0, #0b00110000			// 4&5
 	bl	mmUnlockChannels
 	
 	ldrb	r0, [r6]			// set stop signal
-	add	r0, #1				//
+	adds	r0, #1				//
 	strb	r0, [r6]			//
 	
 	bl	mmRestoreIRQ_t

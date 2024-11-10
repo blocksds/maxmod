@@ -13,6 +13,8 @@
  *                                                                          *
  ****************************************************************************/
 
+.syntax unified
+
 #include "mp_format_mas.inc"
 #include "swi_nds.inc"
 #include "mp_macros.inc"
@@ -307,7 +309,7 @@ mmMixerPre:
 mode_b_tick:					// mode b: update volume + panning
 @------------------------------------------------------------------------
 
-//	mov	r6, #VR_THROTTLE
+//	movs	r6, #VR_THROTTLE
 	ldr	r7,=mmVolumeTable
 	ldr	r5,=mm_mix_data+MB_SHADOW
 	b	mbt_next
@@ -394,7 +396,7 @@ mmMixerMix:
 mmMixA:
 @*********************************************************
 
-	ldr	r11,=REG_SOUND0CNT	
+	ldr	r11,=REG_SOUND0CNT
 	bic	r10, #0x00FF0000		// 16 channels only
 	bic	r10, #0xFF000000
 	movs	r10, r10, lsr#1
@@ -440,7 +442,7 @@ mma_no_offset:
 
 mma_looping:
 	ldrh	r3, [r6, #C_SAMPLEN_LSTART]	// get loopstart position
-	suBs	r3, r3, r4			// subtract sample offset
+	subs	r3, r3, r4			// subtract sample offset
 	addmi	r2, r2, r3, lsl#2		// if result goes negative than clamp values
 	movmi	r3, #0
 	ldr	r4, [r6, #C_SAMPLEN_LEN]	// read length
@@ -635,7 +637,7 @@ mmbResampleData:
 //---------------------------------------------------------------------------
 .macro rs_routine shift, routine, restart
 //---------------------------------------------------------------------------
-	mul	r2, count, rate		
+	mul	r2, count, rate
 	mov	r0, #MB_FETCH_SIZE<<(10-\shift)
 	rsb	r1, pos, r3, lsl#(12-\shift)
 	bl	calc_mixcount			// calculate how many samples to fetch&output
@@ -646,9 +648,9 @@ mmbResampleData:
 	cmp	r1, #0
 	addeq	r1, src, #C_SAMPLEN_DATA
 	
-	add	r1, pos, lsr#10
+	add	r1, r1, pos, lsr#10
 .if \shift == 1
-	add	r1, pos, lsr#10
+	add	r1, r1, pos, lsr#10
 .endif
 	bic	r1, #0b11
 	str	r1, [r0, #0]
@@ -713,7 +715,7 @@ mmbResampleData:
 	
 	cmp	r1, #0			// if r1 then zero the first X samples (newnote)
 	beq	1f			// 
-	sub	count, #zeropad_size	// 
+	sub	count, #zeropad_size	//
 	mov	r1, #0			//
 	mov	r0, #zeropad_size/2	//
 2:	stmia	dest!, {r1}		//
@@ -750,7 +752,7 @@ mmb_8bit:
 @--------------------------------------------------------------------------------
 
 .if \mode == 1					// mode1: increment before load
-	subs	pos, rate, lsl#32-SFRAC
+	subs	pos, pos, rate, lsl#32-SFRAC
 	subcc	src, #\dsize
 	movcc	next,curr
 .endif
@@ -786,9 +788,9 @@ mmb_resamp_16bit:
 	push	{src,r12, lr}
 	ldr	src,=mm_mix_data+MB_FETCH
 	mov	m1, pos, lsr#SFRAC		// save position integer
-	bic	pos, m1, lsl#SFRAC
+	bic	pos, pos, m1, lsl#SFRAC
 	and	m2, m1, #0b1			// mask bit 0
-	add	src, m2, lsl#1			// add offset to fetch
+	add	src, src, m2, lsl#1		// add offset to fetch
 	push	{m1, src}
 	
 	cmp	rate, #1<<SFRAC			@ use nearest resampling for rates > 32khz
@@ -835,9 +837,9 @@ mmb_resamp_16bit_linear:
 @-------------------------------------------------------------------------------
 .macro mb_buildw16 target, double
 @-------------------------------------------------------------------------------
-	adds	pos, rate, lsl#32-SFRAC		// 1   add rate FRACTION to position FRACTION
+	adds	pos, pos, rate, lsl#32-SFRAC	// 1   add rate FRACTION to position FRACTION
 	movcs	curr, next			// 1   load new sample on overflow
-	ldrcssh	next, [src, #2]!		// 1/3 ..
+	ldrshcs	next, [src, #2]!		// 1/3 ..
 	sub	ta, next, curr			// 1   calculate delta
 	mov	tb, pos, lsr#24			// 1   get top 8 bits of position fraction
 	mul	tb, ta, tb			// 2   multiply delta * position
@@ -845,14 +847,14 @@ mmb_resamp_16bit_linear:
 @	lsl	\target, #16
 @	lsr	\target, #16
 .if \double != 0	
-	adds	pos, rate, lsl#32-SFRAC		// 1   add rate FRACTION to position FRACTION
+	adds	pos, pos, rate, lsl#32-SFRAC	// 1   add rate FRACTION to position FRACTION
 	movcs	curr, next			// 1   load new sample on overflow
-	ldrcssh	next, [src, #2]!		// 1/3 ..
+	ldrshcs	next, [src, #2]!		// 1/3 ..
 	sub	ta, next, curr			// 1   calculate delta
 	mov	tb, pos, lsr#24			// 1   get top 8 bits of position fraction
 	mul	tb, ta, tb			// 2   multiply delta * position
 	add	ta, curr, tb, asr#8		// 1   add base sample to product (shifted to 16 bits)
-	add	\target, ta, lsl#16		// 1
+	add	\target, \target, ta, lsl#16	// 1
 .endif
 
 .endm
@@ -864,12 +866,12 @@ mmb_resamp_16bit_linear:
 	beq	1f				// ..
 	ldrsh	curr, [src]			// ..
 	ldrsh	next, [src, #2]			// ..
-	sub	ta, next, curr			// ..	
+	sub	ta, next, curr			// ..
 	mov	tb, pos, lsr#24			// ..
 	mul	ta, tb, ta			// ..
 	add	m1, curr, ta, asr#8		// ..
 	strh	m1, [dest], #2			// ..
-	adds	pos, rate, lsl#32-SFRAC		// ..
+	adds	pos, pos, rate, lsl#32-SFRAC	// ..
 	addcs	src, #2				// ..
 	subs	count, #1			// ..
 	beq	_mb16_exit2
@@ -904,7 +906,7 @@ mmb_resamp_8bit:
 	push	{src,r12, lr}
 	ldr	src,=mm_mix_data+MB_FETCH
 	mov	m1, pos, lsr#SFRAC		// save&clear position integer
-	bic	pos, m1, lsl#SFRAC		// 
+	bic	pos, pos, m1, lsl#SFRAC		//
 	and	m2, m1, #0b11			// mask alignment bits
 	add	src, m2				// add offset to fetch
 	push	{m1, src}
@@ -926,7 +928,7 @@ mmb_resamp_8bit_nearest:
 .if \double != 0
 	ldrb	next, [src, pos, lsr#SFRAC]	// read another sample
 	add	pos, rate			// increment pos
-	orr	\target, next, lsl#16		// combine
+	orr	\target, \target, next, lsl#16	// combine
 .endif
 	mov	\target, \target, lsl#8		// expand to 16 bits
 .endm
@@ -946,7 +948,7 @@ mmb_resamp_8bit_nearest:
 	
 @***********************************************************************************
 mmb_resamp_8bit_linear:
-@***********************************************************************************	
+@***********************************************************************************
 // resample with linear interpolation
 // only works with sample rates <= 1.0
 	
@@ -962,7 +964,7 @@ mmb_resamp_8bit_linear:
 	mul	ta, tb, ta			// ..
 	add	m1, ta, curr, lsl#8		// ..
 	strh	m1, [dest], #2			// ..
-	adds	pos, rate, lsl#32-SFRAC		// ..
+	adds	pos, pos, rate, lsl#32-SFRAC	// ..
 	addcs	src, #1				// ..
 	subs	count, #1			// ..
 	
@@ -977,20 +979,20 @@ mmb_resamp_8bit_linear:
 @-------------------------------------------------------------------------------
 .macro mb_buildw8 target, double
 @-------------------------------------------------------------------------------
-	adds	pos, rate, lsl#32-SFRAC		// 1   add rate FRACTION to position FRACTION
+	adds	pos, pos, rate, lsl#32-SFRAC	// 1   add rate FRACTION to position FRACTION
 	movcs	curr, next			// 1   load new sample on overflow
-	ldrcssb	next, [src, #1]!		// 1/3 ..
+	ldrsbcs	next, [src, #1]!		// 1/3 ..
 	sub	ta, next, curr			// 1   calculate delta
 	mov	tb, pos, lsr#24			// 1   get top 8 bits of position fraction
 	mul	ta, tb, ta			// 2   multiply position * delta
 	add	\target, ta, curr, lsl#8	// 1   add base sample to product (shifted to 16 bits)
 	
 .if \double != 0
-	adds	pos, rate, lsl#32-SFRAC		// 1   add rate FRACTION to position FRACTION
+	adds	pos, pos, rate, lsl#32-SFRAC	// 1   add rate FRACTION to position FRACTION
 	movcs	curr, next			// 1   load new sample on overflow
-	ldrcssb	next, [src, #1]!		// 1/3 ..
+	ldrsbcs	next, [src, #1]!		// 1/3 ..
 	sub	ta, next, curr			// 1   calculate delta
-	and	tb, r14, pos, lsr#8		// 1   get top 8 bits of position fraction, shifted into top hword	
+	and	tb, r14, pos, lsr#8		// 1   get top 8 bits of position fraction, shifted into top hword
 	mla	\target, tb, ta, \target	// 3   multiply position * delta, add to target
 	add	\target, \target, curr, lsl#24	// 1   add base sample to product
 	
@@ -1104,7 +1106,7 @@ mmMixC:
 	
 	ldrb	r1, [r12, #C_CNT]		// test and clear start bit
 	tst	r1, #CF_START			// 
-	bic	r1, #CF_START			// 
+	bic	r1, #CF_START			//
 	strb	r1, [r12, #C_CNT]		// 
 	beq	.mmc_continue			// continue channel / start new note
 						//--------------------------------------
@@ -1172,7 +1174,7 @@ mmMixC:
 	ldrh	r0, [r6, #C_SAMPLEN_FORMAT]	//
 	lsr	r1, r0, #8			//-r1 = rep
 	and	r0, #0xFF			//-r0 = fmt
-	orr	r1, r0, lsl#2			//-combine
+	orr	r1, r1, r0, lsl#2			//-combine
 	lsl	r1, #3				//-shift into place
 	add	r1, #0x80			//-add start bit
 	strb	r1, [r11, #MC_SH_CNT+3]		//
@@ -1244,7 +1246,7 @@ mmMixC:
 	str	r0, [r12, #C_SAMP]	// ***hope this works
 	b	.mmc_next
 	
-.POOL
+.pool
 	
 /**************************************************************************************
  * mmVolumeTable
@@ -1351,7 +1353,7 @@ mmMixChunk:
 	rsb	r0, r0, #128
 	mul	cvol, r0, r1			// calc left vol
 	movs	cvol, cvol, lsr#10		// 18->8 bit
-	orrs	cvol, r9, lsl#16
+	orrs	cvol, cvol, r9, lsl#16
 	
 	ldrne	r0, volume_addition		// add up values
 	addne	r0, r0, cvol
@@ -1425,7 +1427,7 @@ mmMixChunk:
 	ldr	r1, [rsamp, #C_SAMPLEN_POINT]
 	cmp	r1, #0
 	addeq	r1, rsamp, #C_SAMPLEN_DATA	// r1 = sample data
-	add	r1, sread, lsr#10-\sh		// add read position (*2 if 16bit)
+	add	r1, r1, sread, lsr#10-\sh	// add read position (*2 if 16bit)
 	bic	r1, #0b11			// 32-bit alignment
 	str	r1, [r0, #0]			// write to DMA_SAD
 //---------------------------------
@@ -1585,11 +1587,11 @@ mm_mix_pcm8:
 	cmp	cvol, #0			// if volume == 0:
 	muleq	r0, sfreq, mixc			//   then skip mixing
 	addeq	sread, sread, r0		//   add freq*samples to read position
-	ldmeqfd	sp!, {rsamp, cbits, rch, pc}	//   return
+	popeq	{rsamp, cbits, rch, pc}		//   return
 	
 	ldr	rsrc,=mm_mix_data+MC_FETCH	// load rsrc with fetch pointer
 	mov	r0, sread, lsr#10		// get read position integer
-	sub	sread, r0, lsl#10		// clear integer in read
+	sub	sread, sread, r0, lsl#10	// clear integer in read
 	and	r1, r0, #0b11			// mask low 2 bits
 	add	rsrc, rsrc, r1			// add to fetch offset
 	stmfd	sp!, {r0}			// save the old integer value for later
@@ -1602,7 +1604,7 @@ mm_mix_pcm8:
 	eor	smp1, #0x80			// 1 unsign sample
 	mul	smp1, cvol, smp1		// 2 multiply by volume (both left and right)
 	bic	smp1, #0x0F0000			// 1 prepare for shift
-	add	\sa, smp1, lsr#4		// 1 add shifted value to mix
+	add	\sa, \sa, smp1, lsr#4		// 1 add shifted value to mix
 .endm						// 9
 //-----------------------------------------------------------------------
 	
@@ -1664,7 +1666,7 @@ mm_mix_pcm16:
 	cmp	cvol, #0			// skip mixing if volume is zero
 	muleq	r0, sfreq, mixc			//
 	addeq	r0, sfreq, r0			// (ie just add mix*freq to position)
-	ldmeqfd	sp!, {rsamp, cbits, rch, pc}	//
+	popeq	{rsamp, cbits, rch, pc}	//
 	
 	ldr	rsrc,=mm_mix_data+MC_FETCH	// point to fetch
 	mov	r0, sread, lsr#10		// get read integer
@@ -1683,7 +1685,7 @@ mm_mix_pcm16:
 	eor	smp1, #0x80			// 1 unsign sample :(
 	mul	smp1, cvol, smp1		// 2 multiply by volume (both left and right)
 	bic	smp1, #0x0F0000			// 1 prepare for shift
-	add	\sa, smp1, lsr#4		// 1 add shifted value to mix
+	add	\sa, \sa, smp1, lsr#4		// 1 add shifted value to mix
 .endm						// 10 [1 more than 8-bit]
 //-----------------------------------------------------------------------
 
@@ -1744,7 +1746,7 @@ div19:
 .macro div_iter s
 	
 	cmp	r0, rate, lsl #\s	// 3 cycles
-	subcs	r0, rate, lsl #\s	//
+	subcs	r0, r0, rate, lsl #\s	//
 	addcs	r3, r3, #1<<\s		//
 	
 .endm
@@ -1782,10 +1784,10 @@ div19:
 //-------------------------------------
 __get_channel_address:
 //-------------------------------------
-	mov	r2, #C_SIZE
-	mul	r0, r2
+	movs	r2, #C_SIZE
+	muls	r0, r2
 	ldr	r2,=mm_mix_channels
-	add	r0, r2
+	adds	r0, r2
 	mov	pc, r3
 
 .macro GET_CH_ADDR
@@ -1804,13 +1806,13 @@ __get_channel_address:
 mmMixerSetSource:
 
 	GET_CH_ADDR
-	mov	r2, #0x02
-	lsl	r2, #24			// subtract mainram offset from sample address
-	sub	r1, r2			// ..
+	movs	r2, #0x02
+	lsls	r2, #24			// subtract mainram offset from sample address
+	subs	r1, r2			// ..
 	str	r1, [r0, #C_SAMP]	// store sample address
 	ldrb	r2, [r0, #C_CNT]	// set start flag
-	mov	r3, #CF_START		// ..
-	orr	r2, r3			// ..
+	movs	r3, #CF_START		// ..
+	orrs	r2, r3			// ..
 	strb	r2, [r0, #C_CNT]	// ..
 	bx	lr			// return
 	
@@ -1827,18 +1829,18 @@ mmMixerSetFreq:
 	GET_CH_ADDR			// channels[channel].freq = freq
 	
 	ldr	r2, [r0, #C_SAMP]	// multiply by DFREQ
-	lsl	r2, #8
-	lsr	r2, #8
+	lsls	r2, #8
+	lsrs	r2, #8
 	ldr	r3,=0x2000000
-	add	r2, r3
+	adds	r2, r3
 	ldrh	r3, [r2, #C_SAMPLEC_DFREQ]
-	mul	r1, r3
-	lsr	r1, #10
+	muls	r1, r3
+	lsrs	r1, #10
 	
 	ldr	r2,=0x1FFF
 	cmp	r1, r2
 	blt	1f
-	mov	r1, r2
+	movs	r1, r2
 					//
 1:	strh	r1, [r0, #C_FREQ]	//
 	bx	lr			//
@@ -1854,15 +1856,15 @@ mmMixerMulFreq:
 	GET_CH_ADDR
 	
 	ldrh	r3, [r0, #C_FREQ]	// read frequency
-	mul	r3, r1			// multiply by *.10 value
-	add	r3, #255		// add bias
-	add	r3, #255		// add bias
-	lsr	r3, #10			// shift back to *.8 format
+	muls	r3, r1			// multiply by *.10 value
+	adds	r3, #255		// add bias
+	adds	r3, #255		// add bias
+	lsrs	r3, #10			// shift back to *.8 format
 	
 	ldr	r2,=0x1FFF
 	cmp	r3, r2
 	blt	1f
-	mov	r3, r2
+	movs	r3, r2
 					//
 1:	
 	strh	r3, [r0, #C_FREQ]	// store frequency
@@ -1877,7 +1879,7 @@ mmMixerMulFreq:
 mmMixerStopChannel:
 
 	GET_CH_ADDR			// channels[channel].source = 0
-	mov	r1, #0			//
+	movs	r1, #0			//
 	str	r1, [r0, #C_SAMP]	//
 	bx	lr			//
 	
@@ -1893,7 +1895,7 @@ mmMixerChannelActive:
 
 	GET_CH_ADDR
 	ldr	r0, [r0, #C_SAMP]
-	lsl	r0, #8
+	lsls	r0, #8
 	bx	lr
 
 /****************************************************************************************
@@ -1921,11 +1923,11 @@ mmMixerSetVolume:
 mmMixerSetPan:
 
 	GET_CH_ADDR
-	lsr	r1, #1			// discard 1 bit
+	lsrs	r1, #1			// discard 1 bit
 	ldrb	r2, [r0, #C_CNT]
-	lsr	r2, #7
-	lsl	r2, #7
-	orr	r1, r2
+	lsrs	r2, #7
+	lsls	r2, #7
+	orrs	r1, r2
 	strb	r1, [r0, #C_CNT]	// set panning
 	bx	lr			// return
 
@@ -1939,7 +1941,7 @@ mmMixerInit:
 //--------------------------------------------------
 	
 	// default to mode A
-	mov	r0, #0
+	movs	r0, #0
 	
 	.thumb_func
 //---------------------------------------------------------------------------
@@ -1952,7 +1954,7 @@ mmSelectMode:			@ params{ mode }
 	
 	ldr	r4,=REG_IME		// disable IRQ
 	ldrh	r5, [r4]
-	mov	r0, #0
+	movs	r0, #0
 	strh	r0, [r4]
 	
 	nop
@@ -1961,18 +1963,18 @@ mmSelectMode:			@ params{ mode }
 	nop
 	
 	ldr	r0,=mm_mix_channels	// reset mixer channels
-	mov	r1, #MM_nDSCHANNELS	//
-	mov	r3, #0			//
+	movs	r1, #MM_nDSCHANNELS	//
+	movs	r3, #0			//
 1:	str	r3, [r0, #C_SAMP]	//
-	add	r0, #C_SIZE		//
-	sub	r1, #1			//
+	adds	r0, #C_SIZE		//
+	subs	r1, #1			//
 	bne	1b			//
 	
 	ldr	r0,=REG_SOUND0CNT	// reset hardware channels
 	ldr	r1,=mm_ch_mask		//
 	ldrh	r1, [r1]		//
-	mov	r2, #0			//
-	lsr	r1, #1			//
+	movs	r2, #0			//
+	lsrs	r1, #1			//
 	bcc	.rhc_next		//
 .rhc_clear:				//
 	str	r2, [r0, #0]		//
@@ -1980,8 +1982,8 @@ mmSelectMode:			@ params{ mode }
 	str	r2, [r0, #8]		//
 	str	r2, [r0, #12]		//
 .rhc_next:				//
-	add	r0, #16			//
-	lsr	r1, #1			//
+	adds	r0, #16			//
+	lsrs	r1, #1			//
 	bcs	.rhc_clear		//
 	bne	.rhc_next		//
 	
@@ -1991,16 +1993,16 @@ mmSelectMode:			@ params{ mode }
 	
 	ldr	r1,=REG_SOUNDCNT
 	ldr	r2, [r1]
-	mov	r3, #0x7F		// mask special settings
-	lsl	r3, #8			// (clear volume + enable)
-	and	r2, r3
+	movs	r3, #0x7F		// mask special settings
+	lsls	r3, #8			// (clear volume + enable)
+	ands	r2, r3
 	strh	r2, [r1]		// disable sound
 	
 	ldr	r1,=mm_mix_data		// zero all mix data
 	ldr	r2,=mix_data_len/4	//
-	mov	r3, #0			//
+	movs	r3, #0			//
 1:	stmia	r1!, {r3}		//
-	sub	r2, #1			//
+	subs	r2, #1			//
 	bne	1b			//
 	
 	ldr	r1,=mm_mixing_mode
@@ -2058,7 +2060,7 @@ EnableSound:
 	ldr	r1,=REG_SOUNDCNT	// SOUNDCNT = full volume | enable
 	ldr	r2, [r1]		// ..
 	ldr	r3,=0x8064		// 100/127...
-	orr	r2, r3			// ..
+	orrs	r2, r3			// ..
 	str	r2, [r1]		// ..
 	bx	lr			// ..
 
@@ -2070,14 +2072,14 @@ ClearAllChannels:
 	ldr	r0,=REG_SOUND0CNT	// clear all hardware channels
 	ldr	r1,=mm_ch_mask		// with the bitmask set
 	ldrh	r1, [r1]		//
-	mov	r2, #0			//
-	lsr	r1, #1			//
+	movs	r2, #0			//
+	lsrs	r1, #1			//
 	bcc	_next_channel		//
 _clear_channel:				//
 	str	r2, [r0]		//
 _next_channel:				//
-	add	r0, #16			//
-	lsr	r1, #1			//
+	adds	r0, #16			//
+	lsrs	r1, #1			//
 	bcs	_clear_channel		//
 	bne	_next_channel		//
 	bx	lr			//
@@ -2092,9 +2094,9 @@ DisableSWM:
 	ldr	r0,=0b11111111111111110000000000000000	// clear swm bits
 	ldr	r1,=mm_ch_mask				//
 	ldr	r2, [r1]				//
-	bic	r2, r0					//	
-	mov	r0, #0b11000000
-	orr	r2, r0					// restore stream  bits
+	bics	r2, r0					//	
+	movs	r0, #0b11000000
+	orrs	r2, r0					// restore stream  bits
 	str	r2, [r1]				//
 	
 	pop	{pc}
@@ -2107,7 +2109,7 @@ mmSetupModeB:
 	push	{r4,r5,r6,r7,lr}
 	
 	ldr	r7,=TIMER
-	mov	r1, #0
+	movs	r1, #0
 	str	r1, [r7]			// disable timer
 	
 	ldr	r0,=40960			// 256hz resolution
@@ -2120,47 +2122,47 @@ mmSetupModeB:
 	ldr	r3,=mm_mix_data+MB_OUTPUT	// SAD
 	ldr	r4,=0x0000FE00			// TMR, PNT
 	ldr	r5,=128				// LEN
-	mov	r6, #128			// r6 = 512
-	lsl	r6, #2
+	movs	r6, #128			// r6 = 512
+	lsls	r6, #2
 	
-	lsr	r1, #1
+	lsrs	r1, #1
 	bcc	next_channel
 setup_modeb_stream:
 	stmia	r0!, {r2-r5}			// reset and setup channel
-	sub	r0, r0, #16
+	subs	r0, r0, #16
 next_channel:
-	add	r3, r6				// get next wavedata address
-	add	r0, r0, #16
-	lsr	r1, #1
+	adds	r3, r6				// get next wavedata address
+	adds	r0, r0, #16
+	lsrs	r1, #1
 	bcs	setup_modeb_stream
 	bne	next_channel
 /*	
 	ldr	r1,=mm_ch_mask			// start sound channels
 	ldrh	r1, [r1]			//
-	lsr	r1, #1				//
+	lsrs	r1, #1				//
 	ldr	r2,=0xA8<<24			//
 	bcc	2f				//
 	ldr	r0,=REG_SOUND0CNT		//
 1:	str	r2, [r0]			//
-2:	add	r0, #16				//
-	lsr	r1, #1				//
+2:	adds	r0, #16				//
+	lsrs	r1, #1				//
 	bcs	1b				//
 	bne	2b				//
 */		
 	// channels are setup
-//	mov	r0, #TIMER_BIT
+//	movs	r0, #TIMER_BIT
 //	ldr	r1,=REG_IF			// clear any pending TIMER interrupt
 //	str	r0, [r1]
 	
 	ldr	r4,=mm_output_slice		// reset output slice
-	mov	r5, #0
+	movs	r5, #0
 	strb	r5, [r4]
 	
 	ldr	r4,=0x00C3FF80			// timer: enable, irq, /1024, 256hz
 	bl	EnableSound			// enable sound
 	
 	ldr	r0,=1024*16/4			// delay 12 samples (pcm startup time + extra)
-1:	sub	r0, #1				//
+1:	subs	r0, #1				//
 	bne	1b				//
 	
 	str	r4, [r7]			// start TIMER
@@ -2180,7 +2182,7 @@ SetupSWM:					// SetupSWM()
 						// (this function cannot be interrupted by
 						// an update tick)
 	
-	mov	r2, #0
+	movs	r2, #0
 	ldr	r3,=mm_output_slice		// reset output slice
 	strb	r2, [r3]			//
 	
@@ -2211,10 +2213,10 @@ SetupSWM:					// SetupSWM()
 	str	r2, [r1, #0]			//
 	
 	ldr	r2,=1024*16/4			// delay some samples
-1:	sub	r2, #1				//
+1:	subs	r2, #1				//
 	bne	1b				//
 	
-	mov	r1, #0				// start timer
+	movs	r1, #0				// start timer
 	strh	r1, [r0, #2]			//
 	ldr	r1,=0x00C2FD60			// [enable+irq+/256] 672 ticks
 	str	r1, [r0]			// 
@@ -2224,13 +2226,13 @@ SetupSWM:					// SetupSWM()
 	
 	ldr	r0,=mm_ch_mask			// lock channels 7&8 (stream channels)
 	ldr	r1, [r0]			//
-	mov	r2, #0b11000000			//
-	bic	r1, r2				//
+	movs	r2, #0b11000000			//
+	bics	r1, r2				//
 	ldr	r2,=0xFFFF0000			// unlock software channels (16->31)
-	orr	r1, r2				//
+	orrs	r1, r2				//
 	str	r1, [r0]			//
 	
-//	mov	r0, #TIMER_BIT			// clear any pending TIMER interrupt
+//	movs	r0, #TIMER_BIT			// clear any pending TIMER interrupt
 //	ldr	r1,=REG_IF			// uh, this is bad.
 //	str	r0, [r1]			//
 	
