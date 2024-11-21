@@ -31,25 +31,27 @@
 	.equ	TIMER_AUTO,	0b11000011	// start, irq, /1024
 	.equ	TIMER_MANUAL,	0b10000011	// start, /1024
 	
-	.struct 0
-v_active:		.space 1
-v_format:		.space 1
-v_auto:			.space 1
-v_reserved:		.space 1
-v_clks:			.space 2
-v_tmr:			.space 2
-v_len:			.space 2
-v_lenw:			.space 2
-v_pos:			.space 2
-v_reserved2:		.space 2
-v_hwtimer:		.space 4
-v_wave:			.space 4
-v_workmem:		.space 4
-v_function:		.space 4
-v_remainder:		.space 4
 
-v_size:
-
+// structure
+//			preceding field + length of preceding field
+//			ie "v_active + 1" means v_active has a length of 1
+//
+.equ v_active,		0
+.equ v_format,		v_active	+ 1
+.equ v_auto,		v_format	+ 1
+.equ v_reserved,	v_auto		+ 1
+.equ v_clks,		v_reserved	+ 1
+.equ v_tmr,		v_clks		+ 2
+.equ v_len,		v_tmr		+ 2
+.equ v_lenw,		v_len		+ 2
+.equ v_pos,		v_lenw		+ 2
+.equ v_reserved2,	v_pos		+ 2
+.equ v_hwtimer,		v_reserved2	+ 2
+.equ v_wave,		v_hwtimer	+ 4
+.equ v_workmem,		v_wave		+ 4
+.equ v_function,	v_workmem	+ 4
+.equ v_remainder,	v_function	+ 4
+.equ v_size,		v_remainder	+ 4
 
 /***********************************************************************
  *

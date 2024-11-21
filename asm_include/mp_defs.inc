@@ -24,17 +24,16 @@
 @ other definitions
 #ifdef SYS_GBA
 
-.struct 0
-MM_GBA_SYSTEM_MODE:		.space 4
-MM_GBA_SYSTEM_MCH_COUNT:	.space 4
-MM_GBA_SYSTEM_ACH_COUNT:	.space 4
-MM_GBA_SYSTEM_MODCH:		.space 4
-MM_GBA_SYSTEM_ACTCH:		.space 4
-MM_GBA_SYSTEM_MIXCH:		.space 4
-MM_GBA_SYSTEM_MIXMEM:		.space 4
-MM_GBA_SYSTEM_WAVEMEM:		.space 4
-MM_GBA_SYSTEM_SOUNDBANK:	.space 4
-MM_GBA_SYSTEM_SIZE:
+.equ MM_GBA_SYSTEM_MODE,	0
+.equ MM_GBA_SYSTEM_MCH_COUNT,	MM_GBA_SYSTEM_MODE	+ 4
+.equ MM_GBA_SYSTEM_ACH_COUNT,	MM_GBA_SYSTEM_MCH_COUNT	+ 4
+.equ MM_GBA_SYSTEM_MODCH,	MM_GBA_SYSTEM_ACH_COUNT	+ 4
+.equ MM_GBA_SYSTEM_ACTCH,	MM_GBA_SYSTEM_MODCH	+ 4
+.equ MM_GBA_SYSTEM_MIXCH,	MM_GBA_SYSTEM_ACTCH	+ 4
+.equ MM_GBA_SYSTEM_MIXMEM,	MM_GBA_SYSTEM_MIXCH	+ 4
+.equ MM_GBA_SYSTEM_WAVEMEM,	MM_GBA_SYSTEM_MIXMEM	+ 4
+.equ MM_GBA_SYSTEM_SOUNDBANK,	MM_GBA_SYSTEM_WAVEMEM	+ 4
+.equ MM_GBA_SYSTEM_SIZE,	MM_GBA_SYSTEM_SOUNDBANK + 4
 
 .equ		SAMPFRAC,		12	@ # of bits used in fractional part of sample reading
 #endif
@@ -55,22 +54,22 @@ MM_GBA_SYSTEM_SIZE:
 .equ	MPCB_SONGMESSAGE	,0x2A	@ gba/nds7 song playback
 .equ	MPCB_SONGFINISHED	,0x2B	@ gba/nds7
 
-.struct 0
-mms_rate:	.space 4
-mms_len:	.space 4
-mms_function:	.space 4
-mms_format:	.space 4
-mms_timer:	.space 4
-mms_manual:	.space 1
-mms_size:
+.equ mms_rate,		0
+.equ mms_len,		mms_rate	+ 4
+.equ mms_function,	mms_len		+ 4
+.equ mms_format,	mms_function	+ 4
+.equ mms_timer,		mms_format	+ 4
+.equ mms_manual,	mms_timer	+ 4
+.equ mms_size,		mms_manual	+ 1
 
-.struct 0				// reverb cfg struct
-mmrc_flags:		.space 4
-mmrc_memory:		.space 4
-mmrc_delay:		.space 2
-mmrc_rate:		.space 2
-mmrc_feedback:		.space 2
-mmrc_panning:		.space 1
+// reverb cfg structure
+.equ mmrc_flags,	0
+.equ mmrc_memory,	mmrc_flags	+ 4
+.equ mmrc_delay,	mmrc_memory	+ 4
+.equ mmrc_rate,		mmrc_delay	+ 2
+.equ mmrc_feedback,	mmrc_rate	+ 2
+.equ mmrc_panning,	mmrc_feedback	+ 2
+// mmrc_panning is length 1
 
 .equ	MMRFS_MEMORY,		0
 .equ	MMRFS_DELAY,		1
