@@ -124,13 +124,13 @@ F: SELECTMODE		2	[mode]				select audio mode
 
 .equ	EFFECT_CHANNELS,	16
 
-.struct 0					// mm_sound_effect
-MM_SFX_SRC:	.space 4			// hword: source
-MM_SFX_RATE:	.space 2			// hword: rate
-MM_SFX_HANDLE:	.space 2			// byte:  handle
-MM_SFX_VOLUME:	.space 2			// hword: volume
-MM_SFX_PANNING:	.space 1			// byte:  panning
-MM_SFX_SIZE:
+// offsets of structure "mm_sound_effect"
+.equ 	MM_SFX_SRC,	0			// hword: source
+.equ 	MM_SFX_RATE,	MM_SFX_SRC	+ 4	// hword: rate
+.equ 	MM_SFX_HANDLE,	MM_SFX_RATE	+ 2	// byte:  handle
+.equ 	MM_SFX_VOLUME,	MM_SFX_HANDLE	+ 2	// hword: volume
+.equ 	MM_SFX_PANNING,	MM_SFX_VOLUME	+ 2	// byte:  panning
+.equ 	MM_SFX_SIZE,	MM_SFX_PANNING	+ 1
 
 //----------------------------------------------------------------------
 	.bss

@@ -158,26 +158,19 @@ mm_mix_data:
 .equ	MB_FETCH_SIZE	,(256)
 .equ	MB_FETCH_PADDING,(32)
 
-@----------------------------------------------------------
-.struct 0
-@----------------------------------------------------------
-MB_SH_VLEVEL:			// next volume level
-MB_SH_VMUL:	.space 1	//
-MB_SH_VSHIFT:	.space 1	//
-MB_SH_PLEVEL:	.space 1	// next panning level
-MB_SH_RESERVED:	.space 1	//
-MB_SH_LEN:			//
+// structure
+.equ MB_SH_VLEVEL,	0			// next volume level
+.equ MB_SH_VMUL,	MB_SH_VLEVEL	+ 0
+.equ MB_SH_VSHIFT,	MB_SH_VMUL	+ 1
+.equ MB_SH_PLEVEL,	MB_SH_VSHIFT	+ 1	// next panning level
+.equ MB_SH_RESERVED,	MB_SH_PLEVEL	+ 1
+.equ MB_SH_LEN,		MB_SH_RESERVED	+ 1
 
-@----------------------------------------------------------
-.struct	0
-@----------------------------------------------------------
-MB_OUTPUT:
-	.space 16*512		// 512 bytes/channel (128 samples, double-buffered)
-MB_FETCH:
-	.space MB_FETCH_SIZE+MB_FETCH_PADDING
-MB_SHADOW:
-	.space MB_SH_LEN*16
-MB_LEN:
+// structure
+.equ MB_OUTPUT,		0				// 512 bytes/channel (128 samples, double-buffered)
+.equ MB_FETCH,		MB_OUTPUT	+ (16*512)
+.equ MB_SHADOW,		MB_FETCH + (MB_FETCH_SIZE+MB_FETCH_PADDING)
+.equ MB_LEN,		MB_SHADOW + (MB_SH_LEN*16)
 
 @**********************************************************
 @ MODE C [sw mixing]
@@ -186,25 +179,22 @@ MB_LEN:
 .equ	MC_FETCH_SIZE	,(256)
 .equ	MC_FETCH_PADDING,(16)
 
-@----------------------------------------------------------
-.struct	0			// mode C - shadow data
-@----------------------------------------------------------
-MC_SH_CNT:	.space 4	// CNT updated every tick -locked
-				// top 8 bits only updated on new source
-				
-MC_SH_SRC:	.space 4	// SRC
-MC_SH_TMR:	.space 2	// TMR updated every tick   
-MC_SH_PNT:	.space 2	// PNT } updated if SRC != 0
-MC_SH_LEN:	.space 4	// LEN } (SRC cleared after)
-MC_SH_SIZE:			// (length of struct)
+// structure		mode C - shadow data
+.equ MC_SH_CNT,		0			// CNT updated every tick -locked
+						// top 8 bits only updated on new source
+						//
+.equ MC_SH_SRC,		MC_SH_CNT	+ 4	// SRC
+.equ MC_SH_TMR,		MC_SH_SRC	+ 4	// TMR updated every tick
+.equ MC_SH_PNT,		MC_SH_TMR	+ 2	// PNT } updated if SRC != 0
+.equ MC_SH_LEN,		MC_SH_PNT	+ 2	// LEN } (SRC cleared after)
+.equ MC_SH_SIZE,	MC_SH_LEN	+ 4	// (length of struct)
 
-@----------------------------------------------------------
-.struct 0
-@----------------------------------------------------------
-MC_MIX_OUTPUT:	.space MM_SW_BUFFERLEN*4		// 16-bit stereo
-MC_MIX_WMEM:	.space MM_SW_CHUNKLEN*4			// (working buffer)
-MC_FETCH:	.space MC_FETCH_SIZE+MC_FETCH_PADDING
-MC_SHADOW:	.space MC_SH_LEN*16
+// structure
+.equ MC_MIX_OUTPUT,	0					// 16-bit stereo
+.equ MC_MIX_WMEM,	MC_MIX_OUTPUT 	+ MM_SW_BUFFERLEN*4	// (working buffer)
+.equ MC_FETCH,		MC_MIX_WMEM 	+ MM_SW_CHUNKLEN*4
+.equ MC_SHADOW,		MC_FETCH 	+ MC_FETCH_SIZE+MC_FETCH_PADDING
+// length of MC_SHADOW: MC_SH_LEN*16
 @----------------------------------------------------------
 
 .if MC_SH_CNT != 0
@@ -1365,7 +1355,7 @@ mmMixChunk:
 	
 	ldrh	sfreq, [rch, #C_FREQ]		// read frequency
 	ldr	r0,=49212			// adjust scale (32khz -> 21khz)
-	mul	sfreq, r0			//
+	mul	sfreq, r0, sfreq		//
 	lsr	sfreq, #15			//
 	
 	ldr	sread, [rch, #C_READ]		// get sample position

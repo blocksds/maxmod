@@ -18,11 +18,11 @@
 
 .equ	FIFO_MAXMOD,	3
 
-.struct 0		// mm_ds9_system
-MMDS9S_MOD_COUNT:	.space 4
-MMDS9S_SAMP_COUNT:	.space 4
-MMDS9S_MEM_BANK:	.space 4
-MMDS9S_FIFO_CHANNEL:	.space 4
+// offsets of structure "mm_ds9_system"
+.equ MMDS9S_MOD_COUNT,		0
+.equ MMDS9S_SAMP_COUNT,		MMDS9S_MOD_COUNT	+ 4
+.equ MMDS9S_MEM_BANK,		MMDS9S_SAMP_COUNT	+ 4
+.equ MMDS9S_FIFO_CHANNEL,	MMDS9S_MEM_BANK		+ 4
 
 //-----------------------------------------------------------------------------
 	.bss

@@ -1305,7 +1305,7 @@ mppProcessTick:					@@      @@@ @    @@
 						@@  @@@@@@@    @@@
 						@@@@@@@@@@@@@@@@@
 
-	add	r0,pc,#0			// switch to ARM to preserve regs
+	mov	r0,pc				// switch to ARM to preserve regs
 	bx	r0				//
 .arm						//
 	stmfd	sp!, {lr}			//

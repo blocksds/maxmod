@@ -33,13 +33,13 @@
  *
  ***********************************************************************/
 
-.struct 0					// mm_sound_effect
-MM_SFX_SOURCE:	.space 4			// word: source
-MM_SFX_RATE:	.space 2			// hword: rate
-MM_SFX_HANDLE:	.space 2			// byte:  handle
-MM_SFX_VOLUME:	.space 1			// byte:  volume
-MM_SFX_PANNING:	.space 1			// byte:  panning
-MM_SFX_SIZE:					// 8 bytes total
+// offsets of structure "mm_sound_effect"
+.equ MM_SFX_SOURCE,	0			// word: source
+.equ MM_SFX_RATE,	MM_SFX_SOURCE	+ 4	// hword: rate
+.equ MM_SFX_HANDLE,	MM_SFX_RATE	+ 2	// byte:  handle
+.equ MM_SFX_VOLUME,	MM_SFX_HANDLE	+ 2	// byte:  volume
+.equ MM_SFX_PANNING,	MM_SFX_VOLUME	+ 1	// byte:  panning
+.equ MM_SFX_SIZE,	MM_SFX_PANNING	+ 1 	// 8 bytes total
 
 .equ	channelCount, 16
 .equ	releaseLevel, 200
