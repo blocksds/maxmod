@@ -52,7 +52,9 @@
 
 	.bss
 	.align 2
+	.global mm_sfx_mastervolume, mm_sfx_channels
 	.global mm_sfx_bitmask, mm_sfx_clearmask
+	.global mm_sfx_counter
 
 mm_sfx_mastervolume:	.space 4
 mm_sfx_channels:	.space 2*channelCount
@@ -71,27 +73,6 @@ mm_sfx_counter:		.space 1
 	.syntax unified
 	.thumb
 	.align 2
-	
-/***********************************************************************
- * mmResetEffects
- ***********************************************************************/
-						.global mmResetEffects
-						.thumb_func
-mmResetEffects:
-	
-	movs	r0, #0
-	movs	r1, #channelCount
-	ldr	r2,=mm_sfx_channels
-	
-1:	strh	r0, [r2]
-	adds	r2, #2
-	subs	r1, #1
-	bne	1b
-	
-	ldr	r2,=mm_sfx_bitmask
-	str	r0, [r2]
-	
-	bx	lr
 	
 /***********************************************************************
  * mmGetFreeEffectChannel()
@@ -121,27 +102,6 @@ mmGetFreeEffectChannel:
 	movs	r0, r1				// return value
 	bx	lr				//
 
-/***********************************************************************
- * mmEffect( id )
- *
- * Play sound effect with default parameters
- ***********************************************************************/
-						.global mmEffect
-						.thumb_func
-mmEffect:
-	push	{lr}
-						// r0 = ssssssss
-	movs	r1, #1				// r1 = hhhhrrrr
-	lsls	r1, #10				//
-	ldr	r2,=0x000080FF			// r2 = ----ppvv
-	
-	push	{r0-r2}				// mmEffectEx( sound )
-	mov	r0, sp				// 
-	bl	mmEffectEx			//
-	add	sp, #12				//
-	pop	{r3}				//
-	bx	r3				//
-	
 /***********************************************************************
  * mmEffectEx( sound )
  *
@@ -594,24 +554,6 @@ mmEffectScaleRate:
 	
 1:	ret0
 
-/***********************************************************************
- * mmSetEffectsVolume( volume )
- *
- * set master volume scale, 0->1024
- ***********************************************************************/
-						.global mmSetEffectsVolume
-						.thumb_func
-mmSetEffectsVolume:
-
-	lsrs	r1, r0, #10
-	beq	1f
-	movs	r0, #1
-	lsls	r0, #10
-	
-1:	ldr	r1,=mm_sfx_mastervolume
-	str	r0, [r1]
-	bx	lr
-	
 /***********************************************************************
  * mmEffectCancelAll()
  *

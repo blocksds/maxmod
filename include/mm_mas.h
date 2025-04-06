@@ -165,6 +165,12 @@ typedef struct tmm_mas_ds_sample
 #define MM_SREPEAT_FORWARD	1
 #define MM_SREPEAT_OFF		2
 
+// -----------------------------------------------------------
+
+#include "mp_mas_structs.h"
+
+extern mm_active_channel *mm_achannels;
+
 #ifdef __cplusplus
 }
 #endif
