@@ -431,6 +431,7 @@ void mmReverbDisable( void );
 /// @{
 // ***************************************************************************
 
+// TODO: Remove this
 // main/sub layer attributes
 extern mm_modlayer mmLayerMain;
 extern mm_modlayer mmLayerSub;
