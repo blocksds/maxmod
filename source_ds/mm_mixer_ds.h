@@ -8,6 +8,8 @@
 
 #include "mp_mixer_ds.h"
 
-extern mm_mixer_channel *mm_mix_channels;
+#define MM_nDSCHANNELS 32 // TODO: Move this to source_ds7/mm_mixer_super.h
+
+extern mm_mixer_channel mm_mix_channels[MM_nDSCHANNELS];
 
 #endif // MM_MIXER_DS_H

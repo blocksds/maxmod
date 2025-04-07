@@ -88,6 +88,25 @@ void mmResetEffects(void)
     mm_sfx_bitmask = 0;
 }
 
+// Return index to free effect channel
+// TODO: Make this static
+mm_word mmGetFreeEffectChannel(void)
+{
+    mm_word bitmask = mm_sfx_bitmask;
+
+    // Look for the first clear bit
+    for (mm_word i = 1; i < channelCount + 1; i++)
+    {
+        if ((bitmask & 1) == 0)
+            return i;
+
+        bitmask >>= 1;
+    }
+
+    // No handles available
+    return 0;
+}
+
 // Play sound effect with default parameters
 mm_sfxhand mmEffect(mm_word sample_ID)
 {
@@ -210,4 +229,101 @@ void mmEffectRelease(mm_sfxhand handle)
     ch->type = ACHN_BACKGROUND;
 
     mme_clear_channel((handle & 0xFF) - 1);
+}
+
+// Stop all sound effects
+void mmEffectCancelAll(void)
+{
+    mm_word bitmask = mm_sfx_bitmask;
+
+    for (int i = 0; bitmask != 0; bitmask >>= 1, i++)
+    {
+        if ((bitmask & 1) == 0)
+            continue;
+
+        int channel = ((int)mm_sfx_channels[i].channel) - 1;
+
+        if (channel < 0)
+            continue;
+
+        mmMixerSetVolume(channel, 0);
+
+        // Free achannel
+        mm_active_channel *ch = &mm_achannels[channel];
+
+        ch->type = ACHN_BACKGROUND;
+        ch->fvol = 0;
+    }
+
+    mmResetEffects();
+}
+
+// Update sound effects
+void mmUpdateEffects(void)
+{
+    mm_word bitmask = mm_sfx_bitmask;
+
+    for (int i = 0; bitmask != 0; bitmask >>= 1, i++)
+    {
+        if ((bitmask & 1) == 0)
+            continue;
+
+        // Get channel index
+
+        int channel = ((int)mm_sfx_channels[i].channel) - 1;
+
+        if (channel < 0)
+            continue;
+
+#if defined(SYS_GBA)
+        mm_mixer_channel *mx_ch = &mm_mixchannels[channel];
+#endif
+#if defined(SYS_NDS)
+        mm_mixer_channel *mx_ch = &mm_mix_channels[channel];
+#endif
+
+        // Test if channel is still active
+
+#if defined(SYS_GBA)
+        if ((mx_ch->src & (1u << 31)) == 0)
+            continue;
+#elif defined(SYS_NDS)
+        if ((mx_ch->samp_cnt & 0xFFFFFF) != 0)
+            continue;
+#endif
+
+        // Free achanel
+
+        mm_active_channel *ch = &mm_achannels[channel];
+
+        ch->type = 0;
+        ch->flags = 0;
+
+        mm_sfx_channels[i].counter = 0;
+        mm_sfx_channels[i].channel = 0;
+    }
+
+    mm_word new_bitmask = 0;
+
+    mm_sfx_channel_state *channel_state = &mm_sfx_channels[0];
+
+    for (mm_word flag = 1u << (32 - channelCount); flag != 0; flag <<= 1)
+    {
+        if (channel_state->channel != 0)
+            new_bitmask |= flag;
+
+        channel_state++;
+    }
+
+    new_bitmask >>= 32 - channelCount;
+
+    // Bits that change from 1->0
+
+    mm_word one_to_zero = (mm_sfx_bitmask ^ new_bitmask) & mm_sfx_bitmask;
+
+    mm_sfx_bitmask = new_bitmask;
+
+    // Write 1->0 mask
+
+    mm_sfx_clearmask |= one_to_zero;
 }
