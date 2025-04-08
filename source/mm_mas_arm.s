@@ -38,6 +38,7 @@ __SECTION_IWRAM
 .syntax unified
 .align 2
 
+.type mmAllocChannel, %function
 .global	mmAllocChannel
 @********************************************************
 mmAllocChannel:

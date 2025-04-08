@@ -24,7 +24,7 @@
 #define channelCount    16
 #define releaseLevel    200
 
-mm_word mm_sfx_mastervolume; // 0 to 1024
+static mm_word mm_sfx_mastervolume; // 0 to 1024
 
 // Struct that holds information about a sfx being played
 typedef struct {
@@ -32,13 +32,13 @@ typedef struct {
     mm_byte counter; // Taken from mm_sfx_counter
 } mm_sfx_channel_state;
 
-mm_sfx_channel_state mm_sfx_channels[channelCount];
+static mm_sfx_channel_state mm_sfx_channels[channelCount];
 
-extern mm_word mm_sfx_bitmask; // Channels in use
-extern mm_word mm_sfx_clearmask;
+static mm_word mm_sfx_bitmask; // Channels in use
+mm_word mm_sfx_clearmask;
 
 // Counter that increments every time a new effect is played
-mm_byte mm_sfx_counter;
+static mm_byte mm_sfx_counter;
 
 // Test handle and return mixing channel index
 static int mme_get_channel_index(mm_sfxhand handle)
@@ -89,8 +89,7 @@ void mmResetEffects(void)
 }
 
 // Return index to free effect channel
-// TODO: Make this static
-mm_word mmGetFreeEffectChannel(void)
+static mm_word mmGetFreeEffectChannel(void)
 {
     mm_word bitmask = mm_sfx_bitmask;
 
@@ -120,6 +119,165 @@ mm_sfxhand mmEffect(mm_word sample_ID)
     };
 
     return mmEffectEx(&effect);
+}
+
+// Play sound effect with specified parameters
+mm_sfxhand mmEffectEx(mm_sound_effect* sound)
+{
+    // Test if handle was given
+
+    mm_sfxhand handle = sound->handle;
+
+    if (handle == 255)
+    {
+        handle = 0;
+        goto got_handle;
+    }
+
+    // If there is a provided handle, reuse it
+    if (handle != 0)
+    {
+        // Check if the channel is in use
+        mm_word ch_idx = (handle - 1) & 0xFF;
+        mm_byte channel = mm_sfx_channels[ch_idx].channel;
+
+        // If no channel is assigned to this handle, we're done
+        if (channel == 0)
+            goto got_handle;
+
+        // If there is a channel assigned to it, attempt to stop it
+        if (mmEffectCancel(handle) == 0)
+            goto got_handle;
+
+        // If that fails, generate a new handle
+    }
+
+    // No provided handle, generate one
+    handle = mmGetFreeEffectChannel();
+
+    // If no available channels, try to continue. mmAllocChannel() will
+    // deallocate a "released" channel if there is one available.
+    if (handle == 0)
+        goto got_handle;
+
+    mm_sfx_counter++; // counter = ((counter + 1) & 255)
+    handle |= ((mm_sfxhand)mm_sfx_counter) << 8;
+
+got_handle:
+
+    // allocate new channel
+    mm_byte channel = mmAllocChannel();
+
+    if (channel == 255)
+        return 0; // Return error
+
+    if (handle != 0)
+    {
+        // Register data
+
+        mm_sfx_channel_state *channel_state;
+
+        int ch_idx = (handle - 1) & 0xFF;
+
+        channel_state = &mm_sfx_channels[ch_idx];
+
+        channel_state->channel = channel + 1;
+        channel_state->counter = handle >> 8;
+
+        // set bit
+        mm_sfx_bitmask |= 1U << ch_idx;
+    }
+
+    // setup channel
+    mm_active_channel *ch = &mm_achannels[channel];
+
+    ch->fvol = releaseLevel;
+
+    if (handle == 0)
+        ch->type = ACHN_BACKGROUND;
+    else
+        ch->type = ACHN_CUSTOM;
+
+    ch->flags = MCAF_EFFECT;
+
+    // setup voice
+
+#if defined(SYS_GBA)
+    mm_mixer_channel *mx_ch = &mm_mixchannels[channel];
+#endif
+#if defined(SYS_NDS)
+    mm_mixer_channel *mx_ch = &mm_mix_channels[channel];
+#endif
+
+    // set sample data address
+
+    // TODO: Cleanup the code below with proper C structs
+
+#if defined(SYS_GBA)
+
+    msl_head *head = mp_solution;
+    mm_word sample_offset = (mm_word)head->sampleTable[sound->id & 0xFFFF];
+
+    mm_byte *sample_ptr = mp_solution;
+    sample_ptr += sample_offset;
+
+    mx_ch->src = (mm_word)(sample_ptr + 8 + C_SAMPLE_DATA);
+
+    // set pitch to original * pitch
+
+    mm_word dfreq = *(mm_hword *)(sample_ptr + 8 + C_SAMPLEC_DFREQ);
+    mx_ch->freq = (sound->rate * dfreq) >> (10 - 2);
+
+    // reset read position
+    mx_ch->read = 0;
+
+    mx_ch->vol = (sound->volume * mm_sfx_mastervolume) >> 10;
+    mx_ch->pan = sound->panning;
+
+#elif defined(SYS_NDS)
+
+    // Set sample address
+
+    mm_word source = (mm_word)sound->sample;
+
+    if (source < 0x10000) // If external sample, skip this
+    {
+        // This is using an ID number
+
+        source = *(mm_word *)(mmSampleBank + source * 4);
+
+        source &= 0xFFFFFF;
+
+        if (source == 0)
+        {
+            mx_ch->samp_cnt = 0;
+            return 0;
+        }
+
+        source += 8;
+        source += 0x2000000;
+    }
+
+    mx_ch->samp_cnt = source;
+
+    // Set pitch to original * pitch
+    mm_word dfreq = *(mm_hword *)(source + C_SAMPLEC_DFREQ);
+    mx_ch->freq = (sound->rate * dfreq) >> 10;
+
+    // Clear sample offset
+    mx_ch->read = 0;
+
+    // Set panning | start bit
+    mm_word panning = (sound->panning >> 1) | 0x80;
+    mx_ch->samp_cnt &= 0xFFFFFF;
+    mx_ch->samp_cnt |= panning << 24;
+
+    // Set volume
+    mx_ch->vol = (sound->volume * mm_sfx_mastervolume) >> 2;
+
+#endif
+
+    return handle;
 }
 
 // Set master volume scale, 0->1024
