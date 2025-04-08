@@ -67,7 +67,7 @@ void mmFrame(void)
     // Main layer is sample-accurate.
 
     // Copy channels
-    mpp_channels = (mm_word)mm_pchannels;
+    mpp_channels = mm_pchannels;
 
     // Copy #channels
     mpp_nchannels = mm_num_mch;

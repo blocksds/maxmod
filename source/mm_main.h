@@ -9,5 +9,6 @@
 #include "mm_types.h"
 
 extern mm_word mm_ch_mask;
+extern mm_callback mmCallback;
 
 #endif // MM_MAIN_H

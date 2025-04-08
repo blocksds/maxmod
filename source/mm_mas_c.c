@@ -3,14 +3,22 @@
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
 // Copyright (c) 2021, Antonio Niño Díaz (antonio_nd@outlook.com)
 
+#include <stdint.h>
+#include <string.h>
+
 #include "maxmod.h"
 
 #include "mm_mas.h"
+#include "mp_defs.h"
+#include "mp_format_mas.h"
+#include "mm_main.h"
 #include "mp_mas_structs.h"
 
 #if defined(SYS_GBA)
+#include "mm_main_gba.h"
 #include "mm_mixer_gba.h"
 #elif defined(SYS_NDS)
+#include "mm_main_ds.h"
 #include "mm_mixer_ds.h"
 #endif
 
@@ -94,4 +102,22 @@ void mmSetJingleVolume(mm_word volume)
         volume = 1024;
 
     mmLayerSub.volume = volume; // mpp_layerB
+}
+
+// Get current number of elapsed ticks in the row being played.
+mm_word mmGetPositionTick(void)
+{
+    return mmLayerMain.tick;
+}
+
+// Get current row being played.
+mm_word mmGetPositionRow(void)
+{
+    return mmLayerMain.row;
+}
+
+// Get playback position
+mm_word mmGetPosition(void)
+{
+    return mmLayerMain.position;
 }

@@ -8,7 +8,7 @@
 
 #include "mm_types.h"
 
-// Address of sample bank
+extern mm_addr mmModuleBank;
 extern mm_addr mmSampleBank;
 
 #endif // MM_MAIN_DS_H

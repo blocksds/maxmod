@@ -10,6 +10,8 @@
 
 extern mm_word mm_mixlen;
 extern mm_mixer_channel *mm_mixchannels;
+extern mm_word mm_bpmdv;
+
 
 void mmMixerInit(mm_gba_system* setup);
 

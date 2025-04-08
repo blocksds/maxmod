@@ -173,7 +173,11 @@ extern mpl_layer_information mmLayerMain;
 extern mpl_layer_information mmLayerSub;
 
 extern mpl_layer_information *mpp_layerp;
-extern mm_word mpp_channels;
+extern mm_addr mpp_channels;
+extern mm_word mpp_resolution;
+
+extern mm_word mm_mastertempo;
+extern mm_word mm_masterpitch;
 
 extern mm_byte mpp_nchannels;
 extern mm_byte mpp_clayer;
@@ -181,6 +185,8 @@ extern mm_active_channel *mm_achannels;
 extern mm_addr mm_pchannels;
 extern mm_word mm_num_mch;
 extern mm_word mm_num_ach;
+extern mm_module_channel mm_schannels[]; // [MP_SCHANNELS]
+
 
 void mppUpdateSub(void);
 void mppProcessTick(void); // TODO: Mark this as IWRAM in GBA?
