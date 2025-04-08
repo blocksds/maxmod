@@ -2421,59 +2421,6 @@ mpph_ProcessEnvelope:			@ params={count,node,address}
 	bx	lr
 .pool
 
-/*
-.align 2
-.thumb_func
-@--------------------------------------------------------------------------------------------
-mpp_Alloc_Channel:
-@--------------------------------------------------------------------------------------------
-	
-	@ find a channel to use
-	@ returns invalid channel if none available
-	push	{r4,r5}				@ preserve reg(s)
-	ldr	r5,=mm_ch_mask
-	ldr	r5, [r5]
-
-	@ldr	r1,=mpp_achannels		@ load pointer
-	ldr	r1,=mm_achannels
-	ldr	r1,[r1]
-	movs	r0, #0				@ load counter
-	movs	r2, #255			@ r2 = MAXVOL+1 (highest)
-	adds	r2, #1
-	movs	r3, #255			@ r3 = 255 (none found)
-	b	.mppac_start
-
-.mppac_next:
-	adds	r1, #MCA_SIZE		@ change pointer
-	adds	r0, #1			@ count
-.mppac_start:
-	lsrs	r5, #1
-	bcs	.mppac_check
-	bne	.mppac_next
-.mppac_end:
-	movs	r0, r3			@ if no disabled channels are found, use lowest volume channel
-.mppac_found:
-
-	pop	{r4,r5}
-	bx	lr
-	
-.mppac_check:
-	ldrb	r4, [r1, #MCA_TYPE]	@ check active channel type
-	cmp	r4, #ACHN_DISABLED	@ disabled?
-	beq	.mppac_found		@ if so, use this channel
-	cmp	r4, #ACHN_BACKGROUND	@ check if its a background channel
-	bne	.mppac_next
-	
-	ldrb	r4, [r1, #MCA_FVOL]	@ compare volumes
-	cmp	r4, r2			@
-	bge	.mppac_next
-	movs	r3, r0			@ save channel#
-	movs	r2, r4			@ and volume
-	b	.mppac_next
-*/
-
-.pool
-
 @........................................................................................
 
 .thumb_func
