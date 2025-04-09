@@ -260,55 +260,7 @@ mmUnlockChannels:
 //-----------------------------------------------------------------------------
 
 	.text
-	.thumb
 	.align 2
-
-/******************************************************************************
- * mmSuspendIRQ_t
- *
- * Function to disable interrupts via the status register
- ******************************************************************************/
-						.global mmSuspendIRQ_t
-						.thumb_func
-mmSuspendIRQ_t:
-	ldr	r0,=1f
-	bx	r0
-
-.arm
-.align 2
-1:	mrs	r0, cpsr
-	and	r1, r0, #0x80
-	orr	r0, #0x80
-	msr	cpsr, r0
-	str	r1, previous_irq_state
-	bx	lr
-.thumb
-
-/******************************************************************************
- * mmRestoreIRQ_t
- *
- * Function to enable interrupts via the status register
- ******************************************************************************/	
-						.global	mmRestoreIRQ_t
-						.thumb_func
-mmRestoreIRQ_t:
-	ldr	r0,=1f
-	bx	r0
-
-.arm
-.align 2
-1:	mrs	r0, cpsr
-	ldr	r1, previous_irq_state
-	bic	r0, #0x80
-	orr	r0, r1
-	msr	cpsr, r0
-	bx	lr
-	
-.thumb
-
-previous_irq_state:
-	.space	4
-
 	.thumb_func
 /******************************************************************************
  * mmIsInitialized()

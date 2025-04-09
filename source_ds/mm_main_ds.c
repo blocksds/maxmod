@@ -1,37 +1,23 @@
 // SPDX-License-Identifier: ISC
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
+// Copyright (c) 2023, Lorenzooone (lollo.lollo.rbiz@gmail.com)
 
-/****************************************************************************
- *                                                          __              *
- *                ____ ___  ____ __  ______ ___  ____  ____/ /              *
- *               / __ `__ \/ __ `/ |/ / __ `__ \/ __ \/ __  /               *
- *              / / / / / / /_/ />  </ / / / / / /_/ / /_/ /                *
- *             /_/ /_/ /_/\__,_/_/|_/_/ /_/ /_/\____/\__,_/                 *
- *                                                                          *
- *               Nintendo DS & Gameboy Advance Sound System                 *
- *                                                                          *
- ****************************************************************************/
+#include <nds.h>
 
-/******************************************************************************
- *
- * Definitions
- *
- ******************************************************************************/
-
-#include "mm_main.h"
 #include "mm_main_ds.h"
 
-void mmInit7(void);
+static uint32_t previous_irq_state;
 
-// Load sound bank address
-void mmGetSoundBank(mm_word n_songs, mm_addr bank)
+// Function to disable interrupts via the status register
+void mmSuspendIRQ_t(void)
 {
-    mmModuleCount = n_songs;
-    mmModuleBank = bank;
-    // What is this * 4 from? Is it a sizeof?!
-    mmSampleBank = bank + (n_songs * 4);
+    previous_irq_state = getCPSR() & CPSR_FLAG_IRQ_DIS;
+    setCPSR(previous_irq_state | CPSR_FLAG_IRQ_DIS);
+}
 
-    // Initialize system
-    mmInit7();
+// Function to enable interrupts via the status register
+void mmRestoreIRQ_t(void)
+{
+    setCPSR(previous_irq_state | (getCPSR() & (~CPSR_FLAG_IRQ_DIS)));
 }
