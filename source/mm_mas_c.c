@@ -22,6 +22,10 @@
 #include "mm_mixer_ds.h"
 #endif
 
+// TODO: Make this static
+void mpp_setbpm(mpl_layer_information*, mm_word);
+void mpp_setposition(mpl_layer_information*, mm_word);
+
 mm_word mpp_resolution;
 
 // Suspend main module and associated channels.
@@ -151,7 +155,7 @@ void mmJingle(mm_word module_ID)
 }
 
 // Reset channel data, and any active channels linked to the layer.
-void mpp_resetchannels(mpl_layer_information *layer_info,
+static void mpp_resetchannels(mpl_layer_information *layer_info,
                               mm_module_channel *channels,
                               mm_word num_ch)
 {
@@ -196,7 +200,7 @@ void mpp_resetchannels(mpl_layer_information *layer_info,
 }
 
 // Stop module playback.
-void mppStop(void)
+static void mppStop(void)
 {
     mpl_layer_information *layer_info;
     mm_module_channel *channels;
@@ -398,6 +402,84 @@ void mmSetModuleTempo(mm_word tempo)
        mpp_setbpm(&mmLayerMain, mmLayerMain.bpm);
 }
 
+// Reset pattern variables
+// Input r5 = layer
+static void mpp_resetvars(mpl_layer_information *layer_info)
+{
+    layer_info->pattjump = 255;
+    layer_info->pattjump_row = 0;
+}
+
+// Start playing module.
+void mmPlayModule(mm_word address, mm_word mode, mm_word layer)
+{
+    mpp_clayer = layer;
+
+    mpl_layer_information *layer_info;
+    mm_module_channel *channels;
+    mm_word num_ch;
+
+    if (layer == 0)
+    {
+        layer_info = &mmLayerMain;
+        channels = mm_pchannels;
+        num_ch = mm_num_mch;
+    }
+    else
+    {
+        layer_info = &mmLayerSub;
+        channels = &mm_schannels[0];
+        num_ch = MP_SCHANNELS;
+    }
+
+    layer_info->mode = mode;
+
+    layer_info->songadr = address;
+
+    mpp_resetchannels(layer_info, channels, num_ch);
+
+    mas_header* header = (mm_addr)address;
+
+    mm_word instn_size = header->instn * 4;
+    mm_word sampn_size = header->sampn * 4;
+
+    // Setup instrument, sample and pattern tables
+    layer_info->insttable = (mm_word)&header->tables[0];
+    layer_info->samptable = (mm_word)&header->tables[instn_size];
+    layer_info->patttable = (mm_word)&header->tables[instn_size + sampn_size];
+
+    // Set pattern to 0
+    mpp_setposition(layer_info, 0);
+
+    // Load initial tempo
+    mpp_setbpm(layer_info, header->tempo);
+
+    // Load initial global volume
+    layer_info->gv = header->gv;
+
+    // Load song flags
+    mm_word flags = header->flags;
+    layer_info->flags = flags;
+    layer_info->oldeffects = (flags >> 1) & 1;
+
+    // Load speed
+    layer_info->speed = header->speed;
+
+    // mpp_playing = true, set valid flag
+    layer_info->isplaying = 1;
+    layer_info->valid = 1;
+
+    mpp_resetvars(layer_info);
+
+    // Setup channel volumes
+    for (mm_word i = 0; i < num_ch; i++)
+        channels[i].cvolume = header->chanvol[i];
+
+    // Setup channel pannings
+    for (mm_word i = 0; i < num_ch; i++)
+        channels[i].panning = header->chanpan[i];
+}
+
 // Set master pitch
 //
 // pitch : x.10 fixed point value, range = 0.5->2.0
@@ -430,6 +512,36 @@ void mmSetResolution(mm_word divider)
     mpp_clayer = 1;
     if (mmLayerSub.bpm != 0)
        mpp_setbpm(&mmLayerSub, mmLayerSub.bpm);
+}
+
+#endif
+
+#ifdef SYS_GBA
+
+// Update sub-module/jingle, this is bad for some reason...
+void mppUpdateSub(void)
+{
+    if (mmLayerSub.isplaying == 0)
+        return;
+
+    mpp_channels = &mm_schannels[0];
+    mpp_nchannels = MP_SCHANNELS;
+    mpp_clayer = 1;
+    mpp_layerp = &mmLayerSub;
+
+    mm_word tickrate = mmLayerSub.tickrate;
+    mm_word tickfrac = mmLayerSub.tickfrac;
+
+    tickfrac = tickfrac + (tickrate << 1);
+    mmLayerSub.tickfrac = tickfrac;
+
+    tickfrac >>= 16;
+
+    while (tickfrac > 0)
+    {
+        mppProcessTick();
+        tickfrac--;
+    }
 }
 
 #endif
