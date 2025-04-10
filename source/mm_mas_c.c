@@ -150,6 +150,83 @@ void mmJingle(mm_word module_ID)
     mpps_backdoor(module_ID, MPP_PLAY_ONCE, 1);
 }
 
+// Reset channel data, and any active channels linked to the layer.
+void mpp_resetchannels(mpl_layer_information *layer_info,
+                              mm_module_channel *channels,
+                              mm_word num_ch)
+{
+    (void)layer_info;
+
+    // Clear channel data to 0
+    memset(channels, 0, sizeof(mm_module_channel) * num_ch);
+
+    // Reset channel indexes
+    for (mm_word i = 0; i < num_ch; i++)
+        channels[i].alloc = 255;
+
+    // Reset active channels linked to this layer.
+
+#ifdef SYS_NDS
+    mm_mixer_channel *mix_ch = &mm_mix_channels[0];
+#endif
+#ifdef SYS_GBA
+    mm_mixer_channel *mix_ch = &mm_mixchannels[0];
+#endif
+
+    mm_byte layer = mpp_clayer;
+    mm_active_channel *act_ch = &mm_achannels[0];
+
+    for (mm_word i = 0; i < mm_num_ach; i++, act_ch++, mix_ch++)
+    {
+        // Test if layer matches
+        if ((act_ch->flags >> 6) != layer)
+            continue;
+
+        // Clear achannel data to zero
+        memset(act_ch, 0, sizeof(mm_active_channel));
+
+        // Disabled mixer channel. Disabled status differs between systems.
+#ifdef SYS_NDS
+        mix_ch->samp_cnt = 1U << 31;
+#endif
+#ifdef SYS_GBA
+        mix_ch->src = 0;
+#endif
+    }
+}
+
+// Stop module playback.
+void mppStop(void)
+{
+    mpl_layer_information *layer_info;
+    mm_module_channel *channels;
+    mm_word num_ch;
+
+    if (mpp_clayer != 0)
+    {
+        layer_info = &mmLayerSub;
+        channels = &mm_schannels[0];
+        num_ch = MP_SCHANNELS;
+    }
+    else
+    {
+        layer_info = &mmLayerMain;
+        channels = mm_pchannels;
+        num_ch = mm_num_mch;
+    }
+
+    layer_info->isplaying = 0;
+    layer_info->valid = 0;
+
+    mpp_resetchannels(layer_info, channels, num_ch);
+}
+
+// Stop module playback.
+void mmStop(void)
+{
+    mpp_clayer = 0;
+    mppStop();
+}
 // Get current number of elapsed ticks in the row being played.
 mm_word mmGetPositionTick(void)
 {

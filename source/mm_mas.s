@@ -201,77 +201,6 @@ mm_schannels:		.space MP_SCHANNELS*MCH_SIZE
 
 	.text
 	.align 2
-
-/******************************************************************************
- * mpp_resetchannels(...)
- *
- * Reset channel data, and any active channels linked to the layer.
- * Requires r5 = layer, r6 = channels, r7 = #channels
- ******************************************************************************/
-							.thumb_func
-mpp_resetchannels:
-
-	push	{r4-r6}
-
-	movs	r0, r6					// clear channel data to 0
-	movs	r1, #MCH_SIZE/4				//
-	muls	r1, r7					//
-	movs	r2, #0					//
-1:	stmia	r0!, {r2}				//
-	subs	r1, #1					//
-	bne	1b					//
-	
-	movs	r0, r6					// reset channel indexes
-	subs	r0, #MCH_SIZE-MCH_ALLOC			//
-	movs	r1, #MCH_SIZE				//
-	muls	r1, r7					//
-	movs	r2, #255				//
-1:	strb	r2, [r0, r1]				//
-	subs	r1, #MCH_SIZE				//
-	bne	1b					//
-
-	GET_MIXCH r4					// reset active channels linked to this layer
-	ldr	r6,=mpp_clayer				//
-	ldrb	r6, [r6]				//
-
-#ifdef SYS_GBA						// disabled status differs between systems
-	ldr	r5,=1<<31				//
-#endif							//
-#ifdef SYS_NDS						//
-	movs	r5, #0					//
-#endif							//
-
-	ldr	r0,=mm_achannels			// r0 = achannels
-	ldr	r0, [r0]				//
-	ldr	r1,=mm_num_ach				// r1 = #achannels
-	ldr	r1, [r1]				//
-	movs	r2, #0					// r2 = 0 (for clearing)
-	
-.mpic_loop3:
-	ldrb	r3, [r0, #MCA_FLAGS]			// test if layer matches
-	lsrs	r3, #6					//
-	cmp	r3, r6					//
-	bne	.mpic_l3_skip				//
-
-	movs	r3, #MCA_SIZE-4				// clear achannel data to zero
-.mpic_loop4:						//
-	str	r2, [r0, r3]				//
-	subs	r3, r3, #4				//
-	bpl	.mpic_loop4				//
-
-	str	r5, [r4]				// disable mixer channel
-	
-.mpic_l3_skip:
-	
-	adds	r0, #MCA_SIZE				// increment stuff and loop
-	adds	r4, #MIXER_CHN_SIZE			//
-							//
-	subs	r1, #1					//
-	bne	.mpic_loop3				//
-	
-	pop	{r4-r6}
-	bx	lr
-
 #ifdef SYS_NDS
 
 /******************************************************************************
@@ -356,6 +285,9 @@ mmPlayModule:
 	movs	r4, r0
 	str	r4, [r5, #MPL_SONGADR]
 	
+	movs	r0, r5
+	movs	r1, r6
+	movs	r2, r7
 	bl	mpp_resetchannels
 	
 	ldrb	r3, [r4, #C_MAS_INSTN]
@@ -442,44 +374,6 @@ mmPlayModule:
 	
 	bx	r0		@
 .pool
-
-/******************************************************************************
- * mppStop() [[internal function]]
- *
- * Stop module playback.
- ******************************************************************************/
-							.thumb_func
-mppStop:
-
-	push	{lr}
-
-	ldr	r0,=mpp_clayer
-	ldrb	r0, [r0]
-	
-	cmp	r0, #0
-	beq	1f
-	ldr	r5,=mmLayerSub
-	ldr	r6,=mm_schannels
-	movs	r7, #MP_SCHANNELS
-	b	2f
-1:	ldr	r5,=mmLayerMain
-	@ldr	r6,=mpp_pchannels
-	ldr	r6,=mm_pchannels
-	ldr	r6,[r6]
-	@movs	r7, #MP_MCHANNELS
-	ldr	r7,=mm_num_mch
-	ldr	r7,[r7]
-2:
-	
-	movs	r0, #0
-	strb	r0, [r5, #MPL_ISPLAYING]
-	
-	movs	r1, #MPL_VALID
-	strb	r0, [r5, r1]
-	
-	bl	mpp_resetchannels
-	pop	{r0}
-	bx	r0
 	
 /******************************************************************************
  * mmPosition( position )
@@ -506,25 +400,6 @@ mmPosition:
 	pop	{r4-r7}
 	pop	{r3}
 	bx	r3
-	
-	
-
-/******************************************************************************
- * mmStop()
- *
- * Stop module playback.
- ******************************************************************************/
-							.global mmStop
-							.thumb_func
-mmStop:
-
-	push	{r4-r7,lr}
-	ldr	r1,=mpp_clayer
-	movs	r0, #0
-	strb	r0, [r1]
-	bl	mppStop
-	pop	{r4-r7}
-	ret3
 
 /******************************************************************************
  * mpp_resetvars()
