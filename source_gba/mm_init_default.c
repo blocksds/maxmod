@@ -22,7 +22,7 @@ void mmInitDefault(mm_addr soundbank, mm_word number_of_channels)
     // Allocate buffer
     size_t size_of_channel = MM_SIZEOF_MODCH + sizeof(mm_active_channel) + MM_SIZEOF_MIXCH;
     size_t size_of_buffer = mixlen + number_of_channels * size_of_channel;
-    mm_addr buffer = malloc(size_of_buffer);
+    mm_addr buffer = calloc(1, size_of_buffer);
     if (buffer == NULL)
         return;
 
