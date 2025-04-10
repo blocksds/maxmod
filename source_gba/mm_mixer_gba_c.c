@@ -122,11 +122,6 @@ IWRAM_CODE ARM_CODE void mmVBlank(void)
         }
     }
 
-    // Acknowledge interrupt
-    // TODO: This shouldn't be done here but in the master ISR
-    mm_hword *irq_reg = (mm_hword *)0x3007FF8;
-    *irq_reg |= 1;
-
     // Call user handler
     if (mm_vblank_function != NULL)
         mm_vblank_function();
