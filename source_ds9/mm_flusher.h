@@ -9,6 +9,5 @@
 #include "mm_types.h"
 
 void mmFlushBank(void);
-void WaitUntilValue(mm_addr, mm_byte);
 
 #endif

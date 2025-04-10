@@ -2,6 +2,7 @@
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
 // Copyright (c) 2023, Lorenzooone (lollo.lollo.rbiz@gmail.com)
+// Copyright (c) 2025, Antonio Niño Díaz (antonio_nd@outlook.com)
 
 #include <stddef.h>
 #include <stdint.h>
@@ -92,6 +93,9 @@ F: SELECTMODE		2	[mode]				select audio mode
 static mm_sfxhand mmValidateEffectHandle(mm_sfxhand);
 static mm_sfxhand mmCreateEffectHandle(void);
 static void mmReceiveMessage(uint32_t, void*);
+
+// Flag used by the mmStreamBegin() and mmStreamEnd()
+volatile mm_byte mm_stream_arm9_flag;
 
 // Fifo channel to use for communications
 mm_word mmFifoChannel;
@@ -251,6 +255,8 @@ void mmSetEffectsVolume(mm_word vol)
 // Open audio stream
 void mmStreamBegin(mm_word wave_memory, mm_hword clks, mm_hword len, mm_byte format)
 {
+    mm_stream_arm9_flag = 0;
+
     mm_word buffer[MAX_PARAM_WORDS];
 
     buffer[0] = (((mm_word)wave_memory) << 16) | (MSG_OPENSTREAM << 8) | (10);
@@ -258,12 +264,18 @@ void mmStreamBegin(mm_word wave_memory, mm_hword clks, mm_hword len, mm_byte for
     buffer[2] = len | (format << 16);
 
     SendString(buffer, 3);
+
+    while (mm_stream_arm9_flag == 0);
 }
 
 // Close audio stream
 void mmStreamEnd(void)
 {
+    mm_stream_arm9_flag = 0;
+
     SendCommand(MSG_CLOSESTREAM);
+
+    while (mm_stream_arm9_flag == 0);
 }
 
 // Select audio mode
@@ -496,10 +508,15 @@ static void mmReceiveMessage(uint32_t value32, void *userdata)
 {
     (void)userdata;
 
-    if ((value32 >> 20) == 1)
+    mm_word cmd = value32 >> 20;
+    if (cmd == 1)
     {
         if (mmCallback != NULL)
             mmCallback(value32 & 0xFF, (value32 >> 8) & 0xFF);
+    }
+    else if (cmd == 2)
+    {
+        mm_stream_arm9_flag = 1;
     }
     else
     {

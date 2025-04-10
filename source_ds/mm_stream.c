@@ -243,18 +243,7 @@ void mmStreamOpen(mm_stream *stream)
 
     //mmSuspendIRQ_t();
 
-#ifdef SYS_NDS9
-    // Set wait flag
-    ((mm_byte*)mmsData.wave_memory)[(mmsData.length_words * 4) - 1] = 1;
-    CP15_DrainWriteBuffer();
-#endif
-
     mmStreamBegin(mmsData.wave_memory, mmsData.clocks >> 1, mmsData.length_cut, mmsData.format);
-
-#ifdef SYS_NDS9
-    // Wait until stream begins
-    WaitUntilValue(&((mm_byte*)mmsData.wave_memory)[(mmsData.length_words * 4) - 1], 0);
-#endif
 
     // Start timer
     if (mmsData.is_auto)
@@ -494,19 +483,12 @@ void mmStreamClose(void)
     // Disable irq
     irqDisable(IRQ_TIMER(mmsData.hw_timer_num));
 
-#ifdef SYS_NDS9
-    // Value for testing later
-    mm_byte test_value = (*((mm_byte*)mmsData.wave_memory)) + 1;
-#endif
-
     // Disable system
     mmsData.is_active = 0;
     mmsData.is_auto = 0;
     mmStreamEnd();
 
 #ifdef SYS_NDS9
-    WaitUntilValue(((mm_byte*)mmsData.wave_memory), test_value);
-
     // Free malloc'd memory
     free(mmsData.work_memory);
     free(mmsData.wave_memory);

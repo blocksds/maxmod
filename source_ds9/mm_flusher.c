@@ -13,11 +13,3 @@ void mmFlushBank(void)
 {
     DC_FlushRange(mmMemoryBank, (mmModuleCount + mmSampleCount) * 4);
 }
-
-// Wait until a byte magically becomes 'wanted_value'.
-ARM_CODE void WaitUntilValue(mm_addr address, mm_byte wanted_value)
-{
-    uintptr_t addr = (uintptr_t)address;
-    while (((mm_byte*)addr)[0] != wanted_value)
-        CP15_CleanAndFlushDCacheEntry(addr & (~31));
-}

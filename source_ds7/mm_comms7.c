@@ -2,6 +2,7 @@
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
 // Copyright (c) 2023, Lorenzooone (lollo.lollo.rbiz@gmail.com)
+// Copyright (c) 2025, Antonio Niño Díaz (antonio_nd@outlook.com)
 
 #include <stdint.h>
 
@@ -265,11 +266,15 @@ static ARM_CODE void ProcessNextMessage(void)
             mm_word len = ReadNFifoBytes(2);
             mm_stream_formats format = ReadNFifoBytes(1);
             mmStreamBegin(wavebuffer, clks, len, format);
+            mmARM9msg(2 << 20);
             break;
         }
         case MSG_CLOSESTREAM:
+        {
             mmStreamEnd();
+            mmARM9msg(2 << 20);
             break;
+        }
         case MSG_SELECTMODE:
             mmSelectMode((mm_mode_enum)ReadNFifoBytes(1));
             break;
