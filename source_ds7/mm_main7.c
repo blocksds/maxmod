@@ -216,7 +216,7 @@ void mmFrame(void)
 // Forward event to arm9
 static mm_word mmEventForwarder(mm_word msg, mm_word param)
 {
-    return mmARM9msg(msg | (param << 8) | (1 << 20));
+    return mmARM9msg(MSG_ARM7_SONG_EVENT, msg | (param << 8));
 }
 
 // Load sound bank address

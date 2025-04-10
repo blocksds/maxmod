@@ -156,7 +156,13 @@ static ARM_CODE void mmReceiveDatamsg(int bytes, void *userdata)
 }
 
 // Give ARM9 some data
-ARM_CODE mm_bool mmSendUpdateToARM9(void)
+mm_bool mmARM9msg(mm_byte cmd, mm_word value)
+{
+    return fifoSendValue32(mmFifoChannel, (cmd << 20) | value);
+}
+
+// Give ARM9 some data
+mm_bool mmSendUpdateToARM9(void)
 {
     uint32_t value = 0;
 
@@ -168,13 +174,7 @@ ARM_CODE mm_bool mmSendUpdateToARM9(void)
 
     mm_sfx_clearmask = 0;
 
-    return fifoSendValue32(mmFifoChannel, value);
-}
-
-// Give ARM9 some data
-mm_bool mmARM9msg(mm_word value)
-{
-    return fifoSendValue32(mmFifoChannel, value);
+    return mmARM9msg(MSG_ARM7_UPDATE, value);
 }
 
 // Process messages waiting in the fifo
@@ -266,13 +266,13 @@ static ARM_CODE void ProcessNextMessage(void)
             mm_word len = ReadNFifoBytes(2);
             mm_stream_formats format = ReadNFifoBytes(1);
             mmStreamBegin(wavebuffer, clks, len, format);
-            mmARM9msg(2 << 20);
+            mmARM9msg(MSG_ARM7_STREAM_READY, 0);
             break;
         }
         case MSG_CLOSESTREAM:
         {
             mmStreamEnd();
-            mmARM9msg(2 << 20);
+            mmARM9msg(MSG_ARM7_STREAM_READY, 0);
             break;
         }
         case MSG_SELECTMODE:

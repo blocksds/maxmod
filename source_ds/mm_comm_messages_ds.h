@@ -2,6 +2,7 @@
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
 // Copyright (c) 2023, Lorenzooone (lollo.lollo.rbiz@gmail.com)
+// Copyright (c) 2025, Antonio Niño Díaz (antonio_nd@outlook.com)
 
 #ifndef MM_COMM_MESSAGES_DS_H
 #define MM_COMM_MESSAGES_DS_H
@@ -41,4 +42,10 @@ enum message_ids {
     MSG_EFFECTCANCELALL
 };
 
-#endif // MM_MAIN_DS_H
+enum mm_arm7_msg_ids {
+    MSG_ARM7_UPDATE = 0,
+    MSG_ARM7_SONG_EVENT = 1,
+    MSG_ARM7_STREAM_READY = 2,
+};
+
+#endif // MM_COMM_MESSAGES_DS_H

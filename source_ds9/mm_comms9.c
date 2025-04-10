@@ -509,16 +509,17 @@ static void mmReceiveMessage(uint32_t value32, void *userdata)
     (void)userdata;
 
     mm_word cmd = value32 >> 20;
-    if (cmd == 1)
+
+    if (cmd == MSG_ARM7_SONG_EVENT)
     {
         if (mmCallback != NULL)
             mmCallback(value32 & 0xFF, (value32 >> 8) & 0xFF);
     }
-    else if (cmd == 2)
+    else if (cmd == MSG_ARM7_STREAM_READY)
     {
         mm_stream_arm9_flag = 1;
     }
-    else
+    else if (cmd == MSG_ARM7_UPDATE)
     {
         sfx_bitmask &= ~(value32 & 0xFFFF);
         mmActiveStatus = (value32 >> 16) & 1;
