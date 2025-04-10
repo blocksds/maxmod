@@ -14,6 +14,8 @@
 #include "mp_defs.h"
 #include "mp_format_mas.h"
 #include "mm_mas.h"
+#include "mm_comm_messages_ds.h"
+#include "mm_comms.h"
 #include "mm_types.h"
 
 /*****************************************************************************************************************************
@@ -86,39 +88,6 @@ F: SELECTMODE		2	[mode]				select audio mode
 #define EFFECT_CHANNELS 16
 #define MAX_PARAM_WORDS 4
 #define NO_HANDLES_AVAILABLE 0
-
-enum message_ids {
-    MSG_BANK = 0x00,
-    MSG_SELCHAN,
-    MSG_START,
-    MSG_PAUSE,
-    MSG_RESUME,
-    MSG_STOP,
-    MSG_POSITION,
-    MSG_STARTSUB,
-    MSG_MASTERVOL,
-    MSG_MASTERVOLSUB,
-    MSG_MASTERTEMPO,
-    MSG_MASTERPITCH,
-    MSG_MASTEREFFECTVOL,
-    MSG_OPENSTREAM,
-    MSG_CLOSESTREAM,
-    MSG_SELECTMODE,
-    MSG_EFFECT,
-    MSG_EFFECTVOL,
-    MSG_EFFECTPAN,
-    MSG_EFFECTRATE,
-    MSG_EFFECTMULRATE,
-    MSG_EFFECTOPT,
-    MSG_EFFECTEX,
-    MSG_UNUSED,
-    MSG_REVERBENABLE,
-    MSG_REVERBDISABLE,
-    MSG_REVERBCFG,
-    MSG_REVERBSTART,
-    MSG_REVERBSTOP,
-    MSG_EFFECTCANCELALL
-};
 
 // TODO: Perhaps it would be better to migrate to the number of bytes directly...???
 static const mm_byte message_num_params[] = {
