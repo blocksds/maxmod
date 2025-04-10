@@ -309,6 +309,8 @@ mmPlayModule:
 	
 	@ldr	r1,=mpp_setposition
 	@bl	mpp_call_r1
+	movs	r1, r0
+	movs	r0, r5
 	bl	mpp_setposition
 	
 	ldrb	r0, [r4, #C_MAS_TEMPO]	@ load initial tempo
@@ -376,32 +378,6 @@ mmPlayModule:
 .pool
 	
 /******************************************************************************
- * mmPosition( position )
- *
- * Set playback position
- ******************************************************************************/
-							.global mmPosition
-							.thumb_func
-mmPosition:
-	
-	push	{r4-r7,lr}
-	ldr	r5,=mmLayerMain
-	ldr	r6,=mm_pchannels
-	ldr	r6,[r6]
-	ldr	r7,=mm_num_mch
-	ldr	r7, [r7]
-	
-	push	{r0}
-//	bl	mpp_resetchannels
-	
-	pop	{r0}
-	bl	mpp_setposition
-
-	pop	{r4-r7}
-	pop	{r3}
-	bx	r3
-
-/******************************************************************************
  * mpp_resetvars()
  *
  * Reset pattern variables
@@ -415,104 +391,6 @@ mpp_resetvars:
 	movs	r0, #0
 	strb	r0, [r5, #MPL_PATTJUMP_ROW]
 	bx	lr
-
-/******************************************************************************
- * mpp_setposition( position )
- *
- * Set sequence position.
- * Input r5 = layer
- ******************************************************************************/
-							.thumb_func
-mpp_setposition:
-	
-	push	{lr}
-	
-mpp_setpositionA:
-	
-	strb	r0, [r5, #MPL_POSITION]
-	
-	ldr	r1, [r5, #MPL_SONGADR]
-	movs	r3, r1
-	adds	r1, #C_MAS_ORDER	@ get sequence entry
-	ldrb	r1, [r1, r0]		@
-	
-	cmp	r1, #254
-	bne	.mpsp_skippatt
-	adds	r0, #1
-	b	mpp_setpositionA
-.mpsp_skippatt:
-	
-	cmp	r1, #255
-	bne	.mpsp_endsong
-	
-	@ END OF SONG!!! WOOPHEE!!!!
-	
-
-	movs	r0, #MPL_MODE @mpp_playmode
-	ldrb	r0, [r5, r0]
-	
-	cmp	r0, #MPP_PLAY_ONCE
-	bge	1f
-@	@ its looping:
-	b	3f
-
-1:	@ its playing once:
-
-	bl	mppStop
-	movs	r0, #MPCB_SONGFINISHED
-	ldr	r2,=mmCallback
-	ldr	r2,[r2]
-	cmp	r2, #0
-	beq	3f
-	ldr	r1,=mpp_clayer
-	ldrb	r1, [r1]
-	bl	mpp_call_r2
-	
-3:	
-	
-	ldrb	r0, [r5, #MPL_ISPLAYING]
-	cmp	r0, #0
-	bne	1f
-
-	pop	{pc}
-
-1:	
-	ldr	r0, [r5, #MPL_SONGADR]	@ set position to 'restart'
-	ldrb	r0, [r0, #C_MAS_REP]
-	b	mpp_setpositionA
-.mpsp_endsong:
-	
-	movs	r0, r1
-	
-	ldr	r1, [r5, #MPL_PATTTABLE]
-	lsls	r0, #2
-	
-	@ r1 = pattern address( in table )
-	
-	ldr	r1, [r1, r0]
-	adds	r1, r3		@ add song address
-	
-	@ r1 = pattern address
-	
-	ldrb	r2, [r1]		@ set pattern size
-	strb	r2, [r5, #MPL_NROWS]	@
-	
-	movs	r2, #0			@ reset tick/row
-	strh	r2, [r5, #MPL_TICK]
-	strb	r2, [r5, #MPL_FPATTDELAY]
-	strb	r2, [r5, #MPL_PATTDELAY]
-
-	movs	r0, #MPL_PATTREAD
-	adds	r1, #1
-	str	r1, [r5, r0]		@ store pattern data address
-
-	movs	r0, #MPL_PLOOP_ADR		@ reset pattern loop
-	str	r1, [r5, r0]
-	movs	r0, #0
-	strb	r0, [r5, #MPL_PLOOP_ROW]
-	strb	r0, [r5, #MPL_PLOOP_TIMES]
-	
-	pop	{pc}
 
 //-----------------------------------------------------------------------------
 #ifdef SYS_NDS
@@ -885,7 +763,8 @@ mppProcessTick_incframe:
 	
 	movs	r2, #255
 	strb	r2, [r5, #MPL_PATTJUMP]
-	movs	r0, r1
+	//movs	r1, r1 // r1 already holds the new position
+	movs	r0, r5
 	bl	mpp_setposition
 	
 	ldrb	r1, [r5, #MPL_PATTJUMP_ROW]
@@ -927,6 +806,8 @@ mppProcessTick_incframe:
 	ldrb	r0, [r5, #MPL_POSITION]			@ increment position
 	adds	r0, #1
 	
+	movs	r1, r0
+	movs	r0, r5
 	bl	mpp_setposition
 	b	.mppt_exit
 	

@@ -227,6 +227,82 @@ void mmStop(void)
     mpp_clayer = 0;
     mppStop();
 }
+
+// Set sequence position.
+// Input r5 = layer, position = r0
+void mpp_setposition(mpl_layer_information *layer_info, mm_word position)
+{
+    mas_header *header = (mas_header *)layer_info->songadr;
+
+    mm_byte entry;
+
+    while (1)
+    {
+        layer_info->position = position;
+
+        // Get sequence entry
+        entry = header->order[position];
+        if (entry == 254)
+        {
+            position++;
+            continue;
+        }
+        else if (entry != 255) // TODO: Possible bug. Should it be "=="?
+        {
+            break;
+        }
+
+        if (layer_info->mode != MPP_PLAY_LOOP)
+        {
+            // It's playing once
+
+            mppStop();
+
+            if (mmCallback != NULL)
+                mmCallback(MPCB_SONGFINISHED, mpp_clayer);
+        }
+
+        // If the song has ended in the call to mppStop()
+        if (layer_info->isplaying == 0)
+            return;
+
+        // Set position to 'restart'
+        position = header->rep;
+    }
+
+    // Calculate pattern offset (in table)
+    uintptr_t patt_offset = layer_info->patttable + entry * 4;
+
+    // Calculate pattern address
+    uintptr_t patt_addr = (uintptr_t)header + *(mm_word *)patt_offset;
+
+    // Save pattern size
+    layer_info->nrows = *(mm_byte *)patt_addr;
+
+    // Reset tick/row
+    layer_info->tick = 0;
+    layer_info->row = 0;
+    layer_info->fpattdelay = 0;
+    layer_info->pattdelay = 0;
+
+    // Store pattern data address
+    layer_info->pattread = patt_addr + 1;
+
+    // Reset pattern loop
+    layer_info->ploop_adr = patt_addr + 1;
+    layer_info->ploop_row = 0;
+    layer_info->ploop_times = 0;
+}
+
+// Set playback position
+void mmPosition(mm_word position)
+{
+    // TODO: This was commented out in the original code
+    //mpp_resetchannels(&mmLayerMain, mm_pchannels, mm_num_mch);
+
+    mpp_setposition(&mmLayerMain, position);
+}
+
 // Get current number of elapsed ticks in the row being played.
 mm_word mmGetPositionTick(void)
 {
