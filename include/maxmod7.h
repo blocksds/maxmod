@@ -446,8 +446,10 @@ void mmReverbDisable( void );
 
 // TODO: Remove this
 // main/sub layer attributes
-extern mm_modlayer mmLayerMain;
-extern mm_modlayer mmLayerSub;
+//extern mm_modlayer mmLayerMain;
+//extern mm_modlayer mmLayerSub;
+//extern mpl_layer_information mmLayerMain;
+//extern mpl_layer_information mmLayerSub;
 
 // ***************************************************************************
 /// @}

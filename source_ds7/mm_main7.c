@@ -5,12 +5,17 @@
 
 #include <nds.h>
 
+#if defined(SYS_GBA)
 #include "maxmod.h"
+#elif defined(SYS_NDS)
+#include "maxmod7.h"
+#endif
 #include "mm_main.h"
 #include "mp_mas_structs.h"
 #include "mm_main_ds.h"
 #include "mm_comms.h"
 #include "mm_comms7.h"
+#include "mm_main7.h"
 #include "mm_mas.h"
 #include "mm_effect.h"
 #include "mp_defs.h"
