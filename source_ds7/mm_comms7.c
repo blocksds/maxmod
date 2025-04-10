@@ -108,7 +108,6 @@ volatile mm_byte mmFifoPositionWQ;
 
 mm_word mmFifoChannel;
 
-static void mmReceiveValue32(uint32_t, void*);
 static void mmReceiveDatamsg(int, void*);
 static void ProcessNextMessage(void);
 
@@ -124,37 +123,6 @@ ARM_CODE void mmSetupComms(mm_word channel)
     // setup datamsg handler first
     // (first to not miss INIT message!)
     fifoSetDatamsgHandler(channel, mmReceiveDatamsg, 0);
-
-    // setup value32 handler
-    fifoSetValue32Handler(channel, mmReceiveValue32, 0);
-}
-
-// Default maxmod message Value32 receiving code
-// Should be unused...?!
-// It was also bugged because param3 was the message size as well!
-static ARM_CODE void mmReceiveValue32(uint32_t value32, void *userdata)
-{
-    (void)userdata;
-
-    mm_byte message_type = (value32 >> 16) % NUM_MESSAGE_KINDS;
-
-    // The mod operations aren't really needed since it's a byte,
-    // but they can help change this in the future!
-    mmFifo[mmFifoPositionWQ++] = message_type;
-    mmFifoPositionWQ %= FIFO_SIZE;
-
-    mm_byte num_parameters = (value32 >> (16 + NUM_MESSAGE_KINDS_BITS)) & MAX_NUM_PARAMS;
-
-    for (int i = 0; i < num_parameters; i++)
-    {
-        // Edited with the if, the asm one was bugged
-        if (i < 2)
-            mmFifo[mmFifoPositionWQ++] = (value32 >> (i * 8)) & 0xFF;
-        else
-            mmFifo[mmFifoPositionWQ++] = (value32 >> ((i + 1) * 8)) & 0xFF;
-
-        mmFifoPositionWQ %= FIFO_SIZE;
-    }
 }
 
 // Datamsg handler
