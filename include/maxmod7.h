@@ -183,6 +183,19 @@ void mmSetModuleVolume( mm_word volume );
 ///     New volume level. Ranges from 0 (silent) to 1024 (normal).
 void mmSetJingleVolume( mm_word volume );
 
+/// Set tempo of playback.
+///
+/// @param tempo
+///     Fixed point (Q10) value representing tempo.
+///     Range = 0x200 -> 0x800 = 0.5 -> 2.0
+void mmSetModuleTempo( mm_word tempo );
+
+/// Set pitch of playback.
+///
+/// @param pitch
+///     Range = 0x200 -> 0x800 = 0.5 -> 2.0
+void mmSetModulePitch( mm_word pitch );
+
 /// Play direct MAS file.
 ///
 /// @param address
