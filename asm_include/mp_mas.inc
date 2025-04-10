@@ -26,7 +26,6 @@
 .extern mpp_pattread
 .extern mpp_sm_handle
 
-.extern mpp_resetchannels
 .extern mpp_PlaySong
 .extern mpp_processtick
 

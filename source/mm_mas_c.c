@@ -22,8 +22,10 @@
 #include "mm_mixer_ds.h"
 #endif
 
+mm_word mpp_resolution;
+
 // Suspend main module and associated channels.
-void mpp_suspend(void)
+static void mpp_suspend(void)
 {
     mm_active_channel *act_ch = &mm_achannels[0];
 
@@ -104,6 +106,50 @@ void mmSetJingleVolume(mm_word volume)
     mmLayerSub.volume = volume; // mpp_layerB
 }
 
+static void mpps_backdoor(mm_word id, mm_pmode mode, mm_word layer)
+{
+#if defined(SYS_GBA)
+    // Resolve song address
+    uintptr_t solution = (uintptr_t)mp_solution;
+
+    uintptr_t r3 = *(mm_hword *)solution;
+
+    r3 = solution + 12 + (r3 * 4);
+
+    uintptr_t r0 = r3 + (id * 4);
+
+    r0 = solution + 8 + *(mm_word *)r0;
+
+    mmPlayModule(r0, mode, layer);
+#elif defined(SYS_NDS)
+    mm_word *bank = (mm_word *)mmModuleBank;
+
+    uintptr_t address = bank[id];
+
+    if (address == 0)
+        return;
+
+    mmPlayModule(address + 8, mode, layer);
+#endif
+}
+
+// Start module playback
+//
+// module_ID : id of module
+// mode : mode of playback
+void mmStart(mm_word id, mm_pmode mode)
+{
+    mpps_backdoor(id, mode, 0);
+}
+
+// Start jingle playback
+//
+// module_ID : index of module
+void mmJingle(mm_word module_ID)
+{
+    mpps_backdoor(module_ID, MPP_PLAY_ONCE, 1);
+}
+
 // Get current number of elapsed ticks in the row being played.
 mm_word mmGetPositionTick(void)
 {
@@ -121,3 +167,116 @@ mm_word mmGetPosition(void)
 {
     return mmLayerMain.position;
 }
+
+// Set BPM. bpm = 32..255
+// Input r5 = layer, r0 = bpm
+void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
+{
+    layer_info->bpm = bpm;
+
+#ifdef SYS_GBA
+    if (mpp_clayer == 0)
+    {
+        // Multiply by master tempo
+        mm_word r1 = (mm_mastertempo * bpm) >> 10;
+
+        // Samples per tick ~= mixfreq / (bpm / 2.5) ~= mixfreq * 2.5 / bpm
+        mm_word r0 = mm_bpmdv;
+
+        // DO NOT TRUST THE COMMENTS IN THE ASM!
+        r0 = r0 / r1;
+
+        // Make it a multiple of two
+        r0 &= ~1;
+
+        layer_info->tickrate = r0;
+
+        //layer_info->sampcount = 0; // TODO: Commented out in original code
+
+        return;
+    }
+    else
+    {
+        // SUB LAYER, time using vsync (rate = (bpm / 2.5) / 59.7)
+
+        layer_info->tickrate = (bpm << 15) / 149;
+    }
+#endif
+
+#ifdef SYS_NDS
+    // vsync = ~59.8261 HZ (says GBATEK)
+    // divider = hz * 2.5 * 64
+
+    if (mpp_clayer == 0)
+    {
+        // Multiply by master tempo
+        bpm = bpm * mm_mastertempo;
+        bpm <<= 16 + 6 - 10;
+    }
+    else
+    {
+        bpm <<= 16 + 6;
+    }
+
+    // using 60hz vsync for timing
+    layer_info->tickrate = (bpm / mpp_resolution) >> 1;
+#endif
+}
+
+// Set master tempo
+//
+// tempo : x.10 fixed point tempo, 0.5->2.0
+void mmSetModuleTempo(mm_word tempo)
+{
+    // Clamp value: 512->2048
+
+    mm_word max = 1 << 11;
+    if (tempo > max)
+        tempo = max;
+
+    mm_word min = 1 << 9;
+    if (tempo < min)
+        tempo = min;
+
+    mm_mastertempo = tempo;
+    mpp_clayer = 0;
+
+    if (mmLayerMain.bpm != 0)
+       mpp_setbpm(&mmLayerMain, mmLayerMain.bpm);
+}
+
+// Set master pitch
+//
+// pitch : x.10 fixed point value, range = 0.5->2.0
+void mmSetModulePitch(mm_word pitch)
+{
+    // Clamp value: 512->2048
+
+    mm_word max = 1 << 11;
+    if (pitch > max)
+        pitch = max;
+
+    mm_word min = 1 << 9;
+    if (pitch < min)
+        pitch = min;
+
+    mm_masterpitch = pitch;
+}
+
+#ifdef SYS_NDS7
+
+// Set update resolution
+void mmSetResolution(mm_word divider)
+{
+    mpp_resolution = divider;
+
+    mpp_clayer = 0;
+    if (mmLayerMain.bpm != 0)
+       mpp_setbpm(&mmLayerMain, mmLayerMain.bpm);
+
+    mpp_clayer = 1;
+    if (mmLayerSub.bpm != 0)
+       mpp_setbpm(&mmLayerSub, mmLayerSub.bpm);
+}
+
+#endif

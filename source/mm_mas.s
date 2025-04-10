@@ -100,14 +100,6 @@ mpp_layerp:		.space 4
 mpp_channels:		.space 4
 
 /******************************************************************************
- * mpp_resolution
- *
- * Speed divider for DS timing.
- ******************************************************************************/
- 
-mpp_resolution:		.space 4
-
-/******************************************************************************
  * mm_mastertempo
  *
  * Master tempo scaler.
@@ -328,122 +320,6 @@ mm_reset_channels:
 #endif
 
 /******************************************************************************
- *
- * NDS System
- *
- ******************************************************************************/
-
-//-----------------------------------------------------------------------------
-#ifdef SYS_NDS
-//-----------------------------------------------------------------------------
-
-/******************************************************************************
- * mmStart( module_ID, mode )
- *
- * Start module playback.
- *
- * module_ID : Index of module.
- * mode : Playback mode.
- ******************************************************************************/
-							.global mmStart
-							.thumb_func
-mmStart:
-	
-	movs	r2, #0
-.mpps_backdoor:
-	lsls	r0, #2
-	ldr	r3,=mmModuleBank
-	ldr	r3, [r3]
-	ldr	r0, [r3, r0]
-	
-	cmp	r0, #0
-	beq	1f
-	adds	r0, #8
-	b	mmPlayModule
-1:	bx	lr
-
-/******************************************************************************
- * mmJingle( module_ID )
- *
- * Play module as jingle.
- *
- * module_ID : Index of module
- ******************************************************************************/
-							.global mmJingle
-							.thumb_func
-mmJingle:
-	
-	movs	r2, #1
-	movs	r1, #MPP_PLAY_ONCE
-	b	.mpps_backdoor
-	
-//-----------------------------------------------------------------------------
-#endif
-//-----------------------------------------------------------------------------
-
-/******************************************************************************
- *
- * GBA System
- *
- ******************************************************************************/
- 
-//-----------------------------------------------------------------------------
-#ifdef SYS_GBA
-//-----------------------------------------------------------------------------
-
-/******************************************************************************
- * mmStart( module_ID, mode )
- *
- * Start module playback
- *
- * module_ID : id of module
- * mode : mode of playback
- ******************************************************************************/
-							.global mmStart
-							.thumb_func
-mmStart:
-
-	movs	r2, #0
-.mpps_backdoor:
-	push	{r2}
-	ldr	r2,=mp_solution		@ resolve song address
-	ldr	r2, [r2]
-	ldrh	r3, [r2, #0]
-	lsls	r3, #2
-	adds	r3, #12
-	adds	r3, r2
-	lsls	r0, #2
-	adds	r0, r3
-	ldr	r0, [r0]
-	adds	r0, r2
-	
-	pop	{r2}
-	
-	adds	r0, #8
-
-	b	mmPlayModule
-1:	bx	lr
-
-/******************************************************************************
- * mmJingle( module_ID )
- *
- * Start jingle playback
- *
- * module_ID : index of module
- ******************************************************************************/
-							.global mmJingle
-							.thumb_func
-mmJingle:
-
-	movs	r2, #1
-	movs	r1, #MPP_PLAY_ONCE
-	b	.mpps_backdoor
-
-//-----------------------------------------------------------------------------
-#endif
-//-----------------------------------------------------------------------------
-
-/******************************************************************************
  * mmPlayModule( address, mode, layer )
  *
  * Start playing module.
@@ -505,6 +381,8 @@ mmPlayModule:
 	
 	ldrb	r0, [r4, #C_MAS_TEMPO]	@ load initial tempo
 	
+	movs	r1, r0
+	movs	r0, r5
 	bl	mpp_setbpm
 	
 	ldrb	r0, [r4, #C_MAS_GV]	@ load initial global volume
@@ -629,124 +507,7 @@ mmPosition:
 	pop	{r3}
 	bx	r3
 	
-/******************************************************************************
- * mmSetModuleTempo( tempo )
- *
- * Set master tempo
- *
- * tempo : x.10 fixed point tempo, 0.5->2.0
- ******************************************************************************/
-							.global mmSetModuleTempo
-							.thumb_func
-mmSetModuleTempo:
 	
-	push	{r5,lr}
-	
-	movs	r1, #1				// clamp value: 512->2048
-	lsls	r1, #11				//
-	cmp	r0, r1				//
-	ble	1f				//
-	movs	r0, r1				//
-1:	movs	r1, #1				//
-	lsls	r1, #9				//
-	cmp	r0, r1				//
-	bge	1f				//
-	movs	r0, r1				//
-1:
-	
-	ldr	r1,=mm_mastertempo
-	str	r0, [r1]
-	
-	ldr	r5,=mmLayerMain
-	ldr	r0,=mpp_clayer
-	movs	r1, #0
-	strb	r1, [r0]
-	
-	ldrb	r0, [r5, #MPL_BPM]
-	cmp	r0, #0
-	beq	1f
-	bl	mpp_setbpm
-	
-1:	pop	{r5}
-	pop	{r3}
-	bx	r3
-	
-/******************************************************************************
- * mmSetModulePitch( pitch )
- *
- * Set master pitch
- *
- * pitch : x.10 fixed point value, range = 0.5->2.0
- ******************************************************************************/
-							.global mmSetModulePitch
-							.thumb_func
-mmSetModulePitch:
-	push	{r5,lr}
-	
-	movs	r1, #1				// clamp value: 512->2048
-	lsls	r1, #11				//
-	cmp	r0, r1				//
-	ble	1f				//
-	movs	r0, r1				//
-1:	movs	r1, #1				//
-	lsls	r1, #9				//
-	cmp	r0, r1				//
-	bge	1f				//
-	movs	r0, r1				//
-1:
-	
-	ldr	r1,=mm_masterpitch
-	str	r0, [r1]
-	
-1:	pop	{r5}
-	pop	{r3}
-	bx	r3
-	
-.pool
-
-//-----------------------------------------------------------------------------
-#ifdef SYS_NDS7
-//-----------------------------------------------------------------------------
-
-/******************************************************************************
- * mmSetResolution( divider )
- *
- * Set update resolution
- ******************************************************************************/
-							.global mmSetResolution
-							.thumb_func
-mmSetResolution:
-
-	push	{r5, lr}
-	
-	ldr	r1,=mpp_resolution
-	str	r0, [r1]
-	
-	ldr	r5,=mmLayerMain
-	
-	ldr	r0,=mpp_clayer
-	movs	r1, #0
-	strb	r1, [r0]
-	
-	ldrb	r0, [r5, #MPL_BPM]
-	cmp	r0, #0
-	beq	1f
-	bl	mpp_setbpm
-1:	ldr	r5,=mmLayerSub
-
-	ldr	r0,=mpp_clayer
-	movs	r1, #1
-	strb	r1, [r0]
-	
-	ldrb	r0, [r5, #MPL_BPM]
-	cmp	r0, #0
-	beq	1f
-	bl	mpp_setbpm
-1:	pop	{r5}
-	pop	{r3}
-	bx	r3
-
-#endif
 
 /******************************************************************************
  * mmStop()
@@ -779,86 +540,6 @@ mpp_resetvars:
 	movs	r0, #0
 	strb	r0, [r5, #MPL_PATTJUMP_ROW]
 	bx	lr
-
-/******************************************************************************
- * mpp_setbpm( bpm )
- *
- * Set BPM. bpm = 32..255
- * Input r5 = layer
- ******************************************************************************/
-							.thumb_func
-mpp_setbpm:
-	
-	strb	r0, [r5, #MPL_BPM]
-	
-#ifdef SYS_GBA
-
-	ldr	r1,=mpp_clayer
-	ldrb	r1, [r1]
-	cmp	r1, #0
-	bne	1f
-	
-	ldr	r1,=mm_mastertempo	// multiply by master tempo
-	ldr	r1, [r1]		//
-	muls	r1, r0			//
-	lsrs	r1, #10			//
-	
-	ldr	r0,=mm_bpmdv		@ samples per tick ~= mixfreq / (bpm/2.5) ~= mixfreq*2.5/bpm
-	ldr	r0,[r0]
-	
-	swi	SWI_DIVIDE		@ SWI 07h, divide r1/r0
-	lsrs	r0, #1			@ multiple of two
-	lsls	r0, #1			@ ---------------
-	movs	r1, #MPL_TICKRATE
-	strh	r0, [r5, r1]		@
-	movs	r1, #MPL_SAMPCOUNT
-//	movs	r0, #0
-//	strh	r0, [r5, r1]
-	bx	lr			@ return
-	
-1:	@ SUB LAYER, time using vsync (rate = bpm/2.5 / 59.7)
-	
-	lsls	r0, #15
-	movs	r1, #149
-	swi	SWI_DIVIDE
-	movs	r1, #MPL_TICKRATE
-	strh	r0, [r5, r1]
-	bx	lr
-	
-#endif
-
-#ifdef SYS_NDS
-
-@ vsync = ~59.8261 HZ (says GBATEK)
-@ divider = hz * 2.5 * 64
-
-	ldr	r1,=mpp_clayer
-	ldrb	r1, [r1]
-	cmp	r1, #0
-	bne	1f
-	ldr	r1,=mm_mastertempo	// multiply by master tempo
-	ldr	r1, [r1]		//
-	muls	r0, r1			//
-//	lsrs	r1, #10			//
-
-	lsls	r0, #16+6-10
-	b	2f
-1:
-	lsls	r0, #16+6
-2:
-	@ using 60hz vsync for timing
-//	lsls	r0, #16+6
-	ldr	r1,=mpp_resolution
-	ldr	r1, [r1]
-	swi	SWI_DIVIDE
-	lsrs	r0, #1
-	movs	r1, #MPL_TICKRATE
-	strh	r0, [r5, r1]
-	bx	lr
-	
-#endif
-
-.pool
 
 /******************************************************************************
  * mpp_setposition( position )
@@ -4023,12 +3704,12 @@ mppe_SetTempo:					@ EFFECT Txy: Set Tempo / Tempo Slide
 	bne	.mppe_st_exit
 	movs	r0, r1
 .mppe_st_set2:
-	push	{r5,lr}
-	mov	r5, r8
-	ldr	r1,=mpp_setbpm
-	bl	mpp_call_r1
+	push	{lr}
+	movs	r1, r0
+	mov	r0, r8
+	ldr	r2,=mpp_setbpm
+	bl	mpp_call_r2
 	@jump1
-	pop	{r5}
 	pop	{r3}
 	bx	r3
 .mppe_st_exit:
