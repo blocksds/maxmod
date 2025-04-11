@@ -5,7 +5,7 @@
 
 #if defined(SYS_GBA)
 #include "maxmod.h"
-#elif defined(SYS_NDS)
+#elif defined(SYS_NDS7)
 #include "maxmod7.h"
 #endif
 
@@ -19,7 +19,7 @@
 #if defined(SYS_GBA)
 #include "mm_main_gba.h"
 #include "mm_mixer_gba.h"
-#elif defined(SYS_NDS)
+#elif defined(SYS_NDS7)
 #include "mm_main_ds.h"
 #include "mm_mixer_ds.h"
 #endif
@@ -208,7 +208,7 @@ got_handle:
 #if defined(SYS_GBA)
     mm_mixer_channel *mx_ch = &mm_mixchannels[channel];
 #endif
-#if defined(SYS_NDS)
+#if defined(SYS_NDS7)
     mm_mixer_channel *mx_ch = &mm_mix_channels[channel];
 #endif
 
@@ -237,7 +237,7 @@ got_handle:
     mx_ch->vol = (sound->volume * mm_sfx_mastervolume) >> 10;
     mx_ch->pan = sound->panning;
 
-#elif defined(SYS_NDS)
+#elif defined(SYS_NDS7)
 
     // Set sample address
 
@@ -324,7 +324,7 @@ void mmEffectVolume(mm_sfxhand handle, mm_word volume)
 
 #if defined(SYS_GBA)
     int shift = 10;
-#elif defined(SYS_NDS)
+#elif defined(SYS_NDS7)
     int shift = 2;
 #endif
 
@@ -439,7 +439,7 @@ void mmUpdateEffects(void)
 #if defined(SYS_GBA)
         mm_mixer_channel *mx_ch = &mm_mixchannels[channel];
 #endif
-#if defined(SYS_NDS)
+#if defined(SYS_NDS7)
         mm_mixer_channel *mx_ch = &mm_mix_channels[channel];
 #endif
 
@@ -448,7 +448,7 @@ void mmUpdateEffects(void)
 #if defined(SYS_GBA)
         if ((mx_ch->src & (1u << 31)) == 0)
             continue;
-#elif defined(SYS_NDS)
+#elif defined(SYS_NDS7)
         if ((mx_ch->samp_cnt & 0xFFFFFF) != 0)
             continue;
 #endif
