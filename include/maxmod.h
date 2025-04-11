@@ -25,8 +25,6 @@ extern "C" {
 #endif
 
 #include <mm_types.h>
-#include <mm_channel_types.h>
-#include <mm_types.h>
 
 // ***************************************************************************
 /// @defgroup gba_init GBA: Initialization/Main Functions

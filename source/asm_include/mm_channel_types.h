@@ -3,24 +3,11 @@
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
 // Copyright (c) 2023, Lorenzooone (lollo.lollo.rbiz@gmail.com)
 
-/****************************************************************************
- *                                                          __              *
- *                ____ ___  ____ __  ______ ___  ____  ____/ /              *
- *               / __ `__ \/ __ `/ |/ / __ `__ \/ __ \/ __  /               *
- *              / / / / / / /_/ />  </ / / / / / /_/ / /_/ /                *
- *             /_/ /_/ /_/\__,_/_/|_/_/ /_/ /_/\____/\__,_/                 *
- *                                                                          *
- *               Nintendo DS & Gameboy Advance Sound System                 *
- *                                                                          *
- ****************************************************************************/
+#ifndef MM_CHANNEL_TYPES_H
+#define MM_CHANNEL_TYPES_H
 
 #include <assert.h>
 #include <mm_types.h>
-
-// CHANNEL TYPE DEFINITIONS
-
-#ifndef MM_CHANNEL_TYPES_H
-#define MM_CHANNEL_TYPES_H
 
 // Module Channel
 // --------------
@@ -101,7 +88,8 @@ static_assert(sizeof(mm_mixer_channel) == 16);
 #define MIXER_CF_FILTER     8
 #define MIXER_CF_REVERSE    16
 
-#endif
+#endif // SYS_NDS
+
 #ifdef SYS_GBA
 
 typedef struct {
@@ -116,6 +104,6 @@ typedef struct {
 
 static_assert(sizeof(mm_mixer_channel) == 16);
 
-#endif
+#endif // SYS_GBA
 
-#endif
+#endif // MM_CHANNEL_TYPES_H
