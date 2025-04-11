@@ -146,7 +146,6 @@ start_channel:				// ok start channel...
 linear_periods:
 	LDR	R1,=IT_PitchTable
 	LDR	R0, [R1, R2, LSL#2]
-	//bl	get_linear_period
 got_period:
 //--------------------------------
 	
@@ -430,15 +429,11 @@ invalid_instrument:
 	bx	lr
 **************/
 	
-.global mmGetPeriod
+@.global mmGetPeriod
 @***********************************************************
-mmGetPeriod:
+@mmGetPeriod:
 @***********************************************************
 
-	ldrb	r0, [r8, #MPL_FLAGS]
-	lsrs	r0, #C_FLAGS_SS
-	bcs	get_linear_period	// tuning not used here with linear periods
-	
 get_amiga_period:
 	adr	r3, note_table_mod	// get octave/mod from note
 	ldrb	r0, [r3, r2]
@@ -468,10 +463,5 @@ note_table_oct:
 note_table_mod:
 .byte	0,2,4,6,8,10,12,14,16,18,20,22,0,2,4,6,8,10,12,14,16,18,20,22,0,2,4,6,8,10,12,14,16,18,20,22,0,2,4,6,8,10,12,14,16,18,20,22,0,2,4,6,8,10,12,14,16,18,20,22,0,2,4,6,8,10,12,14,16,18,20,22,0,2,4,6,8,10,12,14,16,18,20,22,0,2,4,6,8,10,12,14,16,18,20,22,0,2,4,6,8,10,12,14,16,18,20,22,0
 .align 2
-
-get_linear_period:
-	ldr	r1,=IT_PitchTable
-	ldr	r0, [r1, r2, lsl#2]
-	bx	lr
 
 .pool

@@ -2513,6 +2513,7 @@ mppe_Glissando:					@ EFFECT Gxy: Glissando
 	ldrh	r1, [r0, #C_MASS_FREQ]			//
 	lsls	R1, #2					//
 	ldrb	r2, [r7, #MCH_NOTE]			//
+	mov	r0,r8
 	ldr	r3,=mmGetPeriod				//
 	bl	mpp_call_r3				//
 	

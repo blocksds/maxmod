@@ -29,9 +29,39 @@
 
 #define NO_CHANNEL_AVAILABLE 255
 
-
 #define NOTE_CUT 254
 #define NOTE_OFF 255
+
+#define MULT_PERIOD 133808
+
+static mm_byte note_table_oct[] =
+{
+    0, 0, 0,
+    1, 1, 1,
+    2, 2, 2,
+    3, 3, 3,
+    4, 4, 4,
+    5, 5, 5,
+    6, 6, 6,
+    7, 7, 7,
+    8, 8, 8,
+    9, 9, 9
+};
+
+static mm_byte note_table_mod[] =
+{
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+    0
+};
+
 // Finds a channel to use
 // Returns invalid channel [NO_CHANNEL_AVAILABLE] if none available
 IWRAM_CODE ARM_CODE mm_word mmAllocChannel(void)
@@ -165,4 +195,22 @@ IWRAM_CODE ARM_CODE void mmReadPattern(mpl_layer_information *mpp_layer)
 
     mpp_layer->pattread = (mm_word)pattern;
     mpp_layer->mch_update = update_bits;
+}
+
+IWRAM_CODE ARM_CODE mm_word mmGetPeriod(mpl_layer_information *mpp_layer, mm_word tuning, mm_byte note)
+{
+    // Tuning not used here with linear periods
+    if (mpp_layer->flags & (1 << (C_FLAGS_SS - 1)))
+        return IT_PitchTable[note];
+
+    mm_word r0 = note_table_mod[note];      // (note mod 12) << 1
+    mm_word r2 = note_table_oct[note >> 2]; // (note / 12)
+
+    // Uses pre-calculated results of /12 and %12
+    mm_word ret_val = (ST3_FREQTABLE[r0] * MULT_PERIOD) >> r2;
+
+    if (tuning)
+        ret_val /= tuning;
+
+    return ret_val;
 }

@@ -10,6 +10,10 @@
 #include "mp_mas_structs.h"
 
 mm_word mmAllocChannel(void);
+mm_word mmGetPeriod(mpl_layer_information*, mm_word, mm_byte);
 void mmReadPattern(mpl_layer_information*);
+
+extern mm_word IT_PitchTable[];
+extern mm_hword ST3_FREQTABLE[];
 
 #endif // MM_MAS_ARM_H
