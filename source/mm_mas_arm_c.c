@@ -2,6 +2,7 @@
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
 // Copyright (c) 2021, Antonio Niño Díaz (antonio_nd@outlook.com)
+// Copyright (c) 2023, Lorenzooone (lollo.lollo.rbiz@gmail.com)
 
 #include "maxmod.h"
 
@@ -9,18 +10,28 @@
 #include "mm_main.h"
 #include "mp_mas_structs.h"
 
-// TODO: All functions in this file need to be placed in IWRAM on GBA, and be
-// compiled as ARM code.
+#define ARM_CODE   __attribute__((target("arm")))
+
+#ifdef SYS_NDS
+#define IWRAM_CODE
+#endif
+
+#ifdef SYS_GBA
+#define IWRAM_CODE __attribute__((section(".iwram"), long_call))
+#endif
+
+
+#define NO_CHANNEL_AVAILABLE 255
 
 // Finds a channel to use
-// Returns invalid channel [255] if none available
-mm_word mmAllocChannel(void)
+// Returns invalid channel [NO_CHANNEL_AVAILABLE] if none available
+IWRAM_CODE ARM_CODE mm_word mmAllocChannel(void)
 {
     // Pointer to active channels
     mm_active_channel *ch = &mm_achannels[0];
 
     mm_word bitmask = mm_ch_mask;
-    mm_word best_channel = 255; // 255 = none
+    mm_word best_channel = NO_CHANNEL_AVAILABLE; // 255 = none
     mm_word best_volume = 0x80000000;
 
     for (mm_word i = 0; bitmask != 0; i++, bitmask >>= 1, ch++)
