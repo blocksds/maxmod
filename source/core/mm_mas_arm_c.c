@@ -4,6 +4,8 @@
 // Copyright (c) 2021, Antonio Niño Díaz (antonio_nd@outlook.com)
 // Copyright (c) 2023, Lorenzooone (lollo.lollo.rbiz@gmail.com)
 
+#include <stddef.h>
+
 #include "maxmod.h"
 
 #include "mm_mas.h"
@@ -195,6 +197,59 @@ IWRAM_CODE ARM_CODE void mmReadPattern(mpl_layer_information *mpp_layer)
 
     mpp_layer->pattread = (mm_word)pattern;
     mpp_layer->mch_update = update_bits;
+}
+
+static IWRAM_CODE ARM_CODE mm_mas_instrument *get_instrument(mpl_layer_information *mpp_layer, mm_byte instN)
+{
+    return (mm_mas_instrument*)(mpp_layer->songadr + ((mm_word*)mpp_layer->insttable)[instN - 1]);
+}
+
+IWRAM_CODE ARM_CODE mm_byte mmChannelStartACHN(mm_module_channel *module_channel, mm_active_channel *active_channel, mpl_layer_information *mpp_layer, mm_byte channel_counter)
+{
+    // Clear tremor/cutvol
+    module_channel->bflags &= ~(6 << 8);
+
+    if (active_channel)
+    {
+        // Set foreground type
+        active_channel->type = ACHN_FOREGROUND;
+        // Clear SUB/EFFECT and store layer
+        active_channel->flags = (active_channel->flags & (~(3 << 6))) | (mpp_clayer << 6);
+        // Store parent
+        active_channel->parent = channel_counter;
+        // Copy instrument
+        active_channel->inst = module_channel->inst;
+    }
+
+    // Previously, it did not set the return parameter properly
+    if (module_channel->inst == 0)
+        return module_channel->bflags; // TODO: This is what the code does, is it a bug?
+
+    // Get instrument pointer
+    mm_mas_instrument *instrument = get_instrument(mpp_layer, module_channel->inst);
+
+    // Check if note_map exists
+    // If this is set, it doesn't!
+    if (instrument->is_note_map_invalid)
+    {
+        if (active_channel)
+            active_channel->sample = instrument->note_map_offset & 0xFF;
+
+        // write note value (without notemap, all entries == PNOTE)
+        module_channel->note = module_channel->pnoter;
+    }
+    else
+    {
+        // Read notemap entry
+        mm_hword notemap_entry = *((mm_hword*)(((mm_word)instrument) + instrument->note_map_offset + (module_channel->pnoter << 1)));
+        // Write note value
+        module_channel->note = notemap_entry & 0xFF;
+        // Write sample value
+        if (active_channel)
+            active_channel->sample = notemap_entry >> 8;
+    }
+
+    return module_channel->note;
 }
 
 IWRAM_CODE ARM_CODE mm_word mmGetPeriod(mpl_layer_information *mpp_layer, mm_word tuning, mm_byte note)

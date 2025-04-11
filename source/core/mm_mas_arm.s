@@ -106,8 +106,15 @@ glissando_affected:
 	ldr	r6, [r6]		//
 	mov	r1, #MCA_SIZE		//
 	mla	r6, r0, r1, r6		//
-*/	
+*/
+
+	movs	r1, r6
+	movs	r0, r7
+	movs	r2, r8
+	movs	r3, r10
 	bl	mmChannelStartACHN	// start achn
+	movs	r2, r0
+
 	bic	r5, #MF_START		// clear start flag
 	strb	r5, [r7, #MCH_FLAGS]
 	b	dont_start_channel
@@ -121,8 +128,14 @@ start_channel:				// ok start channel...
 	
 //	cmp	r6, #0
 //	beq	mmUpdateChannel_TN_
-	
+
+	movs	r1, r6
+	movs	r0, r7
+	movs	r2, r8
+	movs	r3, r10
 	bl	mmChannelStartACHN	// start achn
+	movs	r2, r0
+
 //----------------------------------------------
 	// r2 = note, calculate period
 	ldrb	r0, [r6, #MCA_SAMPLE]
@@ -361,74 +374,6 @@ no_achn:
 	pop	{lr}
 	bx	lr
 
-@***********************************************************
-mmChannelStartACHN:		// returns r2=note
-@***********************************************************
-	ldrb	r2, [r7, #MCH_BFLAGS+1]		// clear tremor/cutvol
-	bic	r2, #0b110
-	strb	r2, [r7, #MCH_BFLAGS+1]
-	
-	cmp	r6, #0				// achn==0?
-	beq	1f				// then skip this part
-	
-	mov	r0, #ACHN_FOREGROUND		// set foreground type
-	strb	r0, [r6, #MCA_TYPE]
-	
-	ldrb	r0, [r6, #MCA_FLAGS]		// read flags
-	bic	r0, #0b11000000			// clear SUB, EFFECT
-	ldr	r1,=mpp_clayer			// get layer
-	ldrb	r1, [r1]
-	orr	r0, r0, r1, lsl#6			// orr into flags
-	orr	r0, r10, r0, lsl#8		// orr PARENT
-	strh	r0, [r6, #MCA_PARENT]		// store parent/flags
-	ldrb	r0, [r7, #MCH_INST]		// copy instrument
-	strb	r0, [r6, #MCA_INST]
-1:	ldrbeq	r0, [r7, #MCH_INST]
-	subs	r0, #1
-	bcc	invalid_instrument
-	
-	ldr	r2, [r8, #MPL_SONGADR]		// get instrument pointer
-	ldr	r1, [r8, #MPL_INSTTABLE]
-	ldr	r0, [r1, r0, lsl#2]
-	add	r0, r2
-	
-	ldrb	r2, [r7, #MCH_PNOTE]		// get pattern note
-	
-	ldrh	r1, [r0, #C_MASI_MAP]		// read notemap offset
-	tst	r1, #0x8000			// test MSB
-	beq	full_notemap			// if set: notemap doesnt exist!
-						// use single entry
-	cmp	r6, #0				// if channel is valid
-	strbne	r1, [r6, #MCA_SAMPLE]		//   write sample value
-	strb	r2, [r7, #MCH_NOTE]		// write note value (without notemap, all entries == PNOTE)
-	bx	lr				// return
-	
-full_notemap:
-	
-	add	r0, r0, r2, lsl#1			// add note offset
-	ldrh	r2, [r0, r1]			// read notemap entry [instr+note*2+notemap_offset]
-	strb	r2, [r7, #MCH_NOTE]		// write note value
-	cmp	r6, #0				// if channel is valid
-	mov	r0, r2, lsr#8			//   write sample value
-	strbne	r0, [r6, #MCA_SAMPLE]		//   ..
-	and	r2, #255
-invalid_instrument:
-	bx	lr				// return
-	
-/**********
-	
-	cmp	r6, #0				// read notemap [sample]
-	ldrneb	r2, [r0, #C_MASI_MAP+1]
-	strneb	r2, [r6, #MCA_SAMPLE]
-	
-//invalid_instrument:				// BUG???
-	ldrb	r2, [r0, #C_MASI_MAP]		// read notemap [note]
-	strb	r2, [r7, #MCH_NOTE]
-invalid_instrument:
-	
-	bx	lr
-**************/
-	
 @.global mmGetPeriod
 @***********************************************************
 @mmGetPeriod:
