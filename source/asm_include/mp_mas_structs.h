@@ -62,7 +62,7 @@ typedef struct {
     mm_word     pattread_p;
     mm_byte     afvol;
     mm_byte     sampoff;
-    mm_byte     volplus;
+    mm_sbyte    volplus;
     mm_byte     notedelay;
     mm_hword    panplus;
     mm_hword    reserved2;

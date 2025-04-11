@@ -29,7 +29,15 @@
 #define COMPR_FLAG_VOLC     (1 << 2)
 #define COMPR_FLAG_EFFC     (1 << 3)
 
+#define GLISSANDO_EFFECT 7
+#define GLISSANDO_IT_VOLCMD_START 193
+#define GLISSANDO_IT_VOLCMD_END 202
+#define GLISSANDO_MX_VOLCMD_START 0xF0
+#define GLISSANDO_MX_VOLCMD_END 0xFF
+
 #define NO_CHANNEL_AVAILABLE 255
+
+#define MAX_VOL_ACH 0x80
 
 #define NOTE_CUT 254
 #define NOTE_OFF 255
@@ -268,4 +276,248 @@ IWRAM_CODE ARM_CODE mm_word mmGetPeriod(mpl_layer_information *mpp_layer, mm_wor
         ret_val /= tuning;
 
     return ret_val;
+}
+
+static IWRAM_CODE ARM_CODE mm_mas_sample_info *get_sample(mpl_layer_information *mpp_layer, mm_byte sampleN)
+{
+    return (mm_mas_sample_info*)(mpp_layer->songadr + ((mm_word*)mpp_layer->samptable)[sampleN - 1]);
+}
+
+static IWRAM_CODE ARM_CODE mm_active_channel *get_active_channel(mm_module_channel *module_channel)
+{
+    mm_active_channel* active_channel = NULL;
+
+    // Get channel, if available
+    if (module_channel->alloc != NO_CHANNEL_AVAILABLE)
+        active_channel = &mm_achannels[module_channel->alloc];
+
+    return active_channel;
+}
+
+// For tick 0
+IWRAM_CODE ARM_CODE void mmUpdateChannel_T0(mm_module_channel *module_channel, mpl_layer_information* mpp_layer, mm_byte channel_counter)
+{
+    mm_active_channel *active_channel;
+
+    // Test start flag
+    if ((module_channel->flags & MF_START) == 0)
+        goto dont_start_channel;
+
+    // Test effect flag
+    if (module_channel->flags & MF_HASFX)
+    {
+        // Test for 'SDx' (note delay). Don't start channel if delayed
+        //if (module_channel->effect == 19)
+        //{
+        //    if ((module_channel->param >> 4) == 0xD)
+        //        goto dont_start_Channel;
+        //}
+
+        // Always start channel if it's a new instrument
+        if (module_channel->flags & MF_NEWINSTR)
+            goto start_channel;
+
+        // Check if the effect is glissando
+        if (module_channel->effect == GLISSANDO_EFFECT)
+            goto glissando_affected;
+    }
+
+    if (module_channel->flags & MF_NEWINSTR)
+        goto start_channel;
+
+    if ((module_channel->flags & MF_HASVCMD) == 0)
+        goto start_channel;
+
+    mm_bool is_xm_mode = mpp_layer->flags & C_FLAGS_X;
+
+    if (is_xm_mode) // XM effects
+    {
+        // Glissando is 193..202
+        if ((module_channel->volcmd < GLISSANDO_IT_VOLCMD_START) ||
+            (module_channel->volcmd > GLISSANDO_IT_VOLCMD_END))
+            goto start_channel;
+    }
+    else // IT effects
+    {
+        // Glissando is Fx
+        if ((module_channel->volcmd < GLISSANDO_MX_VOLCMD_START) /* ||
+            (module_channel->volcmd > GLISSANDO_MX_VOLCMD_END)*/ )
+            goto start_channel;
+    }
+
+glissando_affected:
+
+    active_channel = get_active_channel(module_channel);
+    if (active_channel)
+    {
+        mmChannelStartACHN(module_channel, active_channel, mpp_layer, channel_counter);
+
+        module_channel->flags &= ~MF_START;
+        goto dont_start_channel;
+    }
+
+start_channel:
+
+    mpp_Channel_NewNote(module_channel, mpp_layer);
+
+    active_channel = get_active_channel(module_channel);
+    if (active_channel == NULL)
+    {
+        mmUpdateChannel_TN(module_channel, mpp_layer);
+        return;
+    }
+
+    mm_word note = mmChannelStartACHN(module_channel, active_channel, mpp_layer, channel_counter);
+
+    if (active_channel->sample)
+    {
+        mm_mas_sample_info *sample = get_sample(mpp_layer, active_channel->sample);
+        module_channel->period = mmGetPeriod(mpp_layer, sample->frequency << 2, note);
+        active_channel->flags |= MCAF_START;
+    }
+
+    goto channel_started;
+
+dont_start_channel:
+
+    active_channel = get_active_channel(module_channel);
+    if (active_channel == NULL)
+    {
+        mmUpdateChannel_TN(module_channel, mpp_layer);
+        return;
+    }
+
+channel_started:
+
+    if (module_channel->flags & MF_DVOL)
+    {
+        if (module_channel->inst)
+        {
+            // Get instrument pointer
+            mm_mas_instrument *instrument = get_instrument(mpp_layer, module_channel->inst);
+
+            // Clear old nna and set the new one
+            module_channel->bflags &= ~(3 << 6);
+            module_channel->bflags |= ((instrument->nna & 3) << 6);
+
+            active_channel->flags &= ~MCAF_VOLENV;
+            if (instrument->env_flags & ENVFLAG_A)
+                active_channel->flags |= MCAF_VOLENV;
+
+            // TODO: Is the << 1 a bug?
+            if (instrument->panning & 0x80)
+                module_channel->panning = (instrument->panning & 0x7F) << 1;
+        }
+
+        if (active_channel->sample)
+        {
+            // Get sample pointer
+            mm_mas_sample_info *sample = get_sample(mpp_layer, active_channel->sample);
+            module_channel->volume = sample->default_volume;
+
+            // TODO: Is the << 1 a bug?
+            if (sample->panning & 0x80)
+                module_channel->panning = (sample->panning & 0x7F) << 1;
+        }
+    }
+
+    if (module_channel->flags & (MF_START | MF_DVOL))
+    {
+        if (((mpp_layer->flags & C_FLAGS_X) == 0) || (module_channel->flags & MF_DVOL))
+        {
+            // Reset volume
+            active_channel->fade = 1 << 10;
+            active_channel->envc_vol = 0;
+            active_channel->envc_pan = 0;
+            active_channel->envc_pic = 0;
+            active_channel->avib_dep = 0;
+            active_channel->avib_pos = 0;
+            active_channel->envn_vol = 0;
+            active_channel->envn_pan = 0;
+            active_channel->envn_pic = 0;
+
+            // Clear fx memory
+            module_channel->fxmem = 0;
+
+            // Set keyon and clear envend + fade
+            active_channel->flags |= MCAF_KEYON;
+            active_channel->flags &= ~(MCAF_ENVEND | MCAF_FADE);
+        }
+    }
+
+    if (module_channel->flags & MF_NOTEOFF)
+    {
+        active_channel->flags &= ~MCAF_KEYON;
+
+        mm_bool is_xm_mode = mpp_layer->flags & C_FLAGS_X;
+
+        // XM starts fade immediately on note-off
+        if (is_xm_mode)
+            active_channel->flags |= MCAF_FADE;
+    }
+
+    if (module_channel->flags & MF_NOTECUT)
+        module_channel->volume = 0;
+
+    module_channel->flags &= ~MF_START;
+
+    // Execute the rest as normal
+    mmUpdateChannel_TN(module_channel, mpp_layer);
+}
+
+// For ticks that are not the first one
+IWRAM_CODE ARM_CODE void mmUpdateChannel_TN(mm_module_channel *module_channel, mpl_layer_information *mpp_layer)
+{
+    // Get channel, if available
+    mm_active_channel *active_channel = get_active_channel(module_channel);
+
+    // Get period, edited by other functions...
+    mm_word period = module_channel->period;
+
+    // Clear variables
+    mpp_vars.sampoff = 0;
+    mpp_vars.volplus = 0;
+    mpp_vars.notedelay = 0;
+    mpp_vars.panplus = 0;
+
+    // Update volume commands
+    if (module_channel->flags & MF_HASVCMD)
+        period = mpp_Process_VolumeCommand_Wrapper(mpp_layer, active_channel, module_channel, period);
+
+    // Update effects
+    if (module_channel->flags & MF_HASFX)
+        period = mpp_Process_Effect_Wrapper(mpp_layer, active_channel, module_channel, period);
+
+    if (!active_channel)
+        return;
+
+    int volume = (module_channel->volume * module_channel->cvolume) >> 5;
+    active_channel->volume = volume;
+    mm_sword vol_addition = mpp_vars.volplus;
+
+    volume += vol_addition << 3;
+
+    // Clamp volume
+    if (volume < 0)
+        volume = 0;
+    if (volume > MAX_VOL_ACH) // TODO: Is this right?! Isn't the limit 0x7F?!
+        volume = MAX_VOL_ACH;
+
+    mpp_vars.afvol = volume;
+
+    if (mpp_vars.notedelay)
+    {
+        active_channel->flags |= MCAF_UPDATED;
+        return;
+    }
+
+    // Copy panning and period
+    active_channel->panning = module_channel->panning;
+    active_channel->period = module_channel->period;
+    // Set to 0 temporarily. Reserved for later use.
+    mpp_vars.panplus = 0;
+
+    active_channel->flags |= MCAF_UPDATED;
+
+    period = mpp_Update_ACHN_notest_Wrapper(mpp_layer, active_channel, module_channel, period);
 }
