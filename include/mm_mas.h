@@ -65,12 +65,14 @@ typedef struct tmm_mas_instrument
 	mm_byte		global_volume;
 	mm_byte		fadeout;
 	mm_byte		random_volume;
-	mm_byte		nna;
 	mm_byte		dct;
-	mm_byte		dca;
+	mm_byte		nna;
 	mm_byte		env_flags;
 	mm_byte		panning;
-	mm_hword	note_map[120];
+	mm_byte		dca;
+	mm_hword	note_map_offset : 15;
+	mm_hword	is_note_map_invalid : 1;
+	mm_hword	note_map[119];
 
 #ifdef _____badbear_____
 	mm_byte		envelopes[];
@@ -98,14 +100,14 @@ typedef struct tmm_mas_envelope
 
 typedef struct tmm_mas_sample_info
 {
-	mm_byte		global_volume;
 	mm_byte		default_volume;
-	mm_hword	frequency;
-	mm_byte		av_type; // (auto vibrato)
-	mm_byte		av_depth;
-	mm_byte		av_speed;
 	mm_byte		panning;
-	mm_hword	av_rate;
+	mm_hword	frequency;
+	mm_byte		av_type; // VIT (auto vibrato)
+	mm_byte		av_depth; // VID
+	mm_byte		av_speed; // VIS
+	mm_byte		global_volume; // GV
+	mm_hword	av_rate; // VIR
 	mm_hword	msl_id;
 
 #ifdef _____badbear_____

@@ -35,7 +35,7 @@ typedef struct {
 
 #define C_FLAGS_X           (1 << 3)
 
-// Instrument struct
+// Instrument struct : mm_mas_instrument
 
 #define C_MASI_GVOL         0
 #define C_MASI_FADE         1
@@ -60,7 +60,7 @@ typedef struct {
 
 #define ENVFLAG_A           (1 << 3)
 
-// Sample structure
+// Sample structure : mm_mas_sample_info
 
 #define C_MASS_DV           0
 #define C_MASS_PAN          1
@@ -68,9 +68,8 @@ typedef struct {
 #define C_MASS_VIT          4
 #define C_MASS_VID          5
 #define C_MASS_VIS          6
-#define C_MASS_VIR          8
 #define C_MASS_GV           7
-
+#define C_MASS_VIR          8
 #define C_MASS_MSLID        10
 
 // Pattern structure
