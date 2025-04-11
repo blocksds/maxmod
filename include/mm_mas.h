@@ -175,6 +175,7 @@ extern mpl_layer_information mmLayerMain;
 extern mpl_layer_information mmLayerSub;
 
 extern mpl_layer_information *mpp_layerp;
+extern mpv_active_information mpp_vars;
 extern mm_addr mpp_channels;
 extern mm_word mpp_resolution;
 

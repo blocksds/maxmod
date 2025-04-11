@@ -380,6 +380,7 @@ mppProcessTick:					@@      @@@ @    @@
 	bne	.mpp_pt_skippatternread
 	
 	PROF_START
+	mov	r0, r8
 	fjump2 mmReadPattern
 	//bl	mpp_ReadPattern
 	PROF_END 4
@@ -3645,6 +3646,7 @@ mpph_FastForward:
 	bge	.mpph_ff_exitf
 	strb	r1, [r0, #MPL_ROW]
 	push	{r7,lr}
+	mov	r0, r8
 	ldr	r7,=mmReadPattern //mpp_ReadPattern
 .mpph_ff_loop:
 	push	{r1,r7}

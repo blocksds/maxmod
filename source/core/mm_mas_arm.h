@@ -7,7 +7,9 @@
 #define MM_MAS_ARM_H
 
 #include "mm_types.h"
+#include "mp_mas_structs.h"
 
 mm_word mmAllocChannel(void);
+void mmReadPattern(mpl_layer_information*);
 
 #endif // MM_MAS_ARM_H
