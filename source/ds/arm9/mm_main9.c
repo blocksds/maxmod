@@ -78,14 +78,14 @@ void mmInit(mm_ds_system *system)
 // Shared initialization code for default setup
 mm_bool mmTryToInitializeDefault(mm_word first_word)
 {
-    mm_ds_system system;
+    mm_ds_system system = { 0 };
 
     system.samp_count = first_word & 0xFFFF;
     system.mod_count = (first_word >> 16) & 0xFFFF;
     system.fifo_channel = FIFO_MAXMOD;
-    system.mem_bank = malloc((system.mod_count * sizeof(mm_word)) + (system.samp_count * sizeof(mm_word)));
 
-    // There was no handling of Malloc failure... :/
+    size_t size = (system.mod_count * sizeof(mm_word)) + (system.samp_count * sizeof(mm_word));
+    system.mem_bank = calloc(size, 1);
     if (system.mem_bank == NULL)
         return false;
 
