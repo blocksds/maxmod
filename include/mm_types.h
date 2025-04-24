@@ -240,9 +240,9 @@ typedef struct t_mmsoundeffect
 /// GBA setup information, passed to mmInit().
 ///
 /// About mixing_memory: The mixing memory is a heavily used area of memory and
-/// should most definitely be located in the fast IWRAM. By default, devkitARM
-/// will place any global variables in IWRAM. The size of this buffer depeds on
-/// the mixing rate selected.
+/// should most definitely be located in the fast IWRAM. By default, most GBA
+/// toolchains place any global variables in IWRAM. The size of this buffer
+/// depeds on the mixing rate selected.
 ///
 /// Check the mm_mixlen_enum values. These values contain the size of the mixing
 /// buffer in bytes. If you're using 16KHz mixing rate, your mixing buffer
@@ -257,9 +257,10 @@ typedef struct t_mmsoundeffect
 /// About the wave buffer: The wave buffer is a not-so-heavily used area of
 /// memory and can be placed in EWRAM. The wave buffer contains the final
 /// waveform data that is DMA copied to the sound FIFO. The size of the waveform
-/// buffer must be equal to the size of the mixing buffer. By default
-/// (devkitARM), the malloc function can be used to allocate the wave buffer in
-/// EWRAM. The wave buffer must be aligned by 4 bytes too.
+/// buffer must be equal to the size of the mixing buffer. By default, in most
+/// GBA toolchains, the malloc function can be used to allocate the wave buffer
+/// in EWRAM. The wave buffer must be aligned by 4 bytes too (malloc returns
+/// pointers aligned to 4 bytes).
 typedef struct t_mmgbasystem
 {
 	/// Software mixing rate. May be 8, 10, 13, 16, 18, or 21 KHz (select value
