@@ -203,9 +203,9 @@ void mmStreamOpen(mm_stream *stream)
     mmsData.length_words = length >> 2;
 
 #ifdef SYS_NDS9
-    // Use malloc if ARM9
-    mmsData.wave_memory = malloc(length);
-    mmsData.work_memory = malloc(length);
+    // Allocate memory on the ARM9
+    mmsData.wave_memory = calloc(length, 1);
+    mmsData.work_memory = calloc(length, 1);
 #endif
 
     // Handle malloc failure, in general

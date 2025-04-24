@@ -235,8 +235,8 @@ void setupReverb(void)
     rv_size_right = mmReverbBufferSize(rv_format, rv_rate, rv_delay_right);
 
     // allocate memory for both reverb channels
-    rv_buffer_left  = malloc(rv_size_left * 4);
-    rv_buffer_right = malloc(rv_size_right * 4);
+    rv_buffer_left  = calloc(rv_size_left, 4);
+    rv_buffer_right = calloc(rv_size_right, 4);
 
     mm_reverb_cfg config;
 
