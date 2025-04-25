@@ -548,3 +548,34 @@ void mppUpdateSub(void)
 }
 
 #endif
+
+#ifdef SYS_NDS
+
+// Update module layer
+static void mppUpdateLayer(mpl_layer_information *layer)
+{
+    mpp_layerp = layer;
+    mm_word new_tick = (layer->tickrate * 2) + layer->tickfrac;
+    layer->tickfrac = new_tick;
+
+    for (mm_word i = 0; i < (new_tick >> 16); i++)
+        mppProcessTick();
+}
+
+// NDS Work Routine
+void mmPulse(void)
+{
+    // Update main layer
+    mpp_channels = mm_pchannels;
+    mpp_nchannels = mm_num_mch;
+    mpp_clayer = 0;
+    mppUpdateLayer(&mmLayerMain);
+
+    // Update sub layer
+    mpp_channels = mm_schannels;
+    mpp_nchannels = MP_SCHANNELS;
+    mpp_clayer = 1;
+    mppUpdateLayer(&mmLayerSub);
+}
+
+#endif
