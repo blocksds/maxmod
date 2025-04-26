@@ -63,8 +63,8 @@ void mmUnload(mm_word module_ID)
         mmUnloadEffect(((mm_mas_sample_info*)(sample_table[i] + ((mm_word)header)))->msl_id);
 
     // Free module
-    mmModuleBankArr[module_ID] = 0;
     mmcbMemory(MMCB_DELETESONG, mmModuleBankArr[module_ID]);
+    mmModuleBankArr[module_ID] = 0;
 
     // Flush the Bank
     mmFlushBank();
