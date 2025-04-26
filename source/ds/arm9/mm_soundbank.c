@@ -96,6 +96,7 @@ static mm_word mmsHandleFileOp(mm_word msg, mm_word param)
         case MMCB_SAMPREQUEST:
             retval = mmLoadDataFromSoundBank(param, 1);
             break;
+        case MMCB_DELETESONG:
         case MMCB_DELETESAMPLE:
             free((mm_addr)param);
             break;
