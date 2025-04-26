@@ -9,6 +9,10 @@
 #include <assert.h>
 #include <mm_types.h>
 
+#ifdef SYS_GBA
+#include <maxmod.h>
+#endif
+
 // Module Channel
 // --------------
 
@@ -37,6 +41,9 @@ typedef struct {
 } mm_module_channel;
 
 static_assert(sizeof(mm_module_channel) == 40);
+#ifdef SYS_GBA
+static_assert(sizeof(mm_module_channel) == MM_SIZEOF_MODCH);
+#endif
 
 // Active Channel
 // --------------
@@ -64,6 +71,9 @@ typedef struct {
 } mm_active_channel;
 
 static_assert(sizeof(mm_active_channel) == 28);
+#ifdef SYS_GBA
+static_assert(sizeof(mm_active_channel) == MM_SIZEOF_ACTCH);
+#endif
 
 #ifdef SYS_NDS
 
@@ -105,6 +115,7 @@ typedef struct {
 } mm_mixer_channel;
 
 static_assert(sizeof(mm_mixer_channel) == 16);
+static_assert(sizeof(mm_mixer_channel) == MM_SIZEOF_MIXCH);
 
 #endif // SYS_GBA
 

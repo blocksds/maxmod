@@ -45,9 +45,9 @@ typedef enum
 } mm_mixlen_enum;
 
 // measurements of channel types (bytes)
-#define MM_SIZEOF_MODCH		sizeof(mm_module_channel)
-#define MM_SIZEOF_ACTCH		sizeof(mm_active_channel)
-#define MM_SIZEOF_MIXCH		sizeof(mm_mixer_channel)
+#define MM_SIZEOF_MODCH		40
+#define MM_SIZEOF_ACTCH		28
+#define MM_SIZEOF_MIXCH		16
 
 /// Initialize Maxmod with default settings.
 ///
