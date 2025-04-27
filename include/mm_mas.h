@@ -179,7 +179,7 @@ extern mm_module_channel mm_schannels[]; // [MP_SCHANNELS]
 void mmSetResolution(mm_word);
 void mmPulse(void);
 void mppUpdateSub(void);
-void mppProcessTick(void); // TODO: Mark this as IWRAM in GBA?
+void mppProcessTick(void);
 
 #ifdef __cplusplus
 }
