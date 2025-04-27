@@ -609,6 +609,15 @@ static void mpph_FastForward(mpl_layer_information *layer, int rows_to_skip)
     }
 }
 
+static void mpp_Update_ACHN(mpl_layer_information *layer, mm_active_channel *act_ch,
+                            mm_module_channel *channel, mm_word period, mm_word ch)
+{
+    if (act_ch->flags & MCAF_UPDATED)
+        return;
+
+    mpp_Update_ACHN_notest_Wrapper(layer, act_ch, channel, period, ch);
+}
+
 // Process module tick
 IWRAM_CODE void mppProcessTick(void)
 {
@@ -665,7 +674,7 @@ IWRAM_CODE void mppProcessTick(void)
                 info->afvol = act_ch->volume;
                 info->panplus = 0;
 
-                mpp_Update_ACHN_Wrapper(layer, act_ch, module_channels, act_ch->period, ch);
+                mpp_Update_ACHN(layer, act_ch, module_channels, act_ch->period, ch);
             }
         }
 

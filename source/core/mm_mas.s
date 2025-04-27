@@ -457,50 +457,6 @@ mpp_Update_ACHN_notest_Wrapper:
 	pop	{r1}
 	bx	r1
 
-.align 2
-					.global mpp_Update_ACHN_Wrapper
-					.thumb_func
-mpp_Update_ACHN_Wrapper:
-	push	{r4-r7,lr}
-	mov	r7, r8
-	push	{r7}
-
-	mov	r8, r0
-	movs	r6, r1
-	movs	r7, r2
-	movs	r5, r3
-	// This argument is passed on the stack by the caller, but 6 registers have
-	// been pushed to the stack as well.
-	ldr	r4, [sp, #6 * 4]
-
-	bl	mpp_Update_ACHN
-	movs	r0, r5
-
-	pop	{r7}
-	mov	r8, r7
-	pop	{r4-r7}
-	pop	{r1}
-	bx	r1
-
-.align 2
-.thumb_func
-@----------------------------------------------------------------------------------------------------
-mpp_Update_ACHN:
-@----------------------------------------------------------------------------------------------------
-		
-@ r5 = affected period
-@ r6 = achannel address
-
-	push	{lr}			@ enter subroutine
-
-@ check updated flag & exit if already updated
-	
-	ldrb	r0, [r6, #MCA_FLAGS]
-	movs	r1, #MCAF_UPDATED
-	tst	r0, r1
-	beq	.mpp_achn_update
-	pop	{pc}
-
 @--------------------------------------------
 
 	.global mpp_Update_ACHN_notest
@@ -508,17 +464,17 @@ mpp_Update_ACHN:
 @----------------------------------------------------------------------------------------------------
 mpp_Update_ACHN_notest:
 @----------------------------------------------------------------------------------------------------
+@ r5 = affected period
+@ r6 = achannel address
 	push	{lr}
-	
-.mpp_achn_update:
-	
+
 @------------------------------------------------------------------------
 @ Envelope Processing
 @------------------------------------------------------------------------
 	
 	ldrb	r0, [r6, #MCA_INST]
 	subs	r0, #1
-	bCS	1f
+	bcs	1f
 	b	.mppt_achn_noinst
 1:	mpp_InstrumentPointer
 

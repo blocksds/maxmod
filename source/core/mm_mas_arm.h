@@ -46,8 +46,6 @@ extern mm_hword ST3_FREQTABLE[];
 mm_word mpp_Process_VolumeCommand_Wrapper(mpl_layer_information*, mm_active_channel*, mm_module_channel*, mm_word);
 mm_word mpp_Process_Effect_Wrapper(mpl_layer_information*, mm_active_channel*, mm_module_channel*, mm_word);
 
-void mpp_Update_ACHN_Wrapper(mpl_layer_information *layer, mm_active_channel *act_ch,
-                             mm_module_channel *channel, mm_word period, mm_word ch);
 mm_word mpp_Update_ACHN_notest_Wrapper(mpl_layer_information *layer, mm_active_channel *act_ch,
                                        mm_module_channel *channel, mm_word period, mm_word ch);
 
