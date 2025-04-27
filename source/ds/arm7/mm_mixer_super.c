@@ -16,6 +16,7 @@
 #include "mm_mixer_ds.h"
 #include "mm_mixer.h"
 #include "mm_mas.h"
+#include "mm_mas_arm.h"
 #include "mm_effect.h"
 #include "mp_defs.h"
 #include "mp_format_mas.h"

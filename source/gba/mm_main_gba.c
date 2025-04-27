@@ -8,6 +8,7 @@
 #include "mm_main.h"
 #include "mm_mixer.h"
 #include "mm_mas.h"
+#include "mm_mas_arm.h"
 #include "mm_effect.h"
 #include "mp_mas_structs.h"
 

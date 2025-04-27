@@ -18,6 +18,7 @@
 #include "mp_mas_structs.h"
 #include "mm_effect.h"
 #include "mm_mas.h"
+#include "mm_mas_arm.h"
 #include "mm_stream.h"
 #include "mm_comm_messages_ds.h"
 #include "mm_types.h"
