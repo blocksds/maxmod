@@ -444,7 +444,10 @@ mpp_Update_ACHN_notest_Wrapper:
 	movs	r6, r1
 	movs	r7, r2
 	movs	r5, r3
-	ldrb	r4, [r7, #MCH_ALLOC]
+	// This argument is passed on the stack by the caller, but 6 registers have
+	// been pushed to the stack as well.
+	ldr	r4, [sp, #6 * 4]
+
 	bl	mpp_Update_ACHN_notest
 	movs	r0, r5
 

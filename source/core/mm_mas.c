@@ -609,9 +609,6 @@ static void mpph_FastForward(mpl_layer_information *layer, int rows_to_skip)
     }
 }
 
-void mpp_Update_ACHN_Wrapper(mpl_layer_information *layer, mm_active_channel *act_ch,
-                             mm_module_channel *channel, mm_word period, mm_word ch);
-
 // Process module tick
 IWRAM_CODE void mppProcessTick(void)
 {
