@@ -197,196 +197,6 @@ mm_schannels:		.space MP_SCHANNELS*MCH_SIZE
  *
  ******************************************************************************/
 
-
-
-	.text
-	.align 2
-
-.pool
-
-//-----------------------------------------------------------------------------
-// IWRAM CODE
-//-----------------------------------------------------------------------------
-#ifdef USE_IWRAM
-	.section ".iwram", "ax", %progbits
-	.align 2
-#endif
-//-----------------------------------------------------------------------------
-
-/******************************************************************************
- * mppProcessTick()
- *
- * Process module tick.
- ******************************************************************************/
-.global mppProcessTick				@@@@@@@@@@@@@@@@@@
-.thumb_func					@@@@     @@@     @@
-						@@@  @@  @@@@@@  @@
-mppProcessTick:					@@      @@@ @    @@
-						@@  @@@@@@@    @@@
-						@@@@@@@@@@@@@@@@@
-
-	mov	r0,pc				// switch to ARM to preserve regs
-	bx	r0				//
-.arm						//
-	stmfd	sp!, {lr}			//
-	stmfd	sp!, {r4-r10}			//
-	
-	add	r0,pc,#1			// switch back to THUMB
-	bx	r0
-.thumb
-
-	ldr	r0,=mpp_layerp			// test if module is playing
-	ldr	r0, [r0]			//
-	mov	r8, r0				//
-	ldrb	r1, [r0, #MPL_ISPLAYING]	//
-	cmp	r1, #0				//
-	bne	1f				//
-	ldr	r1,=.mppt_exit			//
-	mov	pc,r1				//
-1:
-
-@---------------------------------------------------
-@ read pattern data
-@---------------------------------------------------
-
-	ldrb	r1, [r0, #MPL_PATTDELAY]
-	cmp	r1, #0
-	bne	.mpp_pt_skippatternread
-	ldrb	r0, [r0, #MPL_TICK]
-	cmp	r0, #0
-	bne	.mpp_pt_skippatternread
-	
-	PROF_START
-	mov	r0, r8
-	fjump2 mmReadPattern
-	//bl	mpp_ReadPattern
-	PROF_END 4
-
-@-----------------------------------------
-.mpp_pt_skippatternread:
-	
-	mov	r0, r8
-	movs	r4, #MPL_MCH_UPDATE
-	ldr	r4, [r0, r4]
-	
-@---------------------------------------------------
-@ loop through module channels
-@---------------------------------------------------
-	
-	ldr	r7,=mpp_channels
-	ldr	r7, [r7]
-	movs	r0, #0
-	mov	r10, r0	@ use r10 as channel counter
-	mov	r0, r8
-	ldrb	r0, [r0, #MPL_TICK]
-	cmp	r0, #0
-	bne	pchannel_loop_other
-	
-@---------------------------------------------------
-pchannel_loop_first:
-@---------------------------------------------------
-	lsrs	r4, #1
-	bcc	pchannel_empty
-	movs	r0, r7
-	mov	r1, r8
-	mov	r2, r10
-	fjump3	mmUpdateChannel_T0
-pchannel_empty:
-	movs	r0, #1
-	add	r10, r0
-	adds	r7, #MCH_SIZE
-	cmp	r4, #0
-	bne	pchannel_loop_first
-	b	pchannel_loop_finished
-	
-@---------------------------------------------------
-pchannel_loop_other:
-@---------------------------------------------------
-	lsrs	r4, #1
-	bcc	pchannel_empty2
-	#ifdef FOO_UC
-	bl	mpp_Update_Channel
-	#else
-	movs	r0, r7
-	mov	r1, r8
-	fjump2	mmUpdateChannel_TN
-	#endif
-	
-pchannel_empty2:
-	movs	r0, #1
-	add	r10, r0
-	adds	r7, #MCH_SIZE
-	cmp	r4, #0
-	bne	pchannel_loop_other
-	
-pchannel_loop_finished:
-	
-@---------------------------------------------------
-@ loop through active channels
-@---------------------------------------------------
-	PROF_START
-	ldr	r6,=mm_achannels
-	ldr	r6, [r6]
-	@ldr	r6,=mpp_achannels
-	movs	r4, #0
-	
-@---------------------------------------------------
-.mpp_pt_achn_loop:
-@---------------------------------------------------
-
-	ldrb	r0, [r6, #MCA_TYPE]
-	cmp	r0, #ACHN_DISABLED
-	beq	.mpp_pt_achn_disabled
-	ldr	r0,=mpp_clayer
-	ldrb	r0, [r0]
-	ldrb	r1, [r6, #MCA_FLAGS]
-	lsrs	r1, #6
-	cmp	r1, r0
-	bne	.mpp_pt_achn_next
-	
-	ldr	r1,=mpp_vars
-	ldrb	r0, [r6, #MCA_VOLUME]
-	strb	r0, [r1, #MPV_AFVOL]
-	movs	r0, #0
-	strh	r0, [r1, #MPV_PANPLUS]
-	
-	ldr	r5, [r6, #MCA_PERIOD]
-	
-	bl	mpp_Update_ACHN
-	
-	b	.mpp_pt_achn_next
-	
-@---------------------------------------------------
-.mpp_pt_achn_disabled:
-@	movs	r0, r4
-@	bl	mp_Mixer_StopChannel
-	
-@---------------------------------------------------
-.mpp_pt_achn_next:
-@---------------------------------------------------
-
-	ldrb	r0, [r6, #MCA_FLAGS]
-	movs	r1, #MCAF_UPDATED
-	bics	r0, r1
-	strb	r0, [r6, #MCA_FLAGS]
-	adds	r6, #MCA_SIZE
-	adds	r4, #1
-	ldr	r0,=mm_num_ach
-	ldr	r0,[r0]
-	
-	cmp	r4, r0
-@	cmp	r4, #MP_NCHANNELS
-	bne	.mpp_pt_achn_loop
-@---------------------------------------------------
-	PROF_END 6
-	
-	
-	
-	ldr	r1,=mppProcessTick_incframe
-	mov	pc,r1
-
-.pool
-
 //-----------------------------------------------------------------------------
 // TEXT Code
 //-----------------------------------------------------------------------------
@@ -394,126 +204,6 @@ pchannel_loop_finished:
 	.thumb
 	.align 2
 //-----------------------------------------------------------------------------
-
-/******************************************************************************
- * mppProcessTick_incframe [[internal]]
- ******************************************************************************/
-						.thumb_func
-mppProcessTick_incframe:
-
-@---------------------------------------------------
-@ update tick/row/position
-@---------------------------------------------------
-	
-	mov	r5, r8				@ get tick#
-	ldrb	r1, [r5, #MPL_TICK]		@ ..
-	adds	r1, #1				@ increment
-	
-	ldrb	r2, [r5, #MPL_SPEED]		@ compare with speed
-	cmp	r1, r2				@ ..
-	blt	.mppt_continuerow		@ if less than, continue this row
-	
-	ldrb	r2, [r5, #MPL_FPATTDELAY]
-	cmp	r2, #0
-	beq	.mppt_nofpd
-	subs	r2, #1
-	strb	r2, [r5, #MPL_FPATTDELAY]
-	b	.mppt_continuerow
-.mppt_nofpd:
-	
-	movs	r1, #0				@  .. otherwise clear tick count
-	b	.mppt_nextrow			@  and advance to next row
-	
-.mppt_continuerow:				@ continue current row:
-	strb	r1, [r5, #MPL_TICK]		@ save tick#
-	b	.mppt_exit			@ exit
-	
-.mppt_nextrow:						@ advance row
-	
-	ldrb	r2, [r5, #MPL_PATTDELAY]
-	cmp	r2, #0
-	beq	.mppt_nopd
-	subs	r2, #1
-	strb	r2, [r5, #MPL_PATTDELAY]
-	beq	.mppt_nopd
-	b	.mppt_continuerow
-.mppt_nopd:
-	
-	strb	r1, [r5, #MPL_TICK]			@ save tick# (0)
-	ldrb	r1, [r5, #MPL_PATTJUMP]
-	cmp	r1, #255
-	beq	.mppt_no_pj
-	
-	movs	r2, #255
-	strb	r2, [r5, #MPL_PATTJUMP]
-	//movs	r1, r1 // r1 already holds the new position
-	movs	r0, r5
-	bl	mpp_setposition
-	
-	ldrb	r1, [r5, #MPL_PATTJUMP_ROW]
-	cmp	r1, #0
-	beq	.mppt_pj_no_offset
-	movs	r2, #0
-	strb	r2, [r5, #MPL_PATTJUMP_ROW]
-	bl	mpph_FastForward
-.mppt_pj_no_offset:
-	
-	b	.mppt_exit
-	
-.mppt_no_pj:
-	
-	movs	r3, #MPL_PLOOP_JUMP
-	ldrb	r1, [r5, r3]
-	cmp	r1, #0
-	beq	.mppt_no_ploop
-	movs	r1, #0
-	strb	r1, [r5, r3]
-	ldrb	r1, [r5, #MPL_PLOOP_ROW]
-	strb	r1, [r5, #MPL_ROW]
-	movs	r3, #MPL_PLOOP_ADR
-	ldr	r1, [r5, r3]
-
-	movs	r3, #MPL_PATTREAD
-	str	r1, [r5, r3]
-	b	.mppt_exit
-.mppt_no_ploop:
-	ldrb	r1, [r5, #MPL_ROW]			@ ..
-	adds	r1, #1					@ increment
-	ldrb	r2, [r5, #MPL_NROWS]			@
-	adds	r2, #1
-	cmp	r1, r2					@ check with #rows for pattern
-	bne	.mppt_continuepattern			@ if !=, then continue playing this pattern
-	
-.mppt_nextposition:					@ advance position
-	
-	ldrb	r0, [r5, #MPL_POSITION]			@ increment position
-	adds	r0, #1
-	
-	movs	r1, r0
-	movs	r0, r5
-	bl	mpp_setposition
-	b	.mppt_exit
-	
-.mppt_continuepattern:
-	
-	strb	r1, [r5, #MPL_ROW]			@ save row count
-	
-.thumb_func
-.mppt_exit:
-	
-	@ switch to arm
-	ldr	r0,=.mppt_exita
-	bx	r0
-.arm
-.align 2
-.mppt_exita:
-
-	ldmfd	sp!, {r4-r10}
-	ldmfd	sp!, {r0}
-	bx	r0
-.thumb
-
-.pool
 
 //-----------------------------------------------------------------------------
 // IWRAM CODE
@@ -776,6 +466,31 @@ mpp_Update_ACHN_notest_Wrapper:
 	bx	r1
 
 .align 2
+					.global mpp_Update_ACHN_Wrapper
+					.thumb_func
+mpp_Update_ACHN_Wrapper:
+	push	{r4-r7,lr}
+	mov	r7, r8
+	push	{r7}
+
+	mov	r8, r0
+	movs	r6, r1
+	movs	r7, r2
+	movs	r5, r3
+	// This argument is passed on the stack by the caller, but 6 registers have
+	// been pushed to the stack as well.
+	ldr	r4, [sp, #6 * 4]
+
+	bl	mpp_Update_ACHN
+	movs	r0, r5
+
+	pop	{r7}
+	mov	r8, r7
+	pop	{r4-r7}
+	pop	{r1}
+	bx	r1
+
+.align 2
 .thumb_func
 @----------------------------------------------------------------------------------------------------
 mpp_Update_ACHN:
@@ -785,7 +500,7 @@ mpp_Update_ACHN:
 @ r6 = achannel address
 
 	push	{lr}			@ enter subroutine
-	
+
 @ check updated flag & exit if already updated
 	
 	ldrb	r0, [r6, #MCA_FLAGS]
@@ -3571,42 +3286,6 @@ mpph_FinePitchSlide_Down:
 .pool
 
 @-----------------------------------------------------------------------------------
-
-.text
-.align 2
-.thumb_func
-@-----------------------------------------------------------------------------------
-mpph_FastForward:
-@-----------------------------------------------------------------------------------
-
-	@ r1 = #rows to skip
-	cmp	r1, #0
-	bne	.mpph_ff
-.mpph_ff_exitf:
-	bx	lr
-.mpph_ff:
-	
-	mov	r0, r8
-	ldrb	r2, [r0, #MPL_NROWS]
-	adds	r2, #1
-	cmp	r1, r2
-	bge	.mpph_ff_exitf
-	strb	r1, [r0, #MPL_ROW]
-	push	{r7,lr}
-	mov	r0, r8
-	ldr	r7,=mmReadPattern //mpp_ReadPattern
-.mpph_ff_loop:
-	push	{r1,r7}
-	bl	mpp_call_r7
-	pop	{r1,r7}
-	subs	r1, #1
-	bne	.mpph_ff_loop
-
-	pop	{r7}
-	pop	{r0}
-	bx	r0
-//	pop	{pc}
-.pool
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 @          IWRAM CODE          @

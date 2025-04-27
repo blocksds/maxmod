@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: ISC
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
-// Copyright (c) 2021, Antonio Niño Díaz (antonio_nd@outlook.com)
+// Copyright (c) 2021-2025, Antonio Niño Díaz (antonio_nd@outlook.com)
 
 #include <stdint.h>
 #include <string.h>
@@ -9,6 +9,7 @@
 #include "maxmod.h"
 
 #include "mm_mas.h"
+#include "mm_mas_arm.h"
 #include "mp_defs.h"
 #include "mp_format_mas.h"
 #include "mm_main.h"
@@ -20,6 +21,14 @@
 #elif defined(SYS_NDS)
 #include "mm_main_ds.h"
 #include "mm_mixer_ds.h"
+#endif
+
+#ifdef SYS_NDS
+#define IWRAM_CODE
+#endif
+
+#ifdef SYS_GBA
+#define IWRAM_CODE __attribute__((section(".iwram"), long_call))
 #endif
 
 // TODO: Make this static
@@ -579,3 +588,156 @@ void mmPulse(void)
 }
 
 #endif
+
+static void mpph_FastForward(mpl_layer_information *layer, int rows_to_skip)
+{
+    if (rows_to_skip == 0)
+        return;
+
+    if (rows_to_skip >= (layer->nrows + 1))
+        return;
+
+    layer->row = rows_to_skip;
+
+    while (1)
+    {
+        mmReadPattern(layer);
+
+        rows_to_skip--;
+        if (rows_to_skip == 0)
+            break;
+    }
+}
+
+void mpp_Update_ACHN_Wrapper(mpl_layer_information *layer, mm_active_channel *act_ch,
+                             mm_module_channel *channel, mm_word period, mm_word ch);
+
+// Process module tick
+IWRAM_CODE void mppProcessTick(void)
+{
+    mpl_layer_information *layer = mpp_layerp;
+
+    // Test if module is playing
+    if (layer->isplaying == 0)
+        return;
+
+    // Read pattern data
+
+    if ((layer->pattdelay == 0) && (layer->tick == 0))
+    {
+        // PROF_START
+        mmReadPattern(layer);
+        // PROF_END 4
+    }
+
+    // Loop through module channels
+
+    mm_word update_bits = layer->mch_update;
+    mm_module_channel *module_channels = (mm_module_channel*)mpp_channels;
+
+    for (mm_word channel_counter = 0; ; channel_counter++)
+    {
+        if (update_bits & (1 << 0))
+        {
+            // Handle first tick and other ticks differently
+            if (layer->tick == 0)
+                mmUpdateChannel_T0(module_channels, layer, channel_counter);
+            else
+                mmUpdateChannel_TN(module_channels, layer);
+        }
+
+        module_channels++;
+
+        update_bits >>= 1;
+        if (update_bits == 0)
+            break;
+    }
+
+    // PROF_START
+
+    mm_active_channel *act_ch = &mm_achannels[0];
+
+    for (mm_word ch = 0; ch < mm_num_ach; ch++)
+    {
+        if (act_ch->type != ACHN_DISABLED)
+        {
+            if (mpp_clayer == (act_ch->flags >> 6))
+            {
+                mpv_active_information *info = &mpp_vars;
+
+                info->afvol = act_ch->volume;
+                info->panplus = 0;
+
+                mpp_Update_ACHN_Wrapper(layer, act_ch, module_channels, act_ch->period, ch);
+            }
+        }
+
+        act_ch->flags &= ~MCAF_UPDATED;
+
+        act_ch++;
+    }
+
+    // PROF_END 6
+
+    // This is the inlined code of mppProcessTick_incframe()
+
+    mm_word new_tick = layer->tick + 1;
+
+    // If the new tick is lower than the speed continue with this row
+    if (new_tick < layer->speed)
+    {
+        // Continue current row
+        layer->tick = new_tick;
+        return;
+    }
+
+    if (layer->fpattdelay != 0)
+        layer->fpattdelay--;
+
+    // Otherwise clear the tick count and advance to next row
+
+    if (layer->pattdelay != 0)
+    {
+        layer->pattdelay--;
+        if (layer->pattdelay != 0)
+        {
+            // Continue current row
+            layer->tick = 0;
+            return;
+        }
+    }
+
+    layer->tick = 0;
+
+    if (layer->pattjump != 255)
+    {
+        mpp_setposition(layer, layer->pattjump);
+        layer->pattjump = 255;
+
+        if (layer->pattjump_row == 0)
+            return;
+
+        mpph_FastForward(layer, layer->pattjump_row);
+        layer->pattjump_row = 0;
+        return;
+    }
+
+    if (layer->ploop_jump != 0)
+    {
+        layer->ploop_jump = 0;
+        layer->row = layer->ploop_row;
+        layer->pattread = layer->ploop_adr;
+        return;
+    }
+
+    int new_row = layer->row + 1;
+    if (new_row != (layer->nrows + 1))
+    {
+        // If they are different, continue playing this pattern
+        layer->row = new_row;
+        return;
+    }
+
+    // Advance position
+    mpp_setposition(layer, layer->position + 1);
+}
