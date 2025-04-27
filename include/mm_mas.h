@@ -22,8 +22,6 @@
 extern "C" {
 #endif
 
-#define _____badbear_____
-
 #include <mm_types.h>
 
 // prefix comes first
@@ -52,9 +50,8 @@ typedef struct tmm_mas_head
 	mm_byte		channel_panning[32];
 	mm_byte		sequence[200];
 
-#ifdef _____badbear_____
 	mm_addr		tables[];
-#endif
+
 	// ::instrument table
 	// ::sample info table
 	// ::pattern table
@@ -74,9 +71,8 @@ typedef struct tmm_mas_instrument
 	mm_hword	is_note_map_invalid : 1;
 	mm_hword	note_map[119];
 
-#ifdef _____badbear_____
 	mm_byte		envelopes[];
-#endif
+
 	// ::envelopes
 } mm_mas_instrument;
 
@@ -91,9 +87,7 @@ typedef struct tmm_mas_envelope
 	mm_byte		is_filter; // (maybe supported someday :)
 	mm_byte		wasted;
 
-#ifdef _____badbear_____
 	mm_byte		env_nodes[];
-#endif
 
 	// ::envelope nodes
 } mm_mas_envelope;
@@ -110,9 +104,7 @@ typedef struct tmm_mas_sample_info
 	mm_hword	av_rate; // VIR
 	mm_hword	msl_id;
 
-#ifdef _____badbear_____
 	mm_byte		data[];
-#endif
 
 	// ::sample may follow
 } mm_mas_sample_info;
@@ -121,9 +113,7 @@ typedef struct tmm_mas_pattern
 {
 	mm_byte		row_count;
 
-#ifdef _____badbear_____
 	mm_byte		pattern_data[];
-#endif
 
 	// ::pattern data
 } mm_mas_pattern;
@@ -135,9 +125,7 @@ typedef struct tmm_mas_gba_sample
 	mm_hword	reserved;
 	mm_hword	default_frequency;
 
-#ifdef _____badbear_____
 	mm_byte		data[];
-#endif
 
 	// ::8-bit sample data
 } mm_mas_gba_sample;
@@ -153,9 +141,7 @@ typedef struct tmm_mas_ds_sample
 	mm_byte		repeat_mode;
 	mm_hword	default_frequency;
 
-#ifdef _____badbear_____
 	mm_byte		data[];
-#endif
 
 	// ::sample data
 } mm_mas_ds_sample;
