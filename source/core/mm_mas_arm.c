@@ -72,6 +72,56 @@ static mm_byte note_table_mod[] =
     0
 };
 
+// LUT for amiga periods.
+static mm_hword ST3_FREQTABLE[] =
+{
+    // More accurate scalars
+    1712 * 8, 1616 * 8, 1524 * 8, 1440 * 8, 1356 * 8, 1280 * 8,
+    1208 * 8, 1140 * 8, 1076 * 8, 1016 * 8, 960 * 8, 907 * 8
+
+    // Middle octave is 4
+    //
+    //                  133808 * ( period(NOTE) >> octave )
+    // note_st3period = -----------------------------------
+    //                  middle_c_finetunevalue(INSTRUMENT)
+};
+
+// LUT for linear periods. Values are 16.16 bit
+// https://ftp.modland.com/pub/documents/format_documentation/Impulse%20Tracker%20v2.04%20(.it).html
+__attribute__((aligned (4))) // Align to 4 bytes so that we can read in one read
+static mm_hword IT_PitchTable[] =
+{
+    2048, 0,   2170, 0,   2299, 0,   2435, 0,   2580, 0,   2734, 0,
+    2896, 0,   3069, 0,   3251, 0,   3444, 0,   3649, 0,   3866, 0, // C-0 > B-0
+
+    4096, 0,   4340, 0,   4598, 0,   4871, 0,   5161, 0,   5468, 0,
+    5793, 0,   6137, 0,   6502, 0,   6889, 0,   7298, 0,   7732, 0, // C-1 > B-1
+
+    8192, 0,   8679, 0,   9195, 0,   9742, 0,   10321, 0,  10935, 0,
+    11585, 0,  12274, 0,  13004, 0,  13777, 0,  14596, 0,  15464, 0, // Octave 2
+
+    16384, 0,  17358, 0,  18390, 0,  19484, 0,  20643, 0,  21870, 0,
+    23170, 0,  24548, 0,  26008, 0,  27554, 0,  29193, 0,  30929, 0, // Octave 3
+
+    32768, 0,  34716, 0,  36781, 0,  38968, 0,  41285, 0,  43740, 0,
+    46341, 0,  49097, 0,  52016, 0,  55109, 0,  58386, 0,  61858, 0, // Octave 4
+
+    0, 1,      3897, 1,   8026, 1,   12400, 1,  17034, 1,  21944, 1,
+    27146, 1,  32657, 1,  38496, 1,  44682, 1,  51236, 1,  58179, 1, // Octave 5
+
+    0, 2,      7794, 2,   16051, 2,  24800, 2,  34068, 2,  43888, 2,
+    54292, 2,  65314, 2,  11456, 3,  23828, 3,  36936, 3,  50823, 3, // Octave 6
+
+    0, 4,      15588, 4,  32103, 4,  49600, 4,  2601, 5,   22240, 5,
+    43048, 5,  65092, 5,  22912, 6,  47656, 6,  8336, 7,   36110, 7, // Octave 7
+
+    0, 8,      31176, 8,  64205, 8,  33663, 9,  5201, 10,  44481, 10,
+    20559, 11, 64648, 11, 45823, 12, 29776, 13, 16671, 14, 6684, 15, // Octave 8
+
+    0, 16,     62352, 16, 62875, 17, 1790,  19, 10403, 20, 23425, 21,
+    41118, 22, 63761, 23, 26111, 25, 59552, 26, 33342, 28, 13368, 30, // Octave 9
+};
+
 // Finds a channel to use
 // Returns invalid channel [NO_CHANNEL_AVAILABLE] if none available
 IWRAM_CODE ARM_CODE mm_word mmAllocChannel(void)
@@ -264,7 +314,7 @@ IWRAM_CODE ARM_CODE mm_word mmGetPeriod(mpl_layer_information *mpp_layer, mm_wor
 {
     // Tuning not used here with linear periods
     if (mpp_layer->flags & (1 << (C_FLAGS_SS - 1)))
-        return IT_PitchTable[note];
+        return ((mm_word *)IT_PitchTable)[note]; // Read 2 halfowrds at once
 
     mm_word r0 = note_table_mod[note];      // (note mod 12) << 1
     mm_word r2 = note_table_oct[note >> 2]; // (note / 12)

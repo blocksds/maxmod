@@ -39,9 +39,6 @@ void mmUpdateChannel_TN(mm_module_channel*, mpl_layer_information*);
 mm_word mmGetPeriod(mpl_layer_information*, mm_word, mm_byte);
 void mmReadPattern(mpl_layer_information*);
 
-extern mm_word IT_PitchTable[];
-extern mm_hword ST3_FREQTABLE[];
-
 // TODO: Convert these methods
 mm_word mpp_Process_VolumeCommand_Wrapper(mpl_layer_information*, mm_active_channel*, mm_module_channel*, mm_word);
 mm_word mpp_Process_Effect_Wrapper(mpl_layer_information*, mm_active_channel*, mm_module_channel*, mm_word);
