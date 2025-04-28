@@ -1227,55 +1227,6 @@ mpp_PatternPointer:
 	adds	r0, r2
 	bx	lr
 .pool
-#ifdef FOO_UC
-.align 2
-.thumb_func
-mpp_GetPeriod:
-	@ r0 = note
-	@ r2 = tuning
-	@ CLOBBERS R1,R3
-	@ RETURN
-	@ r0 = IT/S3M PERIOD
-
-	movs	r1, r8
-	ldrb	r1, [r1, #MPL_FLAGS]
-	lsrs	r1, #C_FLAGS_SS
-	bcs	.mpp_gp_linear
-.mpp_gp_amiga:
-	
-	movs	r3, r0
-	ldr	r0,=note_table_mod
-	ldrb	r1, [r0, r3]
-	subs	r0, #3*10
-	lsrs	r3, #2
-	ldrb	r0, [r0, r3]
-	
-	@ r0 = octave
-	@ r1 = note
-	lsls	r1, #1
-	ldr	r3,=ST3_FREQTABLE
-	ldrh	r1, [r3, r1]
-	
-	ldr	r3,=133808
-	muls	r1, r3
-	lsrs	r1, r0
-	
-	lsrs	r0, r1, #3
-	movs	r1, r2
-	
-	swi	SWI_DIVIDE
-	lsls	r0, #3
-	
-	bx	lr
-
-.mpp_gp_linear:
-	ldr	r1,=IT_PitchTable
-	lsls	r0, #2
-	ldr	r0, [r1, r0]
-	
-	bx	lr
-
-#endif
 
 @=============================================================================
 @                                EFFECT MEMORY
