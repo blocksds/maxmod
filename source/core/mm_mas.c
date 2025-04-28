@@ -589,6 +589,16 @@ void mmPulse(void)
 
 #endif
 
+// It gets the active channel from a module channel. It returns NULL if there
+// isn't an active channel.
+IWRAM_CODE mm_active_channel *mpp_Channel_GetACHN(mm_module_channel *channel)
+{
+    mm_word alloc = channel->alloc;
+    if (alloc == 255)
+        return NULL;
+
+    return &mm_achannels[alloc];
+}
 static void mpph_FastForward(mpl_layer_information *layer, int rows_to_skip)
 {
     if (rows_to_skip == 0)

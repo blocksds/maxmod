@@ -219,13 +219,19 @@ mpp_Channel_NewNote:
 	push	{r4,r6-r7}
 	mov	r7, r8
 	push	{r7}
+
+	// r7 = module_channel
+	// r8 = layer
 	movs	r7, r0
 	mov	r8, r1
 	ldrb	r0, [r7, #MCH_INST]		@ get instrument#
 	subs	r0, #1
 	bcc	.mppt_skipnna
 
+	movs	r0, r7
 	bl	mpp_Channel_GetACHN
+	movs	r6, r0
+
 	cmp	r6, #0
 	beq	.mppt_alloc_channel	
 	
@@ -406,30 +412,6 @@ b	.mppt_NNA_FADE
 	pop	{r3}
 	bx	r3
 	
-.pool
-
-.align 2
-.thumb_func
-@------------------------------------------------------------------------------------------------------
-mpp_Channel_GetACHN:
-@------------------------------------------------------------------------------------------------------
-	
-	@ gets the active channel pointer
-	@ and stores in r6
-	@ gives 0 if N/A
-	
-	ldrb	r0, [r7, #MCH_ALLOC]
-	cmp	r0, #255
-	bge	1f
-	ldr	r6,=mm_achannels
-	ldr	r6,[r6]
-	movs	r1, #MCA_SIZE
-	muls	r0, r1
-	adds	r6, r0
-	bx	lr
-	
-1:	movs	r6, #0
-	bx	lr
 .pool
 
 .align 2
