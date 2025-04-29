@@ -314,7 +314,7 @@ IWRAM_CODE ARM_CODE mm_word mmGetPeriod(mpl_layer_information *mpp_layer, mm_wor
 {
     // Tuning not used here with linear periods
     if (mpp_layer->flags & (1 << (C_FLAGS_SS - 1)))
-        return ((mm_word *)IT_PitchTable)[note]; // Read 2 halfowrds at once
+        return ((mm_word *)IT_PitchTable)[note]; // Read 2 halfwords at once
 
     mm_word r0 = note_table_mod[note];      // (note mod 12) << 1
     mm_word r2 = note_table_oct[note >> 2]; // (note / 12)
