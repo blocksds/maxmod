@@ -748,6 +748,53 @@ static void mpph_FastForward(mpl_layer_information *layer, int rows_to_skip)
     }
 }
 
+// An effect of 0 means custom behaviour, or disabled
+IWRAM_CODE mm_word mpp_Channel_ExchangeMemory(mm_byte effect, mm_byte param,
+                            mm_module_channel *channel, mpl_layer_information *layer)
+{
+    mm_byte table_entry;
+
+    // Check flags for XM mode
+    if (layer->flags & (1 << (C_FLAGS_XS - 1)))
+    {
+        const mm_byte mpp_effect_memmap_xm[] = {
+            0, 0, 0, 0, 2, 3, 4, 0, 0, 5, 0, 6, 7, 0, 0, 8, 9, 10, 11, 0, 0, 0, 0, 12, 0, 0, 0,
+            0, 0, 0, 13
+        //  /, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q,   R, S, T, U, V,  W, X, Y, Z,
+        //  0, 1, 2, 3
+        };
+
+        // XM effects
+        table_entry = mpp_effect_memmap_xm[effect];
+    }
+    else
+    {
+        const mm_byte mpp_effect_memmap_it[] = {
+            0, 0, 0, 0, 2, 3, 3, 0, 0, 4, 5, 2, 2, 0, 6, 7, 8, 9, 10, 11, 12, 0, 0, 13, 0, 14, 0
+        //  /, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q,  R,  S,  T, U, V,  W, X,  Y, Z
+        };
+
+        // IT effects
+        table_entry = mpp_effect_memmap_it[effect];
+    }
+
+    if (table_entry == 0)
+        return param;
+
+    if (param == 0)
+    {
+        // Load memory value
+        channel->param = channel->memory[table_entry - 1];
+        return channel->param;
+    }
+    else
+    {
+        // Save param to memory
+        channel->memory[table_entry - 1] = param;
+        return param;
+    }
+}
+
 static void mpp_Update_ACHN(mpl_layer_information *layer, mm_active_channel *act_ch,
                             mm_module_channel *channel, mm_word period, mm_word ch)
 {

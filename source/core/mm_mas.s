@@ -1023,66 +1023,14 @@ mpp_PatternPointer:
 
 .text
 
-mpp_effect_memmap_xm:
-.byte	0,0,0,0,2,3,4,0,0,5,0,6,7,0,0,8,9,10,11,0,0,0,0,12,0,0,0,0,0,0,13
-@	/,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q, R, S,T,U,V,W, X,Y,Z,0,1,2,3
-
 .equ	MPP_XM_VFX_MEM_VS,	12  @ $ud
 .equ	MPP_XM_VFX_MEM_FVS,	13  @ $ud
 .equ	MPP_XM_VFX_MEM_GLIS,	14  @ $0x
 .equ	MPP_XM_VFX_MEM_PANSL,	7   @ $lr
 
-mpp_effect_memmap_it:
-.byte	0,0,0,0,2,3,3,0,0,4,5,2,2,0,6,7,8,9,10,11,12,0,0,13,0,14,0
-@	/,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R, S, T, U,V,W, X,Y, Z
-mpp_veffect_memmap_it:
-
 .equ	MPP_IT_VFX_MEM,		14
 .equ	MPP_GLIS_MEM,		0
 .equ	MPP_IT_PORTAMEM,	2
-
-
-@ 0 means custom behavior, or disabled
-
-.align 2
-.thumb_func
-@-----------------------------------------------------------------------------
-mpp_Channel_ExchangeMemory:
-@-----------------------------------------------------------------------------
-	
-	@ r0 = effect#
-	@ r1 = param
-
-@ check flags for XM mode
-	
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_FLAGS]
-	lsrs	r2, #C_FLAGS_XS
-	bcs	1f
-
-@ IT effects
-	
-	ldr	r2,=mpp_effect_memmap_it
-	b	2f
-	
-1:
-@ XM effects
-
-	ldr	r2,=mpp_effect_memmap_xm
-2:	ldrb	r2, [r2, r0]
-	subs	r2, #1
-	bcc	3f
-	
-@ if param=0 then load memory value, otherwise save param to memory
-	
-	adds	r2, #MCH_MEMORY
-	cmp	r1, #0
-	bne	1f
-	ldrb	r1, [r7, r2]
-	strb	r1, [r7, #MCH_PARAM]
-1:	strb	r1, [r7, r2]
-	
-3:	bx	lr
 
 /******************************************************************************
  *
@@ -1600,8 +1548,13 @@ mpp_Process_Effect:
 	push	{lr}
 	ldrb	r0, [r7, #MCH_EFFECT]	@ get effect#
 	ldrb	r1, [r7, #MCH_PARAM]	@ r1 = param
-	bl	mpp_Channel_ExchangeMemory
 
+	movs	r2, r7
+	mov	r3, r8
+	bl	mpp_Channel_ExchangeMemory
+	movs	r1, r0
+
+	ldrb	r0, [r7, #MCH_EFFECT]	@ get effect#
 	lsls	r0, #1
 
 	pop	{r2}
