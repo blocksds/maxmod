@@ -46,16 +46,11 @@
 
     .equ    SFRAC, 10
 
-    .equ    REG_SOUNDCNT,  0x4000500
     .equ    REG_SOUND0CNT, 0x4000400
     .equ    REG_SOUND0SAD, 0x4000404
     .equ    REG_SOUND0TMR, 0x4000408
     .equ    REG_SOUND0PNT, 0x400040A
     .equ    REG_SOUND0LEN, 0x400040C
-
-    .equ    REG_IME,    0x4000208
-
-    .equ    REG_TM0CNT, 0x4000100
 
     .equ    REG_DMA,     0x40000BC
     .equ    DMA_ENABLE,  (1 << 31)
@@ -68,20 +63,7 @@
     .equ    CSOUND_PNT,  0xA
     .equ    CSOUND_LEN,  0xC
 
-    .equ    SOUNDCNT_ENABLE, (1 << 15)
-
     .equ    SOUNDxCNT_ENABLE, 0x80000000
-
-    .equ    TIMER,     0x4000100
-    .equ    TIMER_BIT, 0x08
-
-    .equ    SWTIMER, 0x4000104
-
-    .equ    TIMER_SETUP, 0b10000011
-    //               enable^     ^^
-    //                           /1024 prescaler
-
-    .equ    REG_IF, 0x4000214
 
 //----------------------------------------------------------------------
 // channel structure
