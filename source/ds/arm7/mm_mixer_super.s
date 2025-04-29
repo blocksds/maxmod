@@ -20,9 +20,6 @@
     .global mm_mix_data
     .global mm_output_slice
 
-
-    .global mmMixerPre
-    .type   mmMixerPre STT_FUNC
     .global mmMixerMix
     .type   mmMixerMix STT_FUNC
 
@@ -249,91 +246,10 @@ SlideMixingLevels:
     subs    r4, #1                      //
     bne     .sml_loop                   //
 
+    bl      mmMixerPre
+
     pop     {r4, lr}                    // return
 
-//***********************************************************************
-mmMixerPre:
-//***********************************************************************
-// update hardware data
-
-    push    {r4-r7, lr}
-
-    ldr     r0, =mm_mixing_mode         // test mixing mode
-    ldrb    r0, [r0]                    // ..
-    cmp     r0, #1                      // ..
-    poplt   {r4-r7, lr}                 // do nothing for mode A
-    bxlt    lr
-
-    ldr    r4, =REG_SOUND0CNT           // data needed for modes b&c
-    ldr    r3, =mm_ch_mask
-    ldrh    r3, [r3]
-
-    bgt    mode_c_tick
-//------------------------------------------------------------------------
-mode_b_tick: // mode b: update volume + panning
-//------------------------------------------------------------------------
-
-//    movs    r6, #VR_THROTTLE
-    ldr     r7, =mmVolumeTable
-    ldr     r5, =mm_mix_data + MB_SHADOW
-    b       mbt_next
-mbt_process:
-    ldr     r0, [r5], #4                // read shadow CNT
-    orr     r0, #0b10101000 << 24       // add enable + 16-bit + loop
-    str     r0, [r4], #16               // write to register
-
-mbt_next:
-    movs    r3, r3, lsr #1              // shift out enable bit
-    bcs     mbt_process                 // process channel if set
-    add     r4, #16                     // otherwise skip to next channel
-    add     r5, #MB_SH_LEN
-    bne     mbt_next                    // loop
-
-    pop     {r4-r7, lr}                 // return
-    bx      lr
-
-//------------------------------------------------------------------------
-mode_c_tick: // mode c: update everything
-//------------------------------------------------------------------------
-
-    ldr     r5, =mm_mix_data + MC_SHADOW
-    ldr     r7, =mmVolumeTable
-    b       mct_next
-mct_process:
-    ldr     r1, [r5, #MC_SH_SRC]        // if source != 0
-    cmp     r1, #0                      //
-    beq     _skip_keyon                 //
-    mov     r0, #0                      //   clear sound CNT
-    str     r0, [r4, #CSOUND_CNT]       //
-    str     r0, [r5, #MC_SH_SRC]        //   clear shadow SRC
-    str     r1, [r4, #CSOUND_SAD]       //   set SRC
-    ldrh    r2, [r5, #MC_SH_PNT]        //   copy PNT
-    strh    r2, [r4, #CSOUND_PNT]       //
-    ldr     r2, [r5, #MC_SH_LEN]        //   copy LEN
-    str     r2, [r4, #CSOUND_LEN]       //
-
-    ldr     r1, [r5, #MC_SH_CNT]        // set complete CNT
-    str     r1, [r4, #CSOUND_CNT]       //
-
-_skip_keyon:
-
-    ldrh    r1, [r5, #MC_SH_TMR]
-    strh    r1, [r4, #CSOUND_TMR]
-    ldr     r1, [r5], #MC_SH_SIZE       // write VOLUME,SHIFT,PANNING
-    lsr     r0, r1, #16                 //
-    strb    r0, [r4, #2]                //
-    strh    r1, [r4]                    //
-
-    add     r4, #16                     // cant use post increment due to no$gba bug ?!
-
-mct_next:
-    movs    r3, r3, lsr #1              // test next bit
-    bcs     mct_process                 // process if set
-    add     r4, #16                     // get next address
-    add     r5, #MC_SH_SIZE             //
-    bne     mct_next                    // loop if bits remaining
-
-    pop     {r4-r7, lr}                 // return
     bx      lr
 
 //*********************************************************************************

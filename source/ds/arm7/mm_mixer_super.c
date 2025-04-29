@@ -284,3 +284,71 @@ void mmSelectMode(mm_mode_enum mode)
 
     REG_IME = saved_ime;
 }
+
+// Update hardware data
+//
+// NOTE: Keep this function as Thumb so that SlideMixingLevels() can jump to it
+// from Thumb mode in the ARM7.
+void mmMixerPre(void)
+{
+    if (mm_mixing_mode == MM_MODE_A) // Full-hardware mode
+    {
+        // Do nothing
+    }
+    else if (mm_mixing_mode == MM_MODE_B) // Interpolated mode
+    {
+        // Update volume + panning
+
+        mm_word channels = mm_ch_mask;
+
+        for (int i = 0; i < NUM_PHYS_CHANNELS; i++)
+        {
+            if (channels & 1)
+            {
+                // Read shadow SOUNDCNT
+                mm_word shadow = *(mm_word *)&(mm_mix_data.mix_data_b.shadow[i]);
+                SCHANNEL_CR(i) = shadow | SOUND_REPEAT | SOUND_FORMAT_16BIT | SCHANNEL_ENABLE;
+            }
+
+            channels >>= 1;
+            if (channels == 0)
+                break;
+        }
+    }
+    else // if (mm_mixing_mode == MM_MODE_C) // Extended mode
+    {
+        // Update everything
+
+        mm_word channels = mm_ch_mask;
+
+        for (int i = 0; i < NUM_PHYS_CHANNELS; i++)
+        {
+            if (channels & 1)
+            {
+                mmshadow_c_ds *shadow = &(mm_mix_data.mix_data_c.shadow[0]);
+
+                if (shadow[i].src != 0)
+                {
+                    SCHANNEL_CR(i) = 0;
+
+                    SCHANNEL_SOURCE(i) = shadow[i].src;
+                    SCHANNEL_REPEAT_POINT(i) = shadow[i].pnt;
+                    SCHANNEL_LENGTH(i) = shadow[i].len;
+
+                    SCHANNEL_CR(i) = shadow[i].cnt;
+
+                    shadow[i].src = 0;
+                }
+
+                SCHANNEL_TIMER(i) = shadow[i].tmr;
+
+                //SCHANNEL_PAN(i) = shadow[i].cnt >> 16;
+                SCHANNEL_CR(i) = shadow[i].cnt;
+            }
+
+            channels >>= 1;
+            if (channels == 0)
+                break;
+        }
+    }
+}
