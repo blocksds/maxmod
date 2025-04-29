@@ -3,6 +3,7 @@
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
 // Copyright (c) 2021-2025, Antonio Niño Díaz (antonio_nd@outlook.com)
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -599,6 +600,134 @@ IWRAM_CODE mm_active_channel *mpp_Channel_GetACHN(mm_module_channel *channel)
 
     return &mm_achannels[alloc];
 }
+
+static IWRAM_CODE mm_mas_instrument *get_instrument(mpl_layer_information *mpp_layer, mm_byte instN)
+{
+    return (mm_mas_instrument*)(mpp_layer->songadr + ((mm_word*)mpp_layer->insttable)[instN - 1]);
+}
+
+// Process new note
+IWRAM_CODE void mpp_Channel_NewNote(mm_module_channel *module_channel, mpl_layer_information *layer)
+{
+    if (module_channel->inst == 0)
+        return;
+
+    mm_active_channel *act_ch = mpp_Channel_GetACHN(module_channel);
+    if (act_ch == 0)
+        goto mppt_alloc_channel;
+
+    mm_mas_instrument *instrument = get_instrument(layer, module_channel->inst);
+
+    if ((module_channel->bflags >> 6) == 0) // Fetch NNA
+        goto mppt_NNA_CUT; // Skip if zero
+
+    bool do_dca = false;
+
+    mm_byte dct = instrument->dct & 3; // Otherwise check duplicate check type
+
+    if (dct == 0)
+    {
+        // Don't do DCA
+    }
+    else if (dct == 1) // DTC Note
+    {
+        // Get pattern note and translate to real note with note/sample map
+        mm_byte note = instrument->note_map[module_channel->note - 1] & 0xFF;
+
+        // Compare it with the last note
+        if (note == module_channel->note)
+            do_dca = true; // Equal? perform DCA. Otherwise, skip.
+    }
+    else if (dct == 2) // DCT Sample
+    {
+        // **WARNING: code not functional with new instrument table
+
+        // Get pattern note and translate to real note with note/sample map
+        mm_byte sample = (instrument->note_map[module_channel->note - 1] >> 8) & 0xFF;
+
+        // Compare it with achn's sample
+        if (sample == act_ch->sample)
+            do_dca = true; // Equal? perform DCA. Otherwise, skip.
+    }
+    else if (dct == 3) // DTC Instrument
+    {
+        // Load instrument and compare it with the active one
+        if (module_channel->inst == act_ch->inst)
+            do_dca = true; // Equal? perform DCA. Otherwise, skip.
+    }
+
+    if (do_dca) // Duplicate Check Action
+    {
+        mm_byte dca = instrument->dca; // Read type
+
+        if (dca == IT_DCA_CUT) // Cut?
+            goto mppt_NNA_CUT;
+
+        if (dca == IT_DCA_OFF) // Note-off?
+            goto mppt_NNA_OFF;
+
+        // Otherwise, note-fade
+        goto mppt_NNA_FADE;
+    }
+    else
+    {
+        mm_byte bflags = module_channel->bflags >> 6;
+
+        if (bflags == 0)
+            goto mppt_NNA_CUT;
+        else if (bflags == 1)
+            goto mppt_NNA_CONTINUE;
+        else if (bflags == 2)
+            goto mppt_NNA_OFF;
+        else if (bflags == 3)
+            goto mppt_NNA_FADE;
+    }
+
+mppt_NNA_CUT:
+
+#ifdef SYS_NDS // NDS supports volume ramping
+    if (act_ch->type == 0)
+        return; // Use the same channel
+
+    act_ch->type = ACHN_BACKGROUND;
+    act_ch->volume = 0;
+
+    goto mppt_NNA_FINISHED;
+#else
+    return; // Use the same channel
+#endif
+
+mppt_NNA_CONTINUE:
+    // Use a different channel and set the active channel to "background"
+    act_ch->type = ACHN_BACKGROUND;
+    goto mppt_NNA_FINISHED;
+
+mppt_NNA_OFF:
+    act_ch->flags &= ~MCAF_KEYON;
+    act_ch->type = ACHN_BACKGROUND; // Set the active channel to "background"
+    goto mppt_NNA_FINISHED;
+
+mppt_NNA_FADE:
+    act_ch->flags |= MCAF_FADE;
+    act_ch->type = ACHN_BACKGROUND; // Set the active channel to "background"
+    goto mppt_NNA_FINISHED;
+
+mppt_NNA_FINISHED:
+
+mppt_alloc_channel:
+
+    mm_word alloc = mmAllocChannel(); // Find new active channel
+    module_channel->alloc = alloc; // Save it
+
+#ifdef SYS_NDS
+    if (act_ch == 0) // Same channel
+        return;
+
+    // Copy data from previous channel (for volume ramping wierdness)
+    memcpy(&(mm_achannels[alloc]), act_ch, sizeof(mm_active_channel));
+#endif
+}
+
 static void mpph_FastForward(mpl_layer_information *layer, int rows_to_skip)
 {
     if (rows_to_skip == 0)
