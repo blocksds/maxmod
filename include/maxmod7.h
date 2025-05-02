@@ -140,6 +140,24 @@ void mmResume( void );
 /// Any channels used by the active module will be freed.
 void mmStop( void );
 
+/// Get current number of elapsed ticks in the row being played.
+///
+/// @return
+///     Number of elapsed ticks.
+mm_word mmGetPositionTick( void );
+
+/// Get current row being played.
+///
+/// @return
+///     The current row.
+mm_word mmGetPositionRow( void );
+
+/// Get current pattern order being played.
+///
+/// @return
+///     The current pattern.
+mm_word mmGetPosition( void );
+
 /// Set the current sequence [aka order-list] position for the active module.
 ///
 /// @param position
