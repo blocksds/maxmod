@@ -1023,264 +1023,8 @@ mpp_PatternPointer:
 
 .text
 
-.equ	MPP_XM_VFX_MEM_VS,	12  @ $ud
-.equ	MPP_XM_VFX_MEM_FVS,	13  @ $ud
-.equ	MPP_XM_VFX_MEM_GLIS,	14  @ $0x
-.equ	MPP_XM_VFX_MEM_PANSL,	7   @ $lr
-
-.equ	MPP_IT_VFX_MEM,		14
 .equ	MPP_GLIS_MEM,		0
 .equ	MPP_IT_PORTAMEM,	2
-
-/******************************************************************************
- *
- * Volume Commands
- *
- ******************************************************************************/
-					.global mpp_Process_VolumeCommand_Wrapper
-					.thumb_func
-mpp_Process_VolumeCommand_Wrapper:
-	push	{r5-r7,lr}
-	mov	r7, r8
-	push	{r7}
-
-	mov	r8, r0
-	movs	r6, r1
-	movs	r7, r2
-	movs	r5, r3
-	bl	mpp_Process_VolumeCommand
-	movs	r0, r5
-
-	pop	{r7}
-	mov	r8, r7
-	pop	{r5-r7}
-	pop	{r1}
-	bx	r1
-
-/******************************************************************************
- * mpp_Process_VolumeCommand()
- *
- * Process volume command
- ******************************************************************************/
-					.global mpp_Process_VolumeCommand
-					.thumb_func
-mpp_Process_VolumeCommand:
-	
-	mov	r0, r8
-	ldrb	r2, [r0, #MPL_TICK]
-	ldr	r0, [r0, #MPL_SONGADR]
-	ldrb	r0, [r0, #C_MAS_FLAGS]
-	lsrs	r0, #4
-	ldrb	r0, [r7, #MCH_VOLCMD]
-	bcc	.mppuv_it
-	b	.mppuv_xm
-.mppuv_it:
-
-@ determine which command to use
-
-	cmp	r0, #64
-	ble	.mppuv_setvol
-	cmp	r0, #84
-	ble	.mppuv_fvol
-	cmp	r0, #104
-	ble	.mppuv_volslide
-	cmp	r0, #124
-	ble	.mppuv_porta
-	cmp	r0, #192
-	ble	.mppuv_panning
-	cmp	r0, #202
-	ble	.mppuv_glissando
-	cmp	r0, #212
-	ble	.mppuv_vibrato
-.mppuv_exit1:
-	bx	lr
-
-.align 2
-@-----------------------------------------------------------------------------------
-.mppuv_setvol:					@ SET VOLUME
-@-----------------------------------------------------------------------------------
-
-@ sets volume on tick0
-
-	cmp	r2, #0
-	bne	.mppuv_setvol_exit
-	strb	r0, [r7, #MCH_VOLUME]
-.mppuv_setvol_exit:
-	bx	lr				@ exit
-
-.align 2
-@-----------------------------------------------------------------------------------
-.mppuv_fvol:					@ FINE VOLUME SLIDE UP/DOWN
-@-----------------------------------------------------------------------------------
-
-	cmp	r2, #0				@ only slide on tick0
-	bne	.mppuv_exit1			@ ..
-	ldrb	r1, [r7, #MCH_VOLUME]		@ load channel volume
-	movs	r2, #MCH_MEMORY+MPP_IT_VFX_MEM
-	cmp	r0, #75				@ check slide direction
-	bge	.mppuv_fvoldown			@ jump to slide down if value is 75+ (75-84 is slide down)
-.mppuv_fvolup:					@ ------ slide up ----------
-	subs	r0, #65				@ 65->74 , 0->9
-.mppuv_volup:					@ ** entry for volume slide up
-	bne	1f				@ is value 0?
-	ldrb	r0, [r7, r2]			@  then fetch value from memory
-1:	strb	r0, [r7, r2]			@ save value
-.mppuv_volupA:
-	adds	r1, r0				@ add to volume
-	cmp	r1, #64				@ clamp to 0->64
-	blt	.mppuv_fvol_exit		@ ..
-	movs	r1, #64				@ ..
-	b	.mppuv_fvol_exit		@ ..
-.mppuv_fvoldown:				@ ------ slide down --------
-	subs	r0, #75				@ 75->84 , 0->9
-.mppuv_voldown:					@ ** entry for volume slide down
-	bne	1f				@ is value 0?
-	ldrb	r0, [r7, r2]			@  then fetch value from memory
-1:	strb	r0, [r7, r2]			@ save value
-.mppuv_voldownA:
-	subs	r1, r0				@ subtract from volume
-	bcs	.mppuv_fvol_exit		@ check overflow and clamp
-	movs	r1, #0				@ ..
-.mppuv_fvol_exit:				@ ..
-	strb	r1, [r7, #MCH_VOLUME]		@ store volume
-.mppuv_exit2:
-	bx	lr				@ exit function
-	
-.align 2
-@----------------------------------------------------------------------------------
-.mppuv_volslide:				@ VOLUME SLIDE UP/DOWN
-@----------------------------------------------------------------------------------
-
-	cmp	r2, #0				@ only slide on other ticks
-	beq	.mppuv_exit1			@ ..
-	ldrb	r1, [r7, #MCH_VOLUME]		@ get volume
-	cmp	r0, #95				@ check slide direction
-	bge	.mppuv_vs_down			
-.mppuv_vs_up:					@ slide up...
-	movs	r2, #MCH_MEMORY+MPP_IT_VFX_MEM
-	subs	r0, #85				@ 85->94 , 0->9
-	b	.mppuv_volup			@ branch to function (use fvol code)
-
-.mppuv_vs_down:					@ slide down...
-	movs	r2, #MCH_MEMORY+MPP_IT_VFX_MEM
-	subs	r0, #95				@ 95->104 , 0->9
-	b	.mppuv_voldown			@ branch to function (use fvol code)
-
-.align 2
-@---------------------------------------------------------------------------------------
-.mppuv_porta:					@ PORTAMENTO UP/DOWN
-@---------------------------------------------------------------------------------------
-
-	cmp	r2, #0				@ only slide on other ticks
-	beq	.mppuv_exit2
-	
-	push	{lr}				@ save return address
-	movs	r1, r0				@ get period value
-	movs	r0, #MCH_PERIOD
-	ldr	r0, [r7, r0]
-	
-	cmp	r1, #115			@ check slide direction
-	bge	.mppuv_porta_up
-.mppuv_porta_down:
-	subs	r1, #105			@ map value 0->9
-	lsls	r1, #2				@ volume command slides are
-	bne	1f
-	ldrb	r1, [r7, #MCH_MEMORY+MPP_IT_PORTAMEM]
-1:	strb	r1, [r7, #MCH_MEMORY+MPP_IT_PORTAMEM]
-	bl	mpph_PitchSlide_Down		@ equal to normal slides *4
-	b	.mppuv_porta_set
-	
-.mppuv_porta_up:
-	subs	r1, #115			@ slide up...
-	lsls	r1, #2
-	bne	1f
-	ldrb	r1, [r7, #MCH_MEMORY+MPP_IT_PORTAMEM]
-1:	strb	r1, [r7, #MCH_MEMORY+MPP_IT_PORTAMEM]
-	bl	mpph_PitchSlide_Up
-
-.mppuv_porta_set:
-	movs	r2, #MCH_PERIOD			@ store new period
-	ldr	r1, [r7, r2]
-	str	r0, [r7, r2]
-	subs	r0, r1				@ and edit temp period
-	adds	r5, r0
-	
-	pop	{r0}
-	bx	r0
-//	pop	{pc}				@ exit
-
-.align 2
-@---------------------------------------------------------------------------------------
-.mppuv_panning:					@ SET PANNING
-@---------------------------------------------------------------------------------------
-
-	cmp	r2, #0				@ only set on tick 0
-	bne	.mppuv_exit1			@ ..
-	subs	r0, #128			@ map to 0->64
-	lsls	r0, #2
-	cmp	r0, #255
-	blt	.mppuv_p_store
-	movs	r0, #255
-.mppuv_p_store:
-	strb	r0, [r7, #MCH_PANNING]		@ save to active channel
-.mppuv_p_exit:
-	bx	lr				@ exit
-
-.align 2
-@---------------------------------------------------------------------------------------
-.mppuv_glissando:				@ GLISSANDO
-@---------------------------------------------------------------------------------------
-
-	cmp	r2, #0
-	beq	.mppuv_p_exit
-
-	subs	r0, #193
-	ldr	r1,=vcmd_glissando_table
-	ldrb	r0, [r1, r0]
-
-	mov	r1, r8
-	ldrb	r1, [r1, #MPL_FLAGS]
-	lsrs	r1, #C_FLAGS_GS
-	bcs	2f
-@ single gxx
-
-	cmp	r0, #0
-	beq	1f
-	ldrb	r0, [r7, #MCH_MEMORY+MPP_GLIS_MEM]
-1:	strb	r0, [r7, #MCH_MEMORY+MPP_GLIS_MEM]
-	b	.mppe_glis_ot
-
-2: @ shared gxx
-
-	cmp	r0, #0
-	beq	1f
-	ldrb	r0, [r7, #MCH_MEMORY+MPP_IT_PORTAMEM]
-1:	strb	r0, [r7, #MCH_MEMORY+MPP_IT_PORTAMEM]
-	strb	r0, [r7, #MCH_MEMORY+MPP_GLIS_MEM]
-	
-	b	.mppe_glis_ot
-.pool
-
-vcmd_glissando_table:
-.byte	0,1,4,8,16,32,64,96,128,255
-
-.align 2
-@---------------------------------------------------------------------------------------
-.mppuv_vibrato:					@ VIBRATO (SPEED)
-@---------------------------------------------------------------------------------------
-	
-	@ vibrato... sets speed
-	cmp	r2, #0
-	beq	.mppuv_vib_exit
-	subs	r0, #203
-	beq	1f
-	lsls	r0, #2
-	strb	r0, [r7, #MCH_VIBSPD]
-1:	b	mppe_DoVibrato
-.mppuv_vib_exit:
-	bx	lr
-
-
 
 /******************************************************************************
  *
@@ -1288,234 +1032,47 @@ vcmd_glissando_table:
  *
  ******************************************************************************/
 
-
-
 .align 2
-.thumb_func
-@---------------------------------------------------------------------------------------
-.mppuv_xm:
-@---------------------------------------------------------------------------------------
+					.global mppe_glis_backdoor_Wrapper
+					.thumb_func
+mppe_glis_backdoor_Wrapper:
 
-@ determine command type
-	
-	cmp	r0, #0		@ 0 = none
-	beq	.mppuv_exit4
-	cmp	r0, #0x50
-	ble	.mppuv_xm_setvol
-	cmp	r0, #0x80
-	blt	.mppuv_xm_volslide
-	cmp	r0, #0xA0
-	blt	.mppuv_xm_fvolslide
-	cmp	r0, #0xC0
-	blt	.mppuv_xm_vibrato
-	cmp	r0, #0xD0
-	blt	.mppuv_xm_panning
-	cmp	r0, #0xF0
-	blt	.mppuv_xm_panslide
-	b	.mppuv_xm_toneporta
+	push	{r5-r7, lr}
+	mov	r7, r8
+	push	{r7}
 
-.align 2
-.thumb_func
-@----------------------------------------------------------------------------------------
-.mppuv_xm_setvol:					@ Set Volume
-@----------------------------------------------------------------------------------------
+	// r1 = volcmd
+	// r5 = period
+	// r6 = act_ch
+	// r7 = channel
+	// r8 = layer
 
-	cmp	R2, #0
-	bne	.mppuv_exit4
-	subs	r0, #0x10
-	strb	r0, [r7, #MCH_VOLUME]
-.mppuv_exit4:
-	bx	lr
-
-.align 2
-.thumb_func
-@----------------------------------------------------------------------------------------
-.mppuv_xm_volslide:					@ Volume Slide
-@----------------------------------------------------------------------------------------
-
-	cmp	r2, #0
-	beq	.mppuv_exit2
-	ldrb	r1, [r7, #MCH_VOLUME]
-	movs	r3, #MCH_MEMORY+MPP_XM_VFX_MEM_VS
-	ldrb	r2, [r7, r3]
-	cmp	r0, #0x70
-	bge	.mppuv_xm_volslide_up
-	subs	r0, #0x60
-.mppuv_xm_volslide_dn_check:
-	bne	1f
-	movs	r0, r2
-	lsls	r0, #32-4
-	lsrs	r0, #32-4
-	b	2f
-1:	lsrs	r2, #4
-	lsls	r2, #4
-	orrs	r2, r0
-	strb	r2, [r7, r3]	
-2:	b	.mppuv_voldownA
-
-.mppuv_xm_volslide_up:
-	subs	r0, #0x70
-.mppuv_xm_volslide_up_check:
-	bne	1f
-	movs	r0, r2
-	lsrs	r0, #4
-	b	2f
-1:	lsls	r2, #32-4
-	lsrs	r2, #32-4
-	lsls	r0, #4
-	orrs	r2, r0
-	lsrs	r0, #4
-	strb	r2, [r7, r3]
-2:	b	.mppuv_volupA
-
-.align 2
-.thumb_func
-@----------------------------------------------------------------------------------------
-.mppuv_xm_fvolslide:					@ Fine Volume Slide
-@----------------------------------------------------------------------------------------
-
-	cmp	r2, #0
-	bne	.mppuv_exit4
-	ldrb	r1, [r7, #MCH_VOLUME]
-	movs	r3, #MCH_MEMORY+MPP_XM_VFX_MEM_FVS
-	ldrb	r2, [r7, r3]
-	cmp	r0, #0x90
-	bge	.mppuv_xm_fvolslide_up
-	subs	r0, #0x80
-	b	.mppuv_xm_volslide_dn_check
-.mppuv_xm_fvolslide_up:
-	subs	r0, #0x90
-	b	.mppuv_xm_volslide_up_check
-
-.align 2
-.thumb_func
-@----------------------------------------------------------------------------------------
-.mppuv_xm_vibrato:					@ Vibrato
-@----------------------------------------------------------------------------------------
-	
-	@ xm vibrato
-	@ sets speed or depth
-	
-	cmp	r2, #0
-	beq	.mppuv_xm_vibexit
-	cmp	r0, #0xB0
-	bge	.mppuv_xm_vibdepth
-
-.mppuv_xm_vibspd:
-	subs	r0, #0xA0
-	lsls	r0, #2
-	beq	1f
-	strb	r0, [r7, #MCH_VIBSPD]
-1:	b	mppe_DoVibrato
-	
-.mppuv_xm_vibdepth:
-	subs	r0, #0xB0
-	lsls	r0, #3
-	beq	1f
-	strb	r0, [r7, #MCH_VIBDEP]
-1:	b	mppe_DoVibrato
-	
-.mppuv_xm_vibexit:
-	bx	lr
-
-.align 2
-.thumb_func
-@----------------------------------------------------------------------------------------
-.mppuv_xm_panning:					@ Panning
-@----------------------------------------------------------------------------------------
-	
-	cmp	r2, #0
-	bne	.mppuv_exit3
-	subs	r0, #0xC0
-	lsls	r0, #4
-	cmp	r0, #240
-	beq	.mppuv_xm_panhack
-	strb	r0, [r7, #MCH_PANNING]
-	bx	lr
-.mppuv_xm_panhack:
-	movs	r0, #255
-	strb	r0, [r7, #MCH_PANNING]
-.mppuv_exit3:
-	bx	lr
-	
-.align 2
-.thumb_func
-@----------------------------------------------------------------------------------------
-.mppuv_xm_panslide:					@ Panning Slide
-@----------------------------------------------------------------------------------------
-	
-	cmp	r2, #0
-	beq	.mppuv_exit3
-	ldrb	r2, [r7, #MCH_PANNING]
-	ldrb	r3, [r7, #MCH_MEMORY + MPP_XM_VFX_MEM_PANSL]
-	cmp	r0, #0xE0
-	bge	.mppuv_xm_panslide_right
-	subs	r0, #0xD0
-	bne	1f
-	lsrs	r0, r3, #4
-	b	2f
-1:	lsls	r3, #32-4
-	lsrs	r3, #32-4
-	lsls	r0, #4
-	orrs	r3, r0
-	lsrs	r0, #4
-	strb	r3, [r7, #MCH_MEMORY + MPP_XM_VFX_MEM_PANSL]
-
-2:	lsls	r0, #2
-	subs	r2, r0
-	bcs	.mppuv_xm_panslide_set
-	movs	r2, #0
-	b	.mppuv_xm_panslide_set
-.mppuv_xm_panslide_right:
-	subs	r0, #0xE0
-	bne	1f
-	lsls	r0, r3, #32-4
-	lsrs	r0, #32-4
-	b	2f
-1:	lsrs	r3, #4
-	lsls	r3, #4
-	orrs	r3, r0
-	strb	r3, [r7, #MCH_MEMORY + MPP_XM_VFX_MEM_PANSL]
-2:	lsls	r0, #2
-	adds	r2, r0
-	cmp	r2, #255
-	blt	.mppuv_xm_panslide_set
-	movs	r2, #255
-.mppuv_xm_panslide_set:
-	strb	r2, [r7, #MCH_PANNING]
-	bx	lr
-
-.align 2
-.thumb_func
-@-------------------------------------------------------------------------------------
-.mppuv_xm_toneporta:					@ Glissando
-@-------------------------------------------------------------------------------------
-
-	@ glissando...
-	@ on nonzero ticks, do a regular glissando slide at speed * 16
-	cmp	r2, #0
-	beq	1f
-	
-	subs	r0, #0xF0
-	lsls	r0, #4
-	beq	2f
-	movs	r1, #MCH_MEMORY+MPP_XM_VFX_MEM_GLIS
-	strb	r0, [r7, r1]
-2:	ldrb	r0, [r7, r1]
 	movs	r1, r0
-	
-	push {r1,lr}
-	b	.mppe_glis_backdoor
-	
-1:	bx	lr
+	movs	r7, r1
+	movs	r6, r2
+	mov	r8, r3
+	// This argument is passed on the stack by the caller, but 6 registers have
+	// been pushed to the stack as well.
+	ldr	r5, [sp, #6 * 4]
 
+	push {r1, lr}
 
+	bl	.mppe_glis_backdoor
+
+	movs	r0, r5
+
+	pop	{r7}
+	mov	r8, r7
+	pop	{r4-r7}
+	pop	{r1}
+	bx	r1
 
 /******************************************************************************
  *
  * Module Effects
  *
  ******************************************************************************/
+.align 2
 					.global mpp_Process_Effect_Wrapper
 					.thumb_func
 mpp_Process_Effect_Wrapper:
@@ -1887,6 +1444,27 @@ mppe_Vibrato:					@ EFFECT Hxy: Vibrato
 	b	mppe_DoVibrato
 .mppe_v_nodep:
 	BX	LR
+
+.align 2
+					.global mppe_DoVibrato_Wrapper
+					.thumb_func
+mppe_DoVibrato_Wrapper:
+	push	{r4-r7,lr}
+	mov	r7, r8
+	push	{r7}
+
+	movs	r5, r0
+	movs	r7, r1
+	mov	r8, r2
+
+	bl	mppe_DoVibrato
+	movs	r0, r5
+
+	pop	{r7}
+	mov	r8, r7
+	pop	{r4-r7}
+	pop	{r1}
+	bx	r1
 
 .align 2
 .thumb_func
@@ -2765,6 +2343,24 @@ mppe_OldTremor:				@ EFFECT 3xy: Old Tremor
 @===============================================================================
 
 .align 2
+					.global mpph_PitchSlide_Down_Wrapper
+					.thumb_func
+mpph_PitchSlide_Down_Wrapper:
+	push	{r4-r7,lr}
+	mov	r7, r8
+	push	{r7}
+
+	movs	r7, r2
+	mov	r8, r3
+	bl	mpph_PitchSlide_Down
+
+	pop	{r7}
+	mov	r8, r7
+	pop	{r4-r7}
+	pop	{r1}
+	bx	r1
+
+.align 2
 .thumb_func
 @--------------------------------------------------------------------------
 mpph_PitchSlide_Down:				@ Linear/Amiga slide down
@@ -2810,6 +2406,24 @@ mpph_LinearPitchSlide_Down:			@ Linear slide down
 	movs	r0, #1
 	lsls	r0, #16+5
 	b	.mpph_psd_clip
+
+.align 2
+					.global mpph_PitchSlide_Up_Wrapper
+					.thumb_func
+mpph_PitchSlide_Up_Wrapper:
+	push	{r4-r7,lr}
+	mov	r7, r8
+	push	{r7}
+
+	movs	r7, r2
+	mov	r8, r3
+	bl	mpph_PitchSlide_Up
+
+	pop	{r7}
+	mov	r8, r7
+	pop	{r4-r7}
+	pop	{r1}
+	bx	r1
 
 .align 2
 .thumb_func

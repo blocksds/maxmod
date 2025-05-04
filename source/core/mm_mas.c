@@ -728,6 +728,440 @@ mppt_alloc_channel:
 #endif
 }
 
+#define MPP_XM_VFX_MEM_VS       12  // Value = 0xUD : Up, Down
+#define MPP_XM_VFX_MEM_FVS      13  // Value = 0xUD : Up, Down
+#define MPP_XM_VFX_MEM_GLIS     14  // Value = 0x0X : Zero, Value
+#define MPP_XM_VFX_MEM_PANSL    7   // Value = 0xLR : Left, Right
+
+#define MPP_IT_VFX_MEM          14
+#define MPP_GLIS_MEM            0
+#define MPP_IT_PORTAMEM         2
+
+mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
+                                  mm_active_channel *act_ch,
+                                  mm_module_channel *channel, mm_word period)
+{
+    mm_byte tick = layer->tick;
+
+    mas_header *mas = (mas_header *)layer->songadr;
+
+    mm_byte volcmd = channel->volcmd;
+
+    if (mas->flags & (1 << 3)) // XM commands
+    {
+        if (volcmd == 0) // 0 = none
+        {
+            // Do nothing
+        }
+        else if (volcmd <= 0x50) // Set volume : mppuv_xm_setvol
+        {
+            if (tick == 0)
+                channel->volume = volcmd - 0x10;
+        }
+        else if (volcmd < 0x80) // Volume slide : mppuv_xm_volslide
+        {
+            if (tick == 0)
+                return period;
+
+            int volume = channel->volume;
+            mm_byte mem = channel->memory[MPP_XM_VFX_MEM_VS];
+
+            if (volcmd >= 0x70) // mppuv_xm_volslide_down
+            {
+                volcmd -= 0x60;
+
+                int delta;
+
+                if (volcmd == 0)
+                {
+                    delta = mem & 0xF;
+                }
+                else
+                {
+                    delta = volcmd;
+                    channel->memory[MPP_XM_VFX_MEM_VS] = (mem & ~0xF) | volcmd;
+                }
+
+                // mppuv_voldownA
+
+                volume -= delta;
+                if (volume < 0) // Clamp
+                    volume = 0;
+
+                channel->volume = volume;
+            }
+            else // mppuv_xm_volslide_up
+            {
+                volcmd -= 0x70;
+
+                int delta;
+
+                if (volcmd == 0)
+                {
+                    delta = mem >> 4;
+                }
+                else
+                {
+                    delta = volcmd;
+                    channel->memory[MPP_XM_VFX_MEM_VS] = (volcmd << 4) | (mem & 0xF);
+                }
+
+                volume += delta;
+                if (volume > 64)
+                    volume = 64;
+
+                channel->volume = volume;
+            }
+        }
+        else if (volcmd < 0xA0) // Fine volume slide : mppuv_xm_fvolslide
+        {
+            if (tick != 0)
+                return period;
+
+            int volume = channel->volume;
+            mm_byte mem = channel->memory[MPP_XM_VFX_MEM_FVS];
+
+            if (volcmd >= 0x90) // mppuv_xm_volslide_down
+            {
+                volcmd -= 0x80;
+
+                int delta;
+
+                if (volcmd == 0)
+                {
+                    delta = mem & 0xF;
+                }
+                else
+                {
+                    delta = volcmd;
+                    channel->memory[MPP_XM_VFX_MEM_FVS] = (mem & ~0xF) | volcmd;
+                }
+
+                // mppuv_voldownA
+
+                volume -= delta;
+                if (volume < 0) // Clamp
+                    volume = 0;
+
+                channel->volume = volume;
+            }
+            else // mppuv_xm_volslide_up
+            {
+                volcmd -= 0x90;
+
+                int delta;
+
+                if (volcmd == 0)
+                {
+                    delta = mem >> 4;
+                }
+                else
+                {
+                    delta = volcmd;
+                    channel->memory[MPP_XM_VFX_MEM_FVS] = (volcmd << 4) | (mem & 0xF);
+                }
+
+                volume += delta;
+                if (volume > 64)
+                    volume = 64;
+
+                channel->volume = volume;
+            }
+        }
+        else if (volcmd < 0xC0) // Vibrato : mppuv_xm_vibrato
+        {
+            // Sets speed or depth
+
+            if (tick == 0)
+                return period;
+
+            if (volcmd < 0xB0) // mppuv_xm_vibspd
+            {
+                volcmd = (volcmd - 0xA0) << 2;
+                if (volcmd != 0)
+                    channel->vibspd = volcmd;
+            }
+            else // mppuv_xm_vibdepth
+            {
+                volcmd = (volcmd - 0xB0) << 3;
+                if (volcmd != 0)
+                    channel->vibdep = volcmd;
+            }
+
+            return mppe_DoVibrato_Wrapper(period, channel, layer);
+        }
+        else if (volcmd < 0xD0) // Panning : mppuv_xm_panning
+        {
+            if (tick != 0)
+                return period;
+
+            mm_word panning = (volcmd - 0xC0) << 4;
+
+            // This is a hack to make the panning reach the maximum value
+            if (panning == 240)
+                channel->panning = 255;
+            else
+                channel->panning = panning;
+        }
+        else if (volcmd < 0xF0) // Panning slide : mppuv_xm_panslide
+        {
+            if (tick == 0)
+                return period;
+
+            int panning = channel->panning;
+            mm_byte mem = channel->memory[MPP_XM_VFX_MEM_PANSL];
+
+            if (volcmd < 0xE0) // mppuv_xm_panslide_left
+            {
+                volcmd -= 0xD0;
+
+                int delta;
+
+                if (volcmd == 0)
+                {
+                    delta = mem >> 4;
+                }
+                else
+                {
+                    channel->memory[MPP_XM_VFX_MEM_PANSL] = (mem & 0xF) | (volcmd << 4);
+                    delta = volcmd & 0xF;
+                }
+
+                delta <<= 2;
+
+                panning -= delta;
+                if (panning < 0)
+                    panning = 0;
+
+                channel->panning = panning;
+            }
+            else // mppuv_xm_panslide_right
+            {
+                volcmd -= 0xE0;
+
+                int delta;
+
+                if (volcmd == 0)
+                {
+                    delta = mem & 0xF;
+                }
+                else
+                {
+                    delta = volcmd;
+                    channel->memory[MPP_XM_VFX_MEM_VS] = volcmd | (mem & 0xF);
+                }
+
+                delta <<= 2;
+
+                panning += delta;
+                if (panning > 255)
+                    panning = 255;
+
+                channel->panning = panning;
+            }
+        }
+        else // Glissando : mppuv_xm_toneporta
+        {
+            // On nonzero ticks, do a regular glissando slide at speed * 16
+            if (tick == 0)
+                return period;
+
+            volcmd = (volcmd - 0xF0) << 4;
+
+            if (volcmd != 0)
+                channel->memory[MPP_XM_VFX_MEM_GLIS] = volcmd;
+
+            volcmd = channel->memory[MPP_XM_VFX_MEM_GLIS];
+
+            return mppe_glis_backdoor_Wrapper(volcmd, channel, act_ch, layer, period);
+        }
+    }
+    else // IT commands
+    {
+        if (volcmd <= 64) // Set volume : mppuv_setvol
+        {
+            if (tick == 0)
+                channel->volume = volcmd;
+        }
+        else if (volcmd <= 84) // Fine volume slide : mppuv_fvol
+        {
+            if (tick != 0)
+                return period;
+
+            int volume = channel->volume;
+
+            if (volcmd < 75) // Slide up : mppuv_fvolup
+            {
+                volcmd -= 65; // 65-74 ==> 0-9
+
+                if (volcmd != 0)
+                    volcmd = channel->memory[MPP_IT_VFX_MEM];
+
+                channel->memory[MPP_IT_VFX_MEM] = volcmd;
+
+                volume += volcmd;
+                if (volume > 64)
+                    volume = 64;
+            }
+            else // Slide down : mppuv_fvoldown
+            {
+                volcmd -= 75; // 75-84 ==> 0-9
+
+                if (volcmd != 0)
+                    volcmd = channel->memory[MPP_IT_VFX_MEM];
+
+                channel->memory[MPP_IT_VFX_MEM] = volcmd;
+
+                volume -= volcmd;
+                if (volume < 0)
+                    volume = 0;
+            }
+
+            channel->volume = volume;
+        }
+        else if (volcmd <= 104) // Volume slide : mppuv_volslide
+        {
+            if (tick == 0)
+                return period;
+
+            int volume = channel->volume;
+
+            if (volcmd < 95) // Slide up : mppuv_vs_up
+            {
+                volcmd -= 85; // 85-94 ==> 0-9
+
+                if (volcmd != 0)
+                    volcmd = channel->memory[MPP_IT_VFX_MEM];
+
+                channel->memory[MPP_IT_VFX_MEM] = volcmd;
+
+                volume += volcmd;
+                if (volume > 64)
+                    volume = 64;
+            }
+            else // Slide down : mppuv_vs_down
+            {
+                volcmd -= 95; // 95-104 ==> 0-9
+
+                if (volcmd != 0)
+                    volcmd = channel->memory[MPP_IT_VFX_MEM];
+
+                channel->memory[MPP_IT_VFX_MEM] = volcmd;
+
+                volume -= volcmd;
+                if (volume < 0)
+                    volume = 0;
+            }
+
+            channel->volume = volume;
+        }
+        else if (volcmd <= 124) // Portamento up/down : mppuv_porta
+        {
+            if (tick == 0)
+                return period;
+
+            mm_word r0;
+
+            if (volcmd >= 115) // mppuv_porta_up
+            {
+                volcmd = (volcmd - 115) << 2;
+
+                if (volcmd == 0)
+                    volcmd = channel->memory[MPP_IT_PORTAMEM];
+
+                channel->memory[MPP_IT_PORTAMEM] = volcmd;
+
+                r0 = mpph_PitchSlide_Up_Wrapper(channel->period, volcmd, channel, layer);
+            }
+            else // mppuv_porta_down
+            {
+                volcmd = (volcmd - 105) << 2;
+
+                if (volcmd == 0)
+                    volcmd = channel->memory[MPP_IT_PORTAMEM];
+
+                channel->memory[MPP_IT_PORTAMEM] = volcmd;
+
+                r0 = mpph_PitchSlide_Down_Wrapper(channel->period, volcmd, channel, layer);
+            }
+
+            mm_word r1 = channel->period;
+
+            channel->period = period;
+
+            return period + r0 - r1;
+        }
+        else if (volcmd <= 192) // Panning : mppuv_panning
+        {
+            if (tick == 0)
+            {
+                int panning = volcmd - 128; // Map to 0->64
+
+                panning <<= 2;
+                if (panning > 255)
+                    panning = 255;
+
+                channel->panning = panning;
+            }
+        }
+        else if (volcmd <= 202) // Glissando : mppuv_glissando
+        {
+            if (tick == 0)
+                return period;
+
+            const mm_byte vcmd_glissando_table[] = {
+                0, 1, 4, 8, 16, 32, 64, 96, 128, 255
+            };
+
+            volcmd -= 193;
+
+            mm_word glis = vcmd_glissando_table[volcmd];
+
+            if (layer->flags & (1 << (C_FLAGS_GS - 1))) // Shared Gxx
+            {
+                if (glis != 0)
+                    glis = channel->memory[MPP_IT_PORTAMEM];
+
+                channel->memory[MPP_IT_PORTAMEM] = glis;
+                channel->memory[MPP_GLIS_MEM] = glis;
+
+                mm_byte mem = channel->memory[MPP_GLIS_MEM];
+
+                return mppe_glis_backdoor_Wrapper(mem, channel, act_ch, layer, period);
+            }
+            else // Single Gxx
+            {
+                if (glis != 0)
+                    glis = channel->memory[MPP_GLIS_MEM];
+
+                channel->memory[MPP_GLIS_MEM] = glis;
+
+                mm_byte mem = channel->memory[MPP_GLIS_MEM];
+
+                return mppe_glis_backdoor_Wrapper(mem, channel, act_ch, layer, period);
+            }
+        }
+        else if (volcmd <= 212) // Vibrato (Speed) : mppuv_vibrato
+        {
+            if (tick == 0)
+                return period;
+
+            // Set speed
+
+            volcmd = volcmd - 203;
+            if (volcmd != 0)
+            {
+                volcmd = volcmd << 2;
+                channel->vibspd = volcmd;
+            }
+
+            return mppe_DoVibrato_Wrapper(volcmd, channel, layer);
+        }
+    }
+
+    return period;
+}
+
 static void mpph_FastForward(mpl_layer_information *layer, int rows_to_skip)
 {
     if (rows_to_skip == 0)

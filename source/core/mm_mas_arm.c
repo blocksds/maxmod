@@ -515,7 +515,8 @@ channel_started:
     mmUpdateChannel_TN(module_channel, mpp_layer);
 }
 
-// For ticks that are not the first one
+// For ticks that are not the first one. Note that mpp_layer->ticks may be zero
+// when this function is called (if a channel is active and the row increases).
 IWRAM_CODE ARM_CODE void mmUpdateChannel_TN(mm_module_channel *module_channel, mpl_layer_information *mpp_layer)
 {
     // Get channel, if available
@@ -532,7 +533,7 @@ IWRAM_CODE ARM_CODE void mmUpdateChannel_TN(mm_module_channel *module_channel, m
 
     // Update volume commands
     if (module_channel->flags & MF_HASVCMD)
-        period = mpp_Process_VolumeCommand_Wrapper(mpp_layer, active_channel, module_channel, period);
+        period = mpp_Process_VolumeCommand(mpp_layer, active_channel, module_channel, period);
 
     // Update effects
     if (module_channel->flags & MF_HASFX)

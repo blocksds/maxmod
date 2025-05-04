@@ -39,13 +39,23 @@ void mmUpdateChannel_TN(mm_module_channel*, mpl_layer_information*);
 mm_word mmGetPeriod(mpl_layer_information*, mm_word, mm_byte);
 void mmReadPattern(mpl_layer_information*);
 
+mm_word mpp_Process_VolumeCommand(mpl_layer_information*, mm_active_channel*, mm_module_channel*, mm_word);
+
 // TODO: Convert these methods
-mm_word mpp_Process_VolumeCommand_Wrapper(mpl_layer_information*, mm_active_channel*, mm_module_channel*, mm_word);
 mm_word mpp_Process_Effect_Wrapper(mpl_layer_information*, mm_active_channel*, mm_module_channel*, mm_word);
 
 mm_word mpp_Update_ACHN_notest_Wrapper(mpl_layer_information *layer, mm_active_channel *act_ch,
                                        mm_module_channel *channel, mm_word period, mm_word ch);
 
 void mpp_Channel_NewNote(mm_module_channel*, mpl_layer_information*);
+
+mm_word mppe_DoVibrato_Wrapper(mm_word period, mm_module_channel*, mpl_layer_information*);
+
+mm_word mpph_PitchSlide_Up_Wrapper(mm_word, mm_word, mm_module_channel*, mpl_layer_information*);
+mm_word mpph_PitchSlide_Down_Wrapper(mm_word, mm_word, mm_module_channel*, mpl_layer_information*);
+
+mm_word mppe_glis_backdoor_Wrapper(mm_word volcmd, mm_module_channel *channel,
+                                   mm_active_channel *act_ch, mpl_layer_information *layer,
+                                   mm_word period);
 
 #endif // MM_MAS_ARM_H
