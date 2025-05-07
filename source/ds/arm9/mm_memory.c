@@ -101,20 +101,17 @@ void mmUnloadEffect(mm_word sample_ID)
     mm_word sample_data = mmSampleBankArr[sample_ID];
 
     // Check existence
+    if (sample_data == 0)
+        return;
+
+    // Decrement instance count
+    sample_data -= 1 << 24;
+
+    // If there are no more instances left, delete it
     if ((sample_data & 0xFF000000) == 0)
     {
+        mmcbMemory(MMCB_DELETESAMPLE, (sample_data & 0x00FFFFFF) + BASE_SAMPLE_ADDRESS);
         sample_data = 0;
-    }
-    else
-    {
-        // Decrement instance count
-        sample_data -= 1 << 24;
-
-        if ((sample_data & 0xFF000000) == 0)
-        {
-            mmcbMemory(MMCB_DELETESAMPLE, (sample_data & 0x00FFFFFF) + BASE_SAMPLE_ADDRESS);
-            sample_data = 0;
-        }
     }
 
     mmSampleBankArr[sample_ID] = sample_data;
