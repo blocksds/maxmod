@@ -113,7 +113,7 @@ static mm_word failLoadData(FILE *fp)
     fclose(fp);
     return NOT_PROCESSED_RETVAL;
 }
-#include <stdio.h>
+
 // Load a file from the soundbank and return memory pointer, if it succeeded
 static mm_word mmLoadDataFromSoundBank(mm_word index, mm_word command)
 {
