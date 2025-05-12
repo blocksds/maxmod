@@ -32,6 +32,9 @@
 	blx	r7
 .endm
 
+.macro jump3
+	blx	r3
+.endm
 
 .macro jump2
 	blx	r2

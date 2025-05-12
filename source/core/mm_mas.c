@@ -728,6 +728,267 @@ mppt_alloc_channel:
 #endif
 }
 
+// value = 2^(val/192), 16.16 fixed
+static mm_hword mpp_TABLE_LinearSlideUpTable[] = {
+    0,     237,   475,   714,   953,   // 0->4 // ADD 1.0
+    1194,  1435,  1677,  1920,  2164,  // 5->9
+    2409,  2655,  2902,  3149,  3397,  // 10->14
+    3647,  3897,  4148,  4400,  4653,  // 15->19
+    4907,  5157,  5417,  5674,  5932,  // 20->24
+    6190,  6449,  6710,  6971,  7233,  // 25->29
+    7496,  7761,  8026,  8292,  8559,  // 30->34
+    8027,  9096,  9366,  9636,  9908,  // 35->39
+    10181, 10455, 10730, 11006, 11283, // 40->44
+    11560, 11839, 12119, 12400, 12682, // 45->49
+    12965, 13249, 13533, 13819, 14106, // 50->54
+    14394, 14684, 14974, 15265, 15557, // 55->59
+    15850, 16145, 16440, 16737, 17034, // 60->64
+    17333, 17633, 17933, 18235, 18538, // 65->69
+    18842, 19147, 19454, 19761, 20070, // 70->74
+    20379, 20690, 21002, 21315, 21629, // 75->79
+    21944, 22260, 22578, 22897, 23216, // 80->84
+    23537, 23860, 24183, 24507, 24833, // 85->89
+    25160, 25488, 25817, 26148, 26479, // 90->94
+    26812, 27146, 27481, 27818, 28155, // 95->99
+    28494, 28834, 29175, 29518, 29862, // 100->104
+    30207, 30553, 30900, 31248, 31599, // 105->109
+    31951, 32303, 32657, 33012, 33369, // 110->114
+    33726, 34085, 34446, 34807, 35170, // 115->119
+    35534, 35900, 36267, 36635, 37004, // 120->124
+    37375, 37747, 38121, 38496, 38872, // 125->129
+    39250, 39629, 40009, 40391, 40774, // 130->134
+    41158, 41544, 41932, 42320, 42710, // 135->139
+    43102, 43495, 43889, 44285, 44682, // 140->144
+    45081, 45481, 45882, 46285, 46690, // 145->149
+    47095, 47503, 47917, 48322, 48734, // 150->154
+    49147, 49562, 49978, 50396, 50815, // 155->159
+    51236, 51658, 52082, 52507, 52934, // 160->164
+    53363, 53793, 54224, 54658, 55092, // 165->169
+    55529, 55966, 56406, 56847, 57289, // 170->174
+    57734, 58179, 58627, 59076, 59527, // 175->179
+    59979, 60433, 60889, 61346, 61805, // 180->184
+    62265, 62727, 63191, 63657, 64124, // 185->189
+    64593, 65064, 0,     474,   950,   // 190->194 // ADD 2.0 w/ 192+
+    1427,  1906,  2387,  2870,  3355,  // 195->199
+    3841,  4327,  4818,  5310,  5803,  // 200->204
+    6298,  6795,  7294,  7794,  8296,  // 205->209
+    8800,  9306,  9814,  10323, 10835, // 210->214
+    11348, 11863, 12380, 12899, 13419, // 215->219
+    13942, 14467, 14993, 15521, 16051, // 220->224
+    16583, 17117, 17653, 18191, 18731, // 225->229
+    19273, 19817, 20362, 20910, 21460, // 230->234
+    22011, 22565, 23121, 23678, 24238, // 235->239
+    24800, 25363, 25929, 25497, 27067, // 240->244
+    27639, 28213, 28789, 29367, 29947, // 245->249
+    30530, 31114, 31701, 32289, 32880, // 250->254
+    33473, 34068                       // 255->256
+};
+
+// value = 2^(-val/192), 16.16 fixed
+static mm_hword mpp_TABLE_LinearSlideDownTable[] = {
+    65535, 65300, 65065, 64830, 64596, 64364, 64132, 63901, // 0->7
+    63670, 63441, 63212, 62984, 62757, 62531, 62306, 62081, // 8->15
+    61858, 61635, 61413, 61191, 60971, 60751, 60532, 60314, // 16->23
+    60097, 59880, 59664, 59449, 59235, 59022, 58809, 58597, // 24->31
+    58386, 58176, 57966, 57757, 57549, 57341, 57135, 56929, // 32->39
+    56724, 56519, 56316, 56113, 55911, 55709, 55508, 55308, // 40->47
+    55109, 54910, 54713, 54515, 54319, 54123, 53928, 53734, // 48->55
+    53540, 53347, 53155, 52963, 52773, 52582, 52393, 52204, // 56->63
+    52016, 51829, 51642, 51456, 51270, 51085, 50901, 50718, // 64->71
+    50535, 50353, 50172, 49991, 49811, 49631, 49452, 49274, // 72->79
+    49097, 48920, 48743, 48568, 48393, 48128, 48044, 47871, // 80->87
+    47699, 47527, 47356, 47185, 47015, 46846, 46677, 46509, // 88->95
+    46341, 46174, 46008, 45842, 45677, 45512, 45348, 45185, // 96->103
+    45022, 44859, 44698, 44537, 44376, 44216, 44057, 43898, // 104->111
+    43740, 43582, 43425, 43269, 43113, 42958, 42803, 42649, // 112->119
+    42495, 42342, 42189, 42037, 41886, 41735, 41584, 41434, // 120->127
+    41285, 41136, 40988, 40840, 40639, 40566, 40400, 40253, // 128->135
+    40110, 39965, 39821, 39678, 39535, 39392, 39250, 39109, // 136->143
+    38968, 38828, 38688, 38548, 38409, 38271, 38133, 37996, // 144->151
+    37859, 37722, 37586, 37451, 37316, 37181, 37047, 36914, // 152->159
+    36781, 36648, 36516, 36385, 36254, 36123, 35993, 35863, // 160->167
+    35734, 35605, 35477, 35349, 35221, 35095, 34968, 34842, // 168->175
+    34716, 34591, 34467, 34343, 34219, 34095, 33973, 33850, // 176->183
+    33728, 33607, 33486, 33365, 33245, 33125, 33005, 32887, // 184->191
+    32768, 32650, 32532, 32415, 32298, 32182, 32066, 31950, // 192->199
+    31835, 31720, 31606, 31492, 31379, 31266, 31153, 31041, // 200->207
+    30929, 30817, 30706, 30596, 30485, 30376, 30226, 30157, // 208->215
+    30048, 29940, 29832, 29725, 29618, 29511, 29405, 29299, // 216->223
+    29193, 29088, 28983, 28879, 28774, 28671, 28567, 28464, // 224->231
+    28362, 28260, 28158, 28056, 27955, 27855, 27754, 27654, // 232->239
+    27554, 27455, 27356, 27258, 27159, 27062, 26964, 26867, // 240->247
+    26770, 26674, 26577, 26482, 26386, 26291, 26196, 26102, // 248->255
+    26008                                                   // 256
+};
+
+static mm_hword mpp_TABLE_FineLinearSlideUpTable[] = {
+    0,   59,  118, 178, 237, // 0->4   ADD 1x
+    296, 356, 415, 475, 535, // 5->9
+    594, 654, 714, 773, 833, // 10->14
+    893                      // 15
+};
+
+static mm_hword mpp_TABLE_FineLinearSlideDownTable[] = {
+    65535, 65477, 65418, 65359, 65300, 65241, 65182, 65359, // 0->7
+    65065, 65006, 64947, 64888, 64830, 64772, 64713, 64645  // 8->15
+};
+
+static mm_word mpph_psu(mm_word period, mm_word slide_value)
+{
+    if (slide_value >= 192)
+        period *= 2;
+
+    // mpph_psu_fine
+
+    mm_word val = (period >> 5) * mpp_TABLE_LinearSlideUpTable[slide_value];
+
+    mm_word ret = (val >> (16 - 5)) + period;
+
+    // mpph_psu_clip
+
+    if ((ret >> (16 + 5)) > 0) // Clip to 0.0 ~ 1.0
+        return 1 << (16 + 5);
+
+    return ret;
+}
+
+static mm_word mpph_psd(mm_word period, mm_word slide_value)
+{
+    mm_word val = (period >> 5) * mpp_TABLE_LinearSlideDownTable[slide_value];
+
+    mm_word ret = val >> (16 - 5);
+
+    // mpph_psd_clip
+
+    //if (ret < 0)
+    //    ret = 0;
+
+    return ret;
+}
+
+// Linear/Amiga slide up
+// The slide value is provided divided by 4
+mm_word mpph_PitchSlide_Up(mm_word period, mm_word slide_value, mpl_layer_information *layer)
+{
+    if (layer->flags & (1 << (C_FLAGS_SS - 1)))
+    {
+        return mpph_psu(period, slide_value);
+    }
+    else // mpph_psu_amiga
+    {
+        mm_word delta = slide_value << 4;
+
+        // mpph_psu_amiga_fine
+
+        if (delta > period)
+            return 0;
+
+        return period - delta;
+    }
+}
+
+// Linear slide up
+mm_word mpph_LinearPitchSlide_Up(mm_word period, mm_word slide_value, mpl_layer_information *layer)
+{
+    if (layer->flags & (1 << (C_FLAGS_SS - 1)))
+        return mpph_psu(period, slide_value);
+    else
+        return mpph_psd(period, slide_value);
+}
+
+// Slide value in range of (0 - 15)
+mm_word mpph_FinePitchSlide_Up(mm_word period, mm_word slide_value, mpl_layer_information *layer)
+{
+    if (layer->flags & (1 << (C_FLAGS_SS - 1))) // mpph_psu_fine
+    {
+        // mpph_psu_fine
+
+        mm_word val = (period >> 5) * mpp_TABLE_FineLinearSlideUpTable[slide_value];
+
+        mm_word ret = (val >> (16 - 5)) + period;
+
+        // mpph_psu_clip
+
+        if ((ret >> (16 + 5)) > 0) // Clip to 0.0 ~ 1.0
+            return 1 << (16 + 5);
+
+        return ret;
+    }
+    else
+    {
+        mm_word delta = slide_value << 2;
+
+        // mpph_psu_amiga_fine
+
+        if (delta > period)
+            return 0;
+
+        return period - delta;
+    }
+}
+
+mm_word mpph_PitchSlide_Down(mm_word period, mm_word slide_value, mpl_layer_information *layer)
+{
+    if (layer->flags & (1 << (C_FLAGS_SS - 1)))
+    {
+        return mpph_psd(period, slide_value);
+    }
+    else // mpph_psd_amiga
+    {
+        mm_word delta = slide_value << 4;
+
+        // mpph_psd_amiga_fine
+
+        period = (period + delta);
+
+        if ((period >> (16 + 5)) > 0) // Clip to 0.0 ~ 1.0
+            return 1 << (16 + 5);
+
+        return period;
+    }
+}
+
+mm_word mpph_LinearPitchSlide_Down(mm_word period, mm_word slide_value, mpl_layer_information *layer)
+{
+    if (layer->flags & (1 << (C_FLAGS_SS - 1)))
+        return mpph_psd(period, slide_value);
+    else
+        return mpph_psu(period, slide_value);
+}
+
+// Slide value in range of (0 - 15)
+mm_word mpph_FinePitchSlide_Down(mm_word period, mm_word slide_value, mpl_layer_information *layer)
+{
+    if (layer->flags & (1 << (C_FLAGS_SS - 1))) // mpph_psd_fine
+    {
+        // mpph_psd_fine
+
+        mm_word val = (period >> 5) * mpp_TABLE_FineLinearSlideDownTable[slide_value];
+
+        mm_word ret = val >> (16 - 5);
+
+        // mpph_psd_clip
+
+        //if (ret < 0)
+        //    ret = 0;
+
+        return ret;
+    }
+    else
+    {
+        mm_word delta = slide_value << 2;
+
+        // mpph_psd_amiga_fine
+
+        period = (period + delta);
+
+        if ((period >> (16 + 5)) > 0) // Clip to 0.0 ~ 1.0
+            return 1 << (16 + 5);
+
+        return period;
+    }
+}
+
 #define MPP_XM_VFX_MEM_VS       12  // Value = 0xUD : Up, Down
 #define MPP_XM_VFX_MEM_FVS      13  // Value = 0xUD : Up, Down
 #define MPP_XM_VFX_MEM_GLIS     14  // Value = 0x0X : Zero, Value
@@ -1071,7 +1332,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
 
                 channel->memory[MPP_IT_PORTAMEM] = volcmd;
 
-                r0 = mpph_PitchSlide_Up_Wrapper(channel->period, volcmd, channel, layer);
+                r0 = mpph_PitchSlide_Up(channel->period, volcmd, layer);
             }
             else // mppuv_porta_down
             {
@@ -1082,7 +1343,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
 
                 channel->memory[MPP_IT_PORTAMEM] = volcmd;
 
-                r0 = mpph_PitchSlide_Down_Wrapper(channel->period, volcmd, channel, layer);
+                r0 = mpph_PitchSlide_Down(channel->period, volcmd, layer);
             }
 
             mm_word r1 = channel->period;

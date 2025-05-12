@@ -376,18 +376,20 @@ mpp_Update_ACHN_notest:
 	movs	r0, r5
 	subs	r1, #1
 	bmi	.mppt_pitchenv_minus
+	mov	r2, r8
 #ifdef USE_IWRAM
-	ldr	r2,=mpph_LinearPitchSlide_Up
-	jump2
+	ldr	r3,=mpph_LinearPitchSlide_Up
+	jump3
 #else
 	bl	mpph_LinearPitchSlide_Up
 #endif
 	b	.mppt_pitchenv_plus
 .mppt_pitchenv_minus:
 	negs	r1, r1
+	mov	r2, r8
 #ifdef USE_IWRAM
-	ldr	r2,=mpph_LinearPitchSlide_Down
-	jump2
+	ldr	r3,=mpph_LinearPitchSlide_Down
+	jump3
 #else
 	bl	mpph_LinearPitchSlide_Down
 #endif
@@ -457,8 +459,9 @@ mpp_Update_ACHN_notest:
 .mppt_av_plus:					@ --slide up
 	movs	r1, r2				@ r1 = slide value
 	movs	r0, r5				@ r0 = frequency
+	mov	r2, r8
 #ifdef USE_IWRAM
-	fjump2	mpph_PitchSlide_Up
+	fjump3	mpph_PitchSlide_Up
 #else
 	bl	mpph_PitchSlide_Up		@ pitch slide
 #endif
@@ -466,9 +469,10 @@ mpp_Update_ACHN_notest:
 .mppt_av_minus:					@ --slide down
 	negs	r1, r2				@ r1 = slide value
 	movs	r0, r5				@ r0 = frequency
+	mov	r2, r8
 #ifdef USE_IWRAM
-	ldr	r2,=mpph_PitchSlide_Down
-	jump2
+	ldr	r3,=mpph_PitchSlide_Down
+	jump3
 #else
 	bl	mpph_PitchSlide_Down		@ pitch slide
 #endif
@@ -1266,11 +1270,13 @@ mppe_Portamento:				@ EFFECT Exy/Fxy: Portamento
 	
 	cmp	r3, #0
 	bne	.mppe_pd_fineslidedown
+	mov	r2, r8
 	bl	mpph_PitchSlide_Down
 	
 	b	.mppe_pd_store			@ store & exit
 
 .mppe_pd_fineslidedown:
+	mov	r2, r8
 	bl	mpph_FinePitchSlide_Down
 	b	.mppe_pd_store
 	
@@ -1278,9 +1284,11 @@ mppe_Portamento:				@ EFFECT Exy/Fxy: Portamento
 	
 	cmp	r3, #0
 	bne	.mppe_pd_fineslideup
+	mov	r2, r8
 	bl	mpph_PitchSlide_Up
 	b	.mppe_pd_store
 .mppe_pd_fineslideup:
+	mov	r2, r8
 	bl	mpph_FinePitchSlide_Up
 
 .mppe_pd_store:
@@ -1369,6 +1377,7 @@ mppe_Glissando:					@ EFFECT Gxy: Glissando
 	bx	r3
 
 .mppe_glis_slideup:
+	mov	r2, r8
 	bl	mpph_PitchSlide_Up
 	pop	{r1}
 	
@@ -1377,6 +1386,7 @@ mppe_Glissando:					@ EFFECT Gxy: Glissando
 	movs	r0, r1
 	b	.mppe_glis_store
 .mppe_glis_slidedown:
+	mov	r2, r8
 	bl	mpph_PitchSlide_Down
 	pop	{r1}
 	cmp	r0, r1
@@ -1407,6 +1417,7 @@ mppe_Glissando:					@ EFFECT Gxy: Glissando
 	bx	r3
 
 .mppe_glis_amiga_down:
+	mov	r2, r8
 	bl	mpph_PitchSlide_Up
 	pop	{r1}
 	cmp	r0, r1
@@ -1414,6 +1425,7 @@ mppe_Glissando:					@ EFFECT Gxy: Glissando
 	movs	r0, r1
 	b	.mppe_glis_store
 .mppe_glis_amiga_up:
+	mov	r2, r8
 	bl	mpph_PitchSlide_Down
 	pop	{r1}
 	cmp	r0, r1
@@ -1502,10 +1514,12 @@ mppe_DoVibrato:
 	movs	r0, r5
 	cmp	r1, #0
 	blt	.mppe_dv_negative
+	mov	r2, r8
 	bl	mpph_PitchSlide_Up
 	b	.mppe_dv_store
 .mppe_dv_negative:
 	negs	r1, r1
+	mov	r2, r8
 	bl	mpph_PitchSlide_Down
 .mppe_dv_store:
 	movs	r5, r0
@@ -1561,6 +1575,7 @@ mppe_Arpeggio:					@ EFFECT Jxy: Arpeggio
 	
 	movs	r0, r5
 	push	{lr}
+	mov	r2, r8
 	bl	mpph_LinearPitchSlide_Up
 
 	movs	r5, r0
@@ -2343,180 +2358,6 @@ mppe_OldTremor:				@ EFFECT 3xy: Old Tremor
 @===============================================================================
 
 .align 2
-					.global mpph_PitchSlide_Down_Wrapper
-					.thumb_func
-mpph_PitchSlide_Down_Wrapper:
-	push	{r4-r7,lr}
-	mov	r7, r8
-	push	{r7}
-
-	movs	r7, r2
-	mov	r8, r3
-	bl	mpph_PitchSlide_Down
-
-	pop	{r7}
-	mov	r8, r7
-	pop	{r4-r7}
-	pop	{r1}
-	bx	r1
-
-.align 2
-.thumb_func
-@--------------------------------------------------------------------------
-mpph_PitchSlide_Down:				@ Linear/Amiga slide down
-@--------------------------------------------------------------------------
-
-	@ r0 = period
-	@ r1 = slide value (/4)
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_FLAGS]
-	lsrs	r2, #C_FLAGS_SS
-	bcc	.mpph_psd_amiga
-	b	.mpph_psd
-
-.thumb_func
-@--------------------------------------------------------------------------
-mpph_LinearPitchSlide_Down:			@ Linear slide down
-@--------------------------------------------------------------------------
-
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_FLAGS]
-	lsrs	r2, #C_FLAGS_SS
-	bcc	.mpph_psu
-.mpph_psd:
-	ldr	r2,=mpp_TABLE_LinearSlideDownTable
-.mpph_psd_fine:
-	lsls	r1, #1
-	ldrh	r1, [r2, r1]
-	lsrs	r0, #5
-	muls	r0, r1
-	lsrs	r0, #16 -5
-.mpph_psd_clip:
-	cmp	r0, #0
-	bge	.mpph_psd_clipdone
-	movs	r0, #0
-.mpph_psd_clipdone:
-	bx	lr
-.mpph_psd_amiga:
-	lsls	r1, #4
-.mpph_psd_amiga_fine:
-	adds	r0, r1
-	lsrs	r1, r0, #16+5
-	beq	.mpph_psd_clipdone
-	movs	r0, #1
-	lsls	r0, #16+5
-	b	.mpph_psd_clip
-
-.align 2
-					.global mpph_PitchSlide_Up_Wrapper
-					.thumb_func
-mpph_PitchSlide_Up_Wrapper:
-	push	{r4-r7,lr}
-	mov	r7, r8
-	push	{r7}
-
-	movs	r7, r2
-	mov	r8, r3
-	bl	mpph_PitchSlide_Up
-
-	pop	{r7}
-	mov	r8, r7
-	pop	{r4-r7}
-	pop	{r1}
-	bx	r1
-
-.align 2
-.thumb_func
-@--------------------------------------------------------------------------
-mpph_PitchSlide_Up:			@ Linear/Amiga slide up
-@--------------------------------------------------------------------------
-
-	@ r0 = period
-	@ r1 = slide value (/4)
-
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_FLAGS]
-	lsrs	r2, #C_FLAGS_SS
-	bcc	.mpph_psu_amiga
-	b	.mpph_psu
-.thumb_func
-mpph_LinearPitchSlide_Up:		@ Linear slide up
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_FLAGS]
-	lsrs	r2, #C_FLAGS_SS
-	bcc	.mpph_psd
-.mpph_psu:
-	ldr	r2,=mpp_TABLE_LinearSlideUpTable
-	movs	r3, r0
-	cmp	r1, #192
-	blt	.mpph_psu_notdouble
-	adds	r3, r3
-.mpph_psu_notdouble:
-.mpph_psu_fine:
-	lsls	r1, #1
-	ldrh	r1, [r2, r1]
-	lsrs	r0, #5
-	muls	r0, r1
-	lsrs	r0, #16-5
-	adds	r0, r3
-.mpph_psu_clip:
-	movs	r1, r0
-	lsrs	r1, #16+5
-	beq	.mpph_psu_clipped
-	movs	r0, #1
-	lsls	r0, #16+5
-.mpph_psu_clipped:
-	bx	lr
-.mpph_psu_amiga:
-	lsls	r1, #4
-.mpph_psu_amiga_fine:
-	subs	r0, r1
-	bcs	.mpph_psu_clipped
-	movs	r0, #0
-	bx	lr
-
-.align 2
-.thumb_func
-@---------------------------------------------------------------------------
-mpph_FinePitchSlide_Up:
-@---------------------------------------------------------------------------
-
-	@ r0 = period
-	@ r1 = slide value (0-15)
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_FLAGS]
-	lsrs	r2, #C_FLAGS_SS
-	bcc	.mpph_fpsu_amiga
-	ldr	r2,=mpp_TABLE_FineLinearSlideUpTable
-	movs	r3, r0
-	b	.mpph_psu_fine
-.mpph_fpsu_amiga:
-	lsls	r1, #2
-	b	.mpph_psu_amiga_fine
-
-.align 2
-.thumb_func
-@-----------------------------------------------------------------------------------
-mpph_FinePitchSlide_Down:
-@-----------------------------------------------------------------------------------
-
-	@ r0 = period
-	@ r1 = slide value (0-15)
-	
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_FLAGS]
-	lsrs	r2, #C_FLAGS_SS
-	bcc	.mpph_fpsd_amiga
-	ldr	r2,=mpp_TABLE_FineLinearSlideDownTable
-	b	.mpph_psd_fine
-.mpph_fpsd_amiga:
-	lsls	r1, #2
-	b	.mpph_psd_amiga_fine
-.pool
-
-@-----------------------------------------------------------------------------------
-
-.align 2
 .thumb_func
 @-----------------------------------------------------------------------------
 mpph_VolumeSlide64:
@@ -2626,121 +2467,6 @@ mpph_VolumeSlide:
 @==========================================================================================
 
 .text
-
-.align 2
-@-------------------------------------------------------------------------------------------
-mpp_TABLE_LinearSlideUpTable:			@ value = 2^(val/192), 16.16 fixed
-@-------------------------------------------------------------------------------------------
-
-.hword	0,     237,   475,   714,   953   @ 0->4		@ ADD 1.0
-.hword	1194,  1435,  1677,  1920,  2164  @ 5->9
-.hword	2409,  2655,  2902,  3149,  3397  @ 10->14
-.hword	3647,  3897,  4148,  4400,  4653  @ 15->19
-.hword	4907,  5157,  5417,  5674,  5932  @ 20->24
-.hword	6190,  6449,  6710,  6971,  7233  @ 25->29
-.hword	7496,  7761,  8026,  8292,  8559  @ 30->34
-.hword	8027,  9096,  9366,  9636,  9908  @ 35->39
-.hword	10181, 10455, 10730, 11006, 11283 @ 40->44
-.hword	11560, 11839, 12119, 12400, 12682 @ 45->49
-.hword	12965, 13249, 13533, 13819, 14106 @ 50->54
-.hword	14394, 14684, 14974, 15265, 15557 @ 55->59
-.hword	15850, 16145, 16440, 16737, 17034 @ 60->64
-.hword	17333, 17633, 17933, 18235, 18538 @ 65->69
-.hword	18842, 19147, 19454, 19761, 20070 @ 70->74
-.hword	20379, 20690, 21002, 21315, 21629 @ 75->79
-.hword	21944, 22260, 22578, 22897, 23216 @ 80->84
-.hword	23537, 23860, 24183, 24507, 24833 @ 85->89
-.hword	25160, 25488, 25817, 26148, 26479 @ 90->94
-.hword	26812, 27146, 27481, 27818, 28155 @ 95->99
-.hword	28494, 28834, 29175, 29518, 29862 @ 100->104
-.hword	30207, 30553, 30900, 31248, 31599 @ 105->109
-.hword	31951, 32303, 32657, 33012, 33369 @ 110->114
-.hword	33726, 34085, 34446, 34807, 35170 @ 115->119
-.hword	35534, 35900, 36267, 36635, 37004 @ 120->124
-.hword	37375, 37747, 38121, 38496, 38872 @ 125->129
-.hword	39250, 39629, 40009, 40391, 40774 @ 130->134
-.hword	41158, 41544, 41932, 42320, 42710 @ 135->139
-.hword	43102, 43495, 43889, 44285, 44682 @ 140->144
-.hword	45081, 45481, 45882, 46285, 46690 @ 145->149
-.hword	47095, 47503, 47917, 48322, 48734 @ 150->154
-.hword	49147, 49562, 49978, 50396, 50815 @ 155->159
-.hword	51236, 51658, 52082, 52507, 52934 @ 160->164
-.hword	53363, 53793, 54224, 54658, 55092 @ 165->169
-.hword	55529, 55966, 56406, 56847, 57289 @ 170->174
-.hword	57734, 58179, 58627, 59076, 59527 @ 175->179
-.hword	59979, 60433, 60889, 61346, 61805 @ 180->184
-.hword	62265, 62727, 63191, 63657, 64124 @ 185->189
-.hword	64593, 65064, 0,     474,   950   @ 190->194		@ ADD 2.0 w/ 192+
-.hword	1427,  1906,  2387,  2870,  3355  @ 195->199
-.hword	3841,  4327,  4818,  5310,  5803  @ 200->204
-.hword	6298,  6795,  7294,  7794,  8296  @ 205->209
-.hword	8800,  9306,  9814,  10323, 10835 @ 210->214
-.hword	11348, 11863, 12380, 12899, 13419 @ 215->219
-.hword	13942, 14467, 14993, 15521, 16051 @ 220->224
-.hword	16583, 17117, 17653, 18191, 18731 @ 225->229
-.hword	19273, 19817, 20362, 20910, 21460 @ 230->234
-.hword	22011, 22565, 23121, 23678, 24238 @ 235->239
-.hword	24800, 25363, 25929, 25497, 27067 @ 240->244
-.hword	27639, 28213, 28789, 29367, 29947 @ 245->249
-.hword	30530, 31114, 31701, 32289, 32880 @ 250->254
-.hword	33473, 34068                      @ 255->256
-
-.align 2
-@-------------------------------------------------------------------------------------
-mpp_TABLE_LinearSlideDownTable:			@ value = 2^(-val/192), 16.16 fixed
-@-------------------------------------------------------------------------------------
-
-.hword	65535, 65300, 65065, 64830, 64596, 64364, 64132, 63901 @ 0->7
-.hword	63670, 63441, 63212, 62984, 62757, 62531, 62306, 62081 @ 8->15
-.hword	61858, 61635, 61413, 61191, 60971, 60751, 60532, 60314 @ 16->23
-.hword	60097, 59880, 59664, 59449, 59235, 59022, 58809, 58597 @ 24->31
-.hword	58386, 58176, 57966, 57757, 57549, 57341, 57135, 56929 @ 32->39
-.hword	56724, 56519, 56316, 56113, 55911, 55709, 55508, 55308 @ 40->47
-.hword	55109, 54910, 54713, 54515, 54319, 54123, 53928, 53734 @ 48->55
-.hword	53540, 53347, 53155, 52963, 52773, 52582, 52393, 52204 @ 56->63
-.hword	52016, 51829, 51642, 51456, 51270, 51085, 50901, 50718 @ 64->71
-.hword	50535, 50353, 50172, 49991, 49811, 49631, 49452, 49274 @ 72->79
-.hword	49097, 48920, 48743, 48568, 48393, 48128, 48044, 47871 @ 80->87
-.hword	47699, 47527, 47356, 47185, 47015, 46846, 46677, 46509 @ 88->95
-.hword	46341, 46174, 46008, 45842, 45677, 45512, 45348, 45185 @ 96->103
-.hword	45022, 44859, 44698, 44537, 44376, 44216, 44057, 43898 @104->111
-.hword	43740, 43582, 43425, 43269, 43113, 42958, 42803, 42649 @112->119
-.hword	42495, 42342, 42189, 42037, 41886, 41735, 41584, 41434 @120->127
-.hword	41285, 41136, 40988, 40840, 40639, 40566, 40400, 40253 @128->135
-.hword	40110, 39965, 39821, 39678, 39535, 39392, 39250, 39109 @136->143
-.hword	38968, 38828, 38688, 38548, 38409, 38271, 38133, 37996 @144->151
-.hword	37859, 37722, 37586, 37451, 37316, 37181, 37047, 36914 @152->159
-.hword	36781, 36648, 36516, 36385, 36254, 36123, 35993, 35863 @160->167
-.hword	35734, 35605, 35477, 35349, 35221, 35095, 34968, 34842 @168->175
-.hword	34716, 34591, 34467, 34343, 34219, 34095, 33973, 33850 @176->183
-.hword	33728, 33607, 33486, 33365, 33245, 33125, 33005, 32887 @184->191
-.hword	32768, 32650, 32532, 32415, 32298, 32182, 32066, 31950 @192->199
-.hword	31835, 31720, 31606, 31492, 31379, 31266, 31153, 31041 @200->207
-.hword	30929, 30817, 30706, 30596, 30485, 30376, 30226, 30157 @208->215
-.hword	30048, 29940, 29832, 29725, 29618, 29511, 29405, 29299 @216->223
-.hword	29193, 29088, 28983, 28879, 28774, 28671, 28567, 28464 @224->231
-.hword	28362, 28260, 28158, 28056, 27955, 27855, 27754, 27654 @232->239
-.hword	27554, 27455, 27356, 27258, 27159, 27062, 26964, 26867 @240->247
-.hword	26770, 26674, 26577, 26482, 26386, 26291, 26196, 26102 @248->255
-.hword	26008                                                  @ 256
-
-.align 2
-@-------------------------------------------------------------------------------------
-mpp_TABLE_FineLinearSlideUpTable:
-@-------------------------------------------------------------------------------------
-
-.hword	0,      59,     118,    178,    237    @ 0->4		ADD 1x
-.hword	296,    356,    415,    475,    535    @ 5->9
-.hword	594,    654,    714,    773,    833    @ 10->14
-.hword	893                                    @ 15
-
-.align 2
-@-------------------------------------------------------------------------------------
-mpp_TABLE_FineLinearSlideDownTable:
-@-------------------------------------------------------------------------------------
-
-.hword	65535, 65477, 65418, 65359, 65300, 65241, 65182, 65359 @ 0->7
-.hword	65065, 65006, 64947, 64888, 64830, 64772, 64713, 64645 @ 8->15
 
 @-------------------------------------------------------------------------------------
 mpp_TABLE_FineSineData:
