@@ -1082,7 +1082,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
             int volume = channel->volume;
             mm_byte mem = channel->memory[MPP_XM_VFX_MEM_FVS];
 
-            if (volcmd >= 0x90) // mppuv_xm_volslide_down
+            if (volcmd < 0x90) // mppuv_xm_volslide_down
             {
                 volcmd -= 0x80;
 
