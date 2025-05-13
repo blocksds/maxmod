@@ -1217,7 +1217,8 @@ mppe_VolumeSlide:				@ EFFECT Dxy: VOLUME SLIDE
 
 	push	{lr}
 	ldrb	r0, [r7, #MCH_VOLUME]		@ load volume
-	
+
+	mov	r3, r8
 	bl	mpph_VolumeSlide64
 	
 	strb	r0, [r7, #MCH_VOLUME]		@ save volume
@@ -1646,6 +1647,8 @@ mppe_ChannelVolumeSlide:			@ EFFECT Nxy: Channel Volume Slide
 	push	{lr}
 
 	ldrb	r0, [r7, #MCH_CVOLUME]		@ load volume
+
+	mov	r3, r8
 	bl	mpph_VolumeSlide64
 
 	strb	r0, [r7, #MCH_CVOLUME]		@ save volume
@@ -1673,13 +1676,17 @@ mppe_SampleOffset:				@ EFFECT Oxy Sample Offset
 mppe_PanningSlide:				@ EFFECT Pxy Panning Slide
 @---------------------------------------------------------------------------------
 
+	// TODO: This is unused! Is that a mistake, or was this buggy?
 	push	{lr}
 
-	movs	r0, #255
-	push	{r0}
 	ldrb	r0, [r7, #MCH_PANNING]		@ load panning
-	
+	movs	r3, #255
+
+	mov	r4, r8
+	push	{r4}
 	bl	mpph_VolumeSlide
+	pop	{r4}
+	mov	r8, r4
 
 	strb	r0, [r7, #MCH_PANNING]		@ save panning
 	pop	{r0}
@@ -2214,12 +2221,18 @@ mppe_GlobalVolumeSlide:				@ EFFECT Wxy: Global Volume Slide
 
 1:	movs	r0, #64
 
-2:	push	{r0}
+2:
+	movs	r3, r0
+
 	mov	r0, r8
 	ldrb	r0, [r0, #MPL_GV]		@ load global volume
-	
-	bl	mpph_VolumeSlide		@ slide..
-	
+
+	mov	r4, r8
+	push	{r4}
+	bl	mpph_VolumeSlide
+	pop	{r4}
+	mov	r8, r4
+
 	mov	r1, r8
 	strb	r0, [r1, #MPL_GV]		@ save global volume
 	pop	{r0}
@@ -2352,115 +2365,6 @@ mppe_OldTremor:				@ EFFECT 3xy: Old Tremor
 	strb	r1, [r2, #MPV_VOLPLUS]
 .mppe_ot_cut:
 	bx	lr
-
-@===============================================================================
-@                                    FUNCTIONS!!
-@===============================================================================
-
-.align 2
-.thumb_func
-@-----------------------------------------------------------------------------
-mpph_VolumeSlide64:
-@-----------------------------------------------------------------------------
-
-	movs	r3, #64
-	push	{r3}
-
-.thumb_func
-@-----------------------------------------------------------------------------
-mpph_VolumeSlide:
-@-----------------------------------------------------------------------------
-
-	@ r0 = volume
-	@ r1 = paramter
-	@ r2 = tick#
-	@ stack:1 = max volume
-	
-	mov	r3, r8
-	ldrb	r3, [r3, #MPL_FLAGS]
-	lsrs	r3, #C_FLAGS_XS
-	bcs	.mpph_vs_XM
-	
-	cmp	r1, #0x0F			@  is value 15?
-	bne	.mpph_vs_hack1			@    then only slide on tick0
-	b	.mpph_vs_fsub
-.mpph_vs_hack1:
-	cmp	r1, #0xF0			@  is value 15?
-	bne	.mpph_vs_hack2			@    then only slide on tick0
-	cmp	r2, #0				@    ..
-	bne	.mpph_vs_exit			@    ..
-	b	.mpph_vs_fadd
-.mpph_vs_hack2:
-
-	movs	r3, r1				@ test for Dx0
-	lsls	r3, #32-4			@ ..
-	bne	.mpph_vs_next1			@ ..
-.mpph_vs_add:					@ Dx0:			(used for DxF too)
-	cmp	r2, #0
-	beq	.mpph_vs_exit
-.mpph_vs_fadd:
-	lsrs	r1, #4				@  fix value
-	adds	r0, r1				@  add to volume
-	pop	{r1}
-	cmp	r0, r1				@  clip values past 64
-	blt	.mpph_vs_exit2			@  ..
-	movs	r0, r1				@  ..
-	b	.mpph_vs_exit2			@  ..
-.mpph_vs_next1:					@---------------------
-	movs	r3, r1				@ test for D0x
-	lsrs	r3, #4				@ ..
-	bne	.mpph_vs_next2			@ ..
-.mpph_vs_sub:					@ D0x:
-	cmp	r2, #0
-	beq	.mpph_vs_exit
-.mpph_vs_fsub:
-	lsls	r1, #32-4			@  mask value
-	lsrs	r1, #32-4			@  ..
-	
-	subs	r0, r1				@  subtract from volume
-	bcs	.mpph_vs_exit			@  clip values under 0
-	movs	r0, #0				@  ..
-	b	.mpph_vs_exit			@  ..
-.mpph_vs_next2:					@---------------------
-	cmp	r2, #0				@ fine slides now... only slide on tick0
-	bne	.mpph_vs_exit			@ ..
-	
-	movs	r3, r1				@ test for DxF
-	lsls	r3, #32-4			@ ..
-	lsrs	r3, #32-4
-	cmp	r3, #0x0F			@ ..
-	beq	.mpph_vs_fadd			@ branch
-	
-	movs	r3, r1				@ test for DFx
-	lsrs	r3, #4				@ ..
-	cmp	r3, #0x0F			@ ..
-	beq	.mpph_vs_fsub			@ branch
-.mpph_vs_exit:
-
-	pop	{r1}
-
-.mpph_vs_exit2:
-	bx	lr				@ exit if all fail
-	
-.mpph_vs_XM:
-	cmp	r2, #0
-	beq	.mpph_vs_exit
-	
-	lsrs	r3, r1, #4
-	lsls	r1, #32-4
-	lsrs	r1, #32-4
-	subs	r3, r1
-	adds	r0, r3
-	pop	{r1}
-	cmp	r0, r1
-	blt	.mpph_vsxm_testlow
-	movs	r0, r1
-.mpph_vsxm_testlow:
-	cmp	r0, #0
-	bgt	.mpph_vs_exit2
-	movs	r0, #0
-	bx	lr
-.pool
 
 @==========================================================================================
 @                                          TABLES

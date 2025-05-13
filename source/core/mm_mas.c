@@ -1628,3 +1628,104 @@ IWRAM_CODE void mppProcessTick(void)
     // Advance position
     mpp_setposition(layer, layer->position + 1);
 }
+// Note: This is also used for panning slide
+mm_word mpph_VolumeSlide(int volume, mm_word param, mm_word tick, int max_volume,
+                         mpl_layer_information *layer)
+{
+    if (layer->flags & (1 << (C_FLAGS_XS - 1))) // mpph_vs_XM
+    {
+        if (tick != 0)
+        {
+            int r3 = param >> 4;
+            int r1 = param & 0xF;
+
+            int new_val = volume + r3 - r1;
+
+            if (new_val > max_volume)
+                new_val = max_volume;
+            if (new_val < 0)
+                new_val = 0;
+
+            volume = new_val;
+        }
+
+        return volume;
+    }
+    else // mpph_vs_IT
+    {
+        if (param == 0xF)
+        {
+            volume -= 0xF;
+            if (volume < 0)
+                return 0;
+
+            return volume;
+        }
+
+        if (param == 0xF0)
+        {
+            if (tick != 0)
+                return volume;
+
+            volume += 0xF;
+            if (volume > max_volume)
+                return max_volume;
+
+            return volume;
+        }
+
+        if ((param & 0xF) == 0) // Test for Dx0 : mpph_vs_add
+        {
+            if (tick == 0)
+                return volume;
+
+            volume += param >> 4;
+            if (volume > max_volume)
+                return max_volume;
+
+            return volume;
+        }
+
+        if ((param >> 4) == 0) // Test for D0x : mpph_vs_sub
+        {
+            if (tick == 0)
+                return volume;
+
+            volume -= param & 0xF;
+            if (volume < 0)
+                return 0;
+
+            return volume;
+        }
+
+        // Fine slides now... only slide on tick 0
+        if (tick != 0)
+            return volume;
+
+        if ((param & 0xF) == 0xF) // Test for DxF
+        {
+            volume += param >> 4;
+            if (volume > max_volume)
+                return max_volume;
+
+            return volume;
+        }
+
+        if ((param >> 4) == 0xF) // Test for DFx
+        {
+            volume -= param & 0xF;
+            if (volume < 0)
+                return 0;
+
+            return volume;
+        }
+
+        return volume;
+    }
+}
+
+mm_word mpph_VolumeSlide64(int volume, mm_word param, mm_word tick,
+                           mpl_layer_information *layer)
+{
+    return mpph_VolumeSlide(volume, param, tick, 64, layer);
+}
