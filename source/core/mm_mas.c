@@ -1255,10 +1255,10 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
             {
                 volcmd -= 65; // 65-74 ==> 0-9
 
-                if (volcmd != 0)
+                if (volcmd == 0)
                     volcmd = channel->memory[MPP_IT_VFX_MEM];
-
-                channel->memory[MPP_IT_VFX_MEM] = volcmd;
+                else
+                    channel->memory[MPP_IT_VFX_MEM] = volcmd;
 
                 volume += volcmd;
                 if (volume > 64)
@@ -1268,10 +1268,10 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
             {
                 volcmd -= 75; // 75-84 ==> 0-9
 
-                if (volcmd != 0)
+                if (volcmd == 0)
                     volcmd = channel->memory[MPP_IT_VFX_MEM];
-
-                channel->memory[MPP_IT_VFX_MEM] = volcmd;
+                else
+                    channel->memory[MPP_IT_VFX_MEM] = volcmd;
 
                 volume -= volcmd;
                 if (volume < 0)
@@ -1291,10 +1291,10 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
             {
                 volcmd -= 85; // 85-94 ==> 0-9
 
-                if (volcmd != 0)
+                if (volcmd == 0)
                     volcmd = channel->memory[MPP_IT_VFX_MEM];
-
-                channel->memory[MPP_IT_VFX_MEM] = volcmd;
+                else
+                    channel->memory[MPP_IT_VFX_MEM] = volcmd;
 
                 volume += volcmd;
                 if (volume > 64)
@@ -1304,10 +1304,10 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
             {
                 volcmd -= 95; // 95-104 ==> 0-9
 
-                if (volcmd != 0)
+                if (volcmd == 0)
                     volcmd = channel->memory[MPP_IT_VFX_MEM];
-
-                channel->memory[MPP_IT_VFX_MEM] = volcmd;
+                else
+                    channel->memory[MPP_IT_VFX_MEM] = volcmd;
 
                 volume -= volcmd;
                 if (volume < 0)
@@ -1380,7 +1380,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
 
             if (layer->flags & (1 << (C_FLAGS_GS - 1))) // Shared Gxx
             {
-                if (glis != 0)
+                if (glis == 0)
                     glis = channel->memory[MPP_IT_PORTAMEM];
 
                 channel->memory[MPP_IT_PORTAMEM] = glis;
@@ -1392,7 +1392,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
             }
             else // Single Gxx
             {
-                if (glis != 0)
+                if (glis == 0)
                     glis = channel->memory[MPP_GLIS_MEM];
 
                 channel->memory[MPP_GLIS_MEM] = glis;
