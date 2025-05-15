@@ -97,10 +97,11 @@ for us (including VBlank IRQ [with libgba]) and uses 16KHz mixing rate.
 #include "soundbank.h"
 #include "soundbank_bin.h" // Soundbank binary reference
 
-int main( void ) {
+int main(void)
+{
     // Initialize maxmod with default settings
     // pass soundbank address, and allocate 8 channels.
-    mmInitDefault( soundbank_bin, 8 );
+    mmInitDefault(soundbank_bin, 8);
 
     ...
 }
@@ -131,7 +132,7 @@ is the total number of modules plus samples (useful for DS projects).
 Use mmStart() to play a song.
 
 ```c
-mmStart( MOD_SONG2, MM_PLAY_LOOP );
+mmStart(MOD_SONG2, MM_PLAY_LOOP);
 // Song is playing now (well... almost)
 ```
 
@@ -139,7 +140,8 @@ Not just yet! The actual song playback (and software mixing) occurs when you
 call **mmFrame()**. This must be called every frame (60hz) (in your main loop).
 
 ```c
-while (1) {
+while (1)
+{
     // ..process game logic..
 
     // Update Maxmod
@@ -158,7 +160,7 @@ The simplest way to play a sound is with **mmEffect()**.
 
 ```c
 // Play SFX_BLASTER at default pitch with full volume and center panning
-mmEffect( SFX_BLASTER );
+mmEffect(SFX_BLASTER);
 ```
 
 If you need more control; use mmEffectEx() to specify rate, volume, and panning (and more).
@@ -167,42 +169,42 @@ If you need more control; use mmEffectEx() to specify rate, volume, and panning 
 // Play sound at half playback rate, 200/255 volume, and center panning
 mm_sound_effect sound;
 sound.id      = SFX_BLASTER; // sample ID (make sure it is loaded)
-sound.rate    = 0x400/2;     // playback rate, 1024 = original sound
+sound.rate    = 0x400 / 2;   // playback rate, 1024 = original sound
 sound.handle  = 0;           // 0 = allocate new handle
 sound.volume  = 200;         // 200/255 volume level
 sound.panning = 128;         // centered panning
 
-mmEffectEx( &sound );
+mmEffectEx(&sound);
 ```
 
 mmEffect() and mmEffectEx() both return an *mm_sfxhand* type. This can be used
 to modify the sound effect while it's playing.
 
 ```c
-mysound = mmEffect( SFX_BLASTER );
+mysound = mmEffect(SFX_BLASTER);
 
 // Change pitch to +1 octave
-mmEffectRate( mysound, 1024*2 );
+mmEffectRate(mysound, 1024 * 2);
 
 // Change volume to half level (128/255)
-mmEffectVolume( mysound, 128 );
+mmEffectVolume(mysound, 128);
 
 // Change panning to far-right
-mmEffectPanning( mysound, 255 );
+mmEffectPanning(mysound, 255);
 ```
 
 To stop an effect that's playing:
 
 ```c
 // Stop sound effect
-mmEffectCancel( mysound );
+mmEffectCancel(mysound);
 ```
 
 Sometimes the effect you just played isn't so important. You can mark it as a
 *background* effect with **mmEffectRelease()**.
 
 ```c
-mmEffectRelease( mysound );
+mmEffectRelease(mysound);
 // Now the sound is allowed to be interrupted by other effects/music (if the need arises)
 ```
 

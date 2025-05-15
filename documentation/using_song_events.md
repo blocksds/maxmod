@@ -22,15 +22,15 @@ To receive song events, you must first setup a special callback function. After
 that you can use the **mmSetEventHandler()** function.
 
 ```c
-mm_word myEventHandler( mm_word msg, mm_word param )
+mm_word myEventHandler(mm_word msg, mm_word param)
 {
-    switch( msg )
+    switch(msg)
     {
-    case MMCB_SONGMESSAGE:
-        // Process song message
-        break;
-    case MMCB_SONGFINISHED:
-        // A song has finished playing
+        case MMCB_SONGMESSAGE:
+            // Process song message
+            break;
+        case MMCB_SONGFINISHED:
+            // A song has finished playing
     }
 }
 ```
@@ -53,5 +53,5 @@ Use the **mmSetEventHandler()** function to install your handler. Call this
 after you have initialized Maxmod.
 
 ```c
-mmSetEventHandler( myEventHandler );
+mmSetEventHandler(myEventHandler);
 ```

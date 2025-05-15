@@ -372,13 +372,15 @@ IWRAM_CODE ARM_CODE void mmUpdateChannel_T0(mm_module_channel *module_channel, m
             goto glissando_affected;
     }
 
+    // Always start channel if it's a new instrument
     if (module_channel->flags & MF_NEWINSTR)
         goto start_channel;
 
+    // Test for volume commmand
     if ((module_channel->flags & MF_HASVCMD) == 0)
         goto start_channel;
 
-    mm_bool is_xm_mode = mpp_layer->flags & C_FLAGS_X;
+    mm_bool is_xm_mode = mpp_layer->flags & (1 << (C_FLAGS_XS - 1));
 
     if (is_xm_mode) // XM effects
     {
@@ -450,11 +452,12 @@ channel_started:
             module_channel->bflags &= ~(3 << 6);
             module_channel->bflags |= ((instrument->nna & 3) << 6);
 
-            active_channel->flags &= ~MCAF_VOLENV;
             if (instrument->env_flags & ENVFLAG_A)
                 active_channel->flags |= MCAF_VOLENV;
+            else
+                active_channel->flags &= ~MCAF_VOLENV;
 
-            // TODO: Is the << 1 a bug?
+            // The MSB determines if we need to set a new panning value
             if (instrument->panning & 0x80)
                 module_channel->panning = (instrument->panning & 0x7F) << 1;
         }
@@ -465,7 +468,7 @@ channel_started:
             mm_mas_sample_info *sample = get_sample(mpp_layer, active_channel->sample);
             module_channel->volume = sample->default_volume;
 
-            // TODO: Is the << 1 a bug?
+            // The MSB determines if we need to set a new panning value
             if (sample->panning & 0x80)
                 module_channel->panning = (sample->panning & 0x7F) << 1;
         }

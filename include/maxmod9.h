@@ -43,7 +43,7 @@ extern "C" {
 /// @param soundbank_file
 ///     Filename of soundbank. A soundbank file can be created with the Maxmod
 ///     Utility.
-void mmInitDefault( const char* soundbank_file );
+void mmInitDefault(const char* soundbank_file);
 
 /// Initialize Maxmod with default settings.
 ///
@@ -54,7 +54,7 @@ void mmInitDefault( const char* soundbank_file );
 ///
 /// @param soundbank
 ///     Address of soundbank data.
-void mmInitDefaultMem( mm_addr soundbank );
+void mmInitDefaultMem(mm_addr soundbank);
 
 /// Initializes Maxmod with the settings specified.
 ///
@@ -68,7 +68,7 @@ void mmInitDefaultMem( mm_addr soundbank );
 ///
 /// Example:
 /// ```c
-/// void maxmodInit( void )
+/// void maxmodInit(void)
 /// {
 ///     mm_ds_system sys;
 ///
@@ -79,22 +79,22 @@ void mmInitDefaultMem( mm_addr soundbank );
 ///     sys.samp_count= MSL_NSAMPS;
 ///
 ///     // Memory bank, allocate BANKSIZE (or NSONGS+NSAMPS) words
-///     sys.mem_bank = malloc( MSL_BANKSIZE * 4 );
+///     sys.mem_bank = malloc(MSL_BANKSIZE * 4);
 ///
 ///     // Select FIFO channel
 ///     sys.fifo_channel = FIFO_MAXMOD;
 ///
 ///     // Initialize maxmod
-///     mmInit( &sys );
+///     mmInit(&sys);
 ///
-///     mmSoundBankInMemory( (mm_addr)my_soundbank );
+///     mmSoundBankInMemory((mm_addr)my_soundbank);
 ///
 ///     // or
 ///     //
-///     //mmSoundBankInFiles( "my_soundbank.msl" );
+///     //mmSoundBankInFiles("my_soundbank.msl");
 /// }
 /// ```
-void mmInit( mm_ds_system* system );
+void mmInit(mm_ds_system *system);
 
 /// Switches the audio mode for Maxmod DS.
 ///
@@ -108,7 +108,7 @@ void mmInit( mm_ds_system* system );
 /// @param mode
 ///     New audio mode. Pass MM_MODE_A for complete hardware mixing, MM_MODE_B
 ///     for interpolated mixing, or MM_MODE_C for extended mixing.
-void mmSelectMode( mm_mode_enum mode );
+void mmSelectMode(mm_mode_enum mode);
 
 /// Loads a module into memory for playback.
 ///
@@ -117,7 +117,7 @@ void mmSelectMode( mm_mode_enum mode );
 /// @param module_ID
 ///     Index of module to be loaded. Values are defined in the soundbank header
 ///     output. (prefixed with "MOD_")
-void mmLoad( mm_word module_ID );
+void mmLoad(mm_word module_ID);
 
 /// Unloads and frees memory space occupied by a module.
 ///
@@ -125,7 +125,7 @@ void mmLoad( mm_word module_ID );
 ///
 /// @param module_ID
 ///     Index of module to be unloaded from memory.
-void mmUnload( mm_word module_ID );
+void mmUnload(mm_word module_ID);
 
 /// Loads a sound effect into memory for playback.
 ///
@@ -134,13 +134,13 @@ void mmUnload( mm_word module_ID );
 /// @param sample_ID
 ///     Index of sample to be loaded. Values are defined in the soundbank header
 ///     output (prefixed with "SFX_)
-void mmLoadEffect( mm_word sample_ID );
+void mmLoadEffect(mm_word sample_ID);
 
 /// Unloads a sound effect and frees the memory if the reference count becomes zero.
 ///
 /// @param sample_ID
 ///     Index of sample to be unloaded.
-void mmUnloadEffect( mm_word sample_ID );
+void mmUnloadEffect(mm_word sample_ID);
 
 /// Lock audio channels to prevent Maxmod from using them.
 ///
@@ -151,7 +151,7 @@ void mmUnloadEffect( mm_word sample_ID );
 /// @param bitmask
 ///     Selection of channels to lock. Bit0 = Channel0, Bit1 = Channel1 ...
 ///     Bit15 = Channel15
-void mmLockChannels( mm_word bitmask );
+void mmLockChannels(mm_word bitmask);
 
 /// Unlocks audio channels to allow Maxmod to use them.
 ///
@@ -165,7 +165,7 @@ void mmLockChannels( mm_word bitmask );
 /// @param bitmask
 ///     Selection of channels to unlock. Bit0 = Channel0, Bit1 = Channel1, Bit2
 ///     = Channel2 ... Bit15 = Channel15
-void mmUnlockChannels( mm_word bitmask );
+void mmUnlockChannels(mm_word bitmask);
 
 /// Install handler to receive song events.
 ///
@@ -176,7 +176,7 @@ void mmUnlockChannels( mm_word bitmask );
 ///
 /// @param handler
 ///     Function pointer to event handler.
-void mmSetEventHandler( mm_callback handler );
+void mmSetEventHandler(mm_callback handler);
 
 /// Setup the standard interface for a soundbank that is loaded in the file
 /// system.
@@ -186,7 +186,7 @@ void mmSetEventHandler( mm_callback handler );
 ///
 /// @param filename
 ///     Filename of your soundbank binary.
-void mmSoundBankInFiles( const char* filename );
+void mmSoundBankInFiles(const char *filename);
 
 /// Enable the standard interface for a soundbank that is loaded into memory.
 ///
@@ -195,7 +195,7 @@ void mmSoundBankInFiles( const char* filename );
 ///
 /// @param address
 ///     Memory address of soundbank file.
-void mmSoundBankInMemory( mm_addr address );
+void mmSoundBankInMemory(mm_addr address);
 
 /// Install a custom routine to interface with the soundbank data.
 ///
@@ -204,7 +204,7 @@ void mmSoundBankInMemory( mm_addr address );
 ///
 /// @param p_loader
 ///     Function pointer to soundbank request handler.
-void mmSetCustomSoundBankHandler( mm_callback p_loader );
+void mmSetCustomSoundBankHandler(mm_callback p_loader);
 
 // ***************************************************************************
 /// @}
@@ -222,7 +222,7 @@ void mmSetCustomSoundBankHandler( mm_callback p_loader );
 /// @param mode
 ///     Mode of playback. Can be MM_PLAY_LOOP (play and loop until stopped
 ///     manually) or MM_PLAY_ONCE (play until end).
-void mmStart( mm_word module_ID, mm_pmode mode );
+void mmStart(mm_word module_ID, mm_pmode mode);
 
 /// Pauses playback of the active module.
 ///
@@ -233,25 +233,25 @@ void mmStart( mm_word module_ID, mm_pmode mode );
 /// This may cause some problems with certain samples (such as drum-loops)
 /// drifting out of sync with the song temporarily. This is not an issue with
 /// the interpolated audio mode since the channels are fed by software.
-void mmPause( void );
+void mmPause(void);
 
 /// Resume module playback.
 ///
 /// Pause with mmPause().
-void mmResume( void );
+void mmResume(void);
 
 /// Stops playback of the active module.
 ///
 /// Start again (from the beginning) with mmStart().
 ///
 /// Any channels used by the active module will be freed.
-void mmStop( void );
+void mmStop(void);
 
 /// Set the current sequence [aka order-list] position for the active module.
 ///
 /// @param position
 ///     New position in module sequence.
-void mmPosition( mm_word position );
+void mmPosition(mm_word position);
 
 /// Plays a jingle.
 ///
@@ -264,19 +264,19 @@ void mmPosition( mm_word position );
 ///
 /// @param module_ID
 ///     Index of module to be played. (Defined in soundbank header)
-void mmJingle( mm_word module_ID );
+void mmJingle(mm_word module_ID);
 
 /// Use this function to change the master volume scale for module playback.
 ///
 /// @param volume
 ///     New volume level. Ranges from 0 (silent) to 1024 (normal).
-void mmSetModuleVolume( mm_word volume );
+void mmSetModuleVolume(mm_word volume);
 
 /// Use this function to change the master volume scale for jingle playback.
 ///
 /// @param volume
 ///     New volume level. Ranges from 0 (silent) to 1024 (normal).
-void mmSetJingleVolume( mm_word volume );
+void mmSetJingleVolume(mm_word volume);
 
 /// Change the master tempo for module playback.
 ///
@@ -290,7 +290,7 @@ void mmSetJingleVolume( mm_word volume );
 ///
 /// @param tempo
 ///     New tempo value. Tempo = (speed_percentage * 1024) / 100.
-void mmSetModuleTempo( mm_word tempo );
+void mmSetModuleTempo(mm_word tempo);
 
 /// Change the master pitch scale for module playback.
 ///
@@ -301,13 +301,13 @@ void mmSetModuleTempo( mm_word tempo );
 ///
 /// @param pitch
 ///     New pitch scale. Value = 1024 * 2 ^ (semitones / 12)
-void mmSetModulePitch( mm_word pitch );
+void mmSetModulePitch(mm_word pitch);
 
 /// Used to determine if a module is playing.
 ///
 /// @return
 ///     Nonzero if a module is currently playing.
-mm_bool mmActive( void );
+mm_bool mmActive(void);
 
 // ***************************************************************************
 /// @}
@@ -332,7 +332,7 @@ mm_bool mmActive( void );
 /// @return
 ///     Sound effect handle. This value can be used to modify parameters of the
 ///     sound effect while it is playing.
-mm_sfxhand mmEffect( mm_word sample_ID );
+mm_sfxhand mmEffect(mm_word sample_ID);
 
 /// Plays a sound effect with custom settings.
 ///
@@ -343,7 +343,7 @@ mm_sfxhand mmEffect( mm_word sample_ID );
 ///
 /// @return
 ///     Sound effect handle that may be used to modify the sound later.
-mm_sfxhand mmEffectEx( mm_sound_effect* sound );
+mm_sfxhand mmEffectEx(mm_sound_effect *sound);
 
 /// Changes the volume of a sound effect.
 ///
@@ -351,7 +351,7 @@ mm_sfxhand mmEffectEx( mm_sound_effect* sound );
 ///     Sound effect handle received from mmEffect() or mmEffectEx().
 /// @param volume
 ///     New volume level. Ranges from 0 (silent) to 255 (normal).
-void mmEffectVolume( mm_sfxhand handle, mm_word volume );
+void mmEffectVolume(mm_sfxhand handle, mm_word volume);
 
 /// Changes the panning of a sound effect.
 ///
@@ -359,7 +359,7 @@ void mmEffectVolume( mm_sfxhand handle, mm_word volume );
 ///     Sound effect handle received from mmEffect() or mmEffectEx().
 /// @param panning
 ///     New panning level. Ranges from 0 (left) to 255 (right).
-void mmEffectPanning( mm_sfxhand handle, mm_byte panning );
+void mmEffectPanning(mm_sfxhand handle, mm_byte panning);
 
 /// Changes the playback rate for a sound effect.
 ///
@@ -374,7 +374,7 @@ void mmEffectPanning( mm_sfxhand handle, mm_byte panning );
 ///     Sound effect handle received from mmEffect() or mmEffectEx().
 /// @param rate
 ///     New playback rate.
-void mmEffectRate( mm_sfxhand handle, mm_word rate );
+void mmEffectRate(mm_sfxhand handle, mm_word rate);
 
 /// Scales the rate of the sound effect by a certain factor.
 ///
@@ -382,13 +382,13 @@ void mmEffectRate( mm_sfxhand handle, mm_word rate );
 ///     Sound effect handle received from mmEffect() or mmEffectEx().
 /// @param factor
 ///     6.10 fixed point factor.
-void mmEffectScaleRate( mm_sfxhand handle, mm_word factor );
+void mmEffectScaleRate(mm_sfxhand handle, mm_word factor);
 
 /// Stops a sound effect. The handle will be invalidated.
 ///
 /// @param handle
 ///     Sound effect handle received from mmEffect() or mmEffectEx().
-void mmEffectCancel( mm_sfxhand handle );
+void mmEffectCancel(mm_sfxhand handle);
 
 /// Marks a sound effect as unimportant.
 ///
@@ -397,7 +397,7 @@ void mmEffectCancel( mm_sfxhand handle );
 ///
 /// @param handle
 ///     Sound effect handle received from mmEffect() or mmEffectEx().
-void mmEffectRelease( mm_sfxhand handle );
+void mmEffectRelease(mm_sfxhand handle);
 
 /// Play external sound.
 ///
@@ -408,16 +408,16 @@ void mmEffectRelease( mm_sfxhand handle );
 ///
 /// @return
 ///     Sound effect handle that may be used to modify the sound later.
-mm_sfxhand mmEffectExt( mm_sound_effect* sound, mm_ds_sample* sample );
+mm_sfxhand mmEffectExt(mm_sound_effect *sound, mm_ds_sample *sample);
 
 /// Set master volume scale for effect playback.
 ///
 /// @param volume
 ///     Master volume. 0->1024 representing 0%->100% volume
-void mmSetEffectsVolume( mm_word volume );
+void mmSetEffectsVolume(mm_word volume);
 
 /// Stop all sound effects and reset the effect system.
-void mmEffectCancelAll( void );
+void mmEffectCancelAll(void);
 
 // ***************************************************************************
 /// @}
@@ -437,7 +437,7 @@ void mmEffectCancelAll( void );
 /// @param stream
 ///     Pointer to a structure containing information about how the stream will
 ///     operate.
-void mmStreamOpen( mm_stream* stream );
+void mmStreamOpen(mm_stream *stream);
 
 /// Check buffering state and fill stream with data.
 ///
@@ -445,10 +445,10 @@ void mmStreamOpen( mm_stream* stream );
 /// This function only needs to be called manually if the stream isn't in
 /// auto-fill mode. This function shouldn't be used when the stream is
 /// automatically filled.
-void mmStreamUpdate( void );
+void mmStreamUpdate(void);
 
 /// Close audio stream.
-void mmStreamClose( void );
+void mmStreamClose(void);
 
 /// Get number of samples elapsed since the stream was opened.
 ///
@@ -456,7 +456,7 @@ void mmStreamClose( void );
 ///
 /// @return
 ///     The nummber of samples.
-mm_word mmStreamGetPosition( void );
+mm_word mmStreamGetPosition(void);
 
 // ***************************************************************************
 /// @}
@@ -471,7 +471,7 @@ mm_word mmStreamGetPosition( void );
 ///
 /// If music is playing when this function is used, a note or two may be cut due
 /// to the locking.
-void mmReverbEnable( void );
+void mmReverbEnable(void);
 
 /// Configures the reverb system.
 ///
@@ -480,14 +480,14 @@ void mmReverbEnable( void );
 ///
 /// @param config
 ///     Reverb configuration structure.
-void mmReverbConfigure( mm_reverb_cfg* config );
+void mmReverbConfigure(mm_reverb_cfg *config);
 
 /// Starts reverb output in the selected channels.
 ///
 /// @param channels
 ///     Reverb channel selection. Can use MMRC_LEFT or MMRC_RIGHT or (MMRC_LEFT
 ///     | MMRC_RIGHT).
-void mmReverbStart( mm_reverbch channels );
+void mmReverbStart(mm_reverbch channels);
 
 /// Stops reverb output for the selected channels.
 ///
@@ -495,7 +495,7 @@ void mmReverbStart( mm_reverbch channels );
 ///
 /// @param channels
 ///     Reverb channel selection.
-void mmReverbStop( mm_reverbch channels );
+void mmReverbStop(mm_reverbch channels);
 
 /// This calculates the amount of memory needed for the reverb buffer.
 ///
@@ -511,33 +511,29 @@ void mmReverbStop( mm_reverbch channels );
 ///
 /// @return
 ///     Amount of memory required, measured in words (32-bit units).
-static inline mm_word mmReverbBufferSize( mm_word bit_depth, mm_word sampling_rate, mm_word delay )
+static inline mm_word mmReverbBufferSize(mm_word bit_depth, mm_word sampling_rate, mm_word delay)
 {
-	if( bit_depth == 16 )
-	{
-		return ((((sampling_rate * delay * 2) / 1000) + 3) & (~3)) / 4;
-	}
-	else
-	{
-		return ((((sampling_rate * delay) / 1000) + 3) & (~3)) / 4;
-	}
+    if (bit_depth == 16)
+        return ((((sampling_rate * delay * 2) / 1000) + 3) & (~3)) / 4;
+    else
+        return ((((sampling_rate * delay) / 1000) + 3) & (~3)) / 4;
 }
 
 /// Disables the reverb system and restores the channels.
 ///
 /// Note: In the interpolated audio mode, the channels cannot be restored by
 /// this function and the mixer must be reset instead.
-void mmReverbDisable( void );
+void mmReverbDisable(void);
 
 // ***************************************************************************
 /// @}
 // ***************************************************************************
 
 // NDS: ARM9 Soundbank interface messages
-#define MMCB_SONGREQUEST	0x1A
-#define MMCB_SAMPREQUEST	0x1B
-#define MMCB_DELETESONG		0x1C
-#define MMCB_DELETESAMPLE	0x1D
+#define MMCB_SONGREQUEST    0x1A
+#define MMCB_SAMPREQUEST    0x1B
+#define MMCB_DELETESONG     0x1C
+#define MMCB_DELETESAMPLE   0x1D
 
 // ***************************************************************************
 /// @defgroup nds_arm9_playback_events NDS: ARM9 Playback events
@@ -547,12 +543,12 @@ void mmReverbDisable( void );
 /// This event occurs when an SFx (S3M/IT) or EFx (MOD/XM) effect is parsed from
 /// the pattern data. If you have an event handler installed it will be
 /// forwarded to there. param will contain 'x' from SFx/EFx.
-#define MMCB_SONGMESSAGE	0x2A
+#define MMCB_SONGMESSAGE    0x2A
 
 /// This event occurs when a module has finished playing the last pattern and
 /// has stopped active status. param == 0 if main module, == 1 otherwise
 /// (jingle)
-#define MMCB_SONGFINISHED	0x2B
+#define MMCB_SONGFINISHED   0x2B
 
 // ***************************************************************************
 /// @}

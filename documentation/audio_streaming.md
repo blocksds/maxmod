@@ -110,12 +110,12 @@ void open_stream(void)
 {
     mm_stream stream;
 
-    stream.sampling_rate = 16384;         // 16KHZ
-    stream.buffer_length = 800;           // Should be adequate
-    stream.callback = my_stereo_filler;   // Give stereo filling routine
+    stream.sampling_rate = 16384;           // 16KHZ
+    stream.buffer_length = 800;             // Should be adequate
+    stream.callback = my_stereo_filler;     // Give stereo filling routine
     stream.format = MM_STREAM_16BIT_STEREO; // Select format
-    stream.timer = MM_TIMER0;             // Use timer 0
-    stream.manual = 0;                    // Auto filling
+    stream.timer = MM_TIMER0;               // Use timer 0
+    stream.manual = 0;                      // Auto filling
 
     // open the stream
     mmOpenStream(&si);
@@ -156,7 +156,7 @@ above).
 ```c
 mm_word fill_stream(mm_word length, mm_addr dest, mm_stream_formats format)
 {
-    s8 *output = (s8*)dest;
+    s8 *output = (s8 *)dest;
     for ( ; length; length--)
     {
         *output++ = rand();
@@ -170,7 +170,7 @@ And... an example to fill the stereo output with white noise (16-bit).
 ```c
 mm_word my_stereo_filler(mm_word length, mm_addr dest, mm_stream_formats format)
 {
-    s16 *output = (s16*)dest;
+    s16 *output = (s16 *)dest;
     for ( ; length; length--)
     {
         *output++ = rand(); // Output left sample
@@ -207,7 +207,7 @@ Here is an example program loop that will fill the stream after the program
 logic executes.
 
 ```c
-while(true)
+while (true)
 {
     // ... Update game logic ...
 

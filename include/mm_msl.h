@@ -26,16 +26,16 @@ extern "C" {
 
 typedef struct tmslheaddata
 {
-	mm_hword	sampleCount;
-	mm_hword	moduleCount;
-	mm_word		reserved[2];
+    mm_hword    sampleCount;
+    mm_hword    moduleCount;
+    mm_word     reserved[2];
 } msl_head_data;
 
 typedef struct tmslhead
 {
-	msl_head_data head_data;
-	mm_addr		sampleTable[]; // [MSL_NSAMPS];
-	//mm_addr	moduleTable[MSL_NSONGS];
+    msl_head_data   head_data;
+    mm_addr         sampleTable[]; // [MSL_NSAMPS];
+    //mm_addr         moduleTable[MSL_NSONGS];
 } msl_head;
 
 // sample structure......................................
