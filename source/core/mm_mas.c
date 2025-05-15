@@ -1149,7 +1149,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
                     channel->vibdep = volcmd;
             }
 
-            return mppe_DoVibrato_Wrapper(period, channel, layer);
+            return mppe_DoVibrato(period, channel, layer);
         }
         else if (volcmd < 0xD0) // Panning : mppuv_xm_panning
         {
@@ -1416,7 +1416,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
                 channel->vibspd = volcmd;
             }
 
-            return mppe_DoVibrato_Wrapper(volcmd, channel, layer);
+            return mppe_DoVibrato(volcmd, channel, layer);
         }
     }
 
@@ -1728,4 +1728,31 @@ mm_word mpph_VolumeSlide64(int volume, mm_word param, mm_word tick,
                            mpl_layer_information *layer)
 {
     return mpph_VolumeSlide(volume, param, tick, 64, layer);
+}
+
+extern mm_sbyte mpp_TABLE_FineSineData[];
+
+mm_word mppe_DoVibrato(mm_word period, mm_module_channel *channel, mpl_layer_information *layer)
+{
+    mm_byte position;
+
+    if ((layer->oldeffects == 0) || (layer->tick != 0)) // Update effect
+    {
+        position = channel->vibspd + channel->vibpos; // Wrap to 8 bits
+        channel->vibpos = position;
+    }
+    else
+    {
+        position = channel->vibpos;
+    }
+
+    mm_sword value = mpp_TABLE_FineSineData[position];
+    mm_sword depth = channel->vibdep;
+
+    value = (value * depth) >> 8;
+
+    if (value < 0)
+        return mpph_PitchSlide_Down(period, -value, layer);
+
+    return mpph_PitchSlide_Up(period, value, layer);
 }

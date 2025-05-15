@@ -1440,7 +1440,16 @@ mppe_Glissando:					@ EFFECT Gxy: Glissando
 mppe_Vibrato:					@ EFFECT Hxy: Vibrato
 @---------------------------------------------------------------------------------
 
-	bne	.mppe_v_ot
+	beq 1f
+	movs	r0, r5
+	movs	r1, r7
+	mov	r2, r8
+	mov	r4, lr
+	bl	mppe_DoVibrato
+	movs	r5, r0
+	bx	r4
+1:
+
 	lsrs	r0, r1, #4			@ if (x != 0) {
 	beq	.mppe_v_nospd			@   speed = 4*x;
 	lsls	r0, #2				@   ..
@@ -1454,80 +1463,17 @@ mppe_Vibrato:					@ EFFECT Hxy: Vibrato
 	ldrb	r1, [r1, #MPL_OLDEFFECTS]	@   if(OldEffects)
 	lsls	r0, r1				@      depth <<= 1;
 	strb	r0, [r7, #MCH_VIBDEP]		@
-	b	mppe_DoVibrato
+
+	movs	r0, r5
+	movs	r1, r7
+	mov	r2, r8
+	mov	r4, lr
+	bl	mppe_DoVibrato
+	movs	r5, r0
+	bx	r4
+
 .mppe_v_nodep:
 	BX	LR
-
-.align 2
-					.global mppe_DoVibrato_Wrapper
-					.thumb_func
-mppe_DoVibrato_Wrapper:
-	push	{r4-r7,lr}
-	mov	r7, r8
-	push	{r7}
-
-	movs	r5, r0
-	movs	r7, r1
-	mov	r8, r2
-
-	bl	mppe_DoVibrato
-	movs	r0, r5
-
-	pop	{r7}
-	mov	r8, r7
-	pop	{r4-r7}
-	pop	{r1}
-	bx	r1
-
-.align 2
-.thumb_func
-@-------------------------------------------------------
-mppe_DoVibrato:
-@-------------------------------------------------------
-
-.mppe_v_ot:
-	mov	r0, r8
-	ldrb	r1, [r0, #MPL_TICK]
-	ldrb	r0, [r0, #MPL_OLDEFFECTS]
-	
-	cmp	r0, #0
-	beq	.mppe_dv_update
-	cmp	r1, #0
-	bne	.mppe_dv_update
-	
-	push	{lr}
-	ldrb	r1, [r7, #MCH_VIBPOS]
-	b	.mppe_dv_notupdate
-.mppe_dv_update:
-	push	{lr}
-	ldrb	r0, [r7, #MCH_VIBSPD]
-	ldrb	r1, [r7, #MCH_VIBPOS]
-	adds	r1, r0
-	lsls	r1, #32-8
-	lsrs	r1, #32-8
-	strb	r1, [r7, #MCH_VIBPOS]
-.mppe_dv_notupdate:
-	ldr	r2,=mpp_TABLE_FineSineData
-	ldrsb	r1, [r2, r1]
-	ldrb	r0, [r7, #MCH_VIBDEP]
-	muls	r1, r0
-	asrs	r1, #8
-	movs	r0, r5
-	cmp	r1, #0
-	blt	.mppe_dv_negative
-	mov	r2, r8
-	bl	mpph_PitchSlide_Up
-	b	.mppe_dv_store
-.mppe_dv_negative:
-	negs	r1, r1
-	mov	r2, r8
-	bl	mpph_PitchSlide_Down
-.mppe_dv_store:
-	movs	r5, r0
-	pop	{r0}
-	bx	r0
-//	pop	{pc}		@ return THUMB
-.pool
 
 .align 2
 .thumb_func
@@ -1599,9 +1545,15 @@ mppe_VibratoVolume:			@ EFFECT Kxy: Vibrato+Volume Slide
 @---------------------------------------------------------------------------------
 
 	push	{lr}
-	push	{r1,r2}
+
+	push	{r0,r1,r2}
+	movs	r0, r5
+	movs	r1, r7
+	mov	r2, r8
 	bl	mppe_DoVibrato
-	pop	{r1,r2}
+	movs	r5, r0
+	pop	{r0,r1,r2}
+
 	cmp	r2, #0
 	bl	mppe_VolumeSlide
 	pop	{r0}
@@ -2174,7 +2126,13 @@ mppe_FineVibrato:				@ EFFECT Uxy: Fine Vibrato
 .mppe_fv_nodep:
 
 .mppe_fv_ot:
-	b	mppe_DoVibrato
+	movs	r0, r5
+	movs	r1, r7
+	mov	r2, r8
+	mov	r4, lr
+	bl	mppe_DoVibrato
+	movs	r5, r0
+	bx	r4
 .pool
 
 .align 2
@@ -2373,6 +2331,7 @@ mppe_OldTremor:				@ EFFECT 3xy: Old Tremor
 .text
 
 @-------------------------------------------------------------------------------------
+    .global mpp_TABLE_FineSineData
 mpp_TABLE_FineSineData:
 @-------------------------------------------------------------------------------------
 

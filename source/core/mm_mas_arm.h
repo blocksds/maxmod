@@ -49,7 +49,7 @@ mm_word mpp_Update_ACHN_notest_Wrapper(mpl_layer_information *layer, mm_active_c
 
 void mpp_Channel_NewNote(mm_module_channel*, mpl_layer_information*);
 
-mm_word mppe_DoVibrato_Wrapper(mm_word period, mm_module_channel*, mpl_layer_information*);
+mm_word mppe_DoVibrato(mm_word period, mm_module_channel *channel, mpl_layer_information *layer);
 
 mm_word mpph_PitchSlide_Up(mm_word, mm_word, mpl_layer_information*);
 mm_word mpph_LinearPitchSlide_Up(mm_word period, mm_word slide_value, mpl_layer_information *layer);
