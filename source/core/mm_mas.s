@@ -1008,19 +1008,6 @@ mpph_ProcessEnvelope:			@ params={count,node,address}
 	bx	lr
 .pool
 
-@........................................................................................
-
-.thumb_func
-mpp_PatternPointer:
-	mov	r1, r8
-	ldr	r2,[r1,#MPL_SONGADR]
-	ldr	r1,[r1,#MPL_PATTTABLE]
-	lsls	r0, #2
-	ldr	r0,[r1,r0]
-	adds	r0, r2
-	bx	lr
-.pool
-
 @=============================================================================
 @                                EFFECT MEMORY
 @=============================================================================

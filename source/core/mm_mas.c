@@ -244,6 +244,19 @@ void mmStop(void)
     mppStop();
 }
 
+static uintptr_t mpp_PatternPointer(mm_word entry, mpl_layer_information *layer)
+{
+    mas_header *header = (mas_header *)layer->songadr;
+
+    // Calculate pattern offset (in table)
+    uintptr_t patt_offset = layer->patttable + entry * 4;
+
+    // Calculate pattern address
+    uintptr_t patt_addr = (uintptr_t)header + *(mm_word *)patt_offset;
+
+    return patt_addr;
+}
+
 // Set sequence position.
 // Input r5 = layer, position = r0
 void mpp_setposition(mpl_layer_information *layer_info, mm_word position)
@@ -286,11 +299,8 @@ void mpp_setposition(mpl_layer_information *layer_info, mm_word position)
         position = header->rep;
     }
 
-    // Calculate pattern offset (in table)
-    uintptr_t patt_offset = layer_info->patttable + entry * 4;
-
     // Calculate pattern address
-    uintptr_t patt_addr = (uintptr_t)header + *(mm_word *)patt_offset;
+    uintptr_t patt_addr = mpp_PatternPointer(entry, layer_info);
 
     // Save pattern size
     layer_info->nrows = *(mm_byte *)patt_addr;
