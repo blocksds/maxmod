@@ -1812,16 +1812,16 @@ mppe_Extended:				@ EFFECT Sxy: Extended Effects
 	@ branch table...
 	b	mppex_XM_FVolSlideUp_Wrapper	@ S0x
 	b	mppex_XM_FVolSlideDown_Wrapper	@ S1x
-	b	mppex_OldRetrig		@ S2x
+	b	mppex_OldRetrig_Wrapper		@ S2x
 	b	mppex_VibForm		@ S3x
 	b	mppex_TremForm		@ S4x
 	b	mppex_PanbForm		@ S5x
 	b	mppex_FPattDelay_Wrapper	@ S6x
-	b	mppex_InstControl	@ S7x
+	b	mppex_InstControl_Wrapper	@ S7x
 	b	mppex_SetPanning_Wrapper	@ S8x
 	b	mppex_SoundControl_Wrapper	@ S9x
 	b	mppex_HighOffset	@ SAx
-	b	mppex_PatternLoop	@ SBx
+	b	mppex_PatternLoop_Wrapper	@ SBx
 	b	mppex_NoteCut_Wrapper		@ SCx
 	b	mppex_NoteDelay_Wrapper		@ SDx
 	b	mppex_PatternDelay_Wrapper	@ SEy
@@ -1858,35 +1858,15 @@ mppex_XM_FVolSlideDown_Wrapper:
 
 @-------------------------------------------
 .thumb_func
-mppex_OldRetrig:
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	cmp	r2, #0			@ Z flag = tick0
-	bne	1f
-	lsls	r1, #32-4
-	lsrs	r1, #32-4
-	strb	r1, [r7, #MCH_FXMEM]
-	bx	lr
-	
-1:	ldrb	r0, [r7, #MCH_FXMEM]
-	subs	r0, #1
-
-	bne	1f
-	
-	lsls	r0, r1, #32-4
-	lsrs	r0, #32-4
-	strb	r0, [r7, #MCH_FXMEM]
-
-	cmp	r6, #0
-	beq	1f
-	ldrb	r1, [r6, #MCA_FLAGS]
-	movs	r2, #MCAF_START
-	
-	orrs	r1, r2
-	strb	r1, [r6, #MCA_FLAGS]
-	
-1:	strb	r0, [r7, #MCH_FXMEM]
-	bx	lr
+mppex_OldRetrig_Wrapper:
+	movs	r0, r1
+	movs	r1, r6
+	movs	r2, r7
+	mov	r3, r8
+	push	{lr}
+	bl mppex_OldRetrig
+	pop	{r2}
+	bx	r2
 
 @-------------------------------------------
 .thumb_func
@@ -1915,46 +1895,15 @@ mppex_FPattDelay_Wrapper:
 
 @-------------------------------------------
 .thumb_func
-mppex_InstControl:
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	cmp	r2, #0			@ Z flag = tick0
-	bne	.mppex_ic_exit
-	lsls	r1, #32-4
-	lsrs	r1, #32-4
-	cmp	r1, #2
-	ble	.mppex_ic_pastnotes
-	cmp	r1, #6
-	ble	.mppex_ic_nna
-	cmp	r1, #8
-	ble	.mppex_ic_envelope
-	bx	lr
-.mppex_ic_pastnotes:
-	@ todo...
-	bx	lr
-.mppex_ic_nna:
-	@ overwrite NNA
-	subs	r1, #3
-	ldrb	r2, [r7, #MCH_BFLAGS]
-	lsls	r2, #32-6
-	lsrs	r2, #32-6
-	lsls	r1, #6
-	orrs	r2, r1
-	strb	r2, [r7, #MCH_BFLAGS]
-	bx	lr
-.mppex_ic_envelope:
-	cmp	r6, #0
-	beq	.mppex_ic_exit
-	ldrb	r2, [r6, #MCA_FLAGS]
-	movs	r0, #32
-	bics	r2, r0
-	subs	r1, #7
-	lsls	r1, #5
-	orrs	r2, r1
-	strb	r2, [r6, #MCA_FLAGS]
-
-.mppex_ic_exit:
-	bx	lr
+mppex_InstControl_Wrapper:
+	movs	r0, r1
+	movs	r1, r6
+	movs	r2, r7
+	mov	r3, r8
+	push	{lr}
+	bl mppex_InstControl
+	pop	{r2}
+	bx	r2
 
 @-------------------------------------------
 .thumb_func
@@ -1983,41 +1932,13 @@ mppex_HighOffset:
 
 @-------------------------------------------
 .thumb_func
-mppex_PatternLoop:
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	cmp	r2, #0			@ Z flag = tick0
-	bne	.mppex_pl_exit				@ dont update on nonzero ticks
-	mov	r2, r8
-
-	lsls	r1, #32-4				@ mask low nibble of parameter
-	lsrs	r1, #32-4				@ ...
-	bne	.mppex_pl_not0				@ is zero?
-	
-	ldrb	r1, [r2, #MPL_ROW]			@   ...
-	strb	r1, [r2, #MPL_PLOOP_ROW]		@    ...
-	ldr	r1,=mpp_vars				@    ....
-	ldr	r1, [r1, #MPV_PATTREAD_P]		@   .. ...
-	movs	r3, #MPL_PLOOP_ADR
-	str	r1, [r2, r3]				@  ...  ...
-	bx	lr					@ ...    ...
-.mppex_pl_not0:						@ otherwise...
-	ldrb	r0, [r2, #MPL_PLOOP_TIMES]		@   get pattern loop counter
-	cmp	r0, #0					@   zero?
-	bne	.mppex_pl_active			@   if not then its already active
-	strb	r1, [r2, #MPL_PLOOP_TIMES]		@     zero: save parameter to counter
-	b	.mppex_pl_exit_enable			@     exit & enable jump
-.mppex_pl_active:					@  nonzero:
-	subs	r0, #1					@    decrement counter
-	strb	r0, [r2, #MPL_PLOOP_TIMES]		@    save
-	beq	.mppex_pl_exit				@    enable jump if not 0
-.mppex_pl_exit_enable:
-	movs	r0, #1					@    enable jump
-	movs	r3, #MPL_PLOOP_JUMP
-	strb	r0, [r2, r3]				@    ..
-.mppex_pl_exit:						@    exit
-	bx	lr					@    ....
-.pool
+mppex_PatternLoop_Wrapper:
+	movs	r0, r1
+	mov	r1, r8
+	push	{lr}
+	bl mppex_PatternLoop
+	pop	{r2}
+	bx	r2
 
 @-------------------------------------------
 .thumb_func

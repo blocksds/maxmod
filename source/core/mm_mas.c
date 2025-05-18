@@ -1808,12 +1808,58 @@ void mppex_XM_FVolSlideDown(mm_word param, mm_module_channel *channel, mpl_layer
     channel->volume = volume;
 }
 
+void mppex_OldRetrig(mm_word param, mm_active_channel *act_ch,
+                     mm_module_channel *channel, mpl_layer_information *layer)
+{
+    if (layer->tick == 0)
+    {
+        channel->fxmem = param & 0xF;
+        return;
+    }
+
+    channel->fxmem--;
+    if (channel->fxmem == 0)
+    {
+        channel->fxmem = param & 0xF;
+
+        if (act_ch != NULL)
+            act_ch->flags |= MCAF_START;
+    }
+}
+
 void mppex_FPattDelay(mm_word param, mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
 
     layer->fpattdelay = param & 0xF;
+}
+
+void mppex_InstControl(mm_word param, mm_active_channel *act_ch,
+                       mm_module_channel *channel, mpl_layer_information *layer)
+{
+    if (layer->tick != 0)
+        return;
+
+    mm_word subparam = param & 0xF;
+
+    if (subparam <= 2) // mppex_ic_pastnotes
+    {
+        // TODO
+    }
+    else if (subparam <= 6) // mppex_ic_nna
+    {
+        // Overwrite NNA
+        channel->bflags = (channel->bflags & 0x3F) | ((subparam - 3) << 6);
+    }
+    else if (subparam <= 8) // mppex_ic_envelope
+    {
+        if (act_ch != NULL)
+        {
+            act_ch->flags &= ~(1 << 5);
+            act_ch->flags |= (subparam - 7) << 5;
+        }
+    }
 }
 
 void mppex_SetPanning(mm_word param, mm_module_channel *channel)
@@ -1828,6 +1874,36 @@ void mppex_SoundControl(mm_word param)
 
     // Set surround
     // TODO
+}
+
+void mppex_PatternLoop(mm_word param, mpl_layer_information *layer)
+{
+    if (layer->tick != 0)
+        return;
+
+    mm_word subparam = param & 0xF;
+
+    if (subparam == 0)
+    {
+        layer->ploop_row = layer->row;
+        layer->ploop_adr = mpp_vars.pattread_p;
+        return;
+    }
+
+    mm_word counter = layer->ploop_times; // Get pattern loop counter
+
+    if (counter == 0)
+    {
+        layer->ploop_times = subparam; // Save parameter to counter
+        layer->ploop_jump = 1; // Enable jump
+    }
+    else
+    {
+        // It is already active
+        layer->ploop_times = counter - 1;
+        if (layer->ploop_times != 0)
+            layer->ploop_jump = 1; // Enable jump
+    }
 }
 
 void mppex_NoteCut(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
