@@ -1135,7 +1135,7 @@ mpp_Process_Effect:
 	b	mppe_todo
 	b	mppe_Retrigger
 	b	mppe_Tremolo		@ tremolo
-	b	mppe_Extended
+	b	mppe_Extended_Wrapper
 	b	mppe_SetTempo
 	b	mppe_FineVibrato
 	b	mppe_SetGlobalVolume
@@ -1801,183 +1801,20 @@ mppe_Tremolo:					@ EFFECT Rxy: Tremolo
 .align 2
 .thumb_func
 @---------------------------------------------------------------------------------
-mppe_Extended:				@ EFFECT Sxy: Extended Effects
+mppe_Extended_Wrapper: // EFFECT Sxy: Extended Effects
 @---------------------------------------------------------------------------------
-	
-	lsrs	r0, r1, #4
-	lsls	r0, #1
-	add	r0, pc
-	mov	pc, r0
+	// r1 = param
+	// r6 = mm_active_channel
+	// r7 = mm_module_channel
+	// r8 = mpl_layer_information
 
-	@ branch table...
-	b	mppex_XM_FVolSlideUp_Wrapper	@ S0x
-	b	mppex_XM_FVolSlideDown_Wrapper	@ S1x
-	b	mppex_OldRetrig_Wrapper		@ S2x
-	b	mppex_VibForm		@ S3x
-	b	mppex_TremForm		@ S4x
-	b	mppex_PanbForm		@ S5x
-	b	mppex_FPattDelay_Wrapper	@ S6x
-	b	mppex_InstControl_Wrapper	@ S7x
-	b	mppex_SetPanning_Wrapper	@ S8x
-	b	mppex_SoundControl_Wrapper	@ S9x
-	b	mppex_HighOffset	@ SAx
-	b	mppex_PatternLoop_Wrapper	@ SBx
-	b	mppex_NoteCut_Wrapper		@ SCx
-	b	mppex_NoteDelay_Wrapper		@ SDx
-	b	mppex_PatternDelay_Wrapper	@ SEy
-	b	mppex_SongMessage_Wrapper	@ SFx
-
-.mppe_ex_quit:
-
-@-------------------------------------------
-.thumb_func
-mppex_Unused:
-	bx	lr
-
-@-------------------------------------------
-
-.thumb_func
-mppex_XM_FVolSlideUp_Wrapper:
-	movs	r0, r1
-	movs	r1, r7
-	mov	r2, r8
-	push	{lr}
-	bl mppex_XM_FVolSlideUp
-	pop	{r2}
-	bx	r2
-
-.thumb_func
-mppex_XM_FVolSlideDown_Wrapper:
-	movs	r0, r1
-	movs	r1, r7
-	mov	r2, r8
-	push	{lr}
-	bl mppex_XM_FVolSlideDown
-	pop	{r2}
-	bx	r2
-
-@-------------------------------------------
-.thumb_func
-mppex_OldRetrig_Wrapper:
 	movs	r0, r1
 	movs	r1, r6
 	movs	r2, r7
 	mov	r3, r8
+
 	push	{lr}
-	bl mppex_OldRetrig
-	pop	{r2}
-	bx	r2
-
-@-------------------------------------------
-.thumb_func
-mppex_VibForm:
-	bx	lr
-
-@-------------------------------------------
-.thumb_func
-mppex_TremForm:
-	bx	lr
-
-@-------------------------------------------
-.thumb_func
-mppex_PanbForm:
-	bx	lr
-
-@-------------------------------------------
-.thumb_func
-mppex_FPattDelay_Wrapper:
-	movs	r0, r1
-	mov	r1, r8
-	push	{lr}
-	bl mppex_FPattDelay
-	pop	{r2}
-	bx	r2
-
-@-------------------------------------------
-.thumb_func
-mppex_InstControl_Wrapper:
-	movs	r0, r1
-	movs	r1, r6
-	movs	r2, r7
-	mov	r3, r8
-	push	{lr}
-	bl mppex_InstControl
-	pop	{r2}
-	bx	r2
-
-@-------------------------------------------
-.thumb_func
-mppex_SetPanning_Wrapper:
-	movs	r0, r1
-	movs	r1, r7
-	push	{lr}
-	bl mppex_SetPanning
-	pop	{r2}
-	bx	r2
-
-@-------------------------------------------
-.thumb_func
-mppex_SoundControl_Wrapper:
-	movs	r0, r1
-	push	{lr}
-	bl mppex_SoundControl
-	pop	{r2}
-	bx	r2
-
-@-------------------------------------------
-.thumb_func
-mppex_HighOffset:
-	@ todo...
-	bx	lr
-
-@-------------------------------------------
-.thumb_func
-mppex_PatternLoop_Wrapper:
-	movs	r0, r1
-	mov	r1, r8
-	push	{lr}
-	bl mppex_PatternLoop
-	pop	{r2}
-	bx	r2
-
-@-------------------------------------------
-.thumb_func
-mppex_NoteCut_Wrapper:
-	movs	r0, r1
-	movs	r1, r7
-	mov	r2, r8
-	push	{lr}
-    bl mppex_NoteCut
-	pop	{r2}
-	bx	r2
-
-@-------------------------------------------
-.thumb_func
-mppex_NoteDelay_Wrapper:
-	movs	r0, r1
-	mov	r1, r8
-	push	{lr}
-    bl mppex_NoteDelay
-	pop	{r2}
-	bx	r2
-
-@-------------------------------------------
-.thumb_func
-mppex_PatternDelay_Wrapper:
-	movs	r0, r1
-	mov	r1, r8
-	push	{lr}
-    bl mppex_PatternDelay
-	pop	{r2}
-	bx	r2
-
-@-------------------------------------------
-.thumb_func
-mppex_SongMessage_Wrapper:
-	movs	r0, r1
-	mov	r1, r8
-	push	{lr}
-    bl mppex_SongMessage
+	bl	mppe_Extended
 	pop	{r2}
 	bx	r2
 

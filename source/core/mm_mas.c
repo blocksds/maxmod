@@ -1782,7 +1782,8 @@ void mppe_SetPanning(mm_word param, mm_module_channel *channel, mpl_layer_inform
 //                                  EXTENDED EFFECTS
 // =============================================================================
 
-void mppex_XM_FVolSlideUp(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
+static void mppex_XM_FVolSlideUp(mm_word param, mm_module_channel *channel,
+                                 mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -1795,7 +1796,8 @@ void mppex_XM_FVolSlideUp(mm_word param, mm_module_channel *channel, mpl_layer_i
     channel->volume = volume;
 }
 
-void mppex_XM_FVolSlideDown(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
+static void mppex_XM_FVolSlideDown(mm_word param, mm_module_channel *channel,
+                                   mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -1808,8 +1810,8 @@ void mppex_XM_FVolSlideDown(mm_word param, mm_module_channel *channel, mpl_layer
     channel->volume = volume;
 }
 
-void mppex_OldRetrig(mm_word param, mm_active_channel *act_ch,
-                     mm_module_channel *channel, mpl_layer_information *layer)
+static void mppex_OldRetrig(mm_word param, mm_active_channel *act_ch,
+                            mm_module_channel *channel, mpl_layer_information *layer)
 {
     if (layer->tick == 0)
     {
@@ -1827,7 +1829,7 @@ void mppex_OldRetrig(mm_word param, mm_active_channel *act_ch,
     }
 }
 
-void mppex_FPattDelay(mm_word param, mpl_layer_information *layer)
+static void mppex_FPattDelay(mm_word param, mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -1835,8 +1837,8 @@ void mppex_FPattDelay(mm_word param, mpl_layer_information *layer)
     layer->fpattdelay = param & 0xF;
 }
 
-void mppex_InstControl(mm_word param, mm_active_channel *act_ch,
-                       mm_module_channel *channel, mpl_layer_information *layer)
+static void mppex_InstControl(mm_word param, mm_active_channel *act_ch,
+                              mm_module_channel *channel, mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -1862,12 +1864,12 @@ void mppex_InstControl(mm_word param, mm_active_channel *act_ch,
     }
 }
 
-void mppex_SetPanning(mm_word param, mm_module_channel *channel)
+static void mppex_SetPanning(mm_word param, mm_module_channel *channel)
 {
     channel->panning = param << 4;
 }
 
-void mppex_SoundControl(mm_word param)
+static void mppex_SoundControl(mm_word param)
 {
     if (param != 0x91)
         return;
@@ -1876,7 +1878,7 @@ void mppex_SoundControl(mm_word param)
     // TODO
 }
 
-void mppex_PatternLoop(mm_word param, mpl_layer_information *layer)
+static void mppex_PatternLoop(mm_word param, mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -1906,7 +1908,8 @@ void mppex_PatternLoop(mm_word param, mpl_layer_information *layer)
     }
 }
 
-void mppex_NoteCut(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
+static void mppex_NoteCut(mm_word param, mm_module_channel *channel,
+                          mpl_layer_information *layer)
 {
     mm_word reference = param & 0xF;
 
@@ -1916,7 +1919,7 @@ void mppex_NoteCut(mm_word param, mm_module_channel *channel, mpl_layer_informat
     channel->volume = 0;
 }
 
-void mppex_NoteDelay(mm_word param, mpl_layer_information *layer)
+static void mppex_NoteDelay(mm_word param, mpl_layer_information *layer)
 {
     mm_word reference = param & 0xF;
 
@@ -1926,7 +1929,7 @@ void mppex_NoteDelay(mm_word param, mpl_layer_information *layer)
     mpp_vars.notedelay = reference;
 }
 
-void mppex_PatternDelay(mm_word param, mpl_layer_information *layer)
+static void mppex_PatternDelay(mm_word param, mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -1935,13 +1938,75 @@ void mppex_PatternDelay(mm_word param, mpl_layer_information *layer)
         layer->pattdelay = (param & 0xF) + 1;
 }
 
-void mppex_SongMessage(mm_word param, mpl_layer_information *layer)
+static void mppex_SongMessage(mm_word param, mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
 
     if (mmCallback != NULL)
         mmCallback(MPCB_SONGMESSAGE, param & 0xF);
+}
+
+void mppe_Extended(mm_word param, mm_active_channel *act_ch,
+                   mm_module_channel *channel, mpl_layer_information *layer)
+{
+    mm_word subcmd = param >> 4;
+
+    switch (subcmd)
+    {
+        case 0x0: // S0x
+            mppex_XM_FVolSlideUp(param, channel, layer);
+            break;
+        case 0x1: // S1x
+            mppex_XM_FVolSlideDown(param, channel, layer);
+            break;
+        case 0x2: // S2x
+            mppex_OldRetrig(param, act_ch, channel, layer);
+            break;
+        case 0x3: // S3x
+            // mppex_VibForm
+            break;
+        case 0x4: // S4x
+            // mppex_TremForm
+            break;
+        case 0x5: // S5x
+            // mppex_PanbForm
+            break;
+
+        case 0x6: // S6x
+            mppex_FPattDelay(param, layer);
+            break;
+        case 0x7: // S7x
+            mppex_InstControl(param, act_ch, channel, layer);
+            break;
+        case 0x8: // S8x
+            mppex_SetPanning(param, channel);
+            break;
+        case 0x9: // S9x
+            mppex_SoundControl(param);
+            break;
+        case 0xA: // SAx
+            // mppex_HighOffset
+            break;
+        case 0xB: // SBx
+            mppex_PatternLoop(param, layer);
+            break;
+        case 0xC: // SCx
+            mppex_NoteCut(param, channel, layer);
+            break;
+        case 0xD: // SDx
+            mppex_NoteDelay(param, layer);
+            break;
+        case 0xE: // SEx
+            mppex_PatternDelay(param, layer);
+            break;
+        case 0xF: // SFx
+            mppex_SongMessage(param, layer);
+            break;
+
+        default:
+            break;
+    }
 }
 
 // =============================================================================
