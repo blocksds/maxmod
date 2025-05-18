@@ -1768,6 +1768,17 @@ mm_word mppe_DoVibrato(mm_word period, mm_module_channel *channel, mpl_layer_inf
 }
 
 // =============================================================================
+//                                      EFFECTS
+// =============================================================================
+
+// EFFECT Xxy: Set Panning
+void mppe_SetPanning(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
+{
+    if (layer->tick == 0)
+        channel->panning = param;
+}
+
+// =============================================================================
 //                                  EXTENDED EFFECTS
 // =============================================================================
 
@@ -1855,4 +1866,25 @@ void mppex_SongMessage(mm_word param, mpl_layer_information *layer)
 
     if (mmCallback != NULL)
         mmCallback(MPCB_SONGMESSAGE, param & 0xF);
+}
+
+// =============================================================================
+//                                      OLD EFFECTS
+// =============================================================================
+
+// EFFECT 0xx: Set Volume
+void mppe_SetVolume(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
+{
+    if (layer->tick == 0)
+        channel->volume = param;
+}
+
+// EFFECT 1xx: Key Off
+void mppe_KeyOff(mm_word param, mm_active_channel *act_ch, mpl_layer_information *layer)
+{
+    if (layer->tick != param)
+        return;
+
+    if (act_ch != NULL)
+        act_ch->flags &= ~MCAF_KEYON;
 }

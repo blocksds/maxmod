@@ -1140,11 +1140,11 @@ mpp_Process_Effect:
 	b	mppe_FineVibrato
 	b	mppe_SetGlobalVolume
 	b	mppe_GlobalVolumeSlide
-	b	mppe_SetPanning
+	b	mppe_SetPanning_Wrapper
 	b	mppe_Panbrello
 	b	mppe_ZXX
-	b	mppe_SetVolume
-	b	mppe_KeyOff
+	b	mppe_SetVolume_Wrapper
+	b	mppe_KeyOff_Wrapper
 	b	mppe_EnvelopePos
 	b	mppe_OldTremor
 .pool
@@ -2230,17 +2230,16 @@ mppe_GlobalVolumeSlide:				@ EFFECT Wxy: Global Volume Slide
 .align 2
 .thumb_func
 @---------------------------------------------------------------------------------------
-mppe_SetPanning:				@ EFFECT Xxy: Set Panning
+mppe_SetPanning_Wrapper:				@ EFFECT Xxy: Set Panning
 @---------------------------------------------------------------------------------------
-
+	movs	r0, r1
+	movs	r1, r7
 	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	cmp	r2, #0			@ Z flag = tick0
-	bne	.mppe_sp_exit			@ on tick0:
-	strb	r1, [r7, #MCH_PANNING]		@ set panning=param
-.mppe_sp_exit:
-	bx	lr
-.pool
+
+	push	{lr}
+	bl mppe_SetPanning
+	pop	{r2}
+	bx	r2
 
 .align 2
 .thumb_func
@@ -2268,35 +2267,30 @@ mppe_ZXX:				@ EFFECT Zxy: Set Filter
 .align 2
 .thumb_func
 @-----------------------------------------------------------------------------------
-mppe_SetVolume:				@ EFFECT 0xx: Set Volume
+mppe_SetVolume_Wrapper: @ EFFECT 0xx: Set Volume
 @-----------------------------------------------------------------------------------
-
+	movs	r0, r1
+	movs	r1, r7
 	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	cmp	r2, #0			@ Z flag = tick0
-	bne	.mppe_sv_exit		@ on tick0:
-	strb	r1, [r7, #MCH_VOLUME]	@ set volume=param
-.mppe_sv_exit:
-	bx	lr
+
+	push	{lr}
+	bl mppe_SetVolume
+	pop	{r2}
+	bx	r2
 
 .align 2
 .thumb_func
 @-----------------------------------------------------------------------------------
-mppe_KeyOff:				@ EFFECT 1xx: Key Off
+mppe_KeyOff_Wrapper: @ EFFECT 1xx: Key Off
 @-----------------------------------------------------------------------------------
+	movs	r0, r1
+	movs	r1, r6
 	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	cmp	r1, r2			@ if tick=param:
-	bne	.mppe_ko_exit		@
-	cmp	r6, #0
-	beq	.mppe_ko_exit
-	ldrb	r0, [r6, #MCA_FLAGS]	@   clear keyon from flags
-	movs	r1, #MCAF_KEYON		@
-	bics	r0, r1			@
-	strb	r0, [r6, #MCA_FLAGS]	@
-.mppe_ko_exit:
-	bx	lr			@ finished
-.pool
+
+	push	{lr}
+	bl mppe_KeyOff
+	pop	{r2}
+	bx	r2
 
 .align 2
 .thumb_func
