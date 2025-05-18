@@ -1094,27 +1094,28 @@ mpp_Process_Effect_Wrapper:
 mpp_Process_Effect:
 
 	push	{lr}
+
 	ldrb	r0, [r7, #MCH_EFFECT]	@ get effect#
 	ldrb	r1, [r7, #MCH_PARAM]	@ r1 = param
-
 	movs	r2, r7
 	mov	r3, r8
 	bl	mpp_Channel_ExchangeMemory
 	movs	r1, r0
 
-	ldrb	r0, [r7, #MCH_EFFECT]	@ get effect#
-	lsls	r0, #1
-
 	pop	{r2}
 	mov	lr, r2
 
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-
-	cmp	r2, #0			@ Z flag = tick0 :)
+	ldrb	r0, [r7, #MCH_EFFECT]	@ get effect#
+	lsls	r0, #1
 	add	r0, pc
 	mov	pc, r0
-	
+
+	// r1 = param
+	// r5 = period
+	// r6 = mm_active_channel
+	// r7 = mm_module_channel
+	// r8 = mpl_layer_information
+
 	b	mppe_todo
 	b	mppe_SetSpeed
 	b	mppe_PositionJump
@@ -1154,6 +1155,9 @@ mpp_Process_Effect:
 mppe_SetSpeed:				@ EFFECT Axy: SET SPEED
 @---------------------------------------------------------------------------------
 
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+	cmp	r2, #0			@ Z flag = tick0
 	bne	.mppe_ss_exit		@ dont set on nonzero ticks
 	cmp	r1, #0
 	beq	.mppe_ss_exit
@@ -1171,6 +1175,9 @@ mppe_todo:
 mppe_PositionJump:			@ EFFECT Bxy: SET POSITION
 @---------------------------------------------------------------------------------
 
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+	cmp	r2, #0			@ Z flag = tick0
 	bne	.mppe_pj_exit		@ skip nonzero ticks
 	mov	r0, r8
 	strb	r1, [r0, #MPL_PATTJUMP]
@@ -1183,6 +1190,9 @@ mppe_PositionJump:			@ EFFECT Bxy: SET POSITION
 @---------------------------------------------------------------------------------
 mppe_PatternBreak:				@ EFFECT Cxy: PATTERN BREAK
 @---------------------------------------------------------------------------------
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+	cmp	r2, #0			@ Z flag = tick0
 	bne	.mppe_pb_exit			@ skip nonzero ticks
 	mov	r0, r8				@ get variables
 	strb	r1, [r0, #MPL_PATTJUMP_ROW]	@ save param to row value
@@ -1205,6 +1215,8 @@ mppe_VolumeSlide:				@ EFFECT Dxy: VOLUME SLIDE
 	push	{lr}
 	ldrb	r0, [r7, #MCH_VOLUME]		@ load volume
 
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
 	mov	r3, r8
 	bl	mpph_VolumeSlide64
 	
@@ -1221,7 +1233,10 @@ mppe_Portamento:				@ EFFECT Exy/Fxy: Portamento
 @----------------------------------------------------------------------------------
 
 	push	{lr}
-	
+
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+
 .mppe_pd_ot:
 	movs	r3, #0
 	movs	r0, r1
@@ -1295,6 +1310,9 @@ mppe_Portamento:				@ EFFECT Exy/Fxy: Portamento
 mppe_Glissando:					@ EFFECT Gxy: Glissando
 @---------------------------------------------------------------------------------
 
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+	cmp	r2, #0			@ Z flag = tick0
 	bne	.mppe_glis_ot
 	
 	mov	r0, r8
@@ -1427,6 +1445,9 @@ mppe_Glissando:					@ EFFECT Gxy: Glissando
 mppe_Vibrato:					@ EFFECT Hxy: Vibrato
 @---------------------------------------------------------------------------------
 
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+	cmp	r2, #0			@ Z flag = tick0
 	beq 1f
 	movs	r0, r5
 	movs	r1, r7
@@ -1475,6 +1496,9 @@ mppe_Tremor:					@ EFFECT Ixy: Tremor
 mppe_Arpeggio:					@ EFFECT Jxy: Arpeggio
 @---------------------------------------------------------------------------------
 
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+	cmp	r2, #0			@ Z flag = tick0
 	bne	.mppe_arp_ot
 
 	movs	r0, #0
@@ -1533,16 +1557,19 @@ mppe_VibratoVolume:			@ EFFECT Kxy: Vibrato+Volume Slide
 
 	push	{lr}
 
-	push	{r0,r1,r2}
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+
+	push	{r1,r2}
 	movs	r0, r5
 	movs	r1, r7
 	mov	r2, r8
 	bl	mppe_DoVibrato
 	movs	r5, r0
-	pop	{r0,r1,r2}
+	pop	{r1,r2}
 
-	cmp	r2, #0
 	bl	mppe_VolumeSlide
+
 	pop	{r0}
 	bx	r0
 //	pop	{pc}
@@ -1554,12 +1581,17 @@ mppe_PortaVolume:			@ EFFECT Lxy: Portamento+Volume Slide
 @---------------------------------------------------------------------------------
 
 	push	{lr}
+
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+
 	push	{r1,r2}
 	ldrb	r1, [r7, #MCH_MEMORY+MPP_GLIS_MEM]
 	bl	mppe_Glissando
 	pop	{r1, r2}
-	cmp	r2, #0
+
 	bl	mppe_VolumeSlide
+
 	pop	{r0}
 	bx	r0
 //	pop	{pc}
@@ -1570,6 +1602,9 @@ mppe_PortaVolume:			@ EFFECT Lxy: Portamento+Volume Slide
 mppe_ChannelVolume:				@ EFFECT Mxy: Set Channel Volume
 @---------------------------------------------------------------------------------
 
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+	cmp	r2, #0			@ Z flag = tick0
 	bne	.mppe_cv_exit			@ quite simple...
 	cmp	r1, #0x40
 	bgt	.mppe_cv_exit			@ ignore command if parameter is > 0x40
@@ -1584,6 +1619,9 @@ mppe_ChannelVolumeSlide:			@ EFFECT Nxy: Channel Volume Slide
 @------------------------------------------------------------------------------------
 
 	push	{lr}
+
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
 
 	ldrb	r0, [r7, #MCH_CVOLUME]		@ load volume
 
@@ -1601,6 +1639,9 @@ mppe_ChannelVolumeSlide:			@ EFFECT Nxy: Channel Volume Slide
 mppe_SampleOffset:				@ EFFECT Oxy Sample Offset
 @----------------------------------------------------------------------------------
 
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+	cmp	r2, #0			@ Z flag = tick0
 	bne	.mppe_so_exit			@ skip on other ticks
 
 	ldr	r0,=mpp_vars
@@ -1637,6 +1678,9 @@ mppe_PanningSlide:				@ EFFECT Pxy Panning Slide
 @---------------------------------------------------------------------------------
 mppe_Retrigger:					@ EFFECT Qxy Retrigger Note
 @---------------------------------------------------------------------------------
+
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
 
 	ldrb	r0, [r7, #MCH_FXMEM]
 	cmp	r0, #0
@@ -1724,8 +1768,10 @@ mppe_Tremolo:					@ EFFECT Rxy: Tremolo
 @---------------------------------------------------------------------------------
 
 @ r1 = param
-@ Z = tick0
 
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+	cmp	r2, #0			@ Z flag = tick0
 	beq	.mppe_trem_zt			@ skip this part on tick0
 .mppe_trem_ot:
 	@ X = speed, Y = depth
@@ -1760,10 +1806,9 @@ mppe_Extended:				@ EFFECT Sxy: Extended Effects
 	
 	lsrs	r0, r1, #4
 	lsls	r0, #1
-	cmp	r2, #0
 	add	r0, pc
 	mov	pc, r0
-	
+
 	@ branch table...
 	b	mppex_XM_FVolSlideUp	@ S0x
 	b	mppex_XM_FVolSlideDown	@ S1x
@@ -1793,6 +1838,9 @@ mppex_Unused:
 
 .thumb_func
 mppex_XM_FVolSlideUp:
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+	cmp	r2, #0			@ Z flag = tick0
 	bne	2f
 	ldrb	r0, [r7, #MCH_VOLUME]
 	lsls	r1, #32-4
@@ -1806,6 +1854,9 @@ mppex_XM_FVolSlideUp:
 
 .thumb_func
 mppex_XM_FVolSlideDown:
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+	cmp	r2, #0			@ Z flag = tick0
 	bne	2f
 	ldrb	r0, [r7, #MCH_VOLUME]
 	lsls	r1, #32-4
@@ -1819,6 +1870,9 @@ mppex_XM_FVolSlideDown:
 @-------------------------------------------
 .thumb_func
 mppex_OldRetrig:
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+	cmp	r2, #0			@ Z flag = tick0
 	bne	1f
 	lsls	r1, #32-4
 	lsrs	r1, #32-4
@@ -1863,6 +1917,9 @@ mppex_PanbForm:
 @-------------------------------------------
 .thumb_func
 mppex_FPattDelay:
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+	cmp	r2, #0			@ Z flag = tick0
 	bne	.mppex_fpd_exit
 	lsls	r1, #32-4
 	lsrs	r1, #32-4
@@ -1874,6 +1931,9 @@ mppex_FPattDelay:
 @-------------------------------------------
 .thumb_func
 mppex_InstControl:
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+	cmp	r2, #0			@ Z flag = tick0
 	bne	.mppex_ic_exit
 	lsls	r1, #32-4
 	lsrs	r1, #32-4
@@ -1937,6 +1997,9 @@ mppex_HighOffset:
 @-------------------------------------------
 .thumb_func
 mppex_PatternLoop:
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+	cmp	r2, #0			@ Z flag = tick0
 	bne	.mppex_pl_exit				@ dont update on nonzero ticks
 	mov	r2, r8
 
@@ -1972,6 +2035,8 @@ mppex_PatternLoop:
 @-------------------------------------------
 .thumb_func
 mppex_NoteCut:
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
 	lsls	r1, #32-4			@ mask parameter
 	lsrs	r1, #32-4			@ ..
 	cmp	r1, r2				@ compare with tick#
@@ -1998,6 +2063,9 @@ mppex_NoteDelay:
 @-------------------------------------------
 .thumb_func
 mppex_PatternDelay:
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+	cmp	r2, #0			@ Z flag = tick0
 	bne	.mppex_pd_quit			@ update on tick0
 	lsls	r1, #32-4			@ mask parameter
 	lsrs	r1, #32-4			@ ..
@@ -2014,6 +2082,9 @@ mppex_PatternDelay:
 .thumb_func
 mppex_SongMessage:
 
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+	cmp	r2, #0			@ Z flag = tick0
 	bne	.mppex_pd_quit			@ update on tick0
 	push	{lr}				@ save return address
 	lsls	r1, #32-4			@ mask parameter
@@ -2036,6 +2107,9 @@ mppex_SongMessage:
 @----------------------------------------------------------------------------------------
 mppe_SetTempo:					@ EFFECT Txy: Set Tempo / Tempo Slide
 @----------------------------------------------------------------------------------------
+
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
 
 	@ 0x  = slide down
 	@ 1x  = slide up
@@ -2095,6 +2169,9 @@ mppe_SetTempo:					@ EFFECT Txy: Set Tempo / Tempo Slide
 mppe_FineVibrato:				@ EFFECT Uxy: Fine Vibrato
 @----------------------------------------------------------------------------------------
 
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+	cmp	r2, #0			@ Z flag = tick0
 	bne	.mppe_fv_ot
 	lsrs	r0, r1, #4
 	beq	.mppe_fv_nospd
@@ -2128,6 +2205,9 @@ mppe_FineVibrato:				@ EFFECT Uxy: Fine Vibrato
 mppe_SetGlobalVolume:			@ EFFECT Vxy: Set Global Volume
 @------------------------------------------------------------------------------------
 
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+	cmp	r2, #0			@ Z flag = tick0
 	bne	.mppe_sgv_exit		@ on tick0:
 	mov	r0, r8
 	ldrb	r2, [r0, #MPL_FLAGS]
@@ -2152,6 +2232,9 @@ mppe_SetGlobalVolume:			@ EFFECT Vxy: Set Global Volume
 @----------------------------------------------------------------------------------
 mppe_GlobalVolumeSlide:				@ EFFECT Wxy: Global Volume Slide
 @----------------------------------------------------------------------------------
+
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
 
 	push	{lr}
 
@@ -2192,6 +2275,9 @@ mppe_GlobalVolumeSlide:				@ EFFECT Wxy: Global Volume Slide
 mppe_SetPanning:				@ EFFECT Xxy: Set Panning
 @---------------------------------------------------------------------------------------
 
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+	cmp	r2, #0			@ Z flag = tick0
 	bne	.mppe_sp_exit			@ on tick0:
 	strb	r1, [r7, #MCH_PANNING]		@ set panning=param
 .mppe_sp_exit:
@@ -2227,6 +2313,9 @@ mppe_ZXX:				@ EFFECT Zxy: Set Filter
 mppe_SetVolume:				@ EFFECT 0xx: Set Volume
 @-----------------------------------------------------------------------------------
 
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+	cmp	r2, #0			@ Z flag = tick0
 	bne	.mppe_sv_exit		@ on tick0:
 	strb	r1, [r7, #MCH_VOLUME]	@ set volume=param
 .mppe_sv_exit:
@@ -2237,6 +2326,8 @@ mppe_SetVolume:				@ EFFECT 0xx: Set Volume
 @-----------------------------------------------------------------------------------
 mppe_KeyOff:				@ EFFECT 1xx: Key Off
 @-----------------------------------------------------------------------------------
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
 	cmp	r1, r2			@ if tick=param:
 	bne	.mppe_ko_exit		@
 	cmp	r6, #0
@@ -2254,6 +2345,9 @@ mppe_KeyOff:				@ EFFECT 1xx: Key Off
 @-----------------------------------------------------------------------------------
 mppe_EnvelopePos:			@ EFFECT 1xx: Envelope Position
 @-----------------------------------------------------------------------------------
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+	cmp	r2, #0			@ Z flag = tick0
 	bne	.mppe_ep_ot		@ on tick0:
 	cmp	r6, #0
 	beq	.mppe_ep_ot
@@ -2271,7 +2365,10 @@ mppe_EnvelopePos:			@ EFFECT 1xx: Envelope Position
 @-----------------------------------------------------------------------------------
 mppe_OldTremor:				@ EFFECT 3xy: Old Tremor
 @-----------------------------------------------------------------------------------
-	
+
+	mov	r2, r8
+	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+	cmp	r2, #0			@ Z flag = tick0
 	bne	.mppe_ot_ot
 	bx	lr
 .mppe_ot_ot:
