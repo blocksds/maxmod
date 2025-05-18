@@ -1818,14 +1818,14 @@ mppe_Extended:				@ EFFECT Sxy: Extended Effects
 	b	mppex_PanbForm		@ S5x
 	b	mppex_FPattDelay_Wrapper	@ S6x
 	b	mppex_InstControl	@ S7x
-	b	mppex_SetPanning	@ S8x
+	b	mppex_SetPanning_Wrapper	@ S8x
 	b	mppex_SoundControl_Wrapper	@ S9x
 	b	mppex_HighOffset	@ SAx
 	b	mppex_PatternLoop	@ SBx
 	b	mppex_NoteCut_Wrapper		@ SCx
 	b	mppex_NoteDelay_Wrapper		@ SDx
-	b	mppex_PatternDelay	@ SEy
-	b	mppex_SongMessage	@ SFx
+	b	mppex_PatternDelay_Wrapper	@ SEy
+	b	mppex_SongMessage_Wrapper	@ SFx
 
 .mppe_ex_quit:
 
@@ -1958,10 +1958,13 @@ mppex_InstControl:
 
 @-------------------------------------------
 .thumb_func
-mppex_SetPanning:
-	lsls	r1, #4
-	strb	r1, [r7, #MCH_PANNING]
-	bx	lr
+mppex_SetPanning_Wrapper:
+	movs	r0, r1
+	movs	r1, r7
+	push	{lr}
+	bl mppex_SetPanning
+	pop	{r2}
+	bx	r2
 
 @-------------------------------------------
 .thumb_func
@@ -2039,45 +2042,23 @@ mppex_NoteDelay_Wrapper:
 
 @-------------------------------------------
 .thumb_func
-mppex_PatternDelay:
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	cmp	r2, #0			@ Z flag = tick0
-	bne	.mppex_pd_quit			@ update on tick0
-	lsls	r1, #32-4			@ mask parameter
-	lsrs	r1, #32-4			@ ..
-	mov	r0, r8
-	ldrb	r2, [r0, #MPL_PATTDELAY]	@ get patterndelay
-	cmp	r2, #0				@ only update if it's 0
-	bne	.mppex_pd_quit			@ ..
-	adds	r1, #1				@ set to param+1
-	strb	r1, [r0, #MPL_PATTDELAY]	@ ..
-.mppex_pd_quit:					@ exit
-	bx	lr				@ ..
+mppex_PatternDelay_Wrapper:
+	movs	r0, r1
+	mov	r1, r8
+	push	{lr}
+    bl mppex_PatternDelay
+	pop	{r2}
+	bx	r2
 
 @-------------------------------------------
 .thumb_func
-mppex_SongMessage:
-
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	cmp	r2, #0			@ Z flag = tick0
-	bne	.mppex_pd_quit			@ update on tick0
-	push	{lr}				@ save return address
-	lsls	r1, #32-4			@ mask parameter
-	lsrs	r1, #32-4			@ ..
-	ldr	r2,=mmCallback
-	ldr	r2, [r2]
-	cmp	r2, #0
-	beq	1f
-	movs	r0, #MPCB_SONGMESSAGE
-	
-	bl	mpp_call_r2
-	@jump2
-1:	//pop	{pc}
-	pop	{r0}
-	bx	r0
-.pool
+mppex_SongMessage_Wrapper:
+	movs	r0, r1
+	mov	r1, r8
+	push	{lr}
+    bl mppex_SongMessage
+	pop	{r2}
+	bx	r2
 
 .align 2
 .thumb_func

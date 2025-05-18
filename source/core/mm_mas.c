@@ -1805,6 +1805,11 @@ void mppex_FPattDelay(mm_word param, mpl_layer_information *layer)
     layer->fpattdelay = param & 0xF;
 }
 
+void mppex_SetPanning(mm_word param, mm_module_channel *channel)
+{
+    channel->panning = param << 4;
+}
+
 void mppex_SoundControl(mm_word param)
 {
     if (param != 0x91)
@@ -1832,4 +1837,22 @@ void mppex_NoteDelay(mm_word param, mpl_layer_information *layer)
         return;
 
     mpp_vars.notedelay = reference;
+}
+
+void mppex_PatternDelay(mm_word param, mpl_layer_information *layer)
+{
+    if (layer->tick != 0)
+        return;
+
+    if (layer->pattdelay == 0)
+        layer->pattdelay = (param & 0xF) + 1;
+}
+
+void mppex_SongMessage(mm_word param, mpl_layer_information *layer)
+{
+    if (layer->tick != 0)
+        return;
+
+    if (mmCallback != NULL)
+        mmCallback(MPCB_SONGMESSAGE, param & 0xF);
 }
