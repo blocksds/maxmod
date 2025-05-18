@@ -1810,8 +1810,8 @@ mppe_Extended:				@ EFFECT Sxy: Extended Effects
 	mov	pc, r0
 
 	@ branch table...
-	b	mppex_XM_FVolSlideUp	@ S0x
-	b	mppex_XM_FVolSlideDown	@ S1x
+	b	mppex_XM_FVolSlideUp_Wrapper	@ S0x
+	b	mppex_XM_FVolSlideDown_Wrapper	@ S1x
 	b	mppex_OldRetrig		@ S2x
 	b	mppex_VibForm		@ S3x
 	b	mppex_TremForm		@ S4x
@@ -1837,35 +1837,24 @@ mppex_Unused:
 @-------------------------------------------
 
 .thumb_func
-mppex_XM_FVolSlideUp:
+mppex_XM_FVolSlideUp_Wrapper:
+	movs	r0, r1
+	movs	r1, r7
 	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	cmp	r2, #0			@ Z flag = tick0
-	bne	2f
-	ldrb	r0, [r7, #MCH_VOLUME]
-	lsls	r1, #32-4
-	lsrs	r1, #32-4
-	adds	r0, r1
-	cmp	r0, #64
-	blt	1f
-	movs	r0, #64
-1:	strb	r0, [r7, #MCH_VOLUME]
-2:	bx	lr
+	push	{lr}
+	bl mppex_XM_FVolSlideUp
+	pop	{r2}
+	bx	r2
 
 .thumb_func
-mppex_XM_FVolSlideDown:
+mppex_XM_FVolSlideDown_Wrapper:
+	movs	r0, r1
+	movs	r1, r7
 	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	cmp	r2, #0			@ Z flag = tick0
-	bne	2f
-	ldrb	r0, [r7, #MCH_VOLUME]
-	lsls	r1, #32-4
-	lsrs	r1, #32-4
-	subs	r0, r1
-	bcs	1f
-	movs	r0, #0
-1:	strb	r0, [r7, #MCH_VOLUME]
-2:	bx	lr
+	push	{lr}
+	bl mppex_XM_FVolSlideDown
+	pop	{r2}
+	bx	r2
 
 @-------------------------------------------
 .thumb_func

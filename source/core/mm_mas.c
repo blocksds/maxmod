@@ -1766,3 +1766,33 @@ mm_word mppe_DoVibrato(mm_word period, mm_module_channel *channel, mpl_layer_inf
 
     return mpph_PitchSlide_Up(period, value, layer);
 }
+
+// =============================================================================
+//                                  EXTENDED EFFECTS
+// =============================================================================
+
+void mppex_XM_FVolSlideUp(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
+{
+    if (layer->tick != 0)
+        return;
+
+    int volume = channel->volume + (param & 0xF);
+
+    if (volume > 64)
+        volume = 64;
+
+    channel->volume = volume;
+}
+
+void mppex_XM_FVolSlideDown(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
+{
+    if (layer->tick != 0)
+        return;
+
+    int volume = channel->volume - (param & 0xF);
+
+    if (volume < 0)
+        volume = 0;
+
+    channel->volume = volume;
+}
