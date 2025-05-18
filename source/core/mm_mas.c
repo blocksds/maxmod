@@ -1796,3 +1796,40 @@ void mppex_XM_FVolSlideDown(mm_word param, mm_module_channel *channel, mpl_layer
 
     channel->volume = volume;
 }
+
+void mppex_FPattDelay(mm_word param, mpl_layer_information *layer)
+{
+    if (layer->tick != 0)
+        return;
+
+    layer->fpattdelay = param & 0xF;
+}
+
+void mppex_SoundControl(mm_word param)
+{
+    if (param != 0x91)
+        return;
+
+    // Set surround
+    // TODO
+}
+
+void mppex_NoteCut(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
+{
+    mm_word reference = param & 0xF;
+
+    if (layer->tick != reference)
+        return;
+
+    channel->volume = 0;
+}
+
+void mppex_NoteDelay(mm_word param, mpl_layer_information *layer)
+{
+    mm_word reference = param & 0xF;
+
+    if (layer->tick >= reference)
+        return;
+
+    mpp_vars.notedelay = reference;
+}

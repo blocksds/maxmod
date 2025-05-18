@@ -1816,14 +1816,14 @@ mppe_Extended:				@ EFFECT Sxy: Extended Effects
 	b	mppex_VibForm		@ S3x
 	b	mppex_TremForm		@ S4x
 	b	mppex_PanbForm		@ S5x
-	b	mppex_FPattDelay	@ S6x
+	b	mppex_FPattDelay_Wrapper	@ S6x
 	b	mppex_InstControl	@ S7x
 	b	mppex_SetPanning	@ S8x
-	b	mppex_SoundControl	@ S9x
+	b	mppex_SoundControl_Wrapper	@ S9x
 	b	mppex_HighOffset	@ SAx
 	b	mppex_PatternLoop	@ SBx
-	b	mppex_NoteCut		@ SCx
-	b	mppex_NoteDelay		@ SDx
+	b	mppex_NoteCut_Wrapper		@ SCx
+	b	mppex_NoteDelay_Wrapper		@ SDx
 	b	mppex_PatternDelay	@ SEy
 	b	mppex_SongMessage	@ SFx
 
@@ -1905,17 +1905,13 @@ mppex_PanbForm:
 
 @-------------------------------------------
 .thumb_func
-mppex_FPattDelay:
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	cmp	r2, #0			@ Z flag = tick0
-	bne	.mppex_fpd_exit
-	lsls	r1, #32-4
-	lsrs	r1, #32-4
-	mov	r0, r8
-	strb	r1, [r0, #MPL_FPATTDELAY]
-.mppex_fpd_exit:
-	bx	lr
+mppex_FPattDelay_Wrapper:
+	movs	r0, r1
+	mov	r1, r8
+	push	{lr}
+	bl mppex_FPattDelay
+	pop	{r2}
+	bx	r2
 
 @-------------------------------------------
 .thumb_func
@@ -1969,13 +1965,12 @@ mppex_SetPanning:
 
 @-------------------------------------------
 .thumb_func
-mppex_SoundControl:
-	cmp	r1, #0x91
-	beq	.mppex_sc_surround
-	bx	lr
-.mppex_sc_surround:
-	@ set surround
-	bx	lr
+mppex_SoundControl_Wrapper:
+	movs	r0, r1
+	push	{lr}
+	bl mppex_SoundControl
+	pop	{r2}
+	bx	r2
 
 @-------------------------------------------
 .thumb_func
@@ -2023,31 +2018,24 @@ mppex_PatternLoop:
 
 @-------------------------------------------
 .thumb_func
-mppex_NoteCut:
+mppex_NoteCut_Wrapper:
+	movs	r0, r1
+	movs	r1, r7
 	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	lsls	r1, #32-4			@ mask parameter
-	lsrs	r1, #32-4			@ ..
-	cmp	r1, r2				@ compare with tick#
-	bne	.mppex_nc_exit			@ if equal:
-	movs	r0, #0				@   cut volume
-	strb	r0, [r7, #MCH_VOLUME]		@   ..
-.mppex_nc_exit:					@ exit
-	bx	lr				@ ..
+	push	{lr}
+    bl mppex_NoteCut
+	pop	{r2}
+	bx	r2
 
 @-------------------------------------------
 .thumb_func
-mppex_NoteDelay:
-	
-	mov	r0, r8
-	ldrb	r2, [r0, #MPL_TICK]
-	lsls	r1, #32-4
-	lsrs	r1, #32-4
-	cmp	r2, r1
-	bge	1f
-	ldr	r0,=mpp_vars
-	strb	r1, [r0, #MPV_NOTEDELAY]
-1:	bx	lr
+mppex_NoteDelay_Wrapper:
+	movs	r0, r1
+	mov	r1, r8
+	push	{lr}
+    bl mppex_NoteDelay
+	pop	{r2}
+	bx	r2
 
 @-------------------------------------------
 .thumb_func
