@@ -1812,6 +1812,44 @@ void mppe_VolumeSlide(mm_word param, mm_module_channel *channel, mpl_layer_infor
     channel->volume = mpph_VolumeSlide64(channel->volume, param, layer->tick, layer);
 }
 
+// EFFECT Hxy: Vibrato
+mm_word mppe_Vibrato(mm_word param, mm_word period, mm_module_channel *channel,
+                     mpl_layer_information *layer)
+{
+    if (layer->tick != 0)
+        return mppe_DoVibrato(period, channel, layer);
+
+    mm_word x = param >> 4;
+    mm_word y = param & 0xF;
+
+    if (x != 0)
+        channel->vibspd = x * 4;
+
+    if (y != 0)
+    {
+        mm_word depth = y * 4;
+
+        // if (OldEffects)
+        //     depth <<= 1;
+        channel->vibdep = depth << layer->oldeffects;
+
+        return mppe_DoVibrato(period, channel, layer);
+    }
+
+    return period;
+}
+
+// EFFECT Kxy: Vibrato+Volume Slide
+mm_word mppe_VibratoVolume(mm_word param, mm_word period, mm_module_channel *channel,
+                           mpl_layer_information *layer)
+{
+    mm_word new_period = mppe_DoVibrato(period, channel, layer);
+
+    mppe_VolumeSlide(param, channel, layer);
+
+    return new_period;
+}
+
 // EFFECT Vxy: Set Global Volume
 void mppe_SetGlobalVolume(mm_word param, mpl_layer_information *layer)
 {

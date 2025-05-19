@@ -1124,10 +1124,10 @@ mpp_Process_Effect:
 	b	mppe_Portamento
 	b	mppe_Portamento
 	b	mppe_Glissando
-	b	mppe_Vibrato
+	b	mppe_Vibrato_Wrapper
 	b	mppe_todo
 	b	mppe_Arpeggio
-	b	mppe_VibratoVolume
+	b	mppe_VibratoVolume_Wrapper
 	b	mppe_PortaVolume
 	b	mppe_ChannelVolume
 	b	mppe_ChannelVolumeSlide
@@ -1425,46 +1425,18 @@ mppe_Glissando:					@ EFFECT Gxy: Glissando
 .align 2
 .thumb_func
 @---------------------------------------------------------------------------------
-mppe_Vibrato:					@ EFFECT Hxy: Vibrato
+mppe_Vibrato_Wrapper: @ EFFECT Hxy: Vibrato
 @---------------------------------------------------------------------------------
+	movs	r0, r1
+	movs	r1, r5
+	movs	r2, r7
+	mov	r3, r8
 
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	cmp	r2, #0			@ Z flag = tick0
-	beq 1f
-	movs	r0, r5
-	movs	r1, r7
-	mov	r2, r8
-	mov	r4, lr
-	bl	mppe_DoVibrato
+	push	{lr}
+	bl	mppe_Vibrato
 	movs	r5, r0
-	bx	r4
-1:
-
-	lsrs	r0, r1, #4			@ if (x != 0) {
-	beq	.mppe_v_nospd			@   speed = 4*x;
-	lsls	r0, #2				@   ..
-	strb	r0, [r7, #MCH_VIBSPD]		@   ..
-.mppe_v_nospd:
-	
-	lsls	r0, r1, #32-4		 	@ if (y != 0) {
-	beq	.mppe_v_nodep			@ ..
-	lsrs	r0, #32-6			@   depth = y * 4;
-	mov	r1, r8
-	ldrb	r1, [r1, #MPL_OLDEFFECTS]	@   if(OldEffects)
-	lsls	r0, r1				@      depth <<= 1;
-	strb	r0, [r7, #MCH_VIBDEP]		@
-
-	movs	r0, r5
-	movs	r1, r7
-	mov	r2, r8
-	mov	r4, lr
-	bl	mppe_DoVibrato
-	movs	r5, r0
-	bx	r4
-
-.mppe_v_nodep:
-	BX	LR
+	pop	{r2}
+	bx	r2
 
 .align 2
 .thumb_func
@@ -1535,27 +1507,18 @@ mppe_Arpeggio:					@ EFFECT Jxy: Arpeggio
 .align 2
 .thumb_func
 @---------------------------------------------------------------------------------
-mppe_VibratoVolume:			@ EFFECT Kxy: Vibrato+Volume Slide
+mppe_VibratoVolume_Wrapper: @ EFFECT Kxy: Vibrato+Volume Slide
 @---------------------------------------------------------------------------------
+	movs	r0, r1
+	movs	r1, r5
+	movs	r2, r7
+	mov	r3, r8
 
 	push	{lr}
-
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-
-	push	{r1,r2}
-	movs	r0, r5
-	movs	r1, r7
-	mov	r2, r8
-	bl	mppe_DoVibrato
+	bl	mppe_VibratoVolume
 	movs	r5, r0
-	pop	{r1,r2}
-
-	bl	mppe_VolumeSlide_Wrapper
-
-	pop	{r0}
-	bx	r0
-//	pop	{pc}
+	pop	{r2}
+	bx	r2
 
 .align 2
 .thumb_func
