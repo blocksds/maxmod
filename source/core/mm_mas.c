@@ -1771,6 +1771,37 @@ mm_word mppe_DoVibrato(mm_word period, mm_module_channel *channel, mpl_layer_inf
 //                                      EFFECTS
 // =============================================================================
 
+// EFFECT Vxy: Set Global Volume
+void mppe_SetGlobalVolume(mm_word param, mpl_layer_information *layer)
+{
+    if (layer->tick != 0)
+        return;
+
+    mm_word mask = (1 << (C_FLAGS_XS - 1)) | (1 << (C_FLAGS_LS - 1));
+
+    mm_word maxvol;
+
+    if (layer->flags & mask)
+        maxvol = 64;
+    else
+        maxvol = 128;
+
+    layer->gv = (param < maxvol) ? param : maxvol;
+}
+
+// EFFECT Wxy: Global Volume Slide
+void mppe_GlobalVolumeSlide(mm_word param, mpl_layer_information *layer)
+{
+    mm_word maxvol;
+
+    if (layer->flags & (1 << (C_FLAGS_XS - 1)))
+        maxvol = 64;
+    else
+        maxvol = 128;
+
+    layer->gv = mpph_VolumeSlide(layer->gv, param, layer->tick, maxvol, layer);
+}
+
 // EFFECT Xxy: Set Panning
 void mppe_SetPanning(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
 {

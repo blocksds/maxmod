@@ -1138,8 +1138,8 @@ mpp_Process_Effect:
 	b	mppe_Extended_Wrapper
 	b	mppe_SetTempo
 	b	mppe_FineVibrato
-	b	mppe_SetGlobalVolume
-	b	mppe_GlobalVolumeSlide
+	b	mppe_SetGlobalVolume_Wrapper
+	b	mppe_GlobalVolumeSlide_Wrapper
 	b	mppe_SetPanning_Wrapper
 	b	mppe_Panbrello
 	b	mppe_ZXX
@@ -1918,77 +1918,33 @@ mppe_FineVibrato:				@ EFFECT Uxy: Fine Vibrato
 .align 2
 .thumb_func
 @------------------------------------------------------------------------------------
-mppe_SetGlobalVolume:			@ EFFECT Vxy: Set Global Volume
+mppe_SetGlobalVolume_Wrapper: @ EFFECT Vxy: Set Global Volume
 @------------------------------------------------------------------------------------
+	movs	r0, r1
+	mov	r1, r8
 
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	cmp	r2, #0			@ Z flag = tick0
-	bne	.mppe_sgv_exit		@ on tick0:
-	mov	r0, r8
-	ldrb	r2, [r0, #MPL_FLAGS]
-	movs	r3, #(1<<(C_FLAGS_XS-1))+(1<<(C_FLAGS_LS-1))
-	tst	r2, r3
-	beq	1f
-	movs	r2, #0x40
-	b	2f
-1:	movs	r2, #0x80
-2:
-	cmp	r1, r2
-	blt	1f
-	movs	r1, r2
-1:	strb	r1, [r0, #MPL_GV]	@ save param to global volume
-.mppe_sgv_exit:
-	bx	lr
-.pool
-
+	push	{lr}
+	bl	mppe_SetGlobalVolume
+	pop	{r2}
+	bx	r2
 
 .align 2
 .thumb_func
 @----------------------------------------------------------------------------------
-mppe_GlobalVolumeSlide:				@ EFFECT Wxy: Global Volume Slide
+mppe_GlobalVolumeSlide_Wrapper: @ EFFECT Wxy: Global Volume Slide
 @----------------------------------------------------------------------------------
-
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+	movs	r0, r1
+	mov	r1, r8
 
 	push	{lr}
-
-.mppe_gvs_ot:
-	mov	r0, r8
-	ldrb	r0, [r0, #MPL_FLAGS]
-	lsrs	r0, #C_FLAGS_XS
-	bcs	1f
-	
-	movs	r0, #128
-	b	2f
-
-1:	movs	r0, #64
-
-2:
-	movs	r3, r0
-
-	mov	r0, r8
-	ldrb	r0, [r0, #MPL_GV]		@ load global volume
-
-	mov	r4, r8
-	push	{r4}
-	bl	mpph_VolumeSlide
-	pop	{r4}
-	mov	r8, r4
-
-	mov	r1, r8
-	strb	r0, [r1, #MPL_GV]		@ save global volume
-	pop	{r0}
-	bx	r0
-//	pop	{pc}				@ exit
-.pool
-
+	bl	mppe_GlobalVolumeSlide
+	pop	{r2}
+	bx	r2
 
 .align 2
 .thumb_func
 @---------------------------------------------------------------------------------------
-mppe_SetPanning_Wrapper:				@ EFFECT Xxy: Set Panning
+mppe_SetPanning_Wrapper: @ EFFECT Xxy: Set Panning
 @---------------------------------------------------------------------------------------
 	movs	r0, r1
 	movs	r1, r7
