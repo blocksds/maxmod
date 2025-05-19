@@ -1806,6 +1806,12 @@ void mppe_PatternBreak(mm_word param, mpl_layer_information *layer)
         layer->pattjump = layer->position + 1;
 }
 
+// EFFECT Dxy: VOLUME SLIDE
+void mppe_VolumeSlide(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
+{
+    channel->volume = mpph_VolumeSlide64(channel->volume, param, layer->tick, layer);
+}
+
 // EFFECT Vxy: Set Global Volume
 void mppe_SetGlobalVolume(mm_word param, mpl_layer_information *layer)
 {

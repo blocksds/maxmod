@@ -1120,7 +1120,7 @@ mpp_Process_Effect:
 	b	mppe_SetSpeed_Wrapper
 	b	mppe_PositionJump_Wrapper
 	b	mppe_PatternBreak_Wrapper
-	b	mppe_VolumeSlide
+	b	mppe_VolumeSlide_Wrapper
 	b	mppe_Portamento
 	b	mppe_Portamento
 	b	mppe_Glissando
@@ -1198,22 +1198,16 @@ mppe_PatternBreak_Wrapper: @ EFFECT Cxy: PATTERN BREAK
 .align 2
 .thumb_func
 @------------------------------------------------------------------------------------------
-mppe_VolumeSlide:				@ EFFECT Dxy: VOLUME SLIDE
+mppe_VolumeSlide_Wrapper: @ EFFECT Dxy: VOLUME SLIDE
 @------------------------------------------------------------------------------------------
+	movs	r0, r1
+	movs	r1, r7
+	mov	r2, r8
 
 	push	{lr}
-	ldrb	r0, [r7, #MCH_VOLUME]		@ load volume
-
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	mov	r3, r8
-	bl	mpph_VolumeSlide64
-	
-	strb	r0, [r7, #MCH_VOLUME]		@ save volume
-.mppe_vs_zt:
-	pop	{r0}
-	bx	r0
-//	pop	{pc}				@ exit
+	bl mppe_VolumeSlide
+	pop	{r2}
+	bx	r2
 
 .align 2
 .thumb_func
@@ -1557,7 +1551,7 @@ mppe_VibratoVolume:			@ EFFECT Kxy: Vibrato+Volume Slide
 	movs	r5, r0
 	pop	{r1,r2}
 
-	bl	mppe_VolumeSlide
+	bl	mppe_VolumeSlide_Wrapper
 
 	pop	{r0}
 	bx	r0
@@ -1579,7 +1573,7 @@ mppe_PortaVolume:			@ EFFECT Lxy: Portamento+Volume Slide
 	bl	mppe_Glissando
 	pop	{r1, r2}
 
-	bl	mppe_VolumeSlide
+	bl	mppe_VolumeSlide_Wrapper
 
 	pop	{r0}
 	bx	r0
