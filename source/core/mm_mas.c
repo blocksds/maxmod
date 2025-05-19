@@ -999,6 +999,10 @@ mm_word mpph_FinePitchSlide_Down(mm_word period, mm_word slide_value, mpl_layer_
     }
 }
 
+// =============================================================================
+//                                EFFECT MEMORY
+// =============================================================================
+
 #define MPP_XM_VFX_MEM_VS       12  // Value = 0xUD : Up, Down
 #define MPP_XM_VFX_MEM_FVS      13  // Value = 0xUD : Up, Down
 #define MPP_XM_VFX_MEM_GLIS     14  // Value = 0x0X : Zero, Value
@@ -1770,6 +1774,37 @@ mm_word mppe_DoVibrato(mm_word period, mm_module_channel *channel, mpl_layer_inf
 // =============================================================================
 //                                      EFFECTS
 // =============================================================================
+
+// EFFECT Axy: SET SPEED
+void mppe_SetSpeed(mm_word param, mpl_layer_information *layer)
+{
+    if (layer->tick != 0)
+        return;
+
+    if (param != 0)
+        layer->speed = param;
+}
+
+// EFFECT Bxy: SET POSITION
+void mppe_PositionJump(mm_word param, mpl_layer_information *layer)
+{
+    if (layer->tick != 0)
+        return;
+
+    layer->pattjump = param;
+}
+
+// EFFECT Cxy: PATTERN BREAK
+void mppe_PatternBreak(mm_word param, mpl_layer_information *layer)
+{
+    if (layer->tick != 0)
+        return;
+
+    layer->pattjump_row = param;
+
+    if (layer->pattjump == 255) // Check if pattjump is empty
+        layer->pattjump = layer->position + 1;
+}
 
 // EFFECT Vxy: Set Global Volume
 void mppe_SetGlobalVolume(mm_word param, mpl_layer_information *layer)

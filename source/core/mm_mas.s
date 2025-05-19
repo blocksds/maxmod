@@ -1117,9 +1117,9 @@ mpp_Process_Effect:
 	// r8 = mpl_layer_information
 
 	b	mppe_todo
-	b	mppe_SetSpeed
-	b	mppe_PositionJump
-	b	mppe_PatternBreak
+	b	mppe_SetSpeed_Wrapper
+	b	mppe_PositionJump_Wrapper
+	b	mppe_PatternBreak_Wrapper
 	b	mppe_VolumeSlide
 	b	mppe_Portamento
 	b	mppe_Portamento
@@ -1152,59 +1152,48 @@ mpp_Process_Effect:
 .align 2
 .thumb_func
 @---------------------------------------------------------------------------------
-mppe_SetSpeed:				@ EFFECT Axy: SET SPEED
+mppe_SetSpeed_Wrapper: @ EFFECT Axy: SET SPEED
 @---------------------------------------------------------------------------------
+	movs	r0, r1
+	mov	r1, r8
 
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	cmp	r2, #0			@ Z flag = tick0
-	bne	.mppe_ss_exit		@ dont set on nonzero ticks
-	cmp	r1, #0
-	beq	.mppe_ss_exit
-	mov	r0, r8
-	
-	strb	r1, [r0, #MPL_SPEED]
-.mppe_ss_exit:
+	push	{lr}
+	bl mppe_SetSpeed
+	pop	{r2}
+	bx	r2
+
+.align 2
 .thumb_func
+@---------------------------------------------------------------------------------
 mppe_todo:
+@---------------------------------------------------------------------------------
 	bx	lr			@ exit
 
 .align 2
 .thumb_func
 @---------------------------------------------------------------------------------
-mppe_PositionJump:			@ EFFECT Bxy: SET POSITION
+mppe_PositionJump_Wrapper: @ EFFECT Bxy: SET POSITION
 @---------------------------------------------------------------------------------
+	movs	r0, r1
+	mov	r1, r8
 
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	cmp	r2, #0			@ Z flag = tick0
-	bne	.mppe_pj_exit		@ skip nonzero ticks
-	mov	r0, r8
-	strb	r1, [r0, #MPL_PATTJUMP]
-.mppe_pj_exit:
-	bx	lr			@ exit
-.pool
+	push	{lr}
+	bl mppe_PositionJump
+	pop	{r2}
+	bx	r2
 
 .align 2
 .thumb_func
 @---------------------------------------------------------------------------------
-mppe_PatternBreak:				@ EFFECT Cxy: PATTERN BREAK
+mppe_PatternBreak_Wrapper: @ EFFECT Cxy: PATTERN BREAK
 @---------------------------------------------------------------------------------
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	cmp	r2, #0			@ Z flag = tick0
-	bne	.mppe_pb_exit			@ skip nonzero ticks
-	mov	r0, r8				@ get variables
-	strb	r1, [r0, #MPL_PATTJUMP_ROW]	@ save param to row value
-	ldrb	r1, [r0, #MPL_PATTJUMP]		@ check if pattjump=empty
-	cmp	r1, #255			@ 255=empty
-	bne	.mppe_pb_exit			@ ...
-	ldrb	r1, [r0, #MPL_POSITION]		@ if empty, set pattjump=position+1
-	adds	r1, #1
-	strb	r1, [r0, #MPL_PATTJUMP]
-.mppe_pb_exit:
-	bx	lr				@ finished
-.pool
+	movs	r0, r1
+	mov	r1, r8
+
+	push	{lr}
+	bl mppe_PatternBreak
+	pop	{r2}
+	bx	r2
 
 .align 2
 .thumb_func
