@@ -1137,7 +1137,7 @@ mpp_Process_Effect:
 	b	mppe_Tremolo		@ tremolo
 	b	mppe_Extended_Wrapper
 	b	mppe_SetTempo
-	b	mppe_FineVibrato
+	b	mppe_FineVibrato_Wrapper
 	b	mppe_SetGlobalVolume_Wrapper
 	b	mppe_GlobalVolumeSlide_Wrapper
 	b	mppe_SetPanning_Wrapper
@@ -1828,38 +1828,18 @@ mppe_SetTempo:					@ EFFECT Txy: Set Tempo / Tempo Slide
 .align 2
 .thumb_func
 @----------------------------------------------------------------------------------------
-mppe_FineVibrato:				@ EFFECT Uxy: Fine Vibrato
+mppe_FineVibrato_Wrapper: @ EFFECT Uxy: Fine Vibrato
 @----------------------------------------------------------------------------------------
+	movs	r0, r1
+	movs	r1, r5
+	movs	r2, r7
+	mov	r3, r8
 
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	cmp	r2, #0			@ Z flag = tick0
-	bne	.mppe_fv_ot
-	lsrs	r0, r1, #4
-	beq	.mppe_fv_nospd
-	lsls	r0, #2
-	strb	r0, [r7, #MCH_VIBSPD]
-.mppe_fv_nospd:
-	
-	lsls	r0, r1, #32-4
-	beq	.mppe_fv_nodep
-//	lsrs	r0, #32			heh...
-	lsrs	r0, #32-4
-	mov	r1, r8
-	ldrb	r1, [r1, #MPL_OLDEFFECTS]
-	lsls	r0, r1
-	strb	r0, [r7, #MCH_VIBDEP]
-.mppe_fv_nodep:
-
-.mppe_fv_ot:
-	movs	r0, r5
-	movs	r1, r7
-	mov	r2, r8
-	mov	r4, lr
-	bl	mppe_DoVibrato
+	push	{lr}
+	bl	mppe_FineVibrato
 	movs	r5, r0
-	bx	r4
-.pool
+	pop	{r2}
+	bx	r2
 
 .align 2
 .thumb_func

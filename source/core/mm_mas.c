@@ -36,6 +36,9 @@
 void mpp_setbpm(mpl_layer_information*, mm_word);
 void mpp_setposition(mpl_layer_information*, mm_word);
 
+static mm_word mppe_DoVibrato(mm_word period, mm_module_channel *channel,
+                              mpl_layer_information *layer);
+
 mm_word mpp_resolution;
 
 // Suspend main module and associated channels.
@@ -1746,7 +1749,8 @@ mm_word mpph_VolumeSlide64(int volume, mm_word param, mm_word tick,
 
 extern mm_sbyte mpp_TABLE_FineSineData[];
 
-mm_word mppe_DoVibrato(mm_word period, mm_module_channel *channel, mpl_layer_information *layer)
+static mm_word mppe_DoVibrato(mm_word period, mm_module_channel *channel,
+                              mpl_layer_information *layer)
 {
     mm_byte position;
 
@@ -1848,6 +1852,31 @@ mm_word mppe_VibratoVolume(mm_word param, mm_word period, mm_module_channel *cha
     mppe_VolumeSlide(param, channel, layer);
 
     return new_period;
+}
+
+// EFFECT Uxy: Fine Vibrato
+mm_word mppe_FineVibrato(mm_word param, mm_word period, mm_module_channel *channel,
+                           mpl_layer_information *layer)
+{
+    if (layer->tick == 0)
+    {
+        mm_word x = param >> 4;
+        mm_word y = param & 0xF;
+
+        if (x != 0)
+            channel->vibspd = x * 4;
+
+        if (y != 0)
+        {
+            mm_word depth = y * 4;
+
+            // if (OldEffects)
+            //     depth <<= 1;
+            channel->vibdep = depth << layer->oldeffects;
+        }
+    }
+
+    return mppe_DoVibrato(period, channel, layer);
 }
 
 // EFFECT Vxy: Set Global Volume
