@@ -1854,6 +1854,42 @@ mm_word mppe_VibratoVolume(mm_word param, mm_word period, mm_module_channel *cha
     return new_period;
 }
 
+// EFFECT Txy: Set Tempo / Tempo Slide
+void mppe_SetTempo(mm_word param, mpl_layer_information *layer)
+{
+    if (param < 0x10) // 0x = Slide down
+    {
+        if (layer->tick == 0)
+            return;
+
+        int bpm = layer->bpm - param;
+
+        if (bpm < 32)
+            bpm = 32;
+
+        mpp_setbpm(layer, bpm);
+    }
+    else if (param < 0x20) // 1x = Slide up
+    {
+        if (layer->tick == 0)
+            return;
+
+        int bpm = layer->bpm + (param & 0xF);
+
+        if (bpm > 255)
+            bpm = 255;
+
+        mpp_setbpm(layer, bpm);
+    }
+    else // 2x+ = Set
+    {
+        if (layer->tick != 0)
+            return;
+
+        mpp_setbpm(layer, param);
+    }
+}
+
 // EFFECT Uxy: Fine Vibrato
 mm_word mppe_FineVibrato(mm_word param, mm_word period, mm_module_channel *channel,
                            mpl_layer_information *layer)

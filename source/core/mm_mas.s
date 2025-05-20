@@ -1136,7 +1136,7 @@ mpp_Process_Effect:
 	b	mppe_Retrigger
 	b	mppe_Tremolo		@ tremolo
 	b	mppe_Extended_Wrapper
-	b	mppe_SetTempo
+	b	mppe_SetTempo_Wrapper
 	b	mppe_FineVibrato_Wrapper
 	b	mppe_SetGlobalVolume_Wrapper
 	b	mppe_GlobalVolumeSlide_Wrapper
@@ -1767,63 +1767,15 @@ mppe_Extended_Wrapper: // EFFECT Sxy: Extended Effects
 .align 2
 .thumb_func
 @----------------------------------------------------------------------------------------
-mppe_SetTempo:					@ EFFECT Txy: Set Tempo / Tempo Slide
+mppe_SetTempo_Wrapper: @ EFFECT Txy: Set Tempo / Tempo Slide
 @----------------------------------------------------------------------------------------
-
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-
-	@ 0x  = slide down
-	@ 1x  = slide up
-	@ 2x+ = set
-	
-	// BUGGED???
-	// not using setbpm for slides???
-
-	cmp	r1, #0x20
-	bge	.mppe_st_set
-	cmp	r2, #0
-	beq	.mppe_st_exit
-
-	mov	r0, r8
-	ldrb	r2, [r0, #MPL_BPM]
-
-	cmp	r1, #0x10
-	bge	.mppe_st_slideup
-.mppe_st_slidedown:
-	subs	r2, r1
-	cmp	r2, #32
-	bge	.mppe_st_save
-	movs	r2, #32
-.mppe_st_save:
-	movs	r0, r2
-	b	.mppe_st_set2
-.mppe_st_slideup:
-	
-	lsls	r1, #32-4
-	lsrs	r1, #32-4
-	
-	adds	r2, r1
-	cmp	r2, #255
-	blt	.mppe_st_save
-	movs	r2, #255
-	b	.mppe_st_save
-.mppe_st_set:
-	cmp	r2, #0
-	bne	.mppe_st_exit
 	movs	r0, r1
-.mppe_st_set2:
+	mov	r1, r8
+
 	push	{lr}
-	movs	r1, r0
-	mov	r0, r8
-	ldr	r2,=mpp_setbpm
-	bl	mpp_call_r2
-	@jump1
-	pop	{r3}
-	bx	r3
-.mppe_st_exit:
-	bx	lr
-.pool
+	bl	mppe_SetTempo
+	pop	{r2}
+	bx	r2
 
 .align 2
 .thumb_func
