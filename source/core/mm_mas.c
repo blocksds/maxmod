@@ -1843,6 +1843,50 @@ mm_word mppe_Vibrato(mm_word param, mm_word period, mm_module_channel *channel,
     return period;
 }
 
+// EFFECT Jxy: Arpeggio
+mm_word mppe_Arpeggio(mm_word param, mm_word period, mm_active_channel *act_ch,
+                      mm_module_channel *channel, mpl_layer_information *layer)
+{
+    if (layer->tick == 0)
+        channel->fxmem = 0;
+
+    if (act_ch == NULL)
+        return period;
+
+    mm_word semitones;
+
+    if (channel->fxmem > 1) // mppe_arp_2
+    {
+        channel->fxmem = 0; // Set next tick to 0
+        semitones = param & 0xF; // Mask out low nibble of param
+    }
+    else if (channel->fxmem == 1) // mppe_arp_1
+    {
+        channel->fxmem = 2; // Set next tick to 2
+        semitones = param >> 4; // Mask out high nibble of param
+    }
+    else // mppe_arp_0
+    {
+        // Do nothing! :)
+        channel->fxmem = 1;
+        return period;
+    }
+
+    // The assembly code had the following conditional, but the register used to
+    // store the period was overwritten by mpph_LinearPitchSlide_Up() right
+    // after jumping to it, even in the original assembly code before the C port
+    // started. Is this a bug, or do we need to enable it?
+    //
+    // See if its >= 12. Double period if so... (set an octave higher)
+    //if (semitones >= 12)
+    //    period *= 2;
+
+    semitones *= 16; // 16 hwords
+
+    period = mpph_LinearPitchSlide_Up(period, semitones, layer);
+    return period;
+}
+
 // EFFECT Kxy: Vibrato+Volume Slide
 mm_word mppe_VibratoVolume(mm_word param, mm_word period, mm_module_channel *channel,
                            mpl_layer_information *layer)
@@ -2122,6 +2166,7 @@ static void mppex_SongMessage(mm_word param, mpl_layer_information *layer)
         mmCallback(MPCB_SONGMESSAGE, param & 0xF);
 }
 
+// EFFECT Sxy: Extended Effects
 void mppe_Extended(mm_word param, mm_active_channel *act_ch,
                    mm_module_channel *channel, mpl_layer_information *layer)
 {

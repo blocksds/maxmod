@@ -1126,7 +1126,7 @@ mpp_Process_Effect:
 	b	mppe_Glissando
 	b	mppe_Vibrato_Wrapper
 	b	mppe_todo
-	b	mppe_Arpeggio
+	b	mppe_Arpeggio_Wrapper
 	b	mppe_VibratoVolume_Wrapper
 	b	mppe_PortaVolume
 	b	mppe_ChannelVolume
@@ -1448,61 +1448,24 @@ mppe_Tremor:					@ EFFECT Ixy: Tremor
 .align 2
 .thumb_func
 @---------------------------------------------------------------------------------
-mppe_Arpeggio:					@ EFFECT Jxy: Arpeggio
+mppe_Arpeggio_Wrapper: @ EFFECT Jxy: Arpeggio
 @---------------------------------------------------------------------------------
-
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	cmp	r2, #0			@ Z flag = tick0
-	bne	.mppe_arp_ot
-
-	movs	r0, #0
-	strb	r0, [r7, #MCH_FXMEM]
-.mppe_arp_ot:
-	cmp	r6, #0
-	beq	1f
-	ldrb	r0, [r7, #MCH_FXMEM]
-//	ldrb	r3, [r6, #MCA_SAMPLE]	?		???	
-	cmp	r0, #1
-	bgt	.mppe_arp_2
-	beq	.mppe_arp_1
-.mppe_arp_0:
-	movs	r0, #1
-	strb	r0, [r7, #MCH_FXMEM]
-	@ do nothing! :)
-1:	bx	lr
-	
-.mppe_arp_1:
-	
-	movs	r0, #2			@ set next tick to '2'
-	strb	r0, [r7, #MCH_FXMEM]	@ save...
-	movs	r0, r5
-	lsrs	r1, #4			@ mask out high nibble of param
-.mppe_arp_others:
-	movs	r2, r5
-	cmp	r1, #12			@ see if its >= 12
-	blt	.mppea1_12		@ ..
-	adds	r2, r5			@  add period if so... (octave higher)
-.mppea1_12:				@  ..
-	lsls	r1, #4			@ *16*hword
-	
-	movs	r0, r5
 	push	{lr}
-	mov	r2, r8
-	bl	mpph_LinearPitchSlide_Up
 
+	mov	r0, r8
+	push	{r0} // Push mpl_layer_information to the stack as 5th argument
+
+	movs	r0, r1
+	movs	r1, r5
+	movs	r2, r6
+	movs	r3, r7
+
+	bl	mppe_Arpeggio
 	movs	r5, r0
-	pop	{r0}
-	bx	r0
-//	pop	{pc}
-	
-.mppe_arp_2:
-	movs	r0, #0
-	strb	r0, [r7, #MCH_FXMEM]
-	movs	r0, r5
-	lsls	r1, #32-4
-	lsrs	r1, #32-4
-	b	.mppe_arp_others
+
+	pop	{r1} // Pop the argument passed on the stack
+	pop	{r1}
+	bx	r1
 
 .align 2
 .thumb_func
