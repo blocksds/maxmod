@@ -1898,6 +1898,37 @@ mm_word mppe_VibratoVolume(mm_word param, mm_word period, mm_module_channel *cha
     return new_period;
 }
 
+// EFFECT Rxy: Tremolo
+void mppe_Tremolo(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
+{
+    // X = speed, Y = depth
+
+    if (layer->tick != 0)
+    {
+        // Get sine position
+        mm_word position = channel->fxmem;
+
+        mm_word speed = param >> 4;
+        // Mask out SPEED, multiply by 4 to compensate for larger sine table
+        position += speed * 4;
+
+        // Save (value & 255)
+        channel->fxmem = position;
+    }
+
+    mm_word position = channel->fxmem; // Get sine position
+    mm_sword sine = mpp_TABLE_FineSineData[position]; // Load sine table value
+
+    mm_word depth = param & 0xF;
+
+    mm_sword result = (sine * depth) >> 6; // Sine * depth / 64
+
+    if (layer->flags & (1 << (C_FLAGS_XS - 1)))
+        result >>= 1;
+
+    mpp_vars.volplus = result; // Set volume addition variable
+}
+
 // EFFECT Txy: Set Tempo / Tempo Slide
 void mppe_SetTempo(mm_word param, mpl_layer_information *layer)
 {

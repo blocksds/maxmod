@@ -1134,7 +1134,7 @@ mpp_Process_Effect:
 	b	mppe_SampleOffset
 	b	mppe_todo
 	b	mppe_Retrigger
-	b	mppe_Tremolo		@ tremolo
+	b	mppe_Tremolo_Wrapper
 	b	mppe_Extended_Wrapper
 	b	mppe_SetTempo_Wrapper
 	b	mppe_FineVibrato_Wrapper
@@ -1673,39 +1673,16 @@ mppe_Retrigger:					@ EFFECT Qxy Retrigger Note
 .align 2
 .thumb_func
 @---------------------------------------------------------------------------------
-mppe_Tremolo:					@ EFFECT Rxy: Tremolo
+mppe_Tremolo_Wrapper: @ EFFECT Rxy: Tremolo
 @---------------------------------------------------------------------------------
-
-@ r1 = param
-
+	movs	r0, r1
+	movs	r1, r7
 	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	cmp	r2, #0			@ Z flag = tick0
-	beq	.mppe_trem_zt			@ skip this part on tick0
-.mppe_trem_ot:
-	@ X = speed, Y = depth
-	ldrb	r0, [r7, #MCH_FXMEM]		@ get sine position
-	lsrs	r3, r1, #4			@ mask out SPEED
-	lsls	r3, #2				@ speed*4 to compensate for larger sine table
-	adds	r0, r3				@ add to position
-	strb	r0, [r7, #MCH_FXMEM]		@ save (value & 255)
-.mppe_trem_zt:
-	ldrb	r0, [r7, #MCH_FXMEM]		@ get sine position
-	ldr	r3,=mpp_TABLE_FineSineData	@ load sine table value
-	ldrsb	r0, [r3, r0]
-	lsls	r1, #32-4			@ mask out DEPTH
-	lsrs	r1, #32-4
-	muls	r0, r1				@ SINE*DEPTH / 64
-	asrs	r0, #6
-	mov	r1, r8
-	ldrb	r1, [r1, #MPL_FLAGS]
-	lsrs	r1, #C_FLAGS_XS
-	bcs	1f
-	asrs	r0, #1
-1:	ldr	r1,=mpp_vars			@ set volume addition variable
-	strb	r0, [r1, #MPV_VOLPLUS]
-	bx	lr
-.pool
+
+	push	{lr}
+	bl	mppe_Tremolo
+	pop	{r2}
+	bx	r2
 
 .align 2
 .thumb_func
