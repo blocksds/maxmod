@@ -1125,7 +1125,7 @@ mpp_Process_Effect:
 	b	mppe_Portamento
 	b	mppe_Glissando
 	b	mppe_Vibrato_Wrapper
-	b	mppe_todo
+	b	mppe_todo // Tremor
 	b	mppe_Arpeggio_Wrapper
 	b	mppe_VibratoVolume_Wrapper
 	b	mppe_PortaVolume
@@ -1146,7 +1146,7 @@ mpp_Process_Effect:
 	b	mppe_SetVolume_Wrapper
 	b	mppe_KeyOff_Wrapper
 	b	mppe_EnvelopePos
-	b	mppe_OldTremor
+	b	mppe_OldTremor_Wrapper
 .pool
 
 .align 2
@@ -1443,6 +1443,7 @@ mppe_Vibrato_Wrapper: @ EFFECT Hxy: Vibrato
 @---------------------------------------------------------------------------------
 mppe_Tremor:					@ EFFECT Ixy: Tremor
 @---------------------------------------------------------------------------------
+	// TODO: This is unused. Would it work with the OldTremor code?
 	bx	lr
 
 .align 2
@@ -1847,50 +1848,16 @@ mppe_EnvelopePos:			@ EFFECT 1xx: Envelope Position
 .align 2
 .thumb_func
 @-----------------------------------------------------------------------------------
-mppe_OldTremor:				@ EFFECT 3xy: Old Tremor
+mppe_OldTremor_Wrapper: @ EFFECT 3xy: Old Tremor
 @-----------------------------------------------------------------------------------
-
+	movs	r0, r1
+	movs	r1, r7
 	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	cmp	r2, #0			@ Z flag = tick0
-	bne	.mppe_ot_ot
-	bx	lr
-.mppe_ot_ot:
-	ldrb	r0, [r7, #MCH_FXMEM]
-	cmp	r0, #0
-	bne	.mppe_ot_old
-.mppe_ot_new:
-	ldrb	r0, [r7, #MCH_BFLAGS+1]
-	movs	r3, #0b110
-	eors	r0, r3
-	strb	r0, [r7, #MCH_BFLAGS+1]
-	lsrs	r0, #3
-	bcc	.mppe_ot_low
-	lsrs	r1, #4
-	adds	r1, #1
-	strb	r1, [r7, #MCH_FXMEM]
-	b	.mppe_ot_apply
-.mppe_ot_low:
-	lsls	r1, #32-4
-	lsrs	r1, #32-4
-	adds	r1, #1
-	strb	r1, [r7, #MCH_FXMEM]
-	b	.mppe_ot_apply
-	
-.mppe_ot_old:
-	subs	r0, #1
-	strb	r0, [r7, #MCH_FXMEM]
 
-.mppe_ot_apply:
-	ldrb	r2, [r7, #MCH_BFLAGS+1]
-	
-	lsrs	r2, #3
-	bcs	.mppe_ot_cut
-	movs	r1, #-64&255
-	ldr	r2,=mpp_vars
-	strb	r1, [r2, #MPV_VOLPLUS]
-.mppe_ot_cut:
-	bx	lr
+	push	{lr}
+	bl mppe_OldTremor
+	pop	{r2}
+	bx	r2
 
 @==========================================================================================
 @                                          TABLES

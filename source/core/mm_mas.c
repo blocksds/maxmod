@@ -2280,3 +2280,30 @@ void mppe_KeyOff(mm_word param, mm_active_channel *act_ch, mpl_layer_information
     if (act_ch != NULL)
         act_ch->flags &= ~MCAF_KEYON;
 }
+
+// EFFECT 3xy: Old Tremor
+// TODO: Is this used?
+void mppe_OldTremor(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
+{
+    while(1);
+    if (layer->tick == 0)
+        return;
+
+    int mem = channel->fxmem;
+    if (mem == 0) // Old
+    {
+        channel->fxmem = mem - 1;
+    }
+    else // New
+    {
+        channel->bflags ^= 3 << 9;
+
+        if (channel->bflags & (1 << 10))
+            channel->fxmem = (param >> 4) + 1;
+        else
+            channel->fxmem = (param & 0xF) + 1;
+    }
+
+    if ((channel->bflags & (1 << 10)) == 0) // Cut note
+        mpp_vars.volplus = -64;
+}
