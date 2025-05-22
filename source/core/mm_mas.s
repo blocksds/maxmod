@@ -1129,9 +1129,9 @@ mpp_Process_Effect:
 	b	mppe_Arpeggio_Wrapper
 	b	mppe_VibratoVolume_Wrapper
 	b	mppe_PortaVolume
-	b	mppe_ChannelVolume
-	b	mppe_ChannelVolumeSlide
-	b	mppe_SampleOffset
+	b	mppe_ChannelVolume_Wrapper
+	b	mppe_ChannelVolumeSlide_Wrapper
+	b	mppe_SampleOffset_Wrapper
 	b	mppe_todo
 	b	mppe_Retrigger
 	b	mppe_Tremolo_Wrapper
@@ -1509,56 +1509,43 @@ mppe_PortaVolume:			@ EFFECT Lxy: Portamento+Volume Slide
 .align 2
 .thumb_func
 @---------------------------------------------------------------------------------
-mppe_ChannelVolume:				@ EFFECT Mxy: Set Channel Volume
+mppe_ChannelVolume_Wrapper: @ EFFECT Mxy: Set Channel Volume
 @---------------------------------------------------------------------------------
-
+	movs	r0, r1
+	movs	r1, r7
 	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	cmp	r2, #0			@ Z flag = tick0
-	bne	.mppe_cv_exit			@ quite simple...
-	cmp	r1, #0x40
-	bgt	.mppe_cv_exit			@ ignore command if parameter is > 0x40
-	strb	r1, [r7, #MCH_CVOLUME]
-.mppe_cv_exit:
-	bx	lr
-	
-.align 2
-.thumb_func
-@------------------------------------------------------------------------------------
-mppe_ChannelVolumeSlide:			@ EFFECT Nxy: Channel Volume Slide
-@------------------------------------------------------------------------------------
 
 	push	{lr}
+	bl	mppe_ChannelVolume
+	pop	{r2}
+	bx	r2
 
+.align 2
+.thumb_func
+@------------------------------------------------------------------------------------
+mppe_ChannelVolumeSlide_Wrapper: @ EFFECT Nxy: Channel Volume Slide
+@------------------------------------------------------------------------------------
+	movs	r0, r1
+	movs	r1, r7
 	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
 
-	ldrb	r0, [r7, #MCH_CVOLUME]		@ load volume
-
-	mov	r3, r8
-	bl	mpph_VolumeSlide64
-
-	strb	r0, [r7, #MCH_CVOLUME]		@ save volume
-	pop	{r0}
-	bx	r0
-//	pop	{pc}				@ exit
+	push	{lr}
+	bl	mppe_ChannelVolumeSlide
+	pop	{r2}
+	bx	r2
 
 .align 2
 .thumb_func
 @----------------------------------------------------------------------------------
-mppe_SampleOffset:				@ EFFECT Oxy Sample Offset
+mppe_SampleOffset_Wrapper: @ EFFECT Oxy Sample Offset
 @----------------------------------------------------------------------------------
+	movs	r0, r1
+	mov	r1, r8
 
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	cmp	r2, #0			@ Z flag = tick0
-	bne	.mppe_so_exit			@ skip on other ticks
-
-	ldr	r0,=mpp_vars
-	strb	r1, [r0, #MPV_SAMPOFF]		@ set offset
-.mppe_so_exit:
-	bx	lr
-.pool
+	push	{lr}
+	bl	mppe_SampleOffset
+	pop	{r2}
+	bx	r2
 
 .align 2
 .thumb_func

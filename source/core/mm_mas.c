@@ -1898,6 +1898,33 @@ mm_word mppe_VibratoVolume(mm_word param, mm_word period, mm_module_channel *cha
     return new_period;
 }
 
+// EFFECT Mxy: Set Channel Volume
+void mppe_ChannelVolume(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
+{
+    if (layer->tick != 0)
+        return;
+
+    if (param > 0x40) // Ignore command if parameter is greater than 0x40
+        return;
+
+    channel->cvolume = param;
+}
+
+// EFFECT Nxy: Channel Volume Slide
+void mppe_ChannelVolumeSlide(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
+{
+    channel->cvolume = mpph_VolumeSlide64(channel->cvolume, param, layer->tick, layer);
+}
+
+// EFFECT Oxy Sample Offset
+void mppe_SampleOffset(mm_word param, mpl_layer_information *layer)
+{
+    if (layer->tick != 0)
+        return;
+
+    mpp_vars.sampoff = param;
+}
+
 // EFFECT Rxy: Tremolo
 void mppe_Tremolo(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
 {
