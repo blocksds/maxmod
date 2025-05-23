@@ -1985,6 +1985,83 @@ void mppe_SampleOffset(mm_word param, mpl_layer_information *layer)
     mpp_vars.sampoff = param;
 }
 
+// EFFECT Qxy Retrigger Note
+void mppe_Retrigger(mm_word param, mm_active_channel *act_ch, mm_module_channel *channel)
+{
+    // We don't check layer->tick here. We set channel->fxmem to the parameter
+    // and every time this function gets called it goes down by one. When it
+    // reaches 1, the command is executed.
+    //
+    // Note that we can't use 0 as a countdown target. That would be interpreted
+    // as "fxmem hasn't been set", so we need to store the count plus 1.
+
+    mm_word mem = channel->fxmem;
+
+    if (mem == 0) // mppe_retrig_refill
+    {
+        channel->fxmem = (param & 0xF) + 1;
+        return;
+    }
+
+    mem--;
+
+    if (mem != 1)
+    {
+        channel->fxmem = mem;
+        return;
+    }
+
+    channel->fxmem = (param & 0xF) + 1;
+
+    // Handle subcommand
+
+    int vol = channel->volume;
+
+    mm_word arg = param >> 4;
+
+    if (arg == 0) // No change
+    {
+    }
+    else if (arg <= 5) // -1, -2, -4, -8, -16
+    {
+        vol -= 1 << (arg - 1);
+        if (vol < 0)
+            vol = 0;
+    }
+    else if (arg == 6) // * (2 / 3)
+    {
+        vol = (vol * 171) >> 8;
+    }
+    else if (arg == 7) // * (1 / 2)
+    {
+        vol >>= 1;
+    }
+    else if (arg == 8) // Nothing
+    {
+    }
+    else if (arg <= 0xD) // +1, +2, +4, +8, +16
+    {
+        vol += 1 << (arg - 9);
+        if (vol > 64)
+            vol = 64;
+    }
+    else if (arg == 0xE) // * (3 / 2)
+    {
+        vol = (vol * 192) >> 7;
+    }
+    else // if (arg == 0xF) // * 2
+    {
+        vol <<= 1;
+        if (vol > 64)
+            vol = 64;
+    }
+
+    channel->volume = vol;
+
+    if (act_ch != NULL)
+        act_ch->flags |= MCAF_START;
+}
+
 // EFFECT Rxy: Tremolo
 void mppe_Tremolo(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
 {

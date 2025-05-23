@@ -1133,7 +1133,7 @@ mpp_Process_Effect:
 	b	mppe_ChannelVolumeSlide_Wrapper
 	b	mppe_SampleOffset_Wrapper
 	b	mppe_todo
-	b	mppe_Retrigger
+	b	mppe_Retrigger_Wrapper
 	b	mppe_Tremolo_Wrapper
 	b	mppe_Extended_Wrapper
 	b	mppe_SetTempo_Wrapper
@@ -1511,90 +1511,16 @@ mppe_PanningSlide:				@ EFFECT Pxy Panning Slide
 .align 2
 .thumb_func
 @---------------------------------------------------------------------------------
-mppe_Retrigger:					@ EFFECT Qxy Retrigger Note
+mppe_Retrigger_Wrapper: @ EFFECT Qxy Retrigger Note
 @---------------------------------------------------------------------------------
+	movs	r0, r1
+	movs	r1, r6
+	movs	r2, r7
 
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-
-	ldrb	r0, [r7, #MCH_FXMEM]
-	cmp	r0, #0
-	bne	.mppe_retrig_refillN
-.mppe_retrig_refill:
-	lsls	r0, r1, #32-4
-	lsrs	r0, #32-4
-	adds	r0, #1
-.mppe_retrig_exitcount:
-	strb	r0, [r7, #MCH_FXMEM]
-	bx	lr
-.mppe_retrig_refillN:
-	subs	r0, #1
-	cmp	r0, #1
-	bne	.mppe_retrig_exitcount
-.mppe_retrig_fire:
-	
-	ldrb	r2, [r7, #MCH_VOLUME]
-	lsrs	r0, r1, #4
-	beq	.mppe_retrig_v_change0
-	cmp	r0, #5
-	ble	.mppe_retrig_v_change_sub
-	cmp	r0, #6
-	beq	.mppe_retrig_v_change_23
-	cmp	r0, #7
-	beq	.mppe_retrig_v_change_12
-	cmp	r0, #8
-	beq	.mppe_retrig_v_change0
-	cmp	r0, #0xD
-	ble	.mppe_retrig_v_change_add
-	cmp	r0, #0xE
-	beq	.mppe_retrig_v_change_32
-	cmp	r0, #0xF
-	beq	.mppe_retrig_v_change_21
-.mppe_retrig_v_change_21:
-	lsls	r2, #1
-	cmp	r2, #64
-	blt	.mppe_retrig_finish
-	movs	r2, #64
-.mppe_retrig_v_change0:
-	b	.mppe_retrig_finish
-.mppe_retrig_v_change_sub:
-	subs	r0, #1
-	movs	r3, #1
-	lsls	r3, r0
-	subs	r2, r3
-	bcs	.mppe_retrig_finish
-	movs	r2, #0
-	b	.mppe_retrig_finish
-.mppe_retrig_v_change_23:
-	movs	r0, #171
-	muls	r2, r0
-	lsrs	r2, #8
-	b	.mppe_retrig_finish
-.mppe_retrig_v_change_12:
-	lsrs	r2, #1
-	b	.mppe_retrig_finish
-.mppe_retrig_v_change_add:
-	subs	r0, #9
-	movs	r3, #1
-	lsls	r3, r0
-	adds	r2, r3
-	cmp	r2, #64
-	blt	.mppe_retrig_finish
-	movs	r2, #64
-	b	.mppe_retrig_finish
-.mppe_retrig_v_change_32:
-	movs	r0, #192
-	muls	r2, r0
-	lsrs	r2, #7
-.mppe_retrig_finish:
-	strb	r2, [r7, #MCH_VOLUME]
-	cmp	r6, #0
-	beq	.mppe_retrig_refill
-	ldrb	r0, [r6, #MCA_FLAGS]
-	movs	r2, #MCAF_START
-	orrs	r0, r2
-	strb	r0, [r6, #MCA_FLAGS]
-	b	.mppe_retrig_refill
+	push	{lr}
+	bl	mppe_Retrigger
+	pop	{r2}
+	bx	r2
 
 .align 2
 .thumb_func
