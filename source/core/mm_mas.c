@@ -1251,7 +1251,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
 
             volcmd = channel->memory[MPP_XM_VFX_MEM_GLIS];
 
-            return mppe_glis_backdoor_Wrapper(volcmd, channel, act_ch, layer, period);
+            return mppe_glis_backdoor_Wrapper(volcmd, period, act_ch, channel, layer);
         }
     }
     else // IT commands
@@ -1405,7 +1405,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
 
                 mm_byte mem = channel->memory[MPP_GLIS_MEM];
 
-                return mppe_glis_backdoor_Wrapper(mem, channel, act_ch, layer, period);
+                return mppe_glis_backdoor_Wrapper(mem, period, act_ch, channel, layer);
             }
             else // Single Gxx
             {
@@ -1416,7 +1416,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
 
                 mm_byte mem = channel->memory[MPP_GLIS_MEM];
 
-                return mppe_glis_backdoor_Wrapper(mem, channel, act_ch, layer, period);
+                return mppe_glis_backdoor_Wrapper(mem, period, act_ch, channel, layer);
             }
         }
         else if (volcmd <= 212) // Vibrato (Speed) : mppuv_vibrato

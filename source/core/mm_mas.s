@@ -1039,12 +1039,13 @@ mppe_glis_backdoor_Wrapper:
 	// r8 = layer
 
 	movs	r1, r0
-	movs	r7, r1
+	movs	r5, r1
 	movs	r6, r2
-	mov	r8, r3
+	movs	r7, r3
 	// This argument is passed on the stack by the caller, but 6 registers have
 	// been pushed to the stack as well.
-	ldr	r5, [sp, #6 * 4]
+	ldr	r0, [sp, #6 * 4]
+	mov	r8, r0
 
 	push {r1, lr}
 
