@@ -1645,6 +1645,7 @@ IWRAM_CODE void mppProcessTick(void)
     // Advance position
     mpp_setposition(layer, layer->position + 1);
 }
+
 // Note: This is also used for panning slide
 mm_word mpph_VolumeSlide(int volume, mm_word param, mm_word tick, int max_volume,
                          mpl_layer_information *layer)
@@ -1814,6 +1815,65 @@ void mppe_PatternBreak(mm_word param, mpl_layer_information *layer)
 void mppe_VolumeSlide(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
 {
     channel->volume = mpph_VolumeSlide64(channel->volume, param, layer->tick, layer);
+}
+
+// EFFECT Exy/Fxy: Portamento
+mm_word mppe_Portamento(mm_word param, mm_word period, mm_module_channel *channel,
+                        mpl_layer_information *layer)
+{
+    bool is_fine = false;
+
+    if ((param >> 4) == 0xE) // Test for Ex param (Extra fine slide)
+    {
+        if (layer->tick != 0) // Extra fine slide: only slide on tick 0
+            return period;
+
+        param &= 0xF; // Mask out slide value
+        is_fine = true;
+    }
+    else if ((param >> 4) == 0xF) // Test for Fx param (Fine slide)
+    {
+        if (layer->tick != 0) // Fine slide: only slide on tick 0
+            return period;
+
+        param &= 0xF; // Mask out slide value
+    }
+    else
+    {
+        // Regular slide
+        if (layer->tick == 0)
+            return period;
+    }
+
+    // Check slide direction
+
+    mm_word new_period;
+
+    if (channel->effect == 5) // 5 = portamento down
+    {
+        // Slide down
+        if (is_fine)
+            new_period = mpph_FinePitchSlide_Down(channel->period, param, layer);
+        else
+            new_period = mpph_PitchSlide_Down(channel->period, param, layer);
+    }
+    else
+    {
+        // Slide up
+        if (is_fine)
+            new_period = mpph_FinePitchSlide_Up(channel->period, param, layer);
+        else
+            new_period = mpph_PitchSlide_Up(channel->period, param, layer);
+        // TODO: This doesn't seem to have any check to prevent overflows
+    }
+
+    int old_period = channel->period;
+
+    channel->period = new_period;
+
+    int delta = new_period - old_period;
+
+    return period + delta;
 }
 
 // EFFECT Hxy: Vibrato

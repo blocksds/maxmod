@@ -1121,8 +1121,8 @@ mpp_Process_Effect:
 	b	mppe_PositionJump_Wrapper
 	b	mppe_PatternBreak_Wrapper
 	b	mppe_VolumeSlide_Wrapper
-	b	mppe_Portamento
-	b	mppe_Portamento
+	b	mppe_Portamento_Wrapper
+	b	mppe_Portamento_Wrapper
 	b	mppe_Glissando
 	b	mppe_Vibrato_Wrapper
 	b	mppe_todo // Tremor
@@ -1212,80 +1212,18 @@ mppe_VolumeSlide_Wrapper: @ EFFECT Dxy: VOLUME SLIDE
 .align 2
 .thumb_func
 @----------------------------------------------------------------------------------
-mppe_Portamento:				@ EFFECT Exy/Fxy: Portamento
+mppe_Portamento_Wrapper: @ EFFECT Exy/Fxy: Portamento
 @----------------------------------------------------------------------------------
+	movs	r0, r1
+	movs	r1, r5
+	movs	r2, r7
+	mov	r3, r8
 
 	push	{lr}
-
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-
-.mppe_pd_ot:
-	movs	r3, #0
-	movs	r0, r1
-	lsrs	r0, #4				@ test for Ex param (Extra fine slide)
-	cmp	r0, #0xE			@ ..
-.mppe_pd_checkE:				@ ..
-	bne	.mppe_pd_checkF			@ ..
-	cmp	r2, #0				@ Extra fine slide: only slide on tick0
-	bne	.mppe_pd_exit			@ ..
-	lsls	r1, #32-4			@ mask out slide value
-	lsrs	r1, #32-4			@ ..
-	movs	r3, #1
-	b	.mppe_pd_otherslide		@ skip the *4 multiplication
-.mppe_pd_checkF:				@ ------------------------------------
-	cmp	r0, #0xF			@ test for Fx param (Fine slide)
-	bne	.mppe_pd_regslide		@ ..
-	cmp	r2, #0				@ Fine slide: only slide on tick0
-	bne	.mppe_pd_exit			@ ..
-	lsls	r1, #32-4			@ mask out slide value
-	lsrs	r1, #32-4			@ ..
-	b	.mppe_pd_otherslide
-.mppe_pd_regslide:
-	cmp	r2, #0
-	beq	.mppe_pd_exit
-.mppe_pd_otherslide:
-	
-	ldrb	r0, [r7, #MCH_EFFECT]		@ check slide direction
-	movs	r2, #MCH_PERIOD
-	cmp	r0, #5				@ .. (5 = portamento down)
-	ldr	r0, [r7, r2]			@ get period
-	
-	bne	.mppe_pd_slideup		@ branch to function
-.mppe_pd_slidedown:				@ -------SLIDE DOWN-------
-	
-	cmp	r3, #0
-	bne	.mppe_pd_fineslidedown
-	mov	r2, r8
-	bl	mpph_PitchSlide_Down
-	
-	b	.mppe_pd_store			@ store & exit
-
-.mppe_pd_fineslidedown:
-	mov	r2, r8
-	bl	mpph_FinePitchSlide_Down
-	b	.mppe_pd_store
-	
-.mppe_pd_slideup:				@ ---------SLIDE UP---------
-	
-	cmp	r3, #0
-	bne	.mppe_pd_fineslideup
-	mov	r2, r8
-	bl	mpph_PitchSlide_Up
-	b	.mppe_pd_store
-.mppe_pd_fineslideup:
-	mov	r2, r8
-	bl	mpph_FinePitchSlide_Up
-
-.mppe_pd_store:
-	movs	r2, #MCH_PERIOD
-	ldr	r1, [r7, #MCH_PERIOD]
-	str	r0, [r7, #MCH_PERIOD]
-	subs	r0, r1
-	adds	r5, r0
-.mppe_pd_exit:
-	pop	{r0}
-	bx	r0				@ exit
+	bl mppe_Portamento
+	movs	r5, r0
+	pop	{r2}
+	bx	r2
 
 .align 2
 .thumb_func
