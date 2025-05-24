@@ -1008,54 +1008,6 @@ mpph_ProcessEnvelope:			@ params={count,node,address}
 	bx	lr
 .pool
 
-/******************************************************************************
- *
- * Module Effects
- *
- ******************************************************************************/
-
-.align 2
-.thumb_func
-@---------------------------------------------------------------------------------
-mppe_PanningSlide:				@ EFFECT Pxy Panning Slide
-@---------------------------------------------------------------------------------
-
-	// TODO: This is unused! Is that a mistake, or was this buggy?
-	push	{lr}
-
-	ldrb	r0, [r7, #MCH_PANNING]		@ load panning
-	movs	r3, #255
-
-	mov	r4, r8
-	push	{r4}
-	bl	mpph_VolumeSlide
-	pop	{r4}
-	mov	r8, r4
-
-	strb	r0, [r7, #MCH_PANNING]		@ save panning
-	pop	{r0}
-	bx	r0
-
-.align 2
-.thumb_func
-@-----------------------------------------------------------------------------------
-mppe_EnvelopePos:			@ EFFECT 1xx: Envelope Position
-@-----------------------------------------------------------------------------------
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	cmp	r2, #0			@ Z flag = tick0
-	bne	.mppe_ep_ot		@ on tick0:
-	cmp	r6, #0
-	beq	.mppe_ep_ot
-
-	@ - NOT SUPPORTED ANYMORE -
-
-@	strh	r1, [r6, #MCA_ENVP_VOL]	@ set volume envelope position
-@	strh	r1, [r6, #MCA_ENVP_PAN]	@ set panning envelope positin
-					@ pitch envelope wasn't invented yet
-.mppe_ep_ot:
-	bx	lr			@ finished
-
 @==========================================================================================
 @                                          TABLES
 @==========================================================================================

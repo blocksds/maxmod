@@ -2119,6 +2119,16 @@ static void mppe_SampleOffset(mm_word param, mpl_layer_information *layer)
     mpp_vars.sampoff = param;
 }
 
+#if 0
+// EFFECT Pxy Panning Slide
+static void mppe_PanningSlide(mm_word param, mm_module_channel *channel,
+                              mpl_layer_information *layer)
+{
+    // TODO: This is unused! Is that a mistake, or was this buggy?
+    channel->panning = mpph_VolumeSlide(channel->panning, param, layer->tick, 255, layer);
+}
+#endif
+
 // EFFECT Qxy Retrigger Note
 static void mppe_Retrigger(mm_word param, mm_active_channel *act_ch, mm_module_channel *channel)
 {
@@ -2582,6 +2592,26 @@ static void mppe_KeyOff(mm_word param, mm_active_channel *act_ch,
         act_ch->flags &= ~MCAF_KEYON;
 }
 
+#if 0
+// EFFECT 1xx: Envelope Position
+static void mppe_EnvelopePos(mm_word param, mm_active_channel *act_ch,
+                             mpl_layer_information *layer)
+{
+    if (layer->tick != 0)
+        return;
+
+    if (act_ch == NULL)
+        return;
+
+    // NOT SUPPORTED ANYMORE
+
+    //act_ch->envp_vol = r1; // Set volume envelope position
+    //act_ch->envp_pan = r1; // Set panning envelope position
+    // Pitch envelope wasn't invented yet
+}
+
+#endif
+
 // EFFECT 3xy: Old Tremor
 // TODO: Is this used?
 static void mppe_OldTremor(mm_word param, mm_module_channel *channel,
@@ -2676,6 +2706,7 @@ IWRAM_CODE mm_word mpp_Process_Effect(mpl_layer_information *layer, mm_active_ch
 
         case 16: // Panning slide
             // TODO
+            //mppe_PanningSlide(param, channel, layer);
             return period;
 
         case 17:
@@ -2727,6 +2758,7 @@ IWRAM_CODE mm_word mpp_Process_Effect(mpl_layer_information *layer, mm_active_ch
 
         case 29: // Envelope Pos
             // TODO
+            //mppe_EnvelopePos(param, act_ch, layer);
             return period;
 
         case 30:
