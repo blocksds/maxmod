@@ -35,6 +35,8 @@
 // TODO: Make this static
 void mpp_setbpm(mpl_layer_information*, mm_word);
 void mpp_setposition(mpl_layer_information*, mm_word);
+void mppe_ChannelVolumeSlide(mm_word param, mm_module_channel *channel,
+                             mpl_layer_information *layer);
 
 static mm_word mppe_DoVibrato(mm_word period, mm_module_channel *channel,
                               mpl_layer_information *layer);
@@ -1251,7 +1253,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
 
             volcmd = channel->memory[MPP_XM_VFX_MEM_GLIS];
 
-            return mppe_glis_backdoor_Wrapper(volcmd, period, act_ch, channel, layer);
+            return mppe_glis_backdoor(volcmd, period, act_ch, channel, layer);
         }
     }
     else // IT commands
@@ -1405,7 +1407,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
 
                 mm_byte mem = channel->memory[MPP_GLIS_MEM];
 
-                return mppe_glis_backdoor_Wrapper(mem, period, act_ch, channel, layer);
+                return mppe_glis_backdoor(mem, period, act_ch, channel, layer);
             }
             else // Single Gxx
             {
@@ -1416,7 +1418,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
 
                 mm_byte mem = channel->memory[MPP_GLIS_MEM];
 
-                return mppe_glis_backdoor_Wrapper(mem, period, act_ch, channel, layer);
+                return mppe_glis_backdoor(mem, period, act_ch, channel, layer);
             }
         }
         else if (volcmd <= 212) // Vibrato (Speed) : mppuv_vibrato
@@ -1876,6 +1878,122 @@ mm_word mppe_Portamento(mm_word param, mm_word period, mm_module_channel *channe
     return period + delta;
 }
 
+// Calculate sample address.
+static inline mm_mas_sample_info *mpp_SamplePointer(int sampleN, mpl_layer_information *layer)
+{
+    // TODO: This is also in mm_mas_arm.c as get_sample(), we need to unify both
+    // functions when the two files are reorganized.
+    return (mm_mas_sample_info *)(layer->songadr + ((mm_word *)layer->samptable)[sampleN - 1]);
+}
+
+mm_word mppe_glis_backdoor(mm_word param, mm_word period, mm_active_channel *act_ch,
+                           mm_module_channel *channel, mpl_layer_information *layer)
+{
+    if (act_ch == NULL) // Exit if no active channel
+        return period;
+
+    mm_mas_sample_info *sample = mpp_SamplePointer(act_ch->sample, layer); // Get target period
+
+    mm_word target_period = mmGetPeriod(layer, sample->frequency * 4, channel->note);
+
+    mm_word new_period;
+
+    if (layer->flags & (1 << (C_FLAGS_SS - 1))) // Test S flag
+    {
+        if (channel->period < target_period) // Slide up
+        {
+            new_period = mpph_PitchSlide_Up(channel->period, param, layer);
+
+            if (new_period > target_period)
+                new_period = target_period;
+        }
+        else if (channel->period > target_period) // Slide down
+        {
+            new_period = mpph_PitchSlide_Down(channel->period, param, layer);
+
+            if (new_period < target_period)
+                new_period = target_period;
+        }
+        else // No slide
+        {
+            return period;
+        }
+    }
+    else // Amiga
+    {
+        // TODO: Is this correct? In the original code, mpph_PitchSlide_Down and
+        // mpph_PitchSlide_Down were swapped in the Amiga side.
+
+        if (channel->period < target_period) // Slide up
+        {
+            new_period = mpph_PitchSlide_Up(channel->period, param, layer);
+
+            if (new_period > target_period)
+                new_period = target_period;
+        }
+        else if (channel->period > target_period) // Slide down
+        {
+            new_period = mpph_PitchSlide_Down(channel->period, param, layer);
+
+            if (new_period < target_period)
+                new_period = target_period;
+        }
+        else // No slide
+        {
+            return period;
+        }
+    }
+
+    mm_word old_period = channel->period;
+
+    channel->period = new_period;
+
+    int delta = new_period - old_period;
+
+    return period + delta;
+}
+
+// EFFECT Gxy: Glissando
+mm_word mppe_Glissando(mm_word param, mm_word period, mm_active_channel *act_ch,
+                       mm_module_channel *channel, mpl_layer_information *layer)
+{
+    if (layer->tick == 0)
+    {
+        if (layer->flags & (1 << (C_FLAGS_GS - 1)))
+        {
+            // Gxx is shared, IT MODE ONLY!!
+
+            if (param == 0)
+            {
+                param = channel->memory[MPP_IT_PORTAMEM];
+                channel->param = param;
+            }
+
+            channel->memory[MPP_IT_PORTAMEM] = param;
+            channel->memory[MPP_GLIS_MEM] = param; // For simplification later
+        }
+        else
+        {
+            // Gxx is separate
+            if (param == 0)
+            {
+                param = channel->memory[MPP_GLIS_MEM];
+                channel->param = param;
+            }
+
+            channel->memory[MPP_GLIS_MEM] = param;
+
+            return period;
+        }
+    }
+
+    param = channel->memory[MPP_GLIS_MEM];
+
+    period = mppe_glis_backdoor(param, period, act_ch, channel, layer);
+
+    return period;
+}
+
 // EFFECT Hxy: Vibrato
 mm_word mppe_Vibrato(mm_word param, mm_word period, mm_module_channel *channel,
                      mpl_layer_information *layer)
@@ -1956,6 +2074,19 @@ mm_word mppe_VibratoVolume(mm_word param, mm_word period, mm_module_channel *cha
     mppe_VolumeSlide(param, channel, layer);
 
     return new_period;
+}
+
+// EFFECT Lxy: Portamento+Volume Slide
+mm_word mppe_PortaVolume(mm_word param, mm_word period, mm_active_channel *act_ch,
+                         mm_module_channel *channel, mpl_layer_information *layer)
+{
+    mm_word mem = channel->memory[MPP_GLIS_MEM];
+
+    period = mppe_Glissando(mem, period, act_ch, channel, layer);
+
+    mppe_ChannelVolumeSlide(param, channel, layer);
+
+    return period;
 }
 
 // EFFECT Mxy: Set Channel Volume

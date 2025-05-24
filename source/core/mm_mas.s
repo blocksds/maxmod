@@ -1008,57 +1008,6 @@ mpph_ProcessEnvelope:			@ params={count,node,address}
 	bx	lr
 .pool
 
-@=============================================================================
-@                                EFFECT MEMORY
-@=============================================================================
-
-.text
-
-.equ	MPP_GLIS_MEM,		0
-.equ	MPP_IT_PORTAMEM,	2
-
-/******************************************************************************
- *
- * XM Volume Commands
- *
- ******************************************************************************/
-
-.align 2
-					.global mppe_glis_backdoor_Wrapper
-					.thumb_func
-mppe_glis_backdoor_Wrapper:
-
-	push	{r5-r7, lr}
-	mov	r7, r8
-	push	{r7}
-
-	// r1 = volcmd
-	// r5 = period
-	// r6 = act_ch
-	// r7 = channel
-	// r8 = layer
-
-	movs	r1, r0
-	movs	r5, r1
-	movs	r6, r2
-	movs	r7, r3
-	// This argument is passed on the stack by the caller, but 6 registers have
-	// been pushed to the stack as well.
-	ldr	r0, [sp, #6 * 4]
-	mov	r8, r0
-
-	push {r1, lr}
-
-	bl	.mppe_glis_backdoor
-
-	movs	r0, r5
-
-	pop	{r7}
-	mov	r8, r7
-	pop	{r4-r7}
-	pop	{r1}
-	bx	r1
-
 /******************************************************************************
  *
  * Module Effects
@@ -1124,12 +1073,12 @@ mpp_Process_Effect:
 	b	mppe_VolumeSlide_Wrapper
 	b	mppe_Portamento_Wrapper
 	b	mppe_Portamento_Wrapper
-	b	mppe_Glissando
+	b	mppe_Glissando_Wrapper
 	b	mppe_Vibrato_Wrapper
 	b	mppe_todo // Tremor
 	b	mppe_Arpeggio_Wrapper
 	b	mppe_VibratoVolume_Wrapper
-	b	mppe_PortaVolume
+	b	mppe_PortaVolume_Wrapper
 	b	mppe_ChannelVolume_Wrapper
 	b	mppe_ChannelVolumeSlide_Wrapper
 	b	mppe_SampleOffset_Wrapper
@@ -1229,137 +1178,25 @@ mppe_Portamento_Wrapper: @ EFFECT Exy/Fxy: Portamento
 .align 2
 .thumb_func
 @---------------------------------------------------------------------------------
-mppe_Glissando:					@ EFFECT Gxy: Glissando
+mppe_Glissando_Wrapper: @ EFFECT Gxy: Glissando
 @---------------------------------------------------------------------------------
+	push	{lr}
 
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
-	cmp	r2, #0			@ Z flag = tick0
-	bne	.mppe_glis_ot
-	
+	// This argument is passed on the stack by the caller
 	mov	r0, r8
-	ldrb	r0, [r0, #MPL_FLAGS]
-	lsrs	r0, #C_FLAGS_GS
-	bcc	2f
-	@ gxx is shared, IT MODE ONLY!!
-	cmp	r1, #0
-	bne	3f
-	ldrb	r1, [r7, #MCH_MEMORY+MPP_IT_PORTAMEM]
-	strb	r1, [r7, #MCH_PARAM]
-3:	strb	r1, [r7, #MCH_MEMORY+MPP_IT_PORTAMEM]
-	strb	r1, [r7, #MCH_MEMORY+MPP_GLIS_MEM]	@ for simplification later
-	b	.mppe_glis_ot
-	
-2:	@ gxx is separate
-	cmp	r1, #0
-	bne	3f
-	
-	ldrb	r1, [r7, #MCH_MEMORY+MPP_GLIS_MEM]
-	strb	r1, [r7, #MCH_PARAM]
-3:	strb	r1, [r7, #MCH_MEMORY+MPP_GLIS_MEM]
+	push	{r0}
 
-	bx	lr
-//	b	.mppe_glis_exit
-.mppe_glis_ot:
-	
-	push	{lr}					// save return address
-
-	ldrb	r1, [r7, #MCH_MEMORY+MPP_GLIS_MEM]
-
-	push	{r1}
-
-.mppe_glis_backdoor:
-	
-	cmp	r6, #0					// exit if no active channel
-	bne	1f					//
-	pop	{r1,r3}					//
-	bx	r3					//
-1:							//
-	
-	ldrb	r0, [r6, #MCA_SAMPLE]			// get target period
-	subs	r0, #1					//
-	mpp_SamplePointer				//
-	ldrh	r1, [r0, #C_MASS_FREQ]			//
-	lsls	R1, #2					//
-	ldrb	r2, [r7, #MCH_NOTE]			//
-	mov	r0,r8
-	ldr	r3,=mmGetPeriod				//
-	bl	mpp_call_r3				//
-	
-	pop	{r1}					// r1 = parameter
-	push	{r0}					// 
-	
-	movs	r3, r0					// r3 = target period
-	movs	r2, #MCH_PERIOD				// r0 = current period
-	ldr	r0, [r7, r2]				//
-	mov	r2, r8					// test S flag
-	ldrb	r2, [r2, #MPL_FLAGS]			//
-	lsrs	r2, #C_FLAGS_SS				//
-	bCC	.mppe_glis_amiga
-	cmp	r0, r3
-	blt	.mppe_glis_slideup
-	bgt	.mppe_glis_slidedown
-.mppe_glis_noslide:
-	pop	{r0}
-	pop	{r3}
-	bx	r3
-
-.mppe_glis_slideup:
-	mov	r2, r8
-	bl	mpph_PitchSlide_Up
-	pop	{r1}
-	
-	cmp	r0, r1
-	blt	.mppe_glis_store
 	movs	r0, r1
-	b	.mppe_glis_store
-.mppe_glis_slidedown:
-	mov	r2, r8
-	bl	mpph_PitchSlide_Down
-	pop	{r1}
-	cmp	r0, r1
-	bgt	.mppe_glis_store
-	movs	r0, r1
-.mppe_glis_store:
-	
-	movs	r2, #MCH_PERIOD
-	ldr	r1, [r7, r2] @#MCA_PERIOD]
-	str	r0, [r7, r2] @#MCA_PERIOD]
-	subs	r0, r1
-	adds	r5, r0
-	
-.mppe_glis_exit:
-	pop	{r3}
-	bx	r3
+	movs	r1, r5
+	movs	r2, r6
+	movs	r3, r7
 
+	bl	mppe_Glissando
+	movs	r5, r0
 
-	//bx	lr
-
-.mppe_glis_amiga:
-
-	cmp	r0, r3
-	blt	.mppe_glis_amiga_up
-	bgt	.mppe_glis_amiga_down
-	pop	{r0}
-	pop	{r3}
-	bx	r3
-
-.mppe_glis_amiga_down:
-	mov	r2, r8
-	bl	mpph_PitchSlide_Up
-	pop	{r1}
-	cmp	r0, r1
-	bgt	.mppe_glis_store
-	movs	r0, r1
-	b	.mppe_glis_store
-.mppe_glis_amiga_up:
-	mov	r2, r8
-	bl	mpph_PitchSlide_Down
-	pop	{r1}
-	cmp	r0, r1
-	blt	.mppe_glis_store
-	movs	r0, r1
-	b	.mppe_glis_store
+	pop		{r2}
+	pop		{r2}
+	bx	r2
 
 .align 2
 .thumb_func
@@ -1426,24 +1263,25 @@ mppe_VibratoVolume_Wrapper: @ EFFECT Kxy: Vibrato+Volume Slide
 .align 2
 .thumb_func
 @---------------------------------------------------------------------------------
-mppe_PortaVolume:			@ EFFECT Lxy: Portamento+Volume Slide
+mppe_PortaVolume_Wrapper:			@ EFFECT Lxy: Portamento+Volume Slide
 @---------------------------------------------------------------------------------
-
 	push	{lr}
 
-	mov	r2, r8
-	ldrb	r2, [r2, #MPL_TICK]	@ r2 = tick#
+	// This argument is passed on the stack by the caller
+	mov	r0, r8
+	push	{r0}
 
-	push	{r1,r2}
-	ldrb	r1, [r7, #MCH_MEMORY+MPP_GLIS_MEM]
-	bl	mppe_Glissando
-	pop	{r1, r2}
+	movs	r0, r1
+	movs	r1, r5
+	movs	r2, r6
+	movs	r3, r7
 
-	bl	mppe_VolumeSlide_Wrapper
+	bl	mppe_PortaVolume
+	movs	r5, r0
 
-	pop	{r0}
-	bx	r0
-//	pop	{pc}
+	pop		{r2}
+	pop		{r2}
+	bx	r2
 
 .align 2
 .thumb_func
