@@ -57,7 +57,4 @@ mm_word mpph_PitchSlide_Down(mm_word, mm_word, mpl_layer_information*);
 mm_word mpph_LinearPitchSlide_Down(mm_word period, mm_word slide_value, mpl_layer_information *layer);
 mm_word mpph_FinePitchSlide_Down(mm_word period, mm_word slide_value, mpl_layer_information *layer);
 
-mm_word mppe_glis_backdoor(mm_word param, mm_word period, mm_active_channel *act_ch,
-                           mm_module_channel *channel, mpl_layer_information *layer);
-
 #endif // MM_MAS_ARM_H
