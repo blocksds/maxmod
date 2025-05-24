@@ -41,9 +41,9 @@ void mmReadPattern(mpl_layer_information*);
 
 mm_word mpp_Process_VolumeCommand(mpl_layer_information*, mm_active_channel*, mm_module_channel*, mm_word);
 
-// TODO: Convert these methods
-mm_word mpp_Process_Effect_Wrapper(mpl_layer_information*, mm_active_channel*, mm_module_channel*, mm_word);
+mm_word mpp_Process_Effect(mpl_layer_information*, mm_active_channel*, mm_module_channel*, mm_word);
 
+// TODO: Convert these methods
 mm_word mpp_Update_ACHN_notest_Wrapper(mpl_layer_information *layer, mm_active_channel *act_ch,
                                        mm_module_channel *channel, mm_word period, mm_word ch);
 

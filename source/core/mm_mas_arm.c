@@ -540,7 +540,7 @@ IWRAM_CODE ARM_CODE void mmUpdateChannel_TN(mm_module_channel *module_channel, m
 
     // Update effects
     if (module_channel->flags & MF_HASFX)
-        period = mpp_Process_Effect_Wrapper(mpp_layer, active_channel, module_channel, period);
+        period = mpp_Process_Effect(mpp_layer, active_channel, module_channel, period);
 
     if (!active_channel)
         return;

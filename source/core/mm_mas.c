@@ -35,9 +35,9 @@
 // TODO: Make this static
 void mpp_setbpm(mpl_layer_information*, mm_word);
 void mpp_setposition(mpl_layer_information*, mm_word);
-void mppe_ChannelVolumeSlide(mm_word param, mm_module_channel *channel,
-                             mpl_layer_information *layer);
 
+static void mppe_ChannelVolumeSlide(mm_word param, mm_module_channel *channel,
+                                   mpl_layer_information *layer);
 static mm_word mppe_DoVibrato(mm_word period, mm_module_channel *channel,
                               mpl_layer_information *layer);
 
@@ -1783,7 +1783,7 @@ static mm_word mppe_DoVibrato(mm_word period, mm_module_channel *channel,
 // =============================================================================
 
 // EFFECT Axy: SET SPEED
-void mppe_SetSpeed(mm_word param, mpl_layer_information *layer)
+static void mppe_SetSpeed(mm_word param, mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -1793,7 +1793,7 @@ void mppe_SetSpeed(mm_word param, mpl_layer_information *layer)
 }
 
 // EFFECT Bxy: SET POSITION
-void mppe_PositionJump(mm_word param, mpl_layer_information *layer)
+static void mppe_PositionJump(mm_word param, mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -1802,7 +1802,7 @@ void mppe_PositionJump(mm_word param, mpl_layer_information *layer)
 }
 
 // EFFECT Cxy: PATTERN BREAK
-void mppe_PatternBreak(mm_word param, mpl_layer_information *layer)
+static void mppe_PatternBreak(mm_word param, mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -1814,14 +1814,15 @@ void mppe_PatternBreak(mm_word param, mpl_layer_information *layer)
 }
 
 // EFFECT Dxy: VOLUME SLIDE
-void mppe_VolumeSlide(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
+static void mppe_VolumeSlide(mm_word param, mm_module_channel *channel,
+                             mpl_layer_information *layer)
 {
     channel->volume = mpph_VolumeSlide64(channel->volume, param, layer->tick, layer);
 }
 
 // EFFECT Exy/Fxy: Portamento
-mm_word mppe_Portamento(mm_word param, mm_word period, mm_module_channel *channel,
-                        mpl_layer_information *layer)
+static mm_word mppe_Portamento(mm_word param, mm_word period,
+                               mm_module_channel *channel, mpl_layer_information *layer)
 {
     bool is_fine = false;
 
@@ -1954,8 +1955,8 @@ mm_word mppe_glis_backdoor(mm_word param, mm_word period, mm_active_channel *act
 }
 
 // EFFECT Gxy: Glissando
-mm_word mppe_Glissando(mm_word param, mm_word period, mm_active_channel *act_ch,
-                       mm_module_channel *channel, mpl_layer_information *layer)
+static mm_word mppe_Glissando(mm_word param, mm_word period, mm_active_channel *act_ch,
+                              mm_module_channel *channel, mpl_layer_information *layer)
 {
     if (layer->tick == 0)
     {
@@ -1995,8 +1996,8 @@ mm_word mppe_Glissando(mm_word param, mm_word period, mm_active_channel *act_ch,
 }
 
 // EFFECT Hxy: Vibrato
-mm_word mppe_Vibrato(mm_word param, mm_word period, mm_module_channel *channel,
-                     mpl_layer_information *layer)
+static mm_word mppe_Vibrato(mm_word param, mm_word period, mm_module_channel *channel,
+                            mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return mppe_DoVibrato(period, channel, layer);
@@ -2022,8 +2023,8 @@ mm_word mppe_Vibrato(mm_word param, mm_word period, mm_module_channel *channel,
 }
 
 // EFFECT Jxy: Arpeggio
-mm_word mppe_Arpeggio(mm_word param, mm_word period, mm_active_channel *act_ch,
-                      mm_module_channel *channel, mpl_layer_information *layer)
+static mm_word mppe_Arpeggio(mm_word param, mm_word period, mm_active_channel *act_ch,
+                             mm_module_channel *channel, mpl_layer_information *layer)
 {
     if (layer->tick == 0)
         channel->fxmem = 0;
@@ -2066,8 +2067,8 @@ mm_word mppe_Arpeggio(mm_word param, mm_word period, mm_active_channel *act_ch,
 }
 
 // EFFECT Kxy: Vibrato+Volume Slide
-mm_word mppe_VibratoVolume(mm_word param, mm_word period, mm_module_channel *channel,
-                           mpl_layer_information *layer)
+static mm_word mppe_VibratoVolume(mm_word param, mm_word period, mm_module_channel *channel,
+                                  mpl_layer_information *layer)
 {
     mm_word new_period = mppe_DoVibrato(period, channel, layer);
 
@@ -2077,8 +2078,8 @@ mm_word mppe_VibratoVolume(mm_word param, mm_word period, mm_module_channel *cha
 }
 
 // EFFECT Lxy: Portamento+Volume Slide
-mm_word mppe_PortaVolume(mm_word param, mm_word period, mm_active_channel *act_ch,
-                         mm_module_channel *channel, mpl_layer_information *layer)
+static mm_word mppe_PortaVolume(mm_word param, mm_word period, mm_active_channel *act_ch,
+                                mm_module_channel *channel, mpl_layer_information *layer)
 {
     mm_word mem = channel->memory[MPP_GLIS_MEM];
 
@@ -2090,7 +2091,8 @@ mm_word mppe_PortaVolume(mm_word param, mm_word period, mm_active_channel *act_c
 }
 
 // EFFECT Mxy: Set Channel Volume
-void mppe_ChannelVolume(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
+static void mppe_ChannelVolume(mm_word param, mm_module_channel *channel,
+                               mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -2102,13 +2104,14 @@ void mppe_ChannelVolume(mm_word param, mm_module_channel *channel, mpl_layer_inf
 }
 
 // EFFECT Nxy: Channel Volume Slide
-void mppe_ChannelVolumeSlide(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
+static void mppe_ChannelVolumeSlide(mm_word param, mm_module_channel *channel,
+                                    mpl_layer_information *layer)
 {
     channel->cvolume = mpph_VolumeSlide64(channel->cvolume, param, layer->tick, layer);
 }
 
 // EFFECT Oxy Sample Offset
-void mppe_SampleOffset(mm_word param, mpl_layer_information *layer)
+static void mppe_SampleOffset(mm_word param, mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -2117,7 +2120,7 @@ void mppe_SampleOffset(mm_word param, mpl_layer_information *layer)
 }
 
 // EFFECT Qxy Retrigger Note
-void mppe_Retrigger(mm_word param, mm_active_channel *act_ch, mm_module_channel *channel)
+static void mppe_Retrigger(mm_word param, mm_active_channel *act_ch, mm_module_channel *channel)
 {
     // We don't check layer->tick here. We set channel->fxmem to the parameter
     // and every time this function gets called it goes down by one. When it
@@ -2194,7 +2197,7 @@ void mppe_Retrigger(mm_word param, mm_active_channel *act_ch, mm_module_channel 
 }
 
 // EFFECT Rxy: Tremolo
-void mppe_Tremolo(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
+static void mppe_Tremolo(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
 {
     // X = speed, Y = depth
 
@@ -2225,7 +2228,7 @@ void mppe_Tremolo(mm_word param, mm_module_channel *channel, mpl_layer_informati
 }
 
 // EFFECT Txy: Set Tempo / Tempo Slide
-void mppe_SetTempo(mm_word param, mpl_layer_information *layer)
+static void mppe_SetTempo(mm_word param, mpl_layer_information *layer)
 {
     if (param < 0x10) // 0x = Slide down
     {
@@ -2261,8 +2264,8 @@ void mppe_SetTempo(mm_word param, mpl_layer_information *layer)
 }
 
 // EFFECT Uxy: Fine Vibrato
-mm_word mppe_FineVibrato(mm_word param, mm_word period, mm_module_channel *channel,
-                           mpl_layer_information *layer)
+static mm_word mppe_FineVibrato(mm_word param, mm_word period, mm_module_channel *channel,
+                                mpl_layer_information *layer)
 {
     if (layer->tick == 0)
     {
@@ -2286,7 +2289,7 @@ mm_word mppe_FineVibrato(mm_word param, mm_word period, mm_module_channel *chann
 }
 
 // EFFECT Vxy: Set Global Volume
-void mppe_SetGlobalVolume(mm_word param, mpl_layer_information *layer)
+static void mppe_SetGlobalVolume(mm_word param, mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -2304,7 +2307,7 @@ void mppe_SetGlobalVolume(mm_word param, mpl_layer_information *layer)
 }
 
 // EFFECT Wxy: Global Volume Slide
-void mppe_GlobalVolumeSlide(mm_word param, mpl_layer_information *layer)
+static void mppe_GlobalVolumeSlide(mm_word param, mpl_layer_information *layer)
 {
     mm_word maxvol;
 
@@ -2317,7 +2320,8 @@ void mppe_GlobalVolumeSlide(mm_word param, mpl_layer_information *layer)
 }
 
 // EFFECT Xxy: Set Panning
-void mppe_SetPanning(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
+static void mppe_SetPanning(mm_word param, mm_module_channel *channel,
+                            mpl_layer_information *layer)
 {
     if (layer->tick == 0)
         channel->panning = param;
@@ -2493,8 +2497,8 @@ static void mppex_SongMessage(mm_word param, mpl_layer_information *layer)
 }
 
 // EFFECT Sxy: Extended Effects
-void mppe_Extended(mm_word param, mm_active_channel *act_ch,
-                   mm_module_channel *channel, mpl_layer_information *layer)
+static void mppe_Extended(mm_word param, mm_active_channel *act_ch,
+                          mm_module_channel *channel, mpl_layer_information *layer)
 {
     mm_word subcmd = param >> 4;
 
@@ -2560,14 +2564,16 @@ void mppe_Extended(mm_word param, mm_active_channel *act_ch,
 // =============================================================================
 
 // EFFECT 0xx: Set Volume
-void mppe_SetVolume(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
+static void mppe_SetVolume(mm_word param, mm_module_channel *channel,
+                           mpl_layer_information *layer)
 {
     if (layer->tick == 0)
         channel->volume = param;
 }
 
 // EFFECT 1xx: Key Off
-void mppe_KeyOff(mm_word param, mm_active_channel *act_ch, mpl_layer_information *layer)
+static void mppe_KeyOff(mm_word param, mm_active_channel *act_ch,
+                        mpl_layer_information *layer)
 {
     if (layer->tick != param)
         return;
@@ -2578,7 +2584,8 @@ void mppe_KeyOff(mm_word param, mm_active_channel *act_ch, mpl_layer_information
 
 // EFFECT 3xy: Old Tremor
 // TODO: Is this used?
-void mppe_OldTremor(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
+static void mppe_OldTremor(mm_word param, mm_module_channel *channel,
+                           mpl_layer_information *layer)
 {
     while(1);
     if (layer->tick == 0)
@@ -2601,4 +2608,132 @@ void mppe_OldTremor(mm_word param, mm_module_channel *channel, mpl_layer_informa
 
     if ((channel->bflags & (1 << 10)) == 0) // Cut note
         mpp_vars.volplus = -64;
+}
+
+// Process pattern effect
+IWRAM_CODE mm_word mpp_Process_Effect(mpl_layer_information *layer, mm_active_channel *act_ch,
+                                      mm_module_channel *channel, mm_word period)
+{
+    mm_word param = mpp_Channel_ExchangeMemory(channel->effect, channel->param, channel, layer);
+    mm_word effect = channel->effect;
+
+    switch (effect)
+    {
+        case 0:
+            // No effect
+            return period;
+
+        case 1:
+            mppe_SetSpeed(param, layer);
+            return period;
+
+        case 2:
+            mppe_PositionJump(param, layer);
+            return period;
+
+        case 3:
+            mppe_PatternBreak(param, layer);
+            return period;
+
+        case 4:
+            mppe_VolumeSlide(param, channel, layer);
+            return period;
+
+        case 5:
+        case 6:
+            return mppe_Portamento(param, period, channel, layer);
+
+        case 7:
+            return mppe_Glissando(param, period, act_ch, channel, layer);
+
+        case 8:
+            return mppe_Vibrato(param, period, channel, layer);
+
+        case 9: // Tremor
+            // TODO: This isn't implemented. Would it work with the OldTremor code?
+            return period;
+
+        case 10:
+            return mppe_Arpeggio(param, period, act_ch, channel, layer);
+
+        case 11:
+            return mppe_VibratoVolume(param, period, channel, layer);
+
+        case 12:
+            return mppe_PortaVolume(param, period, act_ch, channel, layer);
+
+        case 13:
+            mppe_ChannelVolume(param, channel, layer);
+            return period;
+
+        case 14:
+            mppe_ChannelVolumeSlide(param, channel, layer);
+            return period;
+
+        case 15:
+            mppe_SampleOffset(param, layer);
+            return period;
+
+        case 16: // Panning slide
+            // TODO
+            return period;
+
+        case 17:
+            mppe_Retrigger(param, act_ch, channel);
+            return period;
+
+        case 18:
+            mppe_Tremolo(param, channel, layer);
+            return period;
+
+        case 19:
+            mppe_Extended(param, act_ch, channel, layer);
+            return period;
+
+        case 20:
+            mppe_SetTempo(param, layer);
+            return period;
+
+        case 21:
+            return mppe_FineVibrato(param, period, channel, layer);
+
+        case 22:
+            mppe_SetGlobalVolume(param, layer);
+            return period;
+
+        case 23:
+            mppe_GlobalVolumeSlide(param, layer);
+            return period;
+
+        case 24:
+            mppe_SetPanning(param, channel, layer);
+            return period;
+
+        case 25: // Panbrello
+            // TODO
+            return period;
+
+        case 26: // Set Filter
+            // TODO: Not supported
+            return period;
+
+        case 27:
+            mppe_SetVolume(param, channel, layer);
+            return period;
+
+        case 28:
+            mppe_KeyOff(param, act_ch, layer);
+            return period;
+
+        case 29: // Envelope Pos
+            // TODO
+            return period;
+
+        case 30:
+            mppe_OldTremor(param, channel, layer);
+            return period;
+
+        default: // Effect not implemented
+            return period;
+    }
 }
