@@ -15,10 +15,6 @@ extern mpl_layer_information mmLayerSub;
 extern mpl_layer_information *mpp_layerp;
 extern mpv_active_information mpp_vars;
 extern mm_addr mpp_channels;
-extern mm_word mpp_resolution;
-
-extern mm_word mm_mastertempo;
-extern mm_word mm_masterpitch;
 
 extern mm_byte mpp_nchannels;
 extern mm_byte mpp_clayer;

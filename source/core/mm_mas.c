@@ -45,7 +45,37 @@ IWRAM_CODE static
 mm_word mppe_glis_backdoor(mm_word param, mm_word period, mm_active_channel *act_ch,
                            mm_module_channel *channel, mpl_layer_information *layer);
 
-mm_word mpp_resolution;
+// Layer data for module playback.
+mpl_layer_information mmLayerMain; // MPL_SIZE
+
+// Layer data for jingle playback.
+mpl_layer_information mmLayerSub; // MPL_SIZE
+
+// Holds intermediate data during the module processing.
+mpv_active_information mpp_vars; // MPV_SIZE
+
+// Pointer to layer data during processing.
+mpl_layer_information *mpp_layerp;
+
+// Pointer to channel array during processing.
+mm_addr mpp_channels;
+
+// Master tempo scaler.
+static mm_word mm_mastertempo;
+
+// Master pitch scaler.
+mm_word mm_masterpitch;
+
+// Number of channels in layer.
+mm_byte mpp_nchannels;
+
+// Layer selection, 0 = main, 1 = sub
+mm_byte mpp_clayer;
+
+#if defined(SYS_NDS7) || defined(SYS_NDS)
+// Speed divider for DS timing.
+static mm_word mpp_resolution;
+#endif
 
 // Suspend main module and associated channels.
 static void mpp_suspend(void)

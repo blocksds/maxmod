@@ -40,95 +40,18 @@
  *
  ******************************************************************************/
 
-
-
 	.bss
 	.syntax unified
 	.align 2
-
-/******************************************************************************
- * mmLayerMain
- *
- * Layer data for module playback.
- ******************************************************************************/
-							.global mmLayerMain
-mmLayerMain:		.space MPL_SIZE
-
-/******************************************************************************
- * mmLayerSub
- *
- * Layer data for jingle playback.
- ******************************************************************************/
-							.global mmLayerSub
-mmLayerSub:		.space MPL_SIZE
-
-/******************************************************************************
- * mpp_vars
- *
- * Holds intermediate data during the module processing.
- ******************************************************************************/
-							.global mpp_vars
-mpp_vars:		.space MPV_SIZE
-
-	.align 2
-
-/******************************************************************************
- * mpp_layerp
- *
- * Pointer to layer data during processing.
- ******************************************************************************/
-							.global mpp_layerp
-mpp_layerp:		.space 4
-
-/******************************************************************************
- * mpp_channels
- *
- * Pointer to channel array during processing
- ******************************************************************************/
-							.global mpp_channels
-mpp_channels:		.space 4
-
-/******************************************************************************
- * mm_mastertempo
- *
- * Master tempo scaler.
- ******************************************************************************/
-							.global mm_mastertempo
-mm_mastertempo:		.space 4
-
-/******************************************************************************
- * mm_masterpitch
- * 
- * Master pitch scaler.
- ******************************************************************************/
-							.global mm_masterpitch
-mm_masterpitch:		.space 4
-
-/******************************************************************************
- * mpp_nchannels
- *
- * Number of channels in layer
- ******************************************************************************/
-							.global mpp_nchannels
-mpp_nchannels:		.space 1
-
-/******************************************************************************
- * mpp_clayer
- *
- * Layer selection, 0 = main, 1 = sub
- ******************************************************************************/
-							.global mpp_clayer
-mpp_clayer:		.space 1
 
 /******************************************************************************
  * mm_achannels, mm_pchannels, mm_num_mch, mm_num_ach, mm_schannels
  *
  * Channel data/sizes, don't move these around--see mmInit first
  ******************************************************************************/
-							.align 2
-							
+
 .global mm_achannels, mm_pchannels, mm_num_mch, mm_num_ach, mm_schannels
-						
+
 mm_achannels:		.space 4
 mm_pchannels:		.space 4
 mm_num_mch:		.space 4
