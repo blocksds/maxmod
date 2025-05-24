@@ -2617,7 +2617,6 @@ static void mppe_EnvelopePos(mm_word param, mm_active_channel *act_ch,
 static void mppe_OldTremor(mm_word param, mm_module_channel *channel,
                            mpl_layer_information *layer)
 {
-    while(1);
     if (layer->tick == 0)
         return;
 
