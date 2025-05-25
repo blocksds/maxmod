@@ -9,8 +9,6 @@
 #include "mp_macros.inc"
 #include "mp_defs.inc"
 
-//#define LITE
-
 //======================================================================
 
     .global mm_mix_channels
@@ -92,8 +90,6 @@
 mm_mix_channels:
     .space  MM_nDSCHANNELS * C_SIZE
 
-#ifndef LITE
-
 #define mix_data_len    8544    // yikes
 
 mm_mix_data:
@@ -153,10 +149,6 @@ mm_mix_data:
 .if MC_SH_CNT != 0
 .error "MC_SH_CNT MUST be zero (see mode_c_tick)"
 .endif
-
-#endif
-
-    .bss // (return to bss from abs)
 
 mm_output_slice: // 0 = first half, 1 = second half
     .space 1
