@@ -12,8 +12,6 @@
 //======================================================================
 
     .global mm_mix_channels
-    .global mm_mix_output
-    .global mm_mix_write
     .global mm_mix_data
     .global mm_output_slice
 
