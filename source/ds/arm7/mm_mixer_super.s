@@ -164,68 +164,6 @@ mm_mixing_mode: // [0/1/2=a/b/c]
 
 #define SLIDE_THROTTLE 6144 //45
 
-/**********************************************************************************
- * SlideMixingLevels( throttle )
- *
- * slide volume and panning levels towards target levels for all channels
- **********************************************************************************/
-SlideMixingLevels:
-
-    push    {r4,lr}                     //
-    ldr     r1, =mm_mix_channels        //
-    mov     r4, #MM_nDSCHANNELS         // -counter
-
-.sml_loop:
-    ldrh    r2, [r1, #C_VOL]            // slide volume
-    ldrh    r3, [r1, #C_CVOL]           // volume += (target - volume) * throttle
-    cmp     r3, r2
-    bgt     1f
-    sub     r2, r3
-    add     r3, r3, r2, asr #2
-//    add     r3, r0
-//    cmp     r3, r2
-//    movgt   r3, r2
-    b       2f
-1:  sub     r3, r0
-    cmp     r3, r2
-    movlt   r3, r2
-2:
-//    sub     r2, r3                      //
-//    mul     r2, r0                      //
-//    add     r3, r2, asr#8               //
-    strh    r3, [r1, #C_CVOL]           //
-
-    ldrb    r2, [r1, #C_CNT]            // slide panning
-    and     r2, #127                    // pan += (target - pan) * throttle
-    lsl     r2, #9                      //
-    ldrh    r3, [r1, #C_CPAN]           //
-
-    cmp     r3, r2
-    bgt     1f
-    add     r3, r0
-    cmp     r3, r2
-    movgt   r3, r2
-    b       2f
-1:  sub     r3, r0
-    cmp     r3, r2
-    movlt   r3, r2
-2:
-
-//    sub     r2, r3                      //
-//    mul     r2, r0                      //
-//    add     r3, r2, asr #8              //
-    strh    r3, [r1, #C_CPAN]           //
-
-    add     r1, #C_SIZE                 // loop
-    subs    r4, #1                      //
-    bne     .sml_loop                   //
-
-    bl      mmMixerPre
-
-    pop     {r4, lr}                    // return
-
-    bx      lr
-
 //*********************************************************************************
 mmMixerMix:
 //*********************************************************************************

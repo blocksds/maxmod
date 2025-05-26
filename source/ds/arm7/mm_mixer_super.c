@@ -2,6 +2,7 @@
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
 // Copyright (c) 2023, Lorenzooone (lollo.lollo.rbiz@gmail.com)
+// Copyright (c) 2025, Antonio Niño Díaz (antonio_nd@outlook.com)
 
 #include <stddef.h>
 #include <stdint.h>
@@ -351,4 +352,64 @@ void mmMixerPre(void)
                 break;
         }
     }
+}
+
+// Slide volume and panning levels towards target levels for all channels.
+ARM_CODE void SlideMixingLevels(mm_word throttle)
+{
+    mm_mixer_channel *mix_ch = &mm_mix_channels[0];
+
+    for (mm_word i = 0; i < MM_nDSCHANNELS; i++, mix_ch++)
+    {
+        // Slide volume
+
+        // volume += (target - volume) * throttle
+        mm_sword target_volume = mix_ch->vol;
+        mm_sword volume = mix_ch->cvol;
+
+        if (volume < target_volume)
+        {
+            // TODO: Is this ok? Shouldn't this check bounds as well?
+            volume += ((target_volume - volume) >> 2);
+
+            // volume += throttle
+            // if (volume > target_volume)
+            //     volume = target_volume;
+        }
+        else
+        {
+            volume -= throttle;
+            if (volume < target_volume)
+                volume = target_volume;
+        }
+
+        // volume += ((target_volume - volume) * throttle) >> 8;
+
+        mix_ch->cvol = volume;
+
+        // Slide panning
+
+        // pan += (target - pan) * throttle
+        mm_sword target_panning = mix_ch->tpan << 9;
+        mm_sword panning = mix_ch->cpan;
+
+        if (panning < target_panning)
+        {
+            panning += throttle;
+            if (panning > target_panning)
+                panning = target_panning;
+        }
+        else
+        {
+            panning -= throttle;
+            if (panning < target_panning)
+                panning = target_panning;
+        }
+
+        // panning += ((target_panning - panning) * throttle) >> 8;
+
+        mix_ch->cpan = panning;
+    }
+
+    mmMixerPre();
 }
