@@ -34,6 +34,8 @@ static void EnableSound(void);
 static void mmSetupModeB(void);
 static void SetupSWM(void);
 
+mm_mode_enum mm_mixing_mode; // [0/1/2 = a/b/c] (MM_MODE_A/B/C)
+
 // Reset all channels
 static void mm_reset_channels(void)
 {
@@ -355,7 +357,7 @@ void mmMixerPre(void)
 }
 
 // Slide volume and panning levels towards target levels for all channels.
-ARM_CODE void SlideMixingLevels(mm_word throttle)
+static ARM_CODE void SlideMixingLevels(mm_word throttle)
 {
     mm_mixer_channel *mix_ch = &mm_mix_channels[0];
 
@@ -412,4 +414,29 @@ ARM_CODE void SlideMixingLevels(mm_word throttle)
     }
 
     mmMixerPre();
+}
+
+#define SLIDE_THROTTLE 6144 //45
+
+extern mm_byte mmVolumeTable[];
+
+void mmMixA(mm_byte *volume_table, mm_word ch_mask, mm_mixer_channel *mix_ch);
+void mmMixB(mm_byte *volume_table, mm_word ch_mask, mm_mixer_channel *mix_ch);
+void mmMixC(mm_byte *volume_table, mm_word ch_mask, mm_mixer_channel *mix_ch);
+
+ARM_CODE void mmMixerMix(void)
+{
+    // Do volume ramping
+    SlideMixingLevels(SLIDE_THROTTLE);
+
+    mm_byte *volume_table = &mmVolumeTable[0];
+    mm_word ch_mask = mm_ch_mask;
+    mm_mixer_channel *mix_ch = &mm_mix_channels[0];
+
+    if (mm_mixing_mode == MM_MODE_A)
+        mmMixA(volume_table, ch_mask, mix_ch);
+    else if (mm_mixing_mode == MM_MODE_B)
+        mmMixB(volume_table, ch_mask, mix_ch);
+    else // if (mm_mixing_mode == MM_MODE_C)
+        mmMixC(volume_table, ch_mask, mix_ch);
 }

@@ -14,12 +14,15 @@
     .global mm_mix_channels
     .global mm_mix_output
     .global mm_mix_write
-    .global mm_mixing_mode
     .global mm_mix_data
     .global mm_output_slice
 
-    .global mmMixerMix
-    .type   mmMixerMix STT_FUNC
+    .global mmMixA
+    .type   mmMixA STT_FUNC
+    .global mmMixB
+    .type   mmMixB STT_FUNC
+    .global mmMixC
+    .type   mmMixC STT_FUNC
 
     .global mmVolumeTable
     .global mmVolumeDivTable
@@ -153,40 +156,20 @@ mm_mix_data:
 mm_output_slice: // 0 = first half, 1 = second half
     .space 1
 
-mm_mixing_mode: // [0/1/2=a/b/c]
-    .space 1
-
 //----------------------------------------------------------------------
     .text
     .arm
     .align 2
 //----------------------------------------------------------------------
 
-#define SLIDE_THROTTLE 6144 //45
-
-//*********************************************************************************
-mmMixerMix:
-//*********************************************************************************
-    stmfd   sp!, {r4-r11, lr}
-
-    mov     r0, #SLIDE_THROTTLE         // do volume ramping
-    bl      SlideMixingLevels           //
-
-    ldr     r12, =mm_mix_channels
-
-    ldr     r10, =mm_ch_mask
-    ldr     r10, [r10]
-    ldr     r7, =mmVolumeTable
-
-    ldr     r0, =mm_mixing_mode         // branch according to mode
-    ldrb    r0 ,[r0]                    //
-    cmp     r0, #1                      //
-    beq     mmMixB                      //
-    bgt     mmMixC                      //
-
 //*********************************************************
 mmMixA:
 //*********************************************************
+    stmfd   sp!, {r4-r11, lr}
+
+    mov     r7, r0
+    mov     r10, r1
+    mov     r12, r2
 
     ldr     r11, =REG_SOUND0CNT
     bic     r10, #0x00FF0000            // 16 channels only
@@ -311,6 +294,11 @@ mma_next:
 //*********************************************************
 mmMixB:
 //*********************************************************
+    stmfd   sp!, {r4-r11, lr}
+
+    mov     r7, r0
+    mov     r10, r1
+    mov     r12, r2
 
     ldr     r0, =REG_DMA
     ldr     r1, =mm_mix_data+MB_FETCH
@@ -882,6 +870,11 @@ translateVolume: // { volume 0..65535 }
 //*********************************************************
 mmMixC:
 //*********************************************************
+    stmfd   sp!, {r4-r11, lr}
+
+    mov     r7, r0
+    mov     r10, r1
+    mov     r12, r2
 
     ldr     r11, =mm_mix_data + MC_SHADOW
     mov     r8, #1
