@@ -98,7 +98,7 @@ void open_stream(void)
     stream.timer = MM_TIMER0;            // Use timer 0
     stream.manual = 0;                   // Auto filling
 
-    mmOpenStream(&si);
+    mmOpenStream(&stream);
 }
 ```
 
@@ -118,7 +118,7 @@ void open_stream(void)
     stream.manual = 0;                      // Auto filling
 
     // open the stream
-    mmOpenStream(&si);
+    mmOpenStream(&stream);
 }
 ```
 
