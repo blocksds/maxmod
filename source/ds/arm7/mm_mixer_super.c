@@ -34,6 +34,8 @@ static void EnableSound(void);
 static void mmSetupModeB(void);
 static void SetupSWM(void);
 
+mm_mixer_channel mm_mix_channels[MM_nDSCHANNELS];
+
 mm_mode_enum mm_mixing_mode; // [0/1/2 = a/b/c] (MM_MODE_A/B/C)
 
 // Reset all channels

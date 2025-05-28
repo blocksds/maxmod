@@ -11,7 +11,6 @@
 
 //======================================================================
 
-    .global mm_mix_channels
     .global mm_mix_data
     .global mm_output_slice
 
@@ -76,9 +75,6 @@
 //----------------------------------------------------------------------
 
     .align 2
-
-mm_mix_channels:
-    .space  MM_nDSCHANNELS * C_SIZE
 
 #define mix_data_len    8544    // yikes
 
