@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: ISC
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
-// Copyright (c) 2021, Antonio Niño Díaz (antonio_nd@outlook.com)
+// Copyright (c) 2021-2025, Antonio Niño Díaz (antonio_nd@outlook.com)
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -15,6 +16,8 @@
 
 #define ARM_CODE   __attribute__((target("arm")))
 #define IWRAM_CODE __attribute__((section(".iwram"), long_call))
+
+mm_byte mp_mix_seg; // Mixing segment select
 
 // Set channel volume
 void mmMixerSetVolume(int channel, mm_word volume)
@@ -90,20 +93,18 @@ void mmMixerSetFreq(int channel, mm_word rate)
 #endif
 }
 
-static int vblank_handler_enabled = 0;
+static bool vblank_handler_enabled = false;
 
 // VBL wrapper, used to reset DMA. It needs the highest priority.
 IWRAM_CODE ARM_CODE void mmVBlank(void)
 {
     // Disable until ready
-    if (vblank_handler_enabled != 0)
+    if (vblank_handler_enabled)
     {
         // Swap mixing segment
-        mm_word r1 = (int32_t)(int8_t)mp_mix_seg;
-        r1 = ~r1;
-        mp_mix_seg = r1;
+        mp_mix_seg = ~mp_mix_seg;
 
-        if (r1 != 0)
+        if (mp_mix_seg != 0)
         {
             // DMA control: Restart DMA
 
@@ -190,7 +191,7 @@ void mmMixerInit(mm_gba_system *setup)
         mx_ch[i].src = 1U << 31;
 
     // Enable VBL routine
-    vblank_handler_enabled = 1;
+    vblank_handler_enabled = true;
 
     // Clear fifo data
     *REG_SGFIFOA = 0;

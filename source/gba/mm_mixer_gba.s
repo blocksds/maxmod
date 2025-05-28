@@ -24,7 +24,6 @@
 
     .global     mm_mixlen
     .global     mm_bpmdv
-    .global     mp_mix_seg
     .global     mp_writepos
     .global     mm_mixchannels
 
@@ -79,8 +78,6 @@ mm_ratescale:       .space 4    // dont move
 mm_timerfreq:       .space 4    // dont move
 
 mm_bpmdv:           .space 4
-
-mp_mix_seg:         .space 1    // mixing segment select
 
 .align 2
 
