@@ -18,6 +18,7 @@
 #include "mm_mixer.h"
 #include "mm_mas.h"
 #include "mm_mas_arm.h"
+#include "mm_msl.h"
 #include "mm_effect.h"
 #include "mp_defs.h"
 #include "mp_format_mas.h"
@@ -418,9 +419,149 @@ static ARM_CODE void SlideMixingLevels(mm_word throttle)
 
 #define SLIDE_THROTTLE 6144 //45
 
-extern mm_byte mmVolumeTable[];
+static ARM_CODE mm_word translateVolume(mm_word volume) // volume = 0..65535
+{
+    mm_word shift_data = mmVolumeDivTable[volume >> (7 + 5)];
+    //mm_word shift_level = mmVolumeTable[(volume + (16 << (7 + 5))) >> (7 + 5)];
+    mm_word shift_level = mmVolumeShiftTable[volume >> (7 + 5)];
 
-void mmMixA(mm_byte *volume_table, mm_word ch_mask, mm_mixer_channel *mix_ch);
+    shift_level += 5; // Add this to the table values instead
+
+    return (shift_data << 8) | (volume >> shift_level);
+}
+
+#define CLK_DIV 524288 // VALUE = 16777216 * CLK / 512 / 32
+
+static ARM_CODE void mmMixA(void)
+{
+    mm_word ch_mask = mm_ch_mask & 0xFFFF; // 16 channels only
+    mm_mixer_channel *mix_ch = &mm_mix_channels[0];
+
+    for (int channel = 0; channel < 16; channel++, mix_ch++)
+    {
+        if ((ch_mask & BIT(channel)) == 0)
+            continue;
+
+        if (mix_ch->samp == 0) // 0 = channel is disabled
+        {
+            SCHANNEL_CR(channel) = 0; // Clear channel and skip to next
+            continue;
+        }
+
+        // Get mainram address
+        msl_ds_sample *sample = (msl_ds_sample *)(mix_ch->samp + 0x2000000);
+
+        if (mix_ch->key_on) // If KEY-ON is cleared, continue activity
+        {
+            // start new note
+            //------------------------
+
+            mix_ch->key_on = 0; // Clear start bit
+
+            // TODO: The original only reads one byte instead of 32, is that a bug?
+            mm_word offset = (mm_byte)mix_ch->read; // Read sample offset
+
+            if (offset != 0)
+            {
+                // Test sample format
+                if (sample->format == 0)
+                    offset = offset << (8 - 2); // 8-bit = LSL 0
+                if (sample->format == 1)
+                    offset = offset << (9 - 2); // 16-bit = LSL 1
+                else
+                    offset = 0; // ADPCM/other = invalid
+            }
+
+            mm_byte *sampledata = (mm_byte *)sample->point; // get sampledata pointer
+            if (sampledata == NULL)
+                sampledata = sample->data;
+
+            sampledata += (offset << 2); // add sample offset (in bytes)
+
+            mm_byte rep_mode = sample->rep; // check repeat mode
+
+            if (rep_mode == 1) // mma_looping | 1 == forward loop
+            {
+                mm_sword lstart = sample->lstart; // Get loopstart position
+
+                lstart -= offset; // Subtract sample offset
+
+                if (lstart < 0)
+                {
+                    sampledata += lstart << 2; // if result goes negative than clamp values
+                    lstart = 0;
+                }
+
+                // write CNT=0,SAD=SAD,TMR=0,PNT=PNT,LEN=LEN
+                SCHANNEL_CR(channel) = 0;
+                SCHANNEL_SOURCE(channel) = (mm_word)sampledata;
+                SCHANNEL_TIMER(channel) = 0;
+                SCHANNEL_REPEAT_POINT(channel) = lstart;
+                SCHANNEL_LENGTH(channel) = sample->len;
+            }
+            else // mma_notlooping
+            {
+                mm_word len = sample->len; // read length
+
+                mm_sword remaining_len = len - offset; // subtract sample offset
+
+                if (remaining_len < 0)
+                {
+                    sampledata -= offset << 2; // clamp negative results
+                    remaining_len = len;
+                }
+
+                // write CNT=0,SAD=SAD,TMR=0,PNT=0,LEN=LEN
+                SCHANNEL_CR(channel) = 0;
+                SCHANNEL_SOURCE(channel) = (mm_word)sampledata;
+                SCHANNEL_TIMER(channel) = 0;
+                SCHANNEL_REPEAT_POINT(channel) = 0;
+                SCHANNEL_LENGTH(channel) = remaining_len;
+            }
+
+            // mma_copy_levels
+
+            // Set direct volume levels on key-on
+            mix_ch->cvol = mix_ch->vol;
+            mix_ch->cpan = mix_ch->tpan << 9;
+
+            SCHANNEL_CR(channel) = SCHANNEL_ENABLE |
+                                   (sample->rep | (sample->format << 2)) << 27;
+        }
+        else
+        {
+            // Continue channel
+            // ----------------
+
+            // Check if sound has ended
+            if ((SCHANNEL_CR(channel) & SCHANNEL_ENABLE) == 0)
+            {
+                mix_ch->samp = 0;
+                // TODO: The original code clears panning as well (32 bits at
+                // once). Is this a problem? Should we clear it or not?
+                mix_ch->tpan = 0;
+                mix_ch->key_on = 0;
+                continue;
+            }
+        }
+
+        // mma_started
+        // -----------
+
+        // Set timer
+        if (mix_ch->freq == 0)
+            SCHANNEL_TIMER(channel) = 0;
+        else
+            SCHANNEL_TIMER(channel) = -(CLK_DIV / mix_ch->freq);
+
+        // Set volume levels
+        *(mm_hword*)&SCHANNEL_CR(channel) = translateVolume(mix_ch->cvol);
+
+        // Set panning levels. Use top 7 bits.
+        SCHANNEL_PAN(channel) = mix_ch->cpan >> 9;
+    }
+}
+
 void mmMixB(mm_byte *volume_table, mm_word ch_mask, mm_mixer_channel *mix_ch);
 void mmMixC(mm_byte *volume_table, mm_word ch_mask, mm_mixer_channel *mix_ch);
 
@@ -429,14 +570,28 @@ ARM_CODE void mmMixerMix(void)
     // Do volume ramping
     SlideMixingLevels(SLIDE_THROTTLE);
 
-    mm_byte *volume_table = &mmVolumeTable[0];
-    mm_word ch_mask = mm_ch_mask;
-    mm_mixer_channel *mix_ch = &mm_mix_channels[0];
-
     if (mm_mixing_mode == MM_MODE_A)
-        mmMixA(volume_table, ch_mask, mix_ch);
+    {
+        mmMixA();
+    }
     else if (mm_mixing_mode == MM_MODE_B)
+    {
+        extern mm_byte mmVolumeTable[];
+
+        mm_byte *volume_table = &mmVolumeTable[0];
+        mm_word ch_mask = mm_ch_mask;
+        mm_mixer_channel *mix_ch = &mm_mix_channels[0];
+
         mmMixB(volume_table, ch_mask, mix_ch);
+    }
     else // if (mm_mixing_mode == MM_MODE_C)
+    {
+        extern mm_byte mmVolumeTable[];
+
+        mm_byte *volume_table = &mmVolumeTable[0];
+        mm_word ch_mask = mm_ch_mask;
+        mm_mixer_channel *mix_ch = &mm_mix_channels[0];
+
         mmMixC(volume_table, ch_mask, mix_ch);
+    }
 }
