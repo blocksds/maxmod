@@ -36,18 +36,9 @@
     .equ    MM_nDSCHANNELS,  32     // [channels]
     .equ    MM_SW_CHUNKLEN,  112    // [samples]
     .equ    MM_SW_BUFFERLEN, 224    // [samples], note: nothing
-    .equ    MIX_CLK,         768
-    .equ    TM_DIV,          3
-    .equ    TM_SHIFT,        1
     .equ    CLK_DIV,         524288 // VALUE = 16777216 * CLK / 512 / 32
 
     .equ    SFRAC, 10
-
-    .equ    REG_SOUND0CNT, 0x4000400
-    .equ    REG_SOUND0SAD, 0x4000404
-    .equ    REG_SOUND0TMR, 0x4000408
-    .equ    REG_SOUND0PNT, 0x400040A
-    .equ    REG_SOUND0LEN, 0x400040C
 
     .equ    REG_DMA,     0x40000BC
     .equ    DMA_ENABLE,  (1 << 31)
