@@ -21,7 +21,7 @@
 #include "mm_mixer_gba.h"
 #elif defined(SYS_NDS7)
 #include "mm_main_ds.h"
-#include "mm_mixer_ds.h"
+#include "mm_mixer_super.h"
 #endif
 
 #define channelCount    16
