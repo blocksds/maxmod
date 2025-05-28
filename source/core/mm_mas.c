@@ -240,12 +240,13 @@ static void mpp_resetchannels(mpl_layer_information *layer_info,
 
         // Disabled mixer channel. Disabled status differs between systems.
 #ifdef SYS_NDS
-        mix_ch->key_on = 1;
+        mix_ch->key_on = 0;
         mix_ch->samp = 0;
-        mix_ch->tpan = 0;
+        mix_ch->tpan = 0; // TODO: This isn't really needed, but it may help the
+                          // compiler optimize the writes to the three fields?
 #endif
 #ifdef SYS_GBA
-        mix_ch->src = 0;
+        mix_ch->src = 1 << 31;
 #endif
     }
 }
