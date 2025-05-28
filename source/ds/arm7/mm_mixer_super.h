@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: ISC
+//
+// Copyright (c) 2023, Lorenzooone (lollo.lollo.rbiz@gmail.com)
+
 #ifndef MM_MIXER_SUPER_H__
 #define MM_MIXER_SUPER_H__
 
