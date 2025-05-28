@@ -1,7 +1,8 @@
 # CPU Usage
 
-Maxmod is very optimized. Everything in the library is carefully hand-written in
-assembly language to achieve a small binary size and maximum CPU efficiency.
+Maxmod is very optimized. The most CPU-intensive parts of the library (the
+software audio mixers) are carefully hand-written in assembly language to
+achieve maximum CPU efficiency.
 
 ## GBA CPU Usage Tests
 
