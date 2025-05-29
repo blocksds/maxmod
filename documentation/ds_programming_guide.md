@@ -18,7 +18,7 @@ soundbank file? It's a file that contains all the samples and modules for your
 project!
 
 Add a new directory to your project; I'll call it "audio". Then, set the
-variable `AUDIODIR` to point to that folder:
+variable `AUDIODIRS` to point to that folder:
 
 ```make
 AUDIODIRS :=  audio
@@ -45,7 +45,7 @@ soundbank header too.
 
 ```c
 #include <maxmod9.h>    // Maxmod definitions for ARM9
-#include "soundbank.h"  // Soundbank definitions
+#include "soundbank.h"  // Soundbank definitions for songs and sound effects
 ```
 
 There are multiple ways of setting up Maxmod to fit your needs. The easiest way
@@ -54,14 +54,25 @@ is to use the **mmInitDefault()** or **mmInitDefaultMem()** functions.
 **mmInitDefaultMem()** is used when your soundbank is loaded into memory (as
 described above).
 
+This is how you can load a soundbank from memory:
+
 ```c
+#include "soundbank_bin.h"  // Soundbank data
+
 void main(void)
 {
     // Use this if you have the soundbank loaded into memory
     mmInitDefaultMem((mm_addr)soundbank_bin);
+}
+```
 
-    // OR, use this if you have it in the filesystem
-    //mmInitDefault("nitro:/soundbank.bin");
+This is how you can load it from the filesystem instead:
+
+```c
+void main(void)
+{
+    // Use this if you have the soundbank in the filesystem
+    mmInitDefault("nitro:/soundbank.bin");
 }
 ```
 
