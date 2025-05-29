@@ -1984,18 +1984,19 @@ mm_word mppe_glis_backdoor(mm_word param, mm_word period, mm_active_channel *act
     else // Amiga
     {
         // TODO: Is this correct? In the original code, mpph_PitchSlide_Down and
-        // mpph_PitchSlide_Down were swapped in the Amiga side.
+        // mpph_PitchSlide_Down were swapped in the Amiga side. However, if this
+        // is swapped, the effect breaks.
 
         if (channel->period < target_period) // Slide up
         {
-            new_period = mpph_PitchSlide_Up(channel->period, param, layer);
+            new_period = mpph_PitchSlide_Down(channel->period, param, layer);
 
             if (new_period > target_period)
                 new_period = target_period;
         }
         else if (channel->period > target_period) // Slide down
         {
-            new_period = mpph_PitchSlide_Down(channel->period, param, layer);
+            new_period = mpph_PitchSlide_Up(channel->period, param, layer);
 
             if (new_period < target_period)
                 new_period = target_period;
