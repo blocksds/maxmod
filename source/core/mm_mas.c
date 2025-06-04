@@ -2152,7 +2152,7 @@ mm_word mppe_PortaVolume(mm_word param, mm_word period, mm_active_channel *act_c
 
     period = mppe_Glissando(mem, period, act_ch, channel, layer);
 
-    mppe_ChannelVolumeSlide(param, channel, layer);
+    mppe_VolumeSlide(param, channel, layer);
 
     return period;
 }
