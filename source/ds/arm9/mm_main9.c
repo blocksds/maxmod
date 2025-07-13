@@ -2,6 +2,7 @@
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
 // Copyright (c) 2023, Lorenzooone (lollo.lollo.rbiz@gmail.com)
+// Copyright (c) 2025, Antonio Niño Díaz (antonio_nd@outlook.com)
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -54,7 +55,7 @@ void mmSetEventHandler(mm_callback handler)
 }
 
 // Initialize Maxmod (manual settings)
-void mmInit(mm_ds_system *system)
+bool mmInit(mm_ds_system *system)
 {
     mmModuleCount = system->mod_count;
     mmSampleCount = system->samp_count;
@@ -73,6 +74,8 @@ void mmInit(mm_ds_system *system)
 
     // Send soundbank info to ARM7
     mmSendBank(mmModuleCount, mmModuleBank);
+
+    return true;
 }
 
 // Shared initialization code for default setup
@@ -89,30 +92,49 @@ mm_bool mmTryToInitializeDefault(mm_word first_word)
     if (system.mem_bank == NULL)
         return false;
 
-    mmInit(&system);
+    if (!mmInit(&system))
+    {
+        free(system.mem_bank);
+        return false;
+    }
+
     return true;
 }
 
 // Initialize Maxmod with default setup
-void mmInitDefault(const char *soundbank_file)
+bool mmInitDefault(const char *soundbank_file)
 {
-    mm_word first_word = 0;
+    mm_word first_word;
+
     FILE *f = fopen(soundbank_file, "rb");
+    if (f == NULL)
+        return false;
 
-    fread(&first_word, sizeof(first_word), 1, f);
+    if (fread(&first_word, sizeof(first_word), 1, f) != 1)
+    {
+        fclose(f);
+        return false;
+    }
 
-    fclose(f);
+    if (fclose(f) != 0)
+        return false;
 
-    if (mmTryToInitializeDefault(first_word))
-        mmSoundBankInFiles(soundbank_file);
+    if (!mmTryToInitializeDefault(first_word))
+        return false;
+
+    mmSoundBankInFiles(soundbank_file);
+    return true;
 }
 
 // Initialize Maxmod with default setup
 // (when the entire soundbank is loaded into memory)
-void mmInitDefaultMem(mm_addr soundbank)
+bool mmInitDefaultMem(mm_addr soundbank)
 {
     mm_word first_word = ((mm_word*)soundbank)[0];
 
-    if (mmTryToInitializeDefault(first_word))
-        mmSoundBankInMemory(soundbank);
+    if (!mmTryToInitializeDefault(first_word))
+        return false;
+
+    mmSoundBankInMemory(soundbank);
+    return true;
 }

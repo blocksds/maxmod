@@ -43,7 +43,10 @@ extern "C" {
 /// @param soundbank_file
 ///     Filename of soundbank. A soundbank file can be created with the Maxmod
 ///     Utility.
-void mmInitDefault(const char* soundbank_file);
+///
+/// @return
+///     It returns true on success, false on error.
+bool mmInitDefault(const char* soundbank_file);
 
 /// Initialize Maxmod with default settings.
 ///
@@ -54,7 +57,10 @@ void mmInitDefault(const char* soundbank_file);
 ///
 /// @param soundbank
 ///     Address of soundbank data.
-void mmInitDefaultMem(mm_addr soundbank);
+///
+/// @return
+///     It returns true on success, false on error.
+bool mmInitDefaultMem(mm_addr soundbank);
 
 /// Initializes Maxmod with the settings specified.
 ///
@@ -62,9 +68,6 @@ void mmInitDefaultMem(mm_addr soundbank);
 ///
 /// For DS projects, you must also setup a soundbank interface with one of the
 /// mmSoundBank* functions.
-///
-/// @param system
-///     Maxmod setup configuration.
 ///
 /// Example:
 /// ```c
@@ -94,7 +97,13 @@ void mmInitDefaultMem(mm_addr soundbank);
 ///     //mmSoundBankInFiles("my_soundbank.msl");
 /// }
 /// ```
-void mmInit(mm_ds_system *system);
+///
+/// @param system
+///     Maxmod setup configuration.
+///
+/// @return
+///     It returns true on success, false on error.
+bool mmInit(mm_ds_system *system);
 
 /// Switches the audio mode for Maxmod DS.
 ///

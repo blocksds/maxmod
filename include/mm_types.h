@@ -24,6 +24,8 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
+
 // ***************************************************************************
 /// @defgroup maxmod_types Maxmod Definitions and Types
 /// @{

@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: ISC
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
-// Copyright (c) 2021, Antonio Niño Díaz (antonio_nd@outlook.com)
+// Copyright (c) 2021-2025, Antonio Niño Díaz (antonio_nd@outlook.com)
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -14,7 +15,7 @@
 
 static uint32_t mixbuffer[mixlen / sizeof(uint32_t)];
 
-void mmInitDefault(mm_addr soundbank, mm_word number_of_channels)
+bool mmInitDefault(mm_addr soundbank, mm_word number_of_channels)
 {
     // Allocate buffer
     size_t size_of_channel = sizeof(mm_module_channel) + sizeof(mm_active_channel) + sizeof(mm_mixer_channel);
@@ -22,7 +23,7 @@ void mmInitDefault(mm_addr soundbank, mm_word number_of_channels)
 
     mm_addr buffer = calloc(1, size_of_buffer);
     if (buffer == NULL)
-        return;
+        return false;
 
     // Split up buffer
     mm_addr wave_memory, module_channels, active_channels, mixing_channels;
@@ -45,5 +46,11 @@ void mmInitDefault(mm_addr soundbank, mm_word number_of_channels)
         .soundbank = soundbank
     };
 
-    mmInit(&setup);
+    if (!mmInit(&setup))
+    {
+        free(buffer);
+        return false;
+    }
+
+    return true;
 }

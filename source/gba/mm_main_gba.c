@@ -21,7 +21,7 @@ mm_voidfunc mm_vblank_function;
 mm_addr mp_solution;
 
 // Initialize maxmod
-void mmInit(mm_gba_system* setup)
+bool mmInit(mm_gba_system* setup)
 {
     mp_solution = setup->soundbank;
 
@@ -43,6 +43,8 @@ void mmInit(mm_gba_system* setup)
     mmSetModulePitch(0x400);
 
     mmResetEffects();
+
+    return true;
 }
 
 // Set function to be called during the vblank IRQ

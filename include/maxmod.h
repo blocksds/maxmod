@@ -62,16 +62,16 @@ typedef enum
 /// @param number_of_channels
 ///     Number of module/mixing channels to allocate. Must be greater or equal
 ///     to the channel count in your modules.
-void mmInitDefault(mm_addr soundbank, mm_word number_of_channels);
+///
+/// @return
+///     It returns true on success, false on error.
+bool mmInitDefault(mm_addr soundbank, mm_word number_of_channels);
 
 /// Initializes Maxmod with the settings specified.
 ///
 /// Initialize system. Call once at startup.
 ///
 /// For GBA projects, irqInit() should be called before this function.
-///
-/// @param setup
-///     Maxmod setup configuration.
 ///
 /// Example:
 ///
@@ -120,7 +120,13 @@ void mmInitDefault(mm_addr soundbank, mm_word number_of_channels);
 ///     mmInit(&mySystem);
 /// }
 /// ```
-void mmInit(mm_gba_system* setup);
+///
+/// @param setup
+///     Maxmod setup configuration.
+///
+/// @return
+///     It returns true on success, false on error.
+bool mmInit(mm_gba_system* setup);
 
 /// This function must be linked directly to the VBlank IRQ.
 ///
