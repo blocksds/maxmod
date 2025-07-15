@@ -218,14 +218,6 @@ void mmMixerInit(mm_gba_system *setup)
     // Master sound enable
     REG_SOUNDCNT_X = 0x80;
 
-    // Wait for new frame
-    while (REG_VCOUNT >= 160); // Skip current vblank period
-    while (REG_VCOUNT > 160); // Wait for new one
-
-    // Pass number 2
-    while (REG_VCOUNT >= 160); // Skip current vblank period
-    while (REG_VCOUNT > 160); // Wait for new one
-
     // Enable sampling timer
     REG_TM0CNT = mm_timerfreq | (0x80 << 16);
 }
