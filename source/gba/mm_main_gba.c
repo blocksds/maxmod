@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: ISC
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
-// Copyright (c) 2021, Antonio Niño Díaz (antonio_nd@outlook.com)
+// Copyright (c) 2021-2025, Antonio Niño Díaz (antonio_nd@outlook.com)
+
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 
 #include "maxmod.h"
 
@@ -14,11 +18,21 @@
 
 #include "mm_mixer_gba.h"
 
+// Buffer that holds the mixed data
+#define mixlen 1056 // 16 KHz
+static uint32_t mixbuffer[mixlen / sizeof(uint32_t)];
+
 // Pointer to a user function to be called during the vblank irq
 mm_voidfunc mm_vblank_function;
 
 // Address of soundbank in memory/rom
 mm_addr mp_solution;
+
+// Pointer to buffer allocated by mmInitDefault()
+static mm_addr mm_init_default_buffer = NULL;
+
+// This is set to true when Maxmod is initialized
+static bool mm_initialized = false;
 
 // Initialize maxmod
 bool mmInit(mm_gba_system* setup)
@@ -44,6 +58,63 @@ bool mmInit(mm_gba_system* setup)
 
     mmResetEffects();
 
+    mm_initialized = true;
+
+    return true;
+}
+
+bool mmInitDefault(mm_addr soundbank, mm_word number_of_channels)
+{
+    // Allocate buffer
+    size_t size_of_channel = sizeof(mm_module_channel) + sizeof(mm_active_channel) + sizeof(mm_mixer_channel);
+    size_t size_of_buffer = mixlen + (number_of_channels * size_of_channel);
+
+    mm_addr mm_init_default_buffer = calloc(1, size_of_buffer);
+    if (mm_init_default_buffer == NULL)
+        return false;
+
+    // Split up buffer
+    mm_addr wave_memory, module_channels, active_channels, mixing_channels;
+
+    wave_memory = mm_init_default_buffer;
+    module_channels = (mm_addr)(((mm_word)wave_memory) + mixlen);
+    active_channels = (mm_addr)(((mm_word)module_channels) + (number_of_channels * sizeof(mm_module_channel)));
+    mixing_channels = (mm_addr)(((mm_word)active_channels) + (number_of_channels * sizeof(mm_active_channel)));
+
+    mm_gba_system setup =
+    {
+        .mixing_mode = 3,
+        .mod_channel_count = number_of_channels,
+        .mix_channel_count = number_of_channels,
+        .module_channels = module_channels,
+        .active_channels = active_channels,
+        .mixing_channels = mixing_channels,
+        .mixing_memory = (mm_addr)&mixbuffer[0],
+        .wave_memory = wave_memory,
+        .soundbank = soundbank
+    };
+
+    if (!mmInit(&setup))
+    {
+        free(mm_init_default_buffer);
+        return false;
+    }
+
+    return true;
+}
+
+bool mmEnd(void)
+{
+    mm_initialized = false;
+
+    mmMixerEnd();
+
+    if (mm_init_default_buffer)
+    {
+        free(mm_init_default_buffer);
+        mm_init_default_buffer = NULL;
+    }
+
     return true;
 }
 
@@ -56,6 +127,9 @@ void mmSetVBlankHandler(mm_voidfunc function)
 // Work routine, user _must_ call this every frame.
 void mmFrame(void)
 {
+    if (!mm_initialized)
+        return;
+
     // Update effects
 
     mmUpdateEffects();

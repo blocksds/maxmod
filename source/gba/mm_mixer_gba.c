@@ -221,3 +221,19 @@ void mmMixerInit(mm_gba_system *setup)
     // Enable sampling timer
     REG_TM0CNT = mm_timerfreq | (0x80 << 16);
 }
+
+void mmMixerEnd(void)
+{
+    // Silence direct sound channels
+    REG_SOUNDCNT_H = 0;
+
+    // Disable VBL routine
+    vblank_handler_enabled = false;
+
+    // Disable DMA
+    REG_DMA1CNT = 0;
+    REG_DMA2CNT = 0;
+
+    // Disable sampling timer
+    REG_TM0CNT = 0;
+}

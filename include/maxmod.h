@@ -128,6 +128,18 @@ bool mmInitDefault(mm_addr soundbank, mm_word number_of_channels);
 ///     It returns true on success, false on error.
 bool mmInit(mm_gba_system* setup);
 
+/// Deinitializes Maxmod.
+///
+/// If Maxmod was initialized with mmInitDefault(), it also frees the memory
+/// allocated by it.
+///
+/// If Maxmod was initialized with mmInit(), the user is responsible for freeing
+/// the memory passed to it when Maxmod was initialized.
+///
+/// @return
+///     It returns true on success, false on error.
+bool mmEnd(void);
+
 /// This function must be linked directly to the VBlank IRQ.
 ///
 /// During this function, the sound DMA is reset. The timing is extremely
