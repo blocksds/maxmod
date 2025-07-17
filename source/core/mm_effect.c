@@ -127,6 +127,9 @@ mm_sfxhand mmEffect(mm_word sample_ID)
 // Play sound effect with specified parameters
 mm_sfxhand mmEffectEx(mm_sound_effect* sound)
 {
+    if (sound->id >= mmGetSampleCount())
+        return 0;
+
     // Test if handle was given
 
     mm_sfxhand handle = sound->handle;

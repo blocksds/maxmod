@@ -192,6 +192,9 @@ static void mpps_backdoor(mm_word id, mm_pmode mode, mm_word layer)
 // mode : mode of playback
 void mmStart(mm_word id, mm_pmode mode)
 {
+    if (id >= mmGetModuleCount())
+        return;
+
     mpps_backdoor(id, mode, 0);
 }
 
@@ -200,6 +203,9 @@ void mmStart(mm_word id, mm_pmode mode)
 // module_ID : index of module
 void mmJingle(mm_word module_ID)
 {
+    if (module_ID >= mmGetModuleCount())
+        return;
+
     mpps_backdoor(module_ID, MPP_PLAY_ONCE, 1);
 }
 
