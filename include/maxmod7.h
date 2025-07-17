@@ -95,6 +95,21 @@ void mmSelectMode(mm_mode_enum mode);
 /// For DS (ARM7), this function is called automatically.
 void mmFrame(void);
 
+/// Returns the number of modules available in the soundbank.
+///
+/// @return
+///     The number of modules.
+mm_word mmGetModuleCount(void);
+
+/// Returns the number of samples available in the soundbank.
+///
+/// @note
+///     This number includes the samples used by all the songs in the soundbank,
+///     not just the sound effects in WAV format.
+///
+/// @return
+///     The number of samples.
+mm_word mmGetSampleCount(void);
 
 // ***************************************************************************
 /// @}

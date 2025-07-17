@@ -251,3 +251,13 @@ void mmGetSoundBank(mm_word n_songs, mm_word n_samples, mm_addr bank)
     // Initialize system
     mmInit7();
 }
+
+mm_word mmGetModuleCount(void)
+{
+    return mmModuleCount;
+}
+
+mm_word mmGetSampleCount(void)
+{
+    return mmSampleCount;
+}
