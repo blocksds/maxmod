@@ -191,8 +191,6 @@ void mmInit7(void)
     mmSetJingleVolume(BASE_VOLUME);
     mmSetEffectsVolume(BASE_VOLUME);
 
-    mmInitialize(1);
-
     mmUnlockChannels(ALL_PHYS_CHANNELS_MASK);
 
     // Setup channel addresses
@@ -212,7 +210,7 @@ void mmInit7(void)
     // Forward events
     mmSetEventHandler(mmEventForwarder);
 
-    // Why is this done twice?!
+    // Mark Maxmod as initialized so that mmFrame() can start mixing
     mmInitialize(1);
 }
 
