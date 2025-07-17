@@ -44,8 +44,11 @@ static void StopActiveChannel(mm_word);
 
 extern mm_mode_enum mm_mixing_mode;
 
-// Number of modules in soundbank
+// Number of modules in sound bank
 mm_word mmModuleCount;
+
+// Number of samples in sound bank
+mm_word mmSampleCount;
 
 // Address of module bank
 mm_addr mmModuleBank;
@@ -236,9 +239,10 @@ static mm_word mmEventForwarder(mm_word msg, mm_word param)
 }
 
 // Load sound bank address
-void mmGetSoundBank(mm_word n_songs, mm_addr bank)
+void mmGetSoundBank(mm_word n_songs, mm_word n_samples, mm_addr bank)
 {
     mmModuleCount = n_songs;
+    mmSampleCount = n_samples;
     mmModuleBank = bank;
 
     // What is this * 4 from? Is it a sizeof?!

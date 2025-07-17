@@ -210,7 +210,8 @@ static ARM_CODE void ProcessNextMessage(void)
         {
             mm_word n_songs = ReadNFifoBytes(2);
             mm_addr bank = (mm_addr)ReadNFifoBytes(4);
-            mmGetSoundBank(n_songs, bank);
+            mm_word n_samples = ReadNFifoBytes(2);
+            mmGetSoundBank(n_songs, n_samples, bank);
             break;
         }
         case MSG_SELCHAN:

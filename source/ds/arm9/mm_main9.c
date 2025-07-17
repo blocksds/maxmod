@@ -72,8 +72,11 @@ bool mmInit(mm_ds_system *system)
     // Setup communications
     mmSetupComms(system->fifo_channel);
 
-    // Send soundbank info to ARM7
-    mmSendBank(mmModuleCount, mmModuleBank);
+    // Send soundbank info to ARM7. We also need to send the number of songs
+    // and samples because the soundbank isn't loaded to RAM if it is stored in
+    // NitroFS. This means that the first word of the header (that contains the
+    // number of songs and samples) isn't available for the ARM7 to read it.
+    mmSendBank(mmModuleCount, mmSampleCount, mmModuleBank);
 
     return true;
 }

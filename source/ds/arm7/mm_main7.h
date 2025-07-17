@@ -10,7 +10,7 @@
 
 void mmLockChannelsQuick(mm_word);
 void mmUnlockChannelsQuick(mm_word);
-void mmGetSoundBank(mm_word, mm_addr);
+void mmGetSoundBank(mm_word n_songs, mm_word n_samples, mm_addr bank);
 
 #define NUM_CHANNELS 32
 #define NUM_PHYS_CHANNELS 16

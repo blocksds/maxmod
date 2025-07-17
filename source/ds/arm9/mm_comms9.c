@@ -149,14 +149,15 @@ static void SendCommandHwordByte(mm_word id, mm_hword arg1, mm_byte arg2)
 }
 
 // Send a soundbank to ARM7
-void mmSendBank(mm_word num_songs, mm_addr bank_addr)
+void mmSendBank(mm_word num_songs, mm_word num_samples, mm_addr bank_addr)
 {
     mm_word buffer[MAX_PARAM_WORDS];
 
-    buffer[0] = (num_songs << 16) | (MSG_BANK << 8) | 7;
+    buffer[0] = (num_songs << 16) | (MSG_BANK << 8) | 9;
     buffer[1] = (mm_word)bank_addr;
+    buffer[2] = num_samples;
 
-    SendString(buffer, 2);
+    SendString(buffer, 3);
 }
 
 // Lock channels to prevent use by maxmod

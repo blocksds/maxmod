@@ -8,6 +8,6 @@
 
 #include "mm_types.h"
 
-void mmSendBank(mm_word, mm_addr);
+void mmSendBank(mm_word num_songs, mm_word num_samples, mm_addr bank_addr);
 
 #endif
