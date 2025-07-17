@@ -95,9 +95,6 @@ void mmSelectMode(mm_mode_enum mode);
 /// For DS (ARM7), this function is called automatically.
 void mmFrame(void);
 
-// Note about using sleep functions:
-// - Do not use during an interrupt!! It's not safe.
-// - And do not exit sleep unless it is already sleeping.
 
 // ***************************************************************************
 /// @}
