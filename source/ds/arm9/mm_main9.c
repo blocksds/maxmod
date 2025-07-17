@@ -83,8 +83,11 @@ mm_bool mmTryToInitializeDefault(mm_word first_word)
 {
     mm_ds_system system = { 0 };
 
+    // The first word of the soundbank contains the number of samples followed
+    // by the number of songs.
     system.samp_count = first_word & 0xFFFF;
     system.mod_count = (first_word >> 16) & 0xFFFF;
+
     system.fifo_channel = FIFO_MAXMOD;
 
     size_t size = (system.mod_count * sizeof(mm_word)) + (system.samp_count * sizeof(mm_word));
@@ -137,4 +140,14 @@ bool mmInitDefaultMem(mm_addr soundbank)
 
     mmSoundBankInMemory(soundbank);
     return true;
+}
+
+mm_word mmGetModuleCount(void)
+{
+    return mmModuleCount;
+}
+
+mm_word mmGetSampleCount(void)
+{
+    return mmSampleCount;
 }

@@ -28,6 +28,12 @@ mm_voidfunc mm_vblank_function;
 // Address of soundbank in memory/rom
 mm_addr mp_solution;
 
+// Number of modules in sound bank
+mm_word mmModuleCount;
+
+// Number of samples in sound bank
+mm_word mmSampleCount;
+
 // Pointer to buffer allocated by mmInitDefault()
 static mm_addr mm_init_default_buffer = NULL;
 
@@ -38,6 +44,12 @@ static bool mm_initialized = false;
 bool mmInit(mm_gba_system* setup)
 {
     mp_solution = setup->soundbank;
+
+    // The first word of the soundbank contains the number of samples followed
+    // by the number of songs.
+    mm_word first_word = *(mm_word *)mp_solution;
+    mmSampleCount = first_word & 0xFFFF;
+    mmModuleCount = (first_word >> 16) & 0xFFFF;
 
     mm_achannels = setup->active_channels;
     mm_pchannels = (mm_addr)setup->module_channels;
@@ -209,4 +221,14 @@ void mmFrame(void)
     // PROF_START
     mmMixerMix(remaining_len);
     // PROF_END 0
+}
+
+mm_word mmGetModuleCount(void)
+{
+    return mmModuleCount;
+}
+
+mm_word mmGetSampleCount(void)
+{
+    return mmSampleCount;
 }

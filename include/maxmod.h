@@ -193,6 +193,22 @@ void mmSetEventHandler(mm_callback handler);
 /// garbage will be heard in the output and module processing will be delayed.
 void mmFrame(void) __attribute((long_call));
 
+/// Returns the number of modules available in the soundbank.
+///
+/// @return
+///     The number of modules.
+mm_word mmGetModuleCount(void);
+
+/// Returns the number of samples available in the soundbank.
+///
+/// @note
+///     This number includes the samples used by all the songs in the soundbank,
+///     not just the sound effects in WAV format.
+///
+/// @return
+///     The number of samples.
+mm_word mmGetSampleCount(void);
+
 // ***************************************************************************
 /// @}
 /// @defgroup gba_module_playback GBA: Module Playback

@@ -215,6 +215,22 @@ void mmSoundBankInMemory(mm_addr address);
 ///     Function pointer to soundbank request handler.
 void mmSetCustomSoundBankHandler(mm_callback p_loader);
 
+/// Returns the number of modules available in the soundbank.
+///
+/// @return
+///     The number of modules.
+mm_word mmGetModuleCount(void);
+
+/// Returns the number of samples available in the soundbank.
+///
+/// @note
+///     This number includes the samples used by all the songs in the soundbank,
+///     not just the sound effects in WAV format.
+///
+/// @return
+///     The number of samples.
+mm_word mmGetSampleCount(void);
+
 // ***************************************************************************
 /// @}
 /// @defgroup nds_arm9_module_playback NDS: ARM9 Module Playback
