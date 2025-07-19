@@ -49,6 +49,8 @@ typedef struct {
 #define C_MASI_ENVELOPES    12
 // #define C_MASI_ENVELOPES    248
 
+// Instrument envelope struct : mm_mas_envelope
+
 #define C_MASIE_SIZE        0
 #define C_MASIE_LSTART      1
 #define C_MASIE_LEND        2

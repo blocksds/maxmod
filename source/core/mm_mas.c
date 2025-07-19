@@ -2869,3 +2869,89 @@ IWRAM_CODE mm_word mpp_Process_Effect(mpl_layer_information *layer, mm_active_ch
             return period;
     }
 }
+
+// Struct that holds the values returned by mpph_ProcessEnvelope()
+struct {
+    mm_word count;
+    mm_word node;
+    mm_word exit_value;
+    mm_word value_mul_64;
+} mm_pe_ret;
+
+// Processes the envelope at <address>
+IWRAM_CODE
+void mpph_ProcessEnvelope(mm_word count, mm_word node, mm_mas_envelope *address,
+                          mm_active_channel *act_ch)
+{
+    // Returns:
+    //   r0 = count
+    //   r1 = node
+    //   r2 = exit_code
+    //   r3 = value * 64
+
+    // Get node and base
+    mm_byte *base = &(address->env_nodes[node << 2]);
+
+    mm_pe_ret.value_mul_64 = (((mm_hword *)base)[1] & 0x7F) * 64;
+
+    if (count == 0) // New
+    {
+        // Process envelope loop
+
+        if (node == address->loop_end)
+        {
+            mm_pe_ret.count = count;
+            mm_pe_ret.node = address->loop_start;
+            mm_pe_ret.exit_value = 2;
+            return;
+        }
+
+        // Process envelope sustain loop
+
+        if (act_ch->flags & 1) // Locked
+        {
+            if (node == address->sus_end)
+            {
+                mm_pe_ret.count = count;
+                mm_pe_ret.node = address->sus_start;
+                mm_pe_ret.exit_value = 0;
+                return;
+            }
+        }
+
+        // Check for end
+
+        if (node == (((mm_word)address->node_count) - 1))
+        {
+            mm_pe_ret.count = count;
+            mm_pe_ret.node = node; // TODO: This wasn't explicitly set in the ASM code
+            mm_pe_ret.exit_value = 2;
+            return;
+        }
+    }
+    else // Between
+    {
+        //                            delta * count
+        // formula : y = base * 2^6 + -------------
+        //                                 2^3
+
+        mm_sword delta = ((mm_shword *)base)[0];
+
+        mm_pe_ret.value_mul_64 += ((mm_sword)(delta * count)) >> 3;
+    }
+
+    // Increment count and check if == read count
+
+    count++;
+
+    if (count == (((mm_hword *)base)[1] >> 7))
+    {
+        // Increment node and reset counter
+        count = 0;
+        node = node + 1;
+    }
+
+    mm_pe_ret.count = count;
+    mm_pe_ret.node = node;
+    mm_pe_ret.exit_value = (mm_word)address; // TODO: This was undefined in the ASM version!
+}

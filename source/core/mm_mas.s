@@ -195,7 +195,7 @@ mpp_Update_ACHN_notest:
 	ldrh	r0, [r6, #MCA_ENVC_VOL]
 	movs	r2, r1
 	ldrb	r1, [r6, #MCA_ENVN_VOL]
-	bl	mpph_ProcessEnvelope
+	bl	mpph_ProcessEnvelope_Wrapper
 	strb	r1, [r6, #MCA_ENVN_VOL]
 	strh	r0, [r6, #MCA_ENVC_VOL]
 	movs	r1, r3
@@ -266,7 +266,7 @@ mpp_Update_ACHN_notest:
 	ldrh	r0, [r6, #MCA_ENVC_PAN]
 	movs	r2, r1
 	ldrb	r1, [r6, #MCA_ENVN_PAN]
-	bl	mpph_ProcessEnvelope
+	bl	mpph_ProcessEnvelope_Wrapper
 	strb	r1, [r6, #MCA_ENVN_PAN]
 	strh	r0, [r6, #MCA_ENVC_PAN]
 	movs	r1, r3
@@ -290,7 +290,7 @@ mpp_Update_ACHN_notest:
 	ldrh	r0, [r6, #MCA_ENVC_PIC]
 	movs	r2, r1
 	ldrb	r1, [r6, #MCA_ENVN_PIC]
-	bl	mpph_ProcessEnvelope
+	bl	mpph_ProcessEnvelope_Wrapper
 	strb	r1, [r6, #MCA_ENVN_PIC]
 	strh	r0, [r6, #MCA_ENVC_PIC]
 	movs	r1, r3
@@ -839,96 +839,17 @@ mpp_Update_ACHN_notest:
 	//pop	{pc}				@ exit
 .pool
 
-.align 2
-.thumb_func
-@-------------------------------------------------------------------------
-mpph_ProcessEnvelope:			@ params={count,node,address}
-@-------------------------------------------------------------------------
+mpph_ProcessEnvelope_Wrapper: @ params={count,node,address}
+	push	{r4}
+	mov		r4, lr
+	movs	r3, r6
+	bl		mpph_ProcessEnvelope
+	ldr		r0, =mm_pe_ret
+	ldm		r0, {r0-r3}
+	mov		lr, r4
+	pop		{r4}
+	bx		lr
 
-@ processes the envelope at <address>
-@ returns:
-@ r0=count
-@ r1=node
-@ r2=exit_code
-@ r3=value*64
-	
-	push	{r4,r5}
-
-@ get node and base
-	lsls	r4, r1, #2
-	adds	r4, #C_MASIE_NODES
-	adds	r4, r2
-	
-	ldrh	r3, [r4, #2]
-	lsls	r3, #32-7
-	lsrs	r3, #32-7-6
-
-@ check for zero count
-	
-	cmp	r0, #0
-	bne	.mpph_pe_between
-.mpph_pe_new:
-
-@ process envelope loop
-	
-	ldrb	r5, [r2, #C_MASIE_LEND]
-	cmp	r1, r5
-	bne	1f
-	ldrb	r1, [r2, #C_MASIE_LSTART]
-	movs	r2, #2
-	b	.mpph_pe_exit
-
-@ process envelope sustain loop
-
-1:	ldrb	r5, [r6, #MCA_FLAGS]
-	lsrs	r5, #1	@ locked
-	bcc	1f
-	ldrb	r5, [r2, #C_MASIE_SEND]
-	cmp	r1, r5
-	bne	1f
-	ldrb	r1, [r2, #C_MASIE_SSTART]
-	movs	r2, #0
-	b	.mpph_pe_exit
-
-@ check for end
-
-1:	ldrb	r5, [r2, #C_MASIE_NODEC]
-	subs	r5, #1
-	cmp	r1, r5
-	bne	.mpph_count
-	movs	r2, #2
-	b	.mpph_pe_exit
-
-.mpph_pe_between:
-
-@                            delta * count
-@ formula : y = base*2^6 + -----------------
-@                                 2^3
-	movs	r5, #0
-	ldrsh	r5, [r4,r5]
-	muls	r5, r0
-	asrs	r5, #3
-	adds	r3, r5
-	
-.mpph_count:
-
-@ increment count and check if == read count
-
-	adds	r0, #1
-	ldrh	r5, [r4, #2]
-	lsrs	r5, #7
-	cmp	r0, r5
-	bne	.mpph_pe_exit
-
-@ increment node and reset counter
-
-	movs	r0, #0
-	adds	r1, #1
-
-.mpph_pe_exit:
-	
-	pop	{r4,r5}
-	bx	lr
 .pool
 
 @==========================================================================================
