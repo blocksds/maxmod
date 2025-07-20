@@ -32,6 +32,10 @@
 #define IWRAM_CODE __attribute__((section(".iwram"), long_call))
 #endif
 
+#ifndef BIT
+#define BIT(n) (1 << (n))
+#endif
+
 // TODO: Make this static
 void mpp_setbpm(mpl_layer_information*, mm_word);
 void mpp_setposition(mpl_layer_information*, mm_word);
@@ -44,6 +48,10 @@ static mm_word mppe_DoVibrato(mm_word period, mm_module_channel *channel,
 IWRAM_CODE static
 mm_word mppe_glis_backdoor(mm_word param, mm_word period, mm_active_channel *act_ch,
                            mm_module_channel *channel, mpl_layer_information *layer);
+
+IWRAM_CODE static
+void mpp_Update_ACHN(mpl_layer_information *layer, mm_active_channel *act_ch,
+                     mm_module_channel *channel, mm_word period, mm_word ch);
 
 // Layer data for module playback.
 mpl_layer_information mmLayerMain; // MPL_SIZE
@@ -1566,13 +1574,9 @@ mm_word mpp_Channel_ExchangeMemory(mm_byte effect, mm_byte param,
 }
 
 IWRAM_CODE static
-void mpp_Update_ACHN(mpl_layer_information *layer, mm_active_channel *act_ch,
-                     mm_module_channel *channel, mm_word period, mm_word ch)
+mm_mas_instrument *mpp_InstrumentPointer(mpl_layer_information *mpp_layer, mm_byte instN)
 {
-    if (act_ch->flags & MCAF_UPDATED)
-        return;
-
-    mpp_Update_ACHN_notest_Wrapper(layer, act_ch, channel, period, ch);
+    return (mm_mas_instrument*)(mpp_layer->songadr + ((mm_word*)mpp_layer->insttable)[instN - 1]);
 }
 
 // Process module tick
@@ -2870,6 +2874,9 @@ IWRAM_CODE mm_word mpp_Process_Effect(mpl_layer_information *layer, mm_active_ch
     }
 }
 
+// =============================================================================
+// =============================================================================
+
 // Struct that holds the values returned by mpph_ProcessEnvelope()
 struct {
     mm_word count;
@@ -2954,4 +2961,128 @@ void mpph_ProcessEnvelope(mm_word count, mm_word node, mm_mas_envelope *address,
     mm_pe_ret.count = count;
     mm_pe_ret.node = node;
     mm_pe_ret.exit_value = (mm_word)address; // TODO: This was undefined in the ASM version!
+}
+
+IWRAM_CODE
+mm_word mpp_Update_ACHN_notest_envelopes(mpl_layer_information *layer,
+                                         mm_active_channel *act_ch, mm_word period)
+{
+    mm_mas_instrument *instrument = mpp_InstrumentPointer(layer, act_ch->inst);
+
+    // Get envelope flags
+
+    mm_byte *env_ptr = (mm_byte*)&(instrument->note_map[1]);
+
+    if (instrument->env_flags & BIT(0))
+    {
+        if ((act_ch->flags & MCAF_VOLENV) == 0)
+        {
+            // Volume envelope not enabled
+            env_ptr += env_ptr[0];
+        }
+        else
+        {
+            // Volume envelope enabled
+            mm_mas_envelope *env = (mm_mas_envelope *)env_ptr;
+            mpph_ProcessEnvelope(act_ch->envc_vol, act_ch->envn_vol, env, act_ch);
+
+            act_ch->envn_vol = mm_pe_ret.node;
+            act_ch->envc_vol = mm_pe_ret.count;
+
+            if (mm_pe_ret.exit_value == 1)
+            {
+                // XM doesn't fade out at envelope end.
+
+                // TODO: The original code wanted to do this, but the check was
+                // incorrect, so only the second assignment was used.
+                //if (layer->flags & BIT(C_FLAGS_XS - 1))
+                //    act_ch->flags |= MCAF_ENVEND;
+                //else
+                    act_ch->flags |= MCAF_ENVEND | MCAF_FADE;
+            }
+
+            if (mm_pe_ret.exit_value >= 1)
+            {
+                // Check keyon and turn on fade...
+                if ((act_ch->flags & MCAF_KEYON) == 0)
+                    act_ch->flags |= MCAF_FADE;
+            }
+
+            mm_sword afvol = mpp_vars.afvol;
+            mpp_vars.afvol = (afvol * mm_pe_ret.value_mul_64) >> (6 + 6);
+
+            env_ptr += env_ptr[0];
+
+            goto mppt_has_volenv;
+        }
+    }
+
+// mppt_no_volenv
+
+    if ((act_ch->flags & MCAF_KEYON) == 0)
+    {
+        act_ch->flags |= MCAF_FADE | MCAF_ENVEND;
+
+        // Check XM MODE and cut note
+        if (layer->flags & BIT(C_FLAGS_XS - 1))
+            act_ch->fade = 0;
+    }
+
+mppt_has_volenv:
+
+    if (instrument->env_flags & BIT(1))
+    {
+        mm_mas_envelope *env = (mm_mas_envelope *)env_ptr;
+        mpph_ProcessEnvelope(act_ch->envc_pan, act_ch->envn_pan, env, act_ch);
+
+        act_ch->envn_vol = mm_pe_ret.node;
+        act_ch->envc_vol = mm_pe_ret.count;
+
+        mpp_vars.panplus += (mm_pe_ret.value_mul_64 >> 4) - 128;
+    }
+
+    if (instrument->env_flags & BIT(2))
+    {
+        mm_mas_envelope *env = (mm_mas_envelope *)env_ptr;
+
+        if (env->is_filter == 0)
+        {
+            mpph_ProcessEnvelope(act_ch->envc_pic, act_ch->envn_pic, env, act_ch);
+
+            act_ch->envn_pic = mm_pe_ret.node;
+            act_ch->envc_pic = mm_pe_ret.count;
+
+            mm_sword value = (mm_pe_ret.value_mul_64 >> 3) - 256;
+
+            if (value < 0)
+                period = mpph_LinearPitchSlide_Down(period, -value, layer);
+            else
+                period = mpph_LinearPitchSlide_Up(period, value, layer);
+        }
+    }
+
+    if (act_ch->flags & MCAF_FADE)
+    {
+        mm_mas_instrument *inst = mpp_InstrumentPointer(layer, act_ch->inst);
+
+        mm_sword value = act_ch->fade - inst->fadeout;
+        if (value < 0)
+            value = 0;
+
+        act_ch->fade = value;
+    }
+
+    // mppt_achn_keyon
+
+    return period;
+}
+
+IWRAM_CODE static
+void mpp_Update_ACHN(mpl_layer_information *layer, mm_active_channel *act_ch,
+                     mm_module_channel *channel, mm_word period, mm_word ch)
+{
+    if (act_ch->flags & MCAF_UPDATED)
+        return;
+
+    mpp_Update_ACHN_notest_Wrapper(layer, act_ch, channel, period, ch);
 }

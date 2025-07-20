@@ -69,7 +69,7 @@ typedef struct tmm_mas_instrument
     mm_byte     dca;
     mm_hword    note_map_offset : 15;
     mm_hword    is_note_map_invalid : 1;
-    mm_hword    note_map[119];
+    mm_hword    note_map[121]; // TODO: note_map[0] is reserved (should be zero)
 
     mm_byte     envelopes[];
 

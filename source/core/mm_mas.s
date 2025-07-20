@@ -170,179 +170,13 @@ mpp_Update_ACHN_notest:
 	subs	r0, #1
 	bcs	1f
 	b	.mppt_achn_noinst
-1:	mpp_InstrumentPointer
-
-@ get envelope flags
-	
-	movs	r1, r0
-	ldrb	r2, [r1, #C_MASI_ENVFLAGS]
-	adds	r1, #C_MASI_ENVELOPES
-	
-	lsrs	r2, #1				@ shift out volume envelope bit
-	bcc	.mppt_no_volenv
-
-	ldrb	r3, [r6, #MCA_FLAGS]
-	lsrs	r3, #6
-	
-	bcs	.mppt_achn_ve_enabled
-	ldrb	r0, [r1]
-	adds	r1, r0
-	b	.mppt_no_volenv
-.mppt_achn_ve_enabled:
-	
-	push	{r1, r2}
-	
-	ldrh	r0, [r6, #MCA_ENVC_VOL]
-	movs	r2, r1
-	ldrb	r1, [r6, #MCA_ENVN_VOL]
-	bl	mpph_ProcessEnvelope_Wrapper
-	strb	r1, [r6, #MCA_ENVN_VOL]
-	strh	r0, [r6, #MCA_ENVC_VOL]
-	movs	r1, r3
-	
-	cmp	r2, #1
-	bne	.mpph_volenv_notend
-	ldrb	r0, [r6, #MCA_FLAGS]
-	
-	mov	r3, r8				@ stupid xm doesn't fade out at envelope end
-	ldrb	r3, [r3, #MPL_FLAGS]
-	lsrs	r3, #C_FLAGS_XS
-	
-	movs	r3, #MCAF_ENVEND
-	bcs	1f
-	movs	r3, #MCAF_ENVEND+MCAF_FADE
 1:
-	orrs	r0, r3
-	strb	r0, [r6, #MCA_FLAGS]
-.mpph_volenv_notend:
 
-	cmp	r2, #1
-	blt	.mpph_volenv_normal
-	
-	@ check keyon and turn on fade...
-	ldrb	r0, [r6, #MCA_FLAGS]
-	movs	r2, #MCAF_KEYON
-	tst	r0, r2
-	bne	.mpph_volenv_normal
-.mpph_volenv_notefade:
-	movs	r2, #MCAF_FADE
-	orrs	r0, r2
-	strb	r0, [r6, #MCA_FLAGS]
-	
-.mpph_volenv_normal:
-	
-	ldr	r0,=mpp_vars
-	ldrb	r2, [r0, #MPV_AFVOL]
-	muls	r2, r1
-	lsrs	r2, #6+6
-	strb	r2, [r0, #MPV_AFVOL]
-	pop	{r1, r2}
-	ldrb	r0, [r1]
-	adds	r1, r0
-	b	.mppt_has_volenv
-.mppt_no_volenv:
-	
-	ldrb	r0, [r6, #MCA_FLAGS]
-	movs	r3, #MCAF_ENVEND
-	orrs	r0, r3
-	movs	r3, #MCAF_KEYON
-	tst	r0, r3
-	bne	.mppt_has_volenv
-	movs	r3, #MCAF_FADE
-	orrs	r0, r3
-	strb	r0, [r6, #MCA_FLAGS]
-	
-	mov	r0, r8		@ check XM MODE and cut note
-	ldrb	r0, [r0, #MPL_FLAGS]
-	lsrs	r0, #C_FLAGS_XS
-	bcc	.mppt_has_volenv
-	movs	r0, #0
-	strh	r0, [r6, #MCA_FADE]
-.mppt_has_volenv:
-	
-	lsrs	r2, #1
-	bcc	.mppt_no_panenv
-	push	{r1, r2}
-	ldrh	r0, [r6, #MCA_ENVC_PAN]
-	movs	r2, r1
-	ldrb	r1, [r6, #MCA_ENVN_PAN]
-	bl	mpph_ProcessEnvelope_Wrapper
-	strb	r1, [r6, #MCA_ENVN_PAN]
-	strh	r0, [r6, #MCA_ENVC_PAN]
-	movs	r1, r3
-
-	ldr	r0,=mpp_vars
-	movs	r3, #MPV_PANPLUS
-	ldrsh	r2, [r0,r3]
-	lsrs	r1, #4
-	subs	r1, #128
-	adds	r2, r1
-	strh	r2, [r0,r3]
-	pop	{r1, r2}
-.mppt_no_panenv:
-	
-	lsrs	r2, #1
-	bcc	.mppt_no_pitchenv
-	ldrb	r0, [r1, #C_MASIE_FILTER]
-	cmp	r0, #0
-	bne	.mppt_no_pitchenv
-	push	{r1, r2}
-	ldrh	r0, [r6, #MCA_ENVC_PIC]
-	movs	r2, r1
-	ldrb	r1, [r6, #MCA_ENVN_PIC]
-	bl	mpph_ProcessEnvelope_Wrapper
-	strb	r1, [r6, #MCA_ENVN_PIC]
-	strh	r0, [r6, #MCA_ENVC_PIC]
-	movs	r1, r3
-	lsrs	r1, #3
-	subs	r1, #255
-	movs	r0, r5
-	subs	r1, #1
-	bmi	.mppt_pitchenv_minus
-	mov	r2, r8
-#ifdef USE_IWRAM
-	ldr	r3,=mpph_LinearPitchSlide_Up
-	jump3
-#else
-	bl	mpph_LinearPitchSlide_Up
-#endif
-	b	.mppt_pitchenv_plus
-.mppt_pitchenv_minus:
-	negs	r1, r1
-	mov	r2, r8
-#ifdef USE_IWRAM
-	ldr	r3,=mpph_LinearPitchSlide_Down
-	jump3
-#else
-	bl	mpph_LinearPitchSlide_Down
-#endif
-.mppt_pitchenv_plus:
-	movs	r5, r0
-	pop	{r1, r2}
-.mppt_no_pitchenv:
-	
-	ldrb	r0, [r6, #MCA_FLAGS]
-	movs	r1, #MCAF_FADE
-	tst	r0, r1
-	beq	.mppt_achn_nofade
-	ldrb	r0, [r6, #MCA_INST]
-	subs	r0, #1
-	
-	mpp_InstrumentPointer
-	ldrb	r0, [r0, #C_MASI_FADE]
-
-	ldrh	r1, [r6, #MCA_FADE]
-
-	subs	r1, r0
-	bcs	.mppt_achn_fadeout_clip
-	movs	r1, #0
-.mppt_achn_fadeout_clip:
-	strh	r1, [r6, #MCA_FADE]
-
-.mppt_achn_nofade:
-	
-.mppt_achn_keyon:
-	
+	mov		r0, r8 // layer
+	movs	r1, r6 // act_ch
+	movs	r2, r5 // period
+	bl		mpp_Update_ACHN_notest_envelopes
+	movs	r5, r0 // period
 
 @----------------------------------------------------------------------------------
 @ *** PROCESS AUTO VIBRATO
@@ -837,19 +671,6 @@ mpp_Update_ACHN_notest:
 	pop	{r0}
 	bx	r0
 	//pop	{pc}				@ exit
-.pool
-
-mpph_ProcessEnvelope_Wrapper: @ params={count,node,address}
-	push	{r4}
-	mov		r4, lr
-	movs	r3, r6
-	bl		mpph_ProcessEnvelope
-	ldr		r0, =mm_pe_ret
-	ldm		r0, {r0-r3}
-	mov		lr, r4
-	pop		{r4}
-	bx		lr
-
 .pool
 
 @==========================================================================================

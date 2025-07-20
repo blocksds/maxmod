@@ -46,7 +46,7 @@ typedef struct {
 #define C_MASI_PAN          6
 #define C_MASI_DCA          7
 #define C_MASI_MAP          8
-#define C_MASI_ENVELOPES    12
+#define C_MASI_ENVELOPES    12 // TODO: This is misleading!
 // #define C_MASI_ENVELOPES    248
 
 // Instrument envelope struct : mm_mas_envelope
