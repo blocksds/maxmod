@@ -74,25 +74,21 @@ typedef struct {
 #define C_MASS_VIR          8
 #define C_MASS_MSLID        10
 
-// Pattern structure
-
-#define C_MASP_NROWS        0
-#define C_MASP_DATA         1
-
-// Sample structure
+// Sample structure : mm_mas_gba_sample
 
 #define C_SAMPLE_LEN        0
 #define C_SAMPLE_LOOP       4
 #define C_SAMPLE_POINT      12
 #define C_SAMPLE_DATA       16
 
+// Sample structure : mm_mas_ds_sample
+
 #define C_SAMPLEN_LSTART    0
 #define C_SAMPLEN_LEN       4
 #define C_SAMPLEN_FORMAT    8
 #define C_SAMPLEN_REP       9
+#define C_SAMPLEC_DFREQ     10 // TODO: Why is the name different?
 #define C_SAMPLEN_POINT     12
 #define C_SAMPLEN_DATA      16
-
-#define C_SAMPLEC_DFREQ     10
 
 #endif // MP_FORMAT_MAS_H

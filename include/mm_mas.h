@@ -122,7 +122,8 @@ typedef struct tmm_mas_gba_sample
 {
     mm_word     length;
     mm_word     loop_length;
-    mm_hword    reserved;
+    mm_byte     format;
+    mm_byte     reserved;
     mm_hword    default_frequency;
 
     mm_byte     data[];
