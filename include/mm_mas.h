@@ -142,6 +142,7 @@ typedef struct tmm_mas_ds_sample
     mm_byte     format;
     mm_byte     repeat_mode;
     mm_hword    default_frequency;
+    mm_word     point; // Always zero in mmutil
 
     mm_byte     data[];
 

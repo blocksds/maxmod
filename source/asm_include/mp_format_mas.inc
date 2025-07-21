@@ -86,8 +86,7 @@
 
 .equ	C_SAMPLE_LEN	,0
 .equ	C_SAMPLE_LOOP	,4
-.equ	C_SAMPLE_POINT	,12
-.equ	C_SAMPLE_DATA	,16
+.equ	C_SAMPLE_DATA	,12
 
 // Sample structure : mm_mas_ds_sample
 

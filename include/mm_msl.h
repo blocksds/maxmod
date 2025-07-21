@@ -52,8 +52,7 @@ typedef struct {
 
 #define C_SAMPLE_LEN        0
 #define C_SAMPLE_LOOP       4
-#define C_SAMPLE_POINT      12
-#define C_SAMPLE_DATA       16
+#define C_SAMPLE_DATA       12
 
 typedef struct {
     mm_word lstart;     // Loop start
