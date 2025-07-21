@@ -2,36 +2,10 @@
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
 
-/****************************************************************************
- *                                                          __              *
- *                ____ ___  ____ __  ______ ___  ____  ____/ /              *
- *               / __ `__ \/ __ `/ |/ / __ `__ \/ __ \/ __  /               *
- *              / / / / / / /_/ />  </ / / / / / /_/ / /_/ /                *
- *             /_/ /_/ /_/\__,_/_/|_/_/ /_/ /_/\____/\__,_/                 *
- *                                                                          *
- *               Nintendo DS & Gameboy Advance Sound System                 *
- *                                                                          *
- ****************************************************************************/
-
 .ifndef MP_FORMAT_MAS_INC
 .equ	MP_FORMAT_MAS_INC, 1
 
-@ MAS header structure : mas_header
-
-.equ	C_MAS_LEN	,0
-.equ	C_MAS_INSTN	,1
-.equ	C_MAS_SAMPN	,2
-.equ	C_MAS_PATTN	,3
-.equ	C_MAS_FLAGS	,4
-.equ	C_MAS_GV	,5
-.equ	C_MAS_SPEED	,6
-.equ	C_MAS_TEMPO	,7
-.equ	C_MAS_REP	,8
-
-.equ	C_MAS_CHANVOL	,12
-.equ	C_MAS_CHANPAN	,44
-.equ	C_MAS_ORDER	,76
-.equ	C_MAS_TABLES	,276
+@ MAS header structure flags : mas_header
 
 .equ	C_FLAGS_GS	,1
 .equ	C_FLAGS_OS	,2
