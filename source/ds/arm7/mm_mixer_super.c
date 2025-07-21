@@ -450,7 +450,7 @@ static ARM_CODE void mmMixA(void)
         }
 
         // Get mainram address
-        msl_ds_sample *sample = (msl_ds_sample *)(mix_ch->samp + 0x2000000);
+        mm_mas_ds_sample *sample = (mm_mas_ds_sample *)(mix_ch->samp + 0x2000000);
 
         if (mix_ch->key_on) // If KEY-ON is cleared, continue activity
         {
@@ -479,11 +479,11 @@ static ARM_CODE void mmMixA(void)
 
             sampledata += (offset << 2); // add sample offset (in bytes)
 
-            mm_byte rep_mode = sample->rep; // check repeat mode
+            mm_byte rep_mode = sample->repeat_mode; // check repeat mode
 
             if (rep_mode == 1) // mma_looping | 1 == forward loop
             {
-                mm_sword lstart = sample->lstart; // Get loopstart position
+                mm_sword lstart = sample->loop_start; // Get loopstart position
 
                 lstart -= offset; // Subtract sample offset
 
@@ -498,11 +498,11 @@ static ARM_CODE void mmMixA(void)
                 SCHANNEL_SOURCE(channel) = (mm_word)sampledata;
                 SCHANNEL_TIMER(channel) = 0;
                 SCHANNEL_REPEAT_POINT(channel) = lstart;
-                SCHANNEL_LENGTH(channel) = sample->len;
+                SCHANNEL_LENGTH(channel) = sample->loop_length;
             }
             else // mma_notlooping
             {
-                mm_word len = sample->len; // read length
+                mm_word len = sample->length; // read length
 
                 mm_sword remaining_len = len - offset; // subtract sample offset
 
@@ -527,7 +527,7 @@ static ARM_CODE void mmMixA(void)
             mix_ch->cpan = mix_ch->tpan << 9;
 
             SCHANNEL_CR(channel) = SCHANNEL_ENABLE |
-                                   (sample->rep | (sample->format << 2)) << 27;
+                (sample->repeat_mode | (sample->format << 2)) << 27;
         }
         else
         {

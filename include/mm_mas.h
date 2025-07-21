@@ -121,7 +121,7 @@ typedef struct tmm_mas_pattern
 typedef struct tmm_mas_gba_sample
 {
     mm_word     length;
-    mm_word     loop_length;
+    mm_word     loop_length; // Loop lenght (0xFFFFFFFF if sample doesn't loop)
     mm_byte     format;
     mm_byte     reserved;
     mm_hword    default_frequency;
@@ -139,12 +139,12 @@ typedef struct tmm_mas_ds_sample
         mm_word     loop_length;
         mm_word     length;
     };
-    mm_byte     format;
-    mm_byte     repeat_mode;
+    mm_byte     format;             // 0 = 8 bit, 1 = 16 bit, 2 = ADPCM/other (invalid)
+    mm_byte     repeat_mode;        // 1 = forward loop, 2 = no loop
     mm_hword    default_frequency;
-    mm_word     point; // Always zero in mmutil
+    mm_word     point;              // Always zero in mmutil
 
-    mm_byte     data[];
+    mm_byte     data[];             // Sample data
 
     // ::sample data
 } mm_mas_ds_sample;
