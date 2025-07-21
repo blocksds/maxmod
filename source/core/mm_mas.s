@@ -5,7 +5,6 @@
 #include "mp_format_mas.inc"
 #include "mp_mas_structs.inc"
 #include "mp_defs.inc"
-#include "mp_macros.inc"
 
 //-----------------------------------------------------------------------------
 #ifdef SYS_GBA
@@ -66,6 +65,19 @@ mm_schannels:		.space MP_SCHANNELS*MCH_SIZE
  *
  ******************************************************************************/
 
+/******************************************************************************
+ * GET_MIXCH
+ ******************************************************************************/
+
+.macro GET_MIXCH reg
+#ifdef SYS_NDS
+	ldr	\reg,=mm_mix_channels
+#endif
+#ifdef SYS_GBA
+	ldr	\reg,=mm_mixchannels
+	ldr	\reg, [\reg]
+#endif
+.endm
 
 /******************************************************************************
  * mpp_InstrumentPointer
