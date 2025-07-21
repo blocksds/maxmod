@@ -181,63 +181,17 @@ mpp_Update_ACHN_notest:
 @----------------------------------------------------------------------------------
 @ *** PROCESS AUTO VIBRATO
 @----------------------------------------------------------------------------------
-	
+
 	ldrb	r0, [r6, #MCA_SAMPLE]
 	subs	r0, #1
 	bcc	.mppt_achn_nostart	@ no sample!!
-	
-	@bl	mpp_SamplePointer
-	mpp_SamplePointer
-	ldrh	r1, [r0, #C_MASS_VIR]	@ get av-rate
-	cmp	r1, #0			@ 0?
-	beq	.mppt_av_disabled	@  if 0 then its disabled
-	ldrh	r2, [r6, #MCA_AVIB_DEP]	@ get depth counter
-	adds	r2, r1			@ add rate
-	lsrs	r1, r2, #15		@ check for 15-bit overflow
-	beq	.mppt_av_depclip	@ ..
-	
-	ldr	r2,=32768		@ and clamp to 32768
-.mppt_av_depclip:			
-	strh	r2, [r6, #MCA_AVIB_DEP]	@ save depth counter
-	ldrb	r1, [r0, #C_MASS_VID]	@ get av-depth
-	muls	r1, r2			@ multiply
 
-	ldrb	r3, [r6, #MCA_AVIB_POS]	@ get table position
-	ldrb	r2, [r0, #C_MASS_VIS]	@ get av-speed
-	adds	r3, r2			@ add to position
-	lsls	r3, #32-8		@ wrap position to 0->255
-	lsrs	r3, #32-8		@ ..
-	strb	r3, [r6, #MCA_AVIB_POS]		@ save position
-	ldr	r2,=mpp_TABLE_FineSineData	@ get table pointer
-	ldrsb	r2, [r2, r3]			@ load table value at position
-	muls	r2, r1				@ multiply with depth
-	asrs	r2, #23				@ shift value
-	bmi	.mppt_av_minus			@ and perform slide...
-.mppt_av_plus:					@ --slide up
-	movs	r1, r2				@ r1 = slide value
-	movs	r0, r5				@ r0 = frequency
-	mov	r2, r8
-#ifdef USE_IWRAM
-	fjump3	mpph_PitchSlide_Up
-#else
-	bl	mpph_PitchSlide_Up		@ pitch slide
-#endif
-	b	.mppt_av_finished		@
-.mppt_av_minus:					@ --slide down
-	negs	r1, r2				@ r1 = slide value
-	movs	r0, r5				@ r0 = frequency
-	mov	r2, r8
-#ifdef USE_IWRAM
-	ldr	r3,=mpph_PitchSlide_Down
-	jump3
-#else
-	bl	mpph_PitchSlide_Down		@ pitch slide
-#endif
+	mov		r0, r8 // layer
+	movs	r1, r6 // act_ch
+	movs	r2, r5 // period
+	bl		mpp_Update_ACHN_notest_auto_vibrato
+	movs	r5, r0 // period
 
-.mppt_av_finished:
-	movs	r5, r0				@ affect frequency
-.mppt_av_disabled:
-	
 @---------------------------------------------------------------------------------
 	
 .mppt_achn_noinst:
@@ -672,33 +626,5 @@ mpp_Update_ACHN_notest:
 	bx	r0
 	//pop	{pc}				@ exit
 .pool
-
-@==========================================================================================
-@                                          TABLES
-@==========================================================================================
-
-.text
-
-@-------------------------------------------------------------------------------------
-    .global mpp_TABLE_FineSineData
-mpp_TABLE_FineSineData:
-@-------------------------------------------------------------------------------------
-
-.byte	  0,  2,  3,  5,  6,  8,  9, 11, 12, 14, 16, 17, 19, 20, 22, 23
-.byte	 24, 26, 27, 29, 30, 32, 33, 34, 36, 37, 38, 39, 41, 42, 43, 44
-.byte	 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 56, 57, 58, 59
-.byte	 59, 60, 60, 61, 61, 62, 62, 62, 63, 63, 63, 64, 64, 64, 64, 64
-.byte	 64, 64, 64, 64, 64, 64, 63, 63, 63, 62, 62, 62, 61, 61, 60, 60
-.byte	 59, 59, 58, 57, 56, 56, 55, 54, 53, 52, 51, 50, 49, 48, 47, 46
-.byte	 45, 44, 43, 42, 41, 39, 38, 37, 36, 34, 33, 32, 30, 29, 27, 26
-.byte	 24, 23, 22, 20, 19, 17, 16, 14, 12, 11,  9,  8,  6,  5,  3,  2
-.byte	  0, -2, -3, -5, -6, -8, -9,-11,-12,-14,-16,-17,-19,-20,-22,-23
-.byte	-24,-26,-27,-29,-30,-32,-33,-34,-36,-37,-38,-39,-41,-42,-43,-44
-.byte	-45,-46,-47,-48,-49,-50,-51,-52,-53,-54,-55,-56,-56,-57,-58,-59
-.byte	-59,-60,-60,-61,-61,-62,-62,-62,-63,-63,-63,-64,-64,-64,-64,-64
-.byte	-64,-64,-64,-64,-64,-64,-63,-63,-63,-62,-62,-62,-61,-61,-60,-60
-.byte	-59,-59,-58,-57,-56,-56,-55,-54,-53,-52,-51,-50,-49,-48,-47,-46
-.byte	-45,-44,-43,-42,-41,-39,-38,-37,-36,-34,-33,-32,-30,-29,-27,-26
-.byte	-24,-23,-22,-20,-19,-17,-16,-14,-12,-11, -9, -8, -6, -5, -3, -2
 
 .end

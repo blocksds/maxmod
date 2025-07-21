@@ -1813,7 +1813,24 @@ mm_word mpph_VolumeSlide64(int volume, mm_word param, mm_word tick,
     return mpph_VolumeSlide(volume, param, tick, 64, layer);
 }
 
-extern mm_sbyte mpp_TABLE_FineSineData[];
+static mm_sbyte mpp_TABLE_FineSineData[] = {
+      0,   2,   3,   5,   6,   8,   9,  11,  12,  14,  16,  17,  19,  20,  22,  23,
+     24,  26,  27,  29,  30,  32,  33,  34,  36,  37,  38,  39,  41,  42,  43,  44,
+     45,  46,  47,  48,  49,  50,  51,  52,  53,  54,  55,  56,  56,  57,  58,  59,
+     59,  60,  60,  61,  61,  62,  62,  62,  63,  63,  63,  64,  64,  64,  64,  64,
+     64,  64,  64,  64,  64,  64,  63,  63,  63,  62,  62,  62,  61,  61,  60,  60,
+     59,  59,  58,  57,  56,  56,  55,  54,  53,  52,  51,  50,  49,  48,  47,  46,
+     45,  44,  43,  42,  41,  39,  38,  37,  36,  34,  33,  32,  30,  29,  27,  26,
+     24,  23,  22,  20,  19,  17,  16,  14,  12,  11,   9,   8,   6,   5,   3,   2,
+      0,  -2,  -3,  -5,  -6,  -8,  -9, -11, -12, -14, -16, -17, -19, -20, -22, -23,
+    -24, -26, -27, -29, -30, -32, -33, -34, -36, -37, -38, -39, -41, -42, -43, -44,
+    -45, -46, -47, -48, -49, -50, -51, -52, -53, -54, -55, -56, -56, -57, -58, -59,
+    -59, -60, -60, -61, -61, -62, -62, -62, -63, -63, -63, -64, -64, -64, -64, -64,
+    -64, -64, -64, -64, -64, -64, -63, -63, -63, -62, -62, -62, -61, -61, -60, -60,
+    -59, -59, -58, -57, -56, -56, -55, -54, -53, -52, -51, -50, -49, -48, -47, -46,
+    -45, -44, -43, -42, -41, -39, -38, -37, -36, -34, -33, -32, -30, -29, -27, -26,
+    -24, -23, -22, -20, -19, -17, -16, -14, -12, -11,  -9,  -8,  -6,  -5,  -3,  -2,
+};
 
 IWRAM_CODE static
 mm_word mppe_DoVibrato(mm_word period, mm_module_channel *channel,
@@ -3073,6 +3090,43 @@ mppt_has_volenv:
     }
 
     // mppt_achn_keyon
+
+    return period;
+}
+
+IWRAM_CODE
+mm_word mpp_Update_ACHN_notest_auto_vibrato(mpl_layer_information *layer,
+                                            mm_active_channel *act_ch, mm_word period)
+{
+    mm_mas_sample_info *sample = mpp_SamplePointer(act_ch->sample, layer);
+
+    // Get av-rate, check if auto vibrato is enabled
+    mm_hword av_rate = sample->av_rate;
+    if (av_rate != 0)
+    {
+        // Handle depth counter
+        mm_word new_rate = act_ch->avib_dep + av_rate;
+        if (new_rate > 32768) // Clamp
+            new_rate = 32768;
+        act_ch->avib_dep = new_rate;
+
+        // Get av-depth
+        mm_sword new_depth = sample->av_depth * new_rate;
+
+        // Add av-speed to table position and wrap to 0->255
+        act_ch->avib_pos = (act_ch->avib_pos + sample->av_speed) & 0xFF;
+
+        // Load table value at the current position
+        mm_sword slide_val = mpp_TABLE_FineSineData[act_ch->avib_pos];
+
+        slide_val = (slide_val * new_depth) >> 23;
+
+        // Perform slide
+        if (slide_val >= 0)
+            period = mpph_PitchSlide_Up(period, slide_val, layer);
+        else
+            period = mpph_PitchSlide_Down(period, -slide_val, layer);
+    }
 
     return period;
 }
