@@ -183,8 +183,7 @@ mpp_Update_ACHN_notest:
 	ldrb	r0, [r6, #MCA_SAMPLE]		@ get sample#
 	subs	r0, #1				@ ..
 	bcc	.mppt_achn_setvolumeA
-	@bl	mpp_SamplePointer		@ quit if invalid
-	mpp_SamplePointer
+	mpp_SamplePointer		@ quit if invalid
 	push	{r0}
 	
 	mov	r1, r8
@@ -211,10 +210,7 @@ mpp_Update_ACHN_notest:
 1:
 
 	#ifdef SYS_GBA
-	
-	
-//	ldr	r0,=mm_freqscalar
-//	ldr	r0, [r0]
+
 	ldr	r0,=(4096*65536)/15768
 	muls	r0, r1
 	lsrs	r0, #16
@@ -251,20 +247,14 @@ mpp_Update_ACHN_notest:
 
 	#ifdef SYS_GBA
 
-//	ldr	r1,=mm_freqscalar
-//	ldr	r1,[r1]
 	ldr	r1,=(4096*65536)/15768
 	muls	r0, r1
 	lsrs	r0, #16
 
 	str	r0, [r4, #MIXER_CHN_FREQ]
 	#else
-//	movs	r1, r0
-//	ldr	r0,=16756991			@ calculate ds mixer timing
-//	swi	SWI_DIVIDE
-//	negs	r0,r0
-	//lsrs	r0, #5
-	ldr	r1,=MIXER_SCALE
+
+	ldr	r1,=MIXER_SCALE		@ calculate ds mixer timing
 	muls	r0, r1
 	lsrs	r0, #16+1
 	strh	r0, [r4, #MIXER_CHN_FREQ]
@@ -490,7 +480,6 @@ mpp_Update_ACHN_notest:
 	pop	{r4}
 	pop	{r0}
 	bx	r0
-	//pop	{pc}				@ exit
 .pool
 
 .end

@@ -79,18 +79,6 @@ void mmMixerSetSource(int channel, mm_word p_sample)
 void mmMixerSetFreq(int channel, mm_word rate)
 {
     mm_mixchannels[channel].freq = rate << 2;
-
-    // TODO: This code was commented out in the original code (ARM, not Thumb):
-#if 0
-    // Fix frequency to match mixing rate
-    // a = specified frequency
-    // hz = a * 2y13 / pr
-
-    uint64_t value = (rate * (uint64_t)mm_freqscalar + 32768) >> 16;
-
-    // Set chan frequency
-    mm_mixchannels[channel].freq = (mm_word)value;
-#endif
 }
 
 static bool vblank_handler_enabled = false;
