@@ -252,7 +252,7 @@ got_handle:
 
         source = *(mm_word *)(mmSampleBank + source * 4);
 
-        source &= 0xFFFFFF;
+        source &= 0xFFFFFF; // Mask out counter value
 
         if (source == 0)
         {

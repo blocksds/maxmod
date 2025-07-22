@@ -15,6 +15,7 @@
 #include "mp_format_mas.h"
 #include "mm_main.h"
 #include "mp_mas_structs.h"
+#include "mm_msl.h"
 
 #if defined(SYS_GBA)
 #include "mm_main_gba.h"
@@ -3136,6 +3137,80 @@ mm_word mpp_Update_ACHN_notest_auto_vibrato(mpl_layer_information *layer,
     }
 
     return period;
+}
+
+IWRAM_CODE
+mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information *layer,
+                                        mm_active_channel *act_ch, mm_word channel)
+{
+#if defined(SYS_GBA)
+    mm_mixer_channel *mx_ch = &mm_mixchannels[channel];
+#else
+    mm_mixer_channel *mx_ch = &mm_mix_channels[channel];
+#endif
+
+    // Update mixing information
+
+    if ((act_ch->flags & MCAF_START) == 0)
+        goto mppt_achn_nostart;
+
+    // Start note
+
+    act_ch->flags &= ~MCAF_START;
+
+    // Get sample number. Quit if invalid.
+    if (act_ch->sample == 0)
+        goto mppt_achn_nostart;
+
+    mm_mas_sample_info *sample = mpp_SamplePointer(act_ch->sample, layer);
+
+    if (sample->msl_id == 0xFFFF)
+    {
+        // The sample has been provided
+#ifdef SYS_GBA
+        mm_mas_gba_sample *gba_sample = (mm_mas_gba_sample *)&(sample->data[0]);
+
+        mx_ch->src = (mm_word)&(gba_sample->data[0]);
+#else
+        mm_mas_ds_sample *ds_sample = (mm_mas_ds_sample *)&(sample->data[0]);
+
+        mx_ch->samp = ((mm_word)ds_sample) - 0x2000000;
+        mx_ch->tpan = 0;
+        mx_ch->key_on = 1;
+#endif
+    }
+    else
+    {
+        // Get sample from solution
+#ifdef SYS_GBA
+        msl_head *head = mp_solution;
+        mm_word sample_offset = (mm_word)head->sampleTable[sample->msl_id];
+
+        mm_byte *sample_ptr = mp_solution;
+        sample_ptr += sample_offset;
+
+        mx_ch->src = (mm_word)(sample_ptr + 8 + C_SAMPLE_DATA);
+#else
+        mm_word source = *(mm_word *)(mmSampleBank + sample->msl_id * 4);
+
+        source &= 0xFFFFFF; // Mask out counter value
+        source += 8;
+
+        mx_ch->samp = source;
+        mx_ch->tpan = 0;
+        mx_ch->key_on = 1;
+#endif
+    }
+
+#ifdef SYS_GBA
+    mx_ch->read = ((mm_word)mpp_vars.sampoff) << (MP_SAMPFRAC + 8);
+#else
+    mx_ch->read = mpp_vars.sampoff;
+#endif
+
+mppt_achn_nostart:
+
+    return mx_ch;
 }
 
 IWRAM_CODE static

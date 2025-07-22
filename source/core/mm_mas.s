@@ -40,20 +40,6 @@
  ******************************************************************************/
 
 /******************************************************************************
- * GET_MIXCH
- ******************************************************************************/
-
-.macro GET_MIXCH reg
-#ifdef SYS_NDS
-	ldr	\reg,=mm_mix_channels
-#endif
-#ifdef SYS_GBA
-	ldr	\reg,=mm_mixchannels
-	ldr	\reg, [\reg]
-#endif
-.endm
-
-/******************************************************************************
  * mpp_InstrumentPointer
  *
  * Calculate instrument address.
@@ -179,125 +165,19 @@ mpp_Update_ACHN_notest:
 	movs	r5, r0 // period
 
 @---------------------------------------------------------------------------------
-	
+
 .mppt_achn_noinst:
-	
+
 	push	{r4}
-	movs	r0, #MIXER_CHN_SIZE
-	muls	r4, r0
-	@ldr	r0,=mp_channels
-@	ldr	r0,=mm_mixchannels
-@	ldr	r0,[r0]
-	GET_MIXCH r0
-	adds	r4, r0
-	
-	@ *** UPDATE MIXING INFORMATION
-	
-	ldrb	r0, [r6, #MCA_FLAGS]		@ read flags
-	movs	r1, #MCAF_START			@ test start bit
-	tst	r0, r1				@ ..
-	beq	.mppt_achn_nostart		@
-.mppt_achn_start:				@ START NOTE
-	bics	r0, r1				@ clear bit
-	strb	r0, [r6, #MCA_FLAGS]		@ save flags
-	ldrb	r0, [r6, #MCA_SAMPLE]		@ get sample #
 
-	subs	r0, #1				@ ..
-	bcc	.mppt_achn_nostart		@ quit if invalid
-	@bl	mpp_SamplePointer		@ get sample address
-	mpp_SamplePointer
-	
-	ldrh	r3, [r0, #C_MASS_MSLID]
-	
-	adds	r1,r3,#1			@ msl id == 0xFFFF?
-	lsrs	r1, #17
-	
-	bcc	.mppt_achn_msl_sample 
+	mov		r0, r8 // layer
+	movs	r1, r6 // act_ch
+	movs	r2, r4 // channel
+	bl		mpp_Update_ACHN_notest_update_mix
+	movs	r4, r0 // mxixer channel
 
-.mppt_achn_direct_sample:			@ then sample follows
-	
-	adds	r0, #12
-	
-//------------------------------------------------
-#ifdef SYS_GBA
-//	ldr	r1, [r0,#C_SAMPLE_LEN]	@ setup mixer (GBA)
-//	lsls	r1, #MP_SAMPFRAC
-//	str	r1, [r4,#MIXER_CHN_LEN]
-//	ldr	r1, [r0,#C_SAMPLE_LOOP]
-//	str	r1, [r4,#MIXER_CHN_LOOP]
-	adds	r0, #C_SAMPLE_DATA
-	str	r0, [r4,#MIXER_CHN_SRC]
-	
-#else
-//-------------------------------------------
-
-	ldr	r1,=0x2000000
-	subs	r0, r1
-	str	r0, [r4, #MIXER_CHN_SAMP]
-	ldrb	r1, [r4, #MIXER_CHN_CNT]
-	movs	r0, #MIXER_CF_START
-	orrs	r1, r0
-	strb	r1, [r4, #MIXER_CHN_CNT]
-	
-#endif
-//-------------------
-	
-	b	.mppt_achn_gotsample
-.mppt_achn_msl_sample:				@ otherwise get from solution
-
-	#ifdef SYS_GBA
-
-	ldr	r2,=mp_solution
-	ldr	r2, [r2]
-	movs	r1, r2
-	adds	r1, #12
-	lsls	r3, #2
-	ldr	r1, [r1, r3]
-	adds	r1, #8
-	adds	r0, r1, r2
-	
-	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ NOTICE, USE LDM HERE
-	
-//	ldr	r1, [r0,#C_SAMPLE_LEN]	@ setup mixer (GBA)
-//	lsls	r1, #MP_SAMPFRAC
-//	str	r1, [r4,#MIXER_CHN_LEN]
-//	ldr	r1, [r0,#C_SAMPLE_LOOP]
-//	str	r1, [r4,#MIXER_CHN_LOOP]
-	adds	r0, #C_SAMPLE_DATA
-	str	r0, [r4,#MIXER_CHN_SRC]
-
-	#endif
-
-	#ifdef SYS_NDS
-			
-	ldr	r2,=mmSampleBank	@ get samplebank pointer
-	ldr	r2, [r2]
-	lsls	r3, #2		@ add msl_id *4
-	ldr	r1, [r2, r3]
-	
-	lsls	r1, #8		@ mask out counter value
-	lsrs	r1, #8
-	adds	r1, #8
-
-	str	r1, [r4,#MIXER_CHN_SAMP]
-	ldrb	r1, [r4,#MIXER_CHN_CNT]		// read control		**CNT was cleared, no need to read it
-	movs	r0, #MIXER_CF_START		// set start bit
-	orrs	r1, r0
-	strb	r1, [r4,#MIXER_CHN_CNT]		// save control
-
-	#endif
-	
-.mppt_achn_gotsample:
-	ldr	r1,=mpp_vars
-	ldrb	r1, [r1, #MPV_SAMPOFF]
-#ifdef SYS_GBA
-	lsls	r1, #MP_SAMPFRAC+8
-	str	r1, [r4, #MIXER_CHN_READ]
-#else
-	str	r1, [r4, #MIXER_CHN_READ]
-#endif
-	
 .mppt_achn_nostart:
+
 	@ set pitch
 	
 	ldrb	r0, [r6, #MCA_SAMPLE]		@ get sample#
