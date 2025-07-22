@@ -53,6 +53,13 @@ IWRAM_CODE static
 void mpp_Update_ACHN(mpl_layer_information *layer, mm_active_channel *act_ch,
                      mm_module_channel *channel, mm_word period, mm_word ch);
 
+// Channel data/sizes
+mm_active_channel *mm_achannels;
+mm_addr mm_pchannels;
+mm_word mm_num_mch;
+mm_word mm_num_ach;
+mm_module_channel mm_schannels[MP_SCHANNELS];
+
 // Layer data for module playback.
 mpl_layer_information mmLayerMain; // MPL_SIZE
 

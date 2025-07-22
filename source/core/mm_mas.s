@@ -26,37 +26,11 @@
 #endif
 //-----------------------------------------------------------------------------
 
+    .syntax unified
 
 .equ	S3M_FREQ_DIVIDER	,57268224	// (s3m,xm,it)
 .equ	MOD_FREQ_DIVIDER_PAL	,56750314	// (mod)
 .equ	MOD_FREQ_DIVIDER_NTSC	,57272724	// (---)
-
-
-
-/******************************************************************************
- *
- * Memory
- *
- ******************************************************************************/
-
-	.bss
-	.syntax unified
-	.align 2
-
-/******************************************************************************
- * mm_achannels, mm_pchannels, mm_num_mch, mm_num_ach, mm_schannels
- *
- * Channel data/sizes, don't move these around--see mmInit first
- ******************************************************************************/
-
-.global mm_achannels, mm_pchannels, mm_num_mch, mm_num_ach, mm_schannels
-
-mm_achannels:		.space 4
-mm_pchannels:		.space 4
-mm_num_mch:		.space 4
-mm_num_ach:		.space 4
-mm_schannels:		.space MP_SCHANNELS*MCH_SIZE
-
 
 
 /******************************************************************************

@@ -18,6 +18,7 @@ extern mm_addr mpp_channels;
 
 extern mm_byte mpp_nchannels;
 extern mm_byte mpp_clayer;
+
 extern mm_active_channel *mm_achannels;
 extern mm_addr mm_pchannels;
 extern mm_word mm_num_mch;
