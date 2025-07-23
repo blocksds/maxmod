@@ -172,7 +172,10 @@ mpp_Update_ACHN_notest:
 
 	ldrb	r0, [r6, #MCA_SAMPLE]		@ get sample#
 	subs	r0, #1				@ ..
-	bcc	.mppt_achn_setvolumeA
+	bcs	1f
+	movs	r1, #0
+	b	.mppt_achn_badinstrument
+1:
 	mpp_SamplePointer		@ quit if invalid
 	push	{r0}
 
@@ -254,8 +257,6 @@ mpp_Update_ACHN_notest:
 	ldrb	r0, [r6, #MCA_INST]
 	subs	r0, #1
 	bcs	1f
-
-.mppt_achn_setvolumeA:
 	movs	r1, #0
 	b	.mppt_achn_badinstrument
 1:
