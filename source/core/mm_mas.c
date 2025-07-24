@@ -2992,7 +2992,7 @@ void mpph_ProcessEnvelope(mm_word count, mm_word node, mm_mas_envelope *address,
     mm_pe_ret.exit_value = (mm_word)address; // TODO: This was undefined in the ASM version!
 }
 
-IWRAM_CODE
+static IWRAM_CODE
 mm_word mpp_Update_ACHN_notest_envelopes(mpl_layer_information *layer,
                                          mm_active_channel *act_ch, mm_word period)
 {
@@ -3106,7 +3106,7 @@ mppt_has_volenv:
     return period;
 }
 
-IWRAM_CODE
+static IWRAM_CODE
 mm_word mpp_Update_ACHN_notest_auto_vibrato(mpl_layer_information *layer,
                                             mm_active_channel *act_ch, mm_word period)
 {
@@ -3143,7 +3143,7 @@ mm_word mpp_Update_ACHN_notest_auto_vibrato(mpl_layer_information *layer,
     return period;
 }
 
-IWRAM_CODE
+static IWRAM_CODE
 mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information *layer,
                                         mm_active_channel *act_ch, mm_word channel)
 {
@@ -3218,7 +3218,7 @@ mppt_achn_nostart:
 }
 
 // This returns the resulting volume of the channel
-IWRAM_CODE
+static IWRAM_CODE
 mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *layer,
                                                 mm_active_channel *act_ch, mm_word period,
                                                 mm_mixer_channel *mx_ch)
@@ -3318,7 +3318,7 @@ mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *layer,
     return vol;
 }
 
-IWRAM_CODE
+static IWRAM_CODE
 void mpp_Update_ACHN_notest_disable_and_panning(mm_word volume, mm_active_channel *act_ch,
                                                 mm_mixer_channel *mx_ch)
 {
@@ -3420,6 +3420,47 @@ mppt_achn_audible:
     return;
 }
 
+IWRAM_CODE
+mm_word mpp_Update_ACHN_notest(mpl_layer_information *layer, mm_active_channel *act_ch,
+                               mm_module_channel *channel, mm_word period, mm_word ch)
+{
+    // TODO: This variable was left uninitialized in the original assembly code,
+    // so this was the actual result of that code.
+    mm_mixer_channel *mx_ch = (mm_mixer_channel *)ch;
+
+    // ------------------------------------------------------------------------
+    // Process Envelope
+    // ------------------------------------------------------------------------
+
+    if (act_ch->inst == 0)
+        goto mppt_achn_noinst;
+
+    period = mpp_Update_ACHN_notest_envelopes(layer, act_ch, period);
+
+    // ------------------------------------------------------------------------
+    // Process Auto Vibrato
+    // ------------------------------------------------------------------------
+
+    if (act_ch->sample == 0) // No sample
+        goto mppt_achn_nostart_;
+
+    period = mpp_Update_ACHN_notest_auto_vibrato(layer, act_ch, period);
+
+    // ------------------------------------------------------------------------
+
+mppt_achn_noinst:
+
+    mx_ch = mpp_Update_ACHN_notest_update_mix(layer, act_ch, ch);
+
+mppt_achn_nostart_:
+
+    mm_word volume = mpp_Update_ACHN_notest_set_pitch_volume(layer, act_ch, period, mx_ch);
+
+    mpp_Update_ACHN_notest_disable_and_panning(volume, act_ch, mx_ch);
+
+    return period;
+}
+
 IWRAM_CODE static
 void mpp_Update_ACHN(mpl_layer_information *layer, mm_active_channel *act_ch,
                      mm_module_channel *channel, mm_word period, mm_word ch)
@@ -3427,5 +3468,5 @@ void mpp_Update_ACHN(mpl_layer_information *layer, mm_active_channel *act_ch,
     if (act_ch->flags & MCAF_UPDATED)
         return;
 
-    mpp_Update_ACHN_notest_Wrapper(layer, act_ch, channel, period, ch);
+    mpp_Update_ACHN_notest(layer, act_ch, channel, period, ch);
 }

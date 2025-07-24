@@ -573,7 +573,7 @@ IWRAM_CODE ARM_CODE void mmUpdateChannel_TN(mm_module_channel *module_channel, m
 
     active_channel->flags |= MCAF_UPDATED;
 
-    period = mpp_Update_ACHN_notest_Wrapper(mpp_layer, active_channel,
-                                            module_channel, period,
-                                            module_channel->alloc);
+    period = mpp_Update_ACHN_notest(mpp_layer, active_channel,
+                                    module_channel, period,
+                                    module_channel->alloc);
 }
