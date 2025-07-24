@@ -30,10 +30,6 @@
 // more definitions
 //===============================================
 
-.equ    REG_DMA3SAD, 0x40000D4
-.equ    REG_DMA3DAD, 0x40000D8
-.equ    REG_DMA3CNT, 0x40000DC
-
 // MIXER CHANNEL FORMAT
 
 .equ    CHN_SIZE, 24
@@ -290,14 +286,6 @@ mmMixerMix: // params = { samples_count }
     cmp    r0, #1                       // round up result
     adc    r0, r2, #0
 
-/*
-    mov     r0, r1
-    mov     r1, rfreq
-    swi     0x060000
-    cmp     r1, #0
-    addne   r0, #1
-*/
-
     pop     {r1}                        // restore sample count
     sub     rmixc, r0                   // subtract from mixcount
     mov     rmixcc, r0
@@ -331,20 +319,6 @@ mmMixerMix: // params = { samples_count }
 
     cmp     rfreq, #FETCH_THRESHOLD
     bge     .dont_use_fetch
-
-/*
-    ldr     r0, =mm_fetch               // transfer samples from ROM to RAM
-    add     r1, #2 << 14                // add threshold for safety
-    ldr     r2, =REG_DMA3SAD
-    str     r0, [r2, #4]
-    add     r0, r10, rread, lsr #12
-    bic     r0, #0b11
-    str     r0, [r2, #0]
-    mov     r0, #(1 << 31) + (1 << 26)
-    add     r0, r1, lsr #14
-    str     r0, [r2, #8]
-    b       fooo
-*/
 
     // [cycle timings assume 3,1 ROM waitstates]
 
