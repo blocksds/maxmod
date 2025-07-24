@@ -8,22 +8,13 @@
 
 #ifdef SYS_GBA
 #include "mp_mixer_gba.inc"
-#include "swi_gba.inc"
 #endif
 
 #ifdef SYS_NDS
 #include "mp_mixer_ds.inc"
-#include "swi_nds.inc"
 #endif
 
-//-----------------------------------------------------------------------------
-
     .syntax unified
-
-.equ	S3M_FREQ_DIVIDER	,57268224	// (s3m,xm,it)
-.equ	MOD_FREQ_DIVIDER_PAL	,56750314	// (mod)
-.equ	MOD_FREQ_DIVIDER_NTSC	,57272724	// (---)
-
 
 /******************************************************************************
  *
@@ -43,23 +34,6 @@
 	mov	r1, r8
 	ldr	r2,[r1,#MPL_SONGADR]
 	ldr	r1,[r1,#MPL_INSTTABLE]
-	lsls	r0, #2
-	ldr	r0,[r1,r0]
-	adds	r0, r2
-.endm
-
-/******************************************************************************
- * mpp_SamplePointer
- *
- * Calculate sample address.
- * Requires r8 = layer
- * Returns in r0
- * Trashes r1, r2
- ******************************************************************************/
-.macro mpp_SamplePointer
-	mov	r1, r8
-	ldr	r2,[r1,#MPL_SONGADR]
-	ldr	r1,[r1,#MPL_SAMPTABLE]
 	lsls	r0, #2
 	ldr	r0,[r1,r0]
 	adds	r0, r2
@@ -172,86 +146,19 @@ mpp_Update_ACHN_notest:
 
 	ldrb	r0, [r6, #MCA_SAMPLE]		@ get sample#
 	subs	r0, #1				@ ..
-	bcs	1f
+	bcs	1f				@ quit if invalid
 	movs	r1, #0
 	b	.mppt_achn_badinstrument
 1:
-	mpp_SamplePointer		@ quit if invalid
-	push	{r0}
 
-	mov	r1, r8
-	ldrb	r1, [r1, #MPL_FLAGS]
-	lsrs	r1, #C_FLAGS_SS
-	bcc	.mppt_achn_amigafreqs
-.mppt_achn_linearfreqs:
+	mov		r0, r8 // layer
+	movs	r1, r6 // act_ch
+	movs	r2, r5 // period
+	movs	r3, r4 // mx_ch
+	bl mpp_Update_ACHN_notest_set_pitch
+	//movs	r0, r0 // mm_mas_sample_info *sample
 
-	ldrh	r0, [r0, #C_MASS_FREQ]		@ get C5SPEED
-	lsls	R0, #2
-	lsrs	r1, r5, #8			@ do some stuff...
-	muls	r1, r0				@ ... period * freq?
-
-	lsrs	r1, #8
-
-	ldr	r0,=mpp_clayer
-	ldrb	r0, [r0]
-	cmp	r0, #0
-	bne	1f
-	ldr	r0,=mm_masterpitch
-	ldr	r0, [r0]
-	muls	r1, r0
-	lsrs	r1, #10
-1:
-
-#ifdef SYS_GBA
-	ldr	r0,=(4096*65536)/15768
-	muls	r0, r1
-	lsrs	r0, #16
-	str	r0, [r4, #MIXER_CHN_FREQ]
-#else
-	ldr	r0,=MIXER_SCALE
-	muls	r0, r1
-	lsrs	r0, #16+1
-	strh	r0, [r4, #MIXER_CHN_FREQ]
-#endif
-
-	b	.mppt_achn_setvolume
-
-.mppt_achn_amigafreqs:
-	ldr	r0,=MOD_FREQ_DIVIDER_PAL
-	movs	r1, r5
-
-	beq	.mppt_achn_setvolume		@ 0 is a bad period
-	swi	SWI_DIVIDE
-
-	ldr	r1,=mpp_clayer
-	ldrb	r1, [r1]
-	cmp	r1, #0
-	bne	1f
-	ldr	r1,=mm_masterpitch
-	ldr	r1, [r1]
-	muls	r0, r1
-	lsrs	r0, #10
-1:
-
-#ifdef SYS_GBA
-	ldr	r1,=(4096*65536)/15768
-	muls	r0, r1
-	lsrs	r0, #16
-	str	r0, [r4, #MIXER_CHN_FREQ]
-#else
-	ldr	r1,=MIXER_SCALE		@ calculate ds mixer timing
-	muls	r0, r1
-	lsrs	r0, #16+1
-	strh	r0, [r4, #MIXER_CHN_FREQ]
-#endif
-
-@----------------------------------------------------------------------------------------------------
-.mppt_achn_setvolume:
-@----------------------------------------------------------------------------------------------------
-
-	@ set volume
-
-	pop	{r0}
+	// Set volume
 						@ <-- stepped oct 28, 3:27pm
 	ldrb	r3, [r0, #C_MASS_GV]		@ SV, 6-bit
 	ldrb	r0, [r6, #MCA_INST]

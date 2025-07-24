@@ -5,7 +5,6 @@
     .syntax unified
 
 #include "mp_format_mas.inc"
-#include "swi_nds.inc"
 #include "mp_defs.inc"
 
 //======================================================================
@@ -50,6 +49,8 @@
     .equ    CSOUND_LEN,  0xC
 
     .equ    SOUNDxCNT_ENABLE, 0x80000000
+
+    .equ    SWI_DIVIDE, 0x09
 
 //----------------------------------------------------------------------
 // channel structure

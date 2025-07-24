@@ -37,6 +37,10 @@
 #define BIT(n) (1 << (n))
 #endif
 
+#define S3M_FREQ_DIVIDER        57268224 // (s3m,xm,it)
+#define MOD_FREQ_DIVIDER_PAL    56750314 // (mod)
+#define MOD_FREQ_DIVIDER_NTSC   57272724 // (---)
+
 // TODO: Make this static
 void mpp_setbpm(mpl_layer_information*, mm_word);
 void mpp_setposition(mpl_layer_information*, mm_word);
@@ -3211,6 +3215,54 @@ mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information *layer
 mppt_achn_nostart:
 
     return mx_ch;
+}
+
+IWRAM_CODE
+mm_mas_sample_info *mpp_Update_ACHN_notest_set_pitch(mpl_layer_information *layer,
+                                    mm_active_channel *act_ch, mm_word period,
+                                    mm_mixer_channel *mx_ch)
+{
+    mm_mas_sample_info *sample = mpp_SamplePointer(act_ch->sample, layer);
+
+    if (layer->flags & BIT(C_FLAGS_SS - 1))
+    {
+        // Linear frequencies
+
+        mm_hword speed = sample->frequency; // Get C5SPEED
+
+        mm_word value = ((period >> 8) * (speed << 2)) >> 8;
+
+        if (mpp_clayer == 0)
+            value = (value * mm_masterpitch) >> 10;
+
+#ifdef SYS_GBA
+        const mm_word scale = (4096 * 65536) / 15768;
+        mx_ch->freq = (scale * value) >> 16;
+#else
+        mx_ch->freq = (MIXER_SCALE * value) >> (16 + 1);
+#endif
+    }
+    else
+    {
+        // Amiga frequencies
+
+        if (period != 0) // Avoid divisions by zero
+        {
+            mm_word value = MOD_FREQ_DIVIDER_PAL / period;
+
+            if (mpp_clayer == 0)
+                value = (value * mm_masterpitch) >> 10;
+
+#ifdef SYS_GBA
+            const mm_word scale = (4096 * 65536) / 15768;
+            mx_ch->freq = (scale * value) >> 16;
+#else
+            mx_ch->freq = (MIXER_SCALE * value) >> (16 + 1);
+#endif
+        }
+    }
+
+    return sample;
 }
 
 IWRAM_CODE static
