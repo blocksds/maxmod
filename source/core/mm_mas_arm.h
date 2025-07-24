@@ -41,7 +41,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information*, mm_active_channel*, mm
 mm_word mpp_Process_Effect(mpl_layer_information*, mm_active_channel*, mm_module_channel*, mm_word);
 
 mm_word mpp_Update_ACHN_notest(mpl_layer_information *layer, mm_active_channel *act_ch,
-                               mm_module_channel *channel, mm_word period, mm_word ch);
+                               mm_word period, mm_word ch);
 
 void mpp_Channel_NewNote(mm_module_channel*, mpl_layer_information*);
 

@@ -56,7 +56,7 @@ mm_word mppe_glis_backdoor(mm_word param, mm_word period, mm_active_channel *act
 
 IWRAM_CODE static
 void mpp_Update_ACHN(mpl_layer_information *layer, mm_active_channel *act_ch,
-                     mm_module_channel *channel, mm_word period, mm_word ch);
+                     mm_word period, mm_word ch);
 
 // Channel data/sizes
 mm_active_channel *mm_achannels;
@@ -1647,7 +1647,7 @@ IWRAM_CODE void mppProcessTick(void)
                 info->afvol = act_ch->volume;
                 info->panplus = 0;
 
-                mpp_Update_ACHN(layer, act_ch, module_channels, act_ch->period, ch);
+                mpp_Update_ACHN(layer, act_ch, act_ch->period, ch);
             }
         }
 
@@ -3422,7 +3422,7 @@ mppt_achn_audible:
 
 IWRAM_CODE
 mm_word mpp_Update_ACHN_notest(mpl_layer_information *layer, mm_active_channel *act_ch,
-                               mm_module_channel *channel, mm_word period, mm_word ch)
+                               mm_word period, mm_word ch)
 {
     // TODO: This variable was left uninitialized in the original assembly code,
     // so this was the actual result of that code.
@@ -3463,10 +3463,10 @@ mppt_achn_nostart_:
 
 IWRAM_CODE static
 void mpp_Update_ACHN(mpl_layer_information *layer, mm_active_channel *act_ch,
-                     mm_module_channel *channel, mm_word period, mm_word ch)
+                     mm_word period, mm_word ch)
 {
     if (act_ch->flags & MCAF_UPDATED)
         return;
 
-    mpp_Update_ACHN_notest(layer, act_ch, channel, period, ch);
+    mpp_Update_ACHN_notest(layer, act_ch, period, ch);
 }
