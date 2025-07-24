@@ -5,7 +5,6 @@
     .syntax unified
 
 #include "mp_format_mas.inc"
-#include "mp_defs.inc"
 
 //======================================================================
 

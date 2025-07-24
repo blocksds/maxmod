@@ -5,7 +5,6 @@
 // DEFINITIONS
 
 #include "mp_format_mas.inc"
-#include "mp_defs.inc"
 
 // timer freq = 2^24 / mixfreq
 // mixlen ~= mixfreq * 0.01673
@@ -29,6 +28,8 @@
 //===============================================
 // more definitions
 //===============================================
+
+.equ    SAMPFRAC, 12 @ Number of bits used in fractional part of sample reading
 
 // MIXER CHANNEL FORMAT
 
