@@ -3318,6 +3318,108 @@ mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *layer,
     return vol;
 }
 
+IWRAM_CODE
+void mpp_Update_ACHN_notest_disable_and_panning(mm_word volume, mm_active_channel *act_ch,
+                                                mm_mixer_channel *mx_ch)
+{
+    if (volume != 0)
+        goto mppt_achn_audible;
+
+#ifdef SYS_NDS // NDS has volume ramping!
+    if (act_ch->type == ACHN_BACKGROUND)
+    {
+        if (act_ch->volume == 0)
+        {
+            if (mx_ch->cvol == 0)
+                goto mppt_achn_not_audible;
+        }
+    }
+#endif
+
+    if ((act_ch->flags & MCAF_ENVEND) == 0)
+        goto mppt_achn_audible;
+
+    if (act_ch->flags & MCAF_KEYON)
+        goto mppt_achn_audible;
+
+#ifdef SYS_NDS
+mppt_achn_not_audible:
+#endif
+
+    // Stop channel
+    // ------------
+
+#ifdef SYS_GBA
+    mx_ch->src = 1 << 31; // Stop mixer channel
+#else
+    mx_ch->samp = 0; // Stop mixer channel
+    mx_ch->tpan = 0;
+    mx_ch->key_on = 0;
+#endif
+
+    if (act_ch->type == ACHN_FOREGROUND)
+    {
+        // Has parent
+        mm_module_channel *module_channels = (mm_module_channel *)mpp_channels;
+        module_channels[act_ch->parent].alloc = 255;
+    }
+
+    act_ch->type = ACHN_DISABLED;
+    return;
+
+mppt_achn_audible:
+
+    mx_ch->vol = volume;
+
+    // Check if mixer channel has ended
+#ifdef SYS_GBA
+    if (mx_ch->src & (1 << 31))
+    {
+#else
+    if (mx_ch->samp == 0)
+    {
+#endif
+        if (act_ch->type == ACHN_FOREGROUND)
+        {
+            // Stop channel if channel ended
+            mm_module_channel *module_channels = (mm_module_channel *)mpp_channels;
+            module_channels[act_ch->parent].alloc = 255;
+        }
+
+#ifdef SYS_GBA
+        mx_ch->src = 1 << 31; // Stop mixer channel
+#else
+        mx_ch->samp = 0; // Stop mixer channel
+        mx_ch->tpan = 0;
+        mx_ch->key_on = 0;
+#endif
+
+        act_ch->type = ACHN_DISABLED;
+        return;
+    }
+
+    // Set panning
+
+    mm_shword panplus = mpp_vars.panplus;
+    mm_word old_panning = act_ch->panning;
+
+    mm_sword newpan = old_panning + panplus;
+    if (newpan < 0)
+        newpan = 0;
+    else if (newpan > 255)
+        newpan = 255;
+
+#ifdef SYS_NDS
+    mx_ch->tpan = newpan >> 1;
+#endif
+
+#ifdef SYS_GBA
+    mx_ch->pan = newpan;
+#endif
+
+    return;
+}
+
 IWRAM_CODE static
 void mpp_Update_ACHN(mpl_layer_information *layer, mm_active_channel *act_ch,
                      mm_module_channel *channel, mm_word period, mm_word ch)
