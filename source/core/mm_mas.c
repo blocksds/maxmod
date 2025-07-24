@@ -3217,11 +3217,21 @@ mppt_achn_nostart:
     return mx_ch;
 }
 
+// This returns the resulting volume of the channel
 IWRAM_CODE
-mm_mas_sample_info *mpp_Update_ACHN_notest_set_pitch(mpl_layer_information *layer,
-                                    mm_active_channel *act_ch, mm_word period,
-                                    mm_mixer_channel *mx_ch)
+mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *layer,
+                                                mm_active_channel *act_ch, mm_word period,
+                                                mm_mixer_channel *mx_ch)
 {
+    // Set pitch
+    // ---------
+
+    if (act_ch->sample == 0) // Check sample number
+    {
+        act_ch->fvol = 0; // Mute channel if invalid sample
+        return 0;
+    }
+
     mm_mas_sample_info *sample = mpp_SamplePointer(act_ch->sample, layer);
 
     if (layer->flags & BIT(C_FLAGS_SS - 1))
@@ -3262,7 +3272,50 @@ mm_mas_sample_info *mpp_Update_ACHN_notest_set_pitch(mpl_layer_information *laye
         }
     }
 
-    return sample;
+    // Set volume
+    // ----------
+
+    if (act_ch->inst == 0)
+    {
+        act_ch->fvol = 0; // Mute channel if invalid instrument
+        return 0;
+    }
+
+    mm_mas_instrument *inst = mpp_InstrumentPointer(layer, act_ch->inst);
+
+    mm_word vol = sample->global_volume; // SV, 6-bit
+
+    // Set volume
+    vol *= inst->global_volume; // IV, 7-bit
+    vol *= mpp_vars.afvol; // ((CV * VOL) / 32 * VEV / 64) 7-bit
+
+    // Get global volume
+    mm_byte gv = layer->gv;
+    if (layer->flags & BIT(4 - 1))
+        gv <<= 1; // XM mode global volume is only 0->64, shift to 0->128
+    vol = (vol * gv) >> 10;
+
+    vol = (vol * act_ch->fade) >> 10;
+
+    vol *= layer->volume;
+
+#ifdef SYS_NDS
+    vol = vol >> (19 - 3 - 5);  // (19 - 3) (new 16-bit levels!)
+
+    if (vol > 65535) // Clip values over 65535 // 2047
+        vol = 65535;
+
+    act_ch->fvol = vol >> 8; // 3 (new 16-bit levels!)
+#else
+    vol = vol >> 19;
+
+    if (vol > 255) // Clip values over 255
+        vol = 255;
+
+    act_ch->fvol = vol;
+#endif
+
+    return vol;
 }
 
 IWRAM_CODE static

@@ -18,29 +18,6 @@
 
 /******************************************************************************
  *
- * Macros
- *
- ******************************************************************************/
-
-/******************************************************************************
- * mpp_InstrumentPointer
- *
- * Calculate instrument address.
- * Requires r8 = layer
- * Returns in r0
- * Trashes r1, r2
- ******************************************************************************/
-.macro mpp_InstrumentPointer
-	mov	r1, r8
-	ldr	r2,[r1,#MPL_SONGADR]
-	ldr	r1,[r1,#MPL_INSTTABLE]
-	lsls	r0, #2
-	ldr	r0,[r1,r0]
-	adds	r0, r2
-.endm
-
-/******************************************************************************
- *
  * Program
  *
  ******************************************************************************/
@@ -138,89 +115,16 @@ mpp_Update_ACHN_notest:
 	movs	r1, r6 // act_ch
 	movs	r2, r4 // channel
 	bl		mpp_Update_ACHN_notest_update_mix
-	movs	r4, r0 // mxixer channel
+	movs	r4, r0 // mixer channel
 
 .mppt_achn_nostart:
-
-	@ set pitch
-
-	ldrb	r0, [r6, #MCA_SAMPLE]		@ get sample#
-	subs	r0, #1				@ ..
-	bcs	1f				@ quit if invalid
-	movs	r1, #0
-	b	.mppt_achn_badinstrument
-1:
 
 	mov		r0, r8 // layer
 	movs	r1, r6 // act_ch
 	movs	r2, r5 // period
 	movs	r3, r4 // mx_ch
-	bl mpp_Update_ACHN_notest_set_pitch
-	//movs	r0, r0 // mm_mas_sample_info *sample
-
-	// Set volume
-						@ <-- stepped oct 28, 3:27pm
-	ldrb	r3, [r0, #C_MASS_GV]		@ SV, 6-bit
-	ldrb	r0, [r6, #MCA_INST]
-	subs	r0, #1
-	bcs	1f
-	movs	r1, #0
-	b	.mppt_achn_badinstrument
-1:
-	mpp_InstrumentPointer
-	ldrb	r0, [r0, #C_MASI_GVOL]	@ IV, 7-bit
-	muls	r3, r0
-
-	ldr	r1,=mpp_vars
-	ldrb	r0, [r1, #MPV_AFVOL]	@ ((CV*VOL)/32*VEV/64) 7-bit
-
-	muls	r3, r0
-
-	mov	r1, r8			@ get global vollume
-	ldrb	r0, [r1, #MPL_FLAGS]
-	lsrs	r0, #4
-	ldrb	r0, [r1, #MPL_GV]	@ ..		     7-bit
-
-	bcc	1f
-	lsls	r0, #1			@ xm mode global volume is only 0->64, shift to 0->128
-
-1:	muls	r3, r0			@ multiply
-
-	lsrs	r3, #10
-
-	ldrh	r0, [r6, #MCA_FADE]
-
-
-	muls	r3, r0
-
-	lsrs	r3, r3, #10
-
-	mov	r0, r8
-	movs	r1, #MPL_VOLUME
-	ldrh	r0, [r0, r1]
-	muls	r3, r0
-
-//------------------------------------------------
-#ifdef SYS_NDS
-	lsrs	r1, r3, #19-3-5 ///#19-3	(new 16-bit levels!)
-	ldr	r3,=65535  //2047
-	cmp	r1, r3				@ clip values over 255
-	blt	1f
-	movs	r1, r3
-1:
-.mppt_achn_badinstrument:
-//	lsrs	r3, r1, #3		(new 16-bit levels!)
-	lsrs	r3, r1, #8
-	strb	r3, [r6, #MCA_FVOL]
-#else
-	lsrs	r1, r3, #19
-	cmp	r1, #255			@ clip values over 255
-	blt	1f
-	movs	r1, #255
-1:
-.mppt_achn_badinstrument:
-	strb	r1, [r6, #MCA_FVOL]
-#endif
+	bl mpp_Update_ACHN_notest_set_pitch_volume
+	movs	r1, r0 // volume
 
 	cmp	r1, #0
 	bne	.mppt_achn_audible
