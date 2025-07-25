@@ -854,7 +854,8 @@ mmMixC:
     cmp     r1, #0
     moveq   r0, #0
     beq     1f
-    swi     SWI_DIVIDE << 16
+    // TODO: Replace this by __aeabi_idiv()?
+    swi     SWI_DIVIDE << 16            // r0 = r0 / r1
     neg     r0, r0
 1:  strh    r0, [r11, #MC_SH_TMR]
 
