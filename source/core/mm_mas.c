@@ -2995,7 +2995,7 @@ mm_word mpp_Update_ACHN_notest_envelopes(mpl_layer_information *layer,
 
     mm_byte *env_ptr = (mm_byte*)&(instrument->note_map[1]);
 
-    if (instrument->env_flags & BIT(0))
+    if (instrument->env_flags & MAS_INSTR_FLAG_VOL_ENV_EXISTS)
     {
         if ((act_ch->flags & MCAF_VOLENV) == 0)
         {
@@ -3052,7 +3052,7 @@ mm_word mpp_Update_ACHN_notest_envelopes(mpl_layer_information *layer,
 
 mppt_has_volenv:
 
-    if (instrument->env_flags & BIT(1))
+    if (instrument->env_flags & MAS_INSTR_FLAG_PAN_ENV_EXISTS)
     {
         mm_mas_envelope *env = (mm_mas_envelope *)env_ptr;
         mpph_ProcessEnvelope(act_ch->envc_pan, act_ch->envn_pan, env, act_ch);
@@ -3063,7 +3063,7 @@ mppt_has_volenv:
         mpp_vars.panplus += (mm_pe_ret.value_mul_64 >> 4) - 128;
     }
 
-    if (instrument->env_flags & BIT(2))
+    if (instrument->env_flags & MAS_INSTR_FLAG_PITCH_ENV_EXISTS)
     {
         mm_mas_envelope *env = (mm_mas_envelope *)env_ptr;
 

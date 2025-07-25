@@ -452,7 +452,7 @@ channel_started:
             module_channel->bflags &= ~(3 << 6);
             module_channel->bflags |= ((instrument->nna & 3) << 6);
 
-            if (instrument->env_flags & ENVFLAG_A)
+            if (instrument->env_flags & MAS_INSTR_FLAG_VOL_ENV_ENABLED)
                 active_channel->flags |= MCAF_VOLENV;
             else
                 active_channel->flags &= ~MCAF_VOLENV;
