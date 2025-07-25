@@ -115,19 +115,4 @@ static_assert(sizeof(mpv_active_information) == 16);
 #define IT_DCA_OFF      1
 #define IT_DCA_FADE     2
 
-// Misc Reference
-// --------------
-
-// BFLAGS:
-// /////ctv nnppttvv
-// nn...............new note action
-// pp...............panbrello waveform
-// tt...............tremolo waveform
-// vv...............vibrato waveform
-// dd...............duplicate check type
-// v................volume envelope enabled
-// t................tremor variable...
-// c................cut channel volume
-// //////...........reserved
-
 #endif // MP_MAS_STRUCTS_H

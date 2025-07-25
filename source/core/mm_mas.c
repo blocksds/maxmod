@@ -750,7 +750,7 @@ void mpp_Channel_NewNote(mm_module_channel *module_channel, mpl_layer_informatio
     }
     else
     {
-        mm_byte bflags = module_channel->bflags >> 6;
+        mm_hword bflags = (module_channel->bflags >> 6) & 3;
 
         if (bflags == 0)
             goto mppt_NNA_CUT;
@@ -2526,7 +2526,7 @@ void mppex_InstControl(mm_word param, mm_active_channel *act_ch,
     else if (subparam <= 6) // mppex_ic_nna
     {
         // Overwrite NNA
-        channel->bflags = (channel->bflags & 0x3F) | ((subparam - 3) << 6);
+        channel->bflags = (channel->bflags & 0xFF3F) | ((subparam - 3) << 6);
     }
     else if (subparam <= 8) // mppex_ic_envelope
     {

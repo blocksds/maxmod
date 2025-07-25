@@ -45,6 +45,18 @@ static_assert(sizeof(mm_module_channel) == 40);
 static_assert(sizeof(mm_module_channel) == MM_SIZEOF_MODCH);
 #endif
 
+// BFLAGS:
+// /////ctv nnppttvv
+// nn...............new note action (NNA)
+// pp...............panbrello waveform
+// tt...............tremolo waveform
+// vv...............vibrato waveform
+// dd...............duplicate check type
+// v................volume envelope enabled
+// t................tremor variable...
+// c................cut channel volume
+// //////...........reserved
+
 // Active Channel
 // --------------
 
