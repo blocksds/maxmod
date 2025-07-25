@@ -161,11 +161,7 @@ void mmFrame(void)
     if (mpp_layerp->isplaying == 0)
     {
         // Main layer isn't active, mix full amount
-
-        // PROF_START
         mmMixerMix(mm_mixlen);
-        // PROF_END 0
-
         return;
     }
 
@@ -197,9 +193,7 @@ void mmFrame(void)
         // subtract from #samples to mix
         remaining_len -= sample_num;
 
-        // PROF_START
         mmMixerMix(sample_num); // mix samples
-        // PROF_END 0
 
         mppProcessTick();
     }
@@ -208,9 +202,7 @@ void mmFrame(void)
 
     mpp_layerp->sampcount += remaining_len;
 
-    // PROF_START
     mmMixerMix(remaining_len);
-    // PROF_END 0
 }
 
 mm_word mmGetModuleCount(void)

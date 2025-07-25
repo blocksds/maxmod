@@ -1604,9 +1604,7 @@ IWRAM_CODE void mppProcessTick(void)
 
     if ((layer->pattdelay == 0) && (layer->tick == 0))
     {
-        // PROF_START
         mmReadPattern(layer);
-        // PROF_END 4
     }
 
     // Loop through module channels
@@ -1632,8 +1630,6 @@ IWRAM_CODE void mppProcessTick(void)
             break;
     }
 
-    // PROF_START
-
     mm_active_channel *act_ch = &mm_achannels[0];
 
     for (mm_word ch = 0; ch < mm_num_ach; ch++)
@@ -1655,8 +1651,6 @@ IWRAM_CODE void mppProcessTick(void)
 
         act_ch++;
     }
-
-    // PROF_END 6
 
     // This is the inlined code of mppProcessTick_incframe()
 
