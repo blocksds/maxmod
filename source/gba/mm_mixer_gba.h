@@ -35,17 +35,16 @@
 
 extern mm_word mm_mixlen;
 
-extern mm_word mm_mixbuffer;
+extern mm_addr mm_mixbuffer;
 extern mm_mixer_channel *mm_mixchannels;
-extern mm_word mm_wavebuffer;
+extern mm_addr mm_wavebuffer;
 extern mm_word mm_mixlen;
 extern mm_word mm_mixch_count;
-extern mm_word mm_mixch_end;
+extern mm_addr mm_mixch_end;
 extern mm_word mm_ratescale;
 extern mm_word mm_timerfreq;
 
 extern mm_word mm_bpmdv;
-
 
 void mmMixerInit(mm_gba_system* setup);
 void mmMixerMix(mm_word samples_count);

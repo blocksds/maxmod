@@ -109,7 +109,7 @@ IWRAM_CODE ARM_CODE void mmVBlank(void)
         else
         {
             // Restart write position
-            mp_writepos = mm_wavebuffer;
+            mp_writepos = (mm_word)mm_wavebuffer;
         }
     }
 
@@ -131,13 +131,13 @@ void mmMixerInit(mm_gba_system *setup)
 
     mm_mixchannels = setup->mixing_channels;
 
-    mm_mixch_end = (uintptr_t)mm_mixchannels + mm_mixch_count * sizeof(mm_mixer_channel);
+    mm_mixch_end = (mm_addr)((mm_word)mm_mixchannels + mm_mixch_count * sizeof(mm_mixer_channel));
 
-    mm_mixbuffer = (uintptr_t)setup->mixing_memory;
+    mm_mixbuffer = setup->mixing_memory;
 
-    mm_wavebuffer = (uintptr_t)setup->wave_memory;
+    mm_wavebuffer = setup->wave_memory;
 
-    mp_writepos = mm_wavebuffer;
+    mp_writepos = (mm_word)mm_wavebuffer;
 
     mm_word mode = setup->mixing_mode;
 
@@ -174,7 +174,7 @@ void mmMixerInit(mm_gba_system *setup)
     mm_bpmdv = mp_bpm_divisors[mode];
 
     // Clear wave buffer
-    memset((void *)mm_wavebuffer, 0, mm_mixlen * sizeof(mm_word));
+    memset(mm_wavebuffer, 0, mm_mixlen * sizeof(mm_word));
 
     // Reset mixing segment
     mp_mix_seg = 0;
@@ -200,12 +200,12 @@ void mmMixerInit(mm_gba_system *setup)
     REG_SOUNDCNT_H = 0x9A0C;
 
     // Setup DMA source addresses (playback buffers)
-    REG_DMA1SAD = mm_wavebuffer;
-    REG_DMA2SAD = mm_wavebuffer + mm_mixlen * 2;
+    REG_DMA1SAD = (mm_word)mm_wavebuffer;
+    REG_DMA2SAD = (mm_word)mm_wavebuffer + mm_mixlen * 2;
 
     // Setup DMA destination (sound fifo)
-    REG_DMA1DAD = (uintptr_t)REG_SGFIFOA;
-    REG_DMA2DAD = (uintptr_t)REG_SGFIFOB;
+    REG_DMA1DAD = (mm_word)REG_SGFIFOA;
+    REG_DMA2DAD = (mm_word)REG_SGFIFOB;
 
     // Enable DMA [enable, fifo request, 32-bit, repeat]
     REG_DMA1CNT = 0xB6000000;
