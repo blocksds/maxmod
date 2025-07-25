@@ -6,7 +6,7 @@
 #ifndef MM_FLUSHER_H__
 #define MM_FLUSHER_H__
 
-#include "mm_types.h"
+#include <mm_types.h>
 
 void mmFlushBank(void);
 

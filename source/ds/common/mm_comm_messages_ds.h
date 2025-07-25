@@ -7,7 +7,7 @@
 #ifndef MM_COMM_MESSAGES_DS_H
 #define MM_COMM_MESSAGES_DS_H
 
-#include "mm_types.h"
+#include <mm_types.h>
 
 enum message_ids {
     MSG_BANK = 0x00,

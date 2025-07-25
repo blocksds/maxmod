@@ -6,9 +6,10 @@
 #ifndef MM_MIXER_SUPER_H__
 #define MM_MIXER_SUPER_H__
 
-#include "mm_channel_types.h"
-#include "mm_types.h"
-#include "mm_mixer_ds_types.h"
+#include <mm_types.h>
+
+#include "core/mm_channel_types.h"
+#include "ds/arm7/mm_mixer_ds_types.h"
 
 #define MM_nDSCHANNELS 32
 

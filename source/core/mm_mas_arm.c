@@ -6,13 +6,13 @@
 
 #include <stddef.h>
 
-#include "maxmod.h"
+#include <maxmod.h>
+#include <mm_mas.h>
 
-#include "mm_mas.h"
-#include "mm_mas_arm.h"
-#include "mm_main.h"
-#include "mp_mas_structs.h"
-#include "mp_format_mas.h"
+#include "core/mm_main.h"
+#include "core/mm_mas_arm.h"
+#include "core/mp_format_mas.h"
+#include "core/mp_mas_structs.h"
 
 #define ARM_CODE   __attribute__((target("arm")))
 

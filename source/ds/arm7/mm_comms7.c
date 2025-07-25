@@ -8,20 +8,21 @@
 
 #include <nds.h>
 
-#include "maxmod7.h"
-#include "mm_main7.h"
-#include "mm_comms7.h"
-#include "mm_main.h"
-#include "mm_main_ds.h"
-#include "mp_defs.h"
-#include "mp_format_mas.h"
-#include "mp_mas_structs.h"
-#include "mm_effect.h"
-#include "mm_mas.h"
-#include "mm_mas_arm.h"
-#include "mm_stream.h"
-#include "mm_comm_messages_ds.h"
-#include "mm_types.h"
+#include <maxmod7.h>
+#include <mm_mas.h>
+#include <mm_types.h>
+
+#include "core/mm_effect.h"
+#include "core/mm_main.h"
+#include "core/mm_mas_arm.h"
+#include "core/mp_defs.h"
+#include "core/mp_format_mas.h"
+#include "core/mp_mas_structs.h"
+#include "ds/arm7/mm_comms7.h"
+#include "ds/arm7/mm_main7.h"
+#include "ds/common/mm_comm_messages_ds.h"
+#include "ds/common/mm_main_ds.h"
+#include "ds/common/mm_stream.h"
 
 /*****************************************************************************************************************************
 

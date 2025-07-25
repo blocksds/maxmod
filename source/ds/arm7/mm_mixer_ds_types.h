@@ -3,8 +3,9 @@
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
 // Copyright (c) 2023, Lorenzooone (lollo.lollo.rbiz@gmail.com)
 
-#include "mm_types.h"
-#include "mm_main7.h"
+#include <mm_types.h>
+
+#include "ds/arm7/mm_main7.h"
 
 #define MM_MIX_B_NUM_SAMPLES 128
 #define MM_MIX_B_OUTPUT_CH_SIZE (128 * 4)

@@ -10,17 +10,18 @@
 
 #include <nds.h>
 
-#include "maxmod7.h"
-#include "mm_main.h"
-#include "mm_main7.h"
-#include "mm_mixer_super.h"
-#include "mm_mixer.h"
-#include "mm_mas.h"
-#include "mm_mas_arm.h"
-#include "mm_msl.h"
-#include "mm_effect.h"
-#include "mp_defs.h"
-#include "mp_format_mas.h"
+#include <maxmod7.h>
+#include <mm_mas.h>
+#include <mm_msl.h>
+
+#include "core/mm_effect.h"
+#include "core/mm_main.h"
+#include "core/mm_mas_arm.h"
+#include "core/mm_mixer.h"
+#include "core/mp_defs.h"
+#include "core/mp_format_mas.h"
+#include "ds/arm7/mm_main7.h"
+#include "ds/arm7/mm_mixer_super.h"
 
 #define SWM_CHANNEL_1 6
 #define SWM_CHANNEL_2 7

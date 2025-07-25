@@ -5,7 +5,7 @@
 
 #include <nds.h>
 
-#include "mm_main_ds.h"
+#include "ds/common/mm_main_ds.h"
 
 static uint32_t previous_irq_state;
 

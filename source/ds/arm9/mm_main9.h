@@ -6,7 +6,7 @@
 #ifndef MM_MAIN9_H__
 #define MM_MAIN9_H__
 
-#include "mm_types.h"
+#include <mm_types.h>
 
 extern mm_word mmModuleCount;
 extern mm_word mmSampleCount;

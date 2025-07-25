@@ -6,29 +6,29 @@
 #include <nds.h>
 
 #if defined(SYS_GBA)
-#include "maxmod.h"
+#include <maxmod.h>
 #elif defined(SYS_NDS)
-#include "maxmod7.h"
+#include <maxmod7.h>
 #endif
-#include "mm_main.h"
-#include "mp_mas_structs.h"
-#include "mm_main_ds.h"
-#include "mm_comms.h"
-#include "mm_comms7.h"
-#include "mm_main7.h"
-#include "mm_mas.h"
-#include "mm_mas_arm.h"
-#include "mm_effect.h"
-#include "mp_defs.h"
-#include "mm_mixer.h"
+#include <mm_mas.h>
+
+#include "core/mm_effect.h"
+#include "core/mm_main.h"
+#include "core/mm_mas_arm.h"
+#include "core/mm_mixer.h"
+#include "core/mp_defs.h"
+#include "core/mp_mas_structs.h"
 
 #if defined(SYS_GBA)
-#include "mm_main_gba.h"
-#include "mm_mixer_gba.h"
+#include "gba/mm_main_gba.h"
+#include "gba/mm_mixer_gba.h"
 #elif defined(SYS_NDS)
-#include "mm_main_ds.h"
-#include "mm_main_ds7.h"
-#include "mm_mixer_super.h"
+#include "ds/arm7/mm_comms7.h"
+#include "ds/arm7/mm_main7.h"
+#include "ds/arm7/mm_main_ds7.h"
+#include "ds/arm7/mm_mixer_super.h"
+#include "ds/common/mm_comms.h"
+#include "ds/common/mm_main_ds.h"
 #endif
 
 static mm_word mmEventForwarder(mm_word, mm_word);

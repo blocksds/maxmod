@@ -3,13 +3,14 @@
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
 // Copyright (c) 2023, Lorenzooone (lollo.lollo.rbiz@gmail.com)
 
-#include "maxmod9.h"
-#include "mm_main9.h"
-#include "mm_flusher.h"
-#include "mp_defs.h"
-#include "mp_format_mas.h"
-#include "mm_mas.h"
-#include "mm_types.h"
+#include <maxmod9.h>
+#include <mm_mas.h>
+#include <mm_types.h>
+
+#include "core/mp_defs.h"
+#include "core/mp_format_mas.h"
+#include "ds/arm9/mm_flusher.h"
+#include "ds/arm9/mm_main9.h"
 
 #define BASE_SAMPLE_ADDRESS 0x2000000
 

@@ -6,14 +6,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "maxmod9.h"
-#include "mm_main9.h"
-#include "mm_flusher.h"
-#include "mp_defs.h"
-#include "mp_format_mas.h"
-#include "mm_mas.h"
-#include "mm_types.h"
-#include "mm_msl.h"
+#include <maxmod9.h>
+#include <mm_mas.h>
+#include <mm_types.h>
+#include <mm_msl.h>
+
+#include "core/mp_defs.h"
+#include "core/mp_format_mas.h"
+#include "ds/arm9/mm_flusher.h"
+#include "ds/arm9/mm_main9.h"
 
 #ifndef MM_FILENAME_SIZE
 #define MM_FILENAME_SIZE 64

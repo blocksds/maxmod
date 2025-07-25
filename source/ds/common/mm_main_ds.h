@@ -6,7 +6,7 @@
 #ifndef MM_MAIN_DS_H
 #define MM_MAIN_DS_H
 
-#include "mm_types.h"
+#include <mm_types.h>
 
 extern mm_addr mmModuleBank;
 extern mm_addr mmSampleBank;

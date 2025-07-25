@@ -4,7 +4,7 @@
 
 // DEFINITIONS
 
-#include "mp_format_mas.inc"
+#include "core/mp_format_mas.inc"
 
 // timer freq = 2^24 / mixfreq
 // mixlen ~= mixfreq * 0.01673

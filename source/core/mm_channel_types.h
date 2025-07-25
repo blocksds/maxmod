@@ -7,11 +7,11 @@
 #define MM_CHANNEL_TYPES_H
 
 #include <assert.h>
-#include <mm_types.h>
 
 #ifdef SYS_GBA
 #include <maxmod.h>
 #endif
+#include <mm_types.h>
 
 // Module Channel
 // --------------

@@ -8,11 +8,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "maxmod9.h"
-#include "mm_types.h"
-#include "mm_main9.h"
-#include "mm_comms.h"
-#include "mm_comms9.h"
+#include <maxmod9.h>
+#include <mm_types.h>
+
+#include "ds/arm9/mm_comms9.h"
+#include "ds/arm9/mm_main9.h"
+#include "ds/common/mm_comms.h"
 
 #define FIFO_MAXMOD 3
 

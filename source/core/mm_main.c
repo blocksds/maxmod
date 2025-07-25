@@ -3,7 +3,7 @@
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
 // Copyright (c) 2021, Antonio Niño Díaz (antonio_nd@outlook.com)
 
-#include "mm_types.h"
+#include <mm_types.h>
 
 // Function pointer to user event handler
 mm_callback mmCallback;

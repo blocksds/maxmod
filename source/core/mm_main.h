@@ -6,7 +6,7 @@
 #ifndef MM_MAIN_H
 #define MM_MAIN_H
 
-#include "mm_types.h"
+#include <mm_types.h>
 
 extern mm_word mm_ch_mask;
 extern mm_callback mmCallback;

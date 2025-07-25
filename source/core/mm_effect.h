@@ -6,7 +6,7 @@
 #ifndef MM_EFFECT_H
 #define MM_EFFECT_H
 
-#include "mm_types.h"
+#include <mm_types.h>
 
 void mmResetEffects(void);
 void mmUpdateEffects(void);

@@ -7,12 +7,11 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "maxmod.h"
+#include <maxmod.h>
 
-#include "mp_format_mas.h"
-
-#include "mm_main_gba.h"
-#include "mm_mixer_gba.h"
+#include "core/mp_format_mas.h"
+#include "gba/mm_main_gba.h"
+#include "gba/mm_mixer_gba.h"
 
 #define ARM_CODE   __attribute__((target("arm")))
 #define IWRAM_CODE __attribute__((section(".iwram"), long_call))

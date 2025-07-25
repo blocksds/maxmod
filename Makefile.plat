@@ -13,16 +13,14 @@ ARM_NONE_EABI_PATH	?= $(WONDERFUL_TOOLCHAIN)/toolchain/gcc-arm-none-eabi/bin/
 
 ifeq ($(SYSTEM),GBA)
 SOURCEDIRS	:= source/core source/gba
-INCLUDEDIRS	:= include source/asm_include source/core source/gba
 endif
 ifeq ($(SYSTEM),DS7)
 SOURCEDIRS	:= source/core source/ds/common source/ds/arm7
-INCLUDEDIRS	:= include source/asm_include source/core source/ds/common source/ds/arm7
 endif
 ifeq ($(SYSTEM),DS9)
 SOURCEDIRS	:= source/ds/common source/ds/arm9
-INCLUDEDIRS	:= include source/asm_include source/core source/ds/common source/ds/arm9
 endif
+INCLUDEDIRS	:= include source
 
 # Build artifacts
 # ---------------

@@ -6,7 +6,7 @@
 #ifndef MM_MAIN7_H__
 #define MM_MAIN7_H__
 
-#include "mm_types.h"
+#include <mm_types.h>
 
 void mmLockChannelsQuick(mm_word);
 void mmUnlockChannelsQuick(mm_word);

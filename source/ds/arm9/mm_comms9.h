@@ -6,7 +6,7 @@
 #ifndef MM_COMMS9_H__
 #define MM_COMMS9_H__
 
-#include "mm_types.h"
+#include <mm_types.h>
 
 void mmSendBank(mm_word num_songs, mm_word num_samples, mm_addr bank_addr);
 

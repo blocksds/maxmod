@@ -4,7 +4,7 @@
 
     .syntax unified
 
-#include "mp_format_mas.inc"
+#include "core/mp_format_mas.inc"
 
 //======================================================================
 

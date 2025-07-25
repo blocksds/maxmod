@@ -7,22 +7,22 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "maxmod.h"
+#include <maxmod.h>
+#include <mm_mas.h>
+#include <mm_msl.h>
 
-#include "mm_mas.h"
-#include "mm_mas_arm.h"
-#include "mp_defs.h"
-#include "mp_format_mas.h"
-#include "mm_main.h"
-#include "mp_mas_structs.h"
-#include "mm_msl.h"
+#include "core/mm_main.h"
+#include "core/mm_mas_arm.h"
+#include "core/mp_defs.h"
+#include "core/mp_format_mas.h"
+#include "core/mp_mas_structs.h"
 
 #if defined(SYS_GBA)
-#include "mm_main_gba.h"
-#include "mm_mixer_gba.h"
+#include "gba/mm_main_gba.h"
+#include "gba/mm_mixer_gba.h"
 #elif defined(SYS_NDS)
-#include "mm_main_ds.h"
-#include "mm_mixer_super.h"
+#include "ds/arm7/mm_mixer_super.h"
+#include "ds/common/mm_main_ds.h"
 #endif
 
 #ifdef SYS_NDS

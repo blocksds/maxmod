@@ -8,8 +8,9 @@
 
 #include <assert.h>
 
-#include "mm_types.h"
-#include "mm_channel_types.h"
+#include <mm_types.h>
+
+#include "core/mm_channel_types.h"
 
 // There was an incomplete version of this struct in mm_types: mm_modlayer
 typedef struct {

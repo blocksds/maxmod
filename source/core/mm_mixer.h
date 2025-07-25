@@ -6,7 +6,7 @@
 #ifndef MM_MIXER_H
 #define MM_MIXER_H
 
-#include "mm_types.h"
+#include <mm_types.h>
 
 extern mm_word mm_mixlen;
 

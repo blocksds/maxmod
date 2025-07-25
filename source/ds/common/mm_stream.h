@@ -6,7 +6,7 @@
 #ifndef MM_STREAM_H__
 #define MM_STREAM_H__
 
-#include "mm_types.h"
+#include <mm_types.h>
 
 void mmStreamBegin(mm_addr, mm_hword, mm_hword, mm_stream_formats);
 void mmStreamEnd(void);

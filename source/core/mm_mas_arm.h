@@ -6,8 +6,9 @@
 #ifndef MM_MAS_ARM_H
 #define MM_MAS_ARM_H
 
-#include "mm_types.h"
-#include "mp_mas_structs.h"
+#include <mm_types.h>
+
+#include "core/mp_mas_structs.h"
 
 extern mpl_layer_information mmLayerMain;
 extern mpl_layer_information mmLayerSub;

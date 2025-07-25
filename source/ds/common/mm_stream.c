@@ -5,14 +5,17 @@
 
 #include <nds.h>
 
-#include "mm_stream.h"
-#include "mm_types.h"
-#include "mm_main_ds.h"
 #ifdef SYS_NDS9
-#include "maxmod9.h"
-#include "mm_flusher.h"
+#include <maxmod9.h>
 #else
-#include "maxmod7.h"
+#include <maxmod7.h>
+#endif
+#include <mm_types.h>
+
+#include "ds/common/mm_stream.h"
+#include "ds/common/mm_main_ds.h"
+#ifdef SYS_NDS9
+#include "ds/arm9/mm_flusher.h"
 #endif
 
 // Is this correct?! Or is it supposed to be the same as "BUS_SPEED"???

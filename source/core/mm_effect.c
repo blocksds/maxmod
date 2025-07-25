@@ -4,24 +4,24 @@
 // Copyright (c) 2021, Antonio Niño Díaz (antonio_nd@outlook.com)
 
 #if defined(SYS_GBA)
-#include "maxmod.h"
+#include <maxmod.h>
 #elif defined(SYS_NDS7)
-#include "maxmod7.h"
+#include <maxmod7.h>
 #endif
 
-#include "mm_mas_arm.h"
-#include "mm_mas.h"
-#include "mm_mixer.h"
-#include "mm_msl.h"
-#include "mp_mas_structs.h"
-#include "mp_format_mas.h"
+#include <mm_mas.h>
+#include <mm_msl.h>
 
+#include "core/mm_mas_arm.h"
+#include "core/mm_mixer.h"
+#include "core/mp_format_mas.h"
+#include "core/mp_mas_structs.h"
 #if defined(SYS_GBA)
-#include "mm_main_gba.h"
-#include "mm_mixer_gba.h"
+#include "gba/mm_main_gba.h"
+#include "gba/mm_mixer_gba.h"
 #elif defined(SYS_NDS7)
-#include "mm_main_ds.h"
-#include "mm_mixer_super.h"
+#include "ds/arm7/mm_mixer_super.h"
+#include "ds/common/mm_main_ds.h"
 #endif
 
 #define channelCount    16

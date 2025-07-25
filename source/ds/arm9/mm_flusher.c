@@ -6,8 +6,8 @@
 
 #include <nds.h>
 
-#include "mm_main.h"
-#include "mm_main9.h"
+#include "core/mm_main.h"
+#include "ds/arm9/mm_main9.h"
 
 void mmFlushBank(void)
 {

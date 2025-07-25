@@ -9,15 +9,16 @@
 
 #include <nds.h>
 
-#include "maxmod9.h"
-#include "mm_main9.h"
-#include "mm_flusher.h"
-#include "mp_defs.h"
-#include "mp_format_mas.h"
-#include "mm_mas.h"
-#include "mm_comm_messages_ds.h"
-#include "mm_comms.h"
-#include "mm_types.h"
+#include <maxmod9.h>
+#include <mm_mas.h>
+#include <mm_types.h>
+
+#include "core/mp_defs.h"
+#include "core/mp_format_mas.h"
+#include "ds/arm9/mm_flusher.h"
+#include "ds/arm9/mm_main9.h"
+#include "ds/common/mm_comm_messages_ds.h"
+#include "ds/common/mm_comms.h"
 
 /*****************************************************************************************************************************
 

@@ -6,7 +6,7 @@
 #ifndef MM_MIXER_GBA_H
 #define MM_MIXER_GBA_H
 
-#include "mm_channel_types.h"
+#include "core/mm_channel_types.h"
 
 #define MP_SAMPFRAC     12
 

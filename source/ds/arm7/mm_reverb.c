@@ -6,8 +6,9 @@
 
 #include <nds.h>
 
-#include "maxmod7.h"
-#include "mm_mixer_super.h"
+#include <maxmod7.h>
+
+#include "ds/arm7/mm_mixer_super.h"
 
 /***********************************************************************
  * Reverb Parameters
