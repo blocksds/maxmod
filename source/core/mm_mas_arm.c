@@ -169,7 +169,7 @@ IWRAM_CODE ARM_CODE void mmReadPattern(mpl_layer_information *mpp_layer)
     // Prepare vars
     mm_word instr_count = ((mas_header*)mpp_layer->songadr)->instn;
     mm_word flags = mpp_layer->flags;
-    mm_module_channel* module_channels = (mm_module_channel*)mpp_channels;
+    mm_module_channel *module_channels = mpp_channels;
 
     mpp_vars.pattread_p = mpp_layer->pattread;
     mm_byte* pattern = (mm_byte*)mpp_vars.pattread_p;

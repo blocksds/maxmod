@@ -52,7 +52,7 @@ bool mmInit(mm_gba_system* setup)
     mmModuleCount = (first_word >> 16) & 0xFFFF;
 
     mm_achannels = setup->active_channels;
-    mm_pchannels = (mm_addr)setup->module_channels;
+    mm_pchannels = setup->module_channels;
     mm_num_mch = (mm_word)setup->mod_channel_count;
     mm_num_ach = (mm_word)setup->mix_channel_count;
 

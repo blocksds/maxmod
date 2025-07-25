@@ -195,7 +195,7 @@ void mmInit7(void)
 
     // Setup channel addresses
     mm_achannels = mm_rds_achannels;
-    mm_pchannels = mm_rds_pchannels;
+    mm_pchannels = &(mm_rds_pchannels[0]);
     mm_num_mch = NUM_CHANNELS;
     mm_num_ach = NUM_CHANNELS;
 

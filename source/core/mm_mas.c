@@ -60,7 +60,7 @@ void mpp_Update_ACHN(mpl_layer_information *layer, mm_active_channel *act_ch,
 
 // Channel data/sizes
 mm_active_channel *mm_achannels;
-mm_addr mm_pchannels;
+mm_module_channel *mm_pchannels;
 mm_word mm_num_mch;
 mm_word mm_num_ach;
 mm_module_channel mm_schannels[MP_SCHANNELS];
@@ -78,7 +78,7 @@ mpv_active_information mpp_vars;
 mpl_layer_information *mpp_layerp;
 
 // Pointer to channel array during processing.
-mm_addr mpp_channels;
+mm_module_channel *mpp_channels;
 
 // Master tempo scaler.
 static mm_word mm_mastertempo;
@@ -1612,7 +1612,7 @@ IWRAM_CODE void mppProcessTick(void)
     // Loop through module channels
 
     mm_word update_bits = layer->mch_update;
-    mm_module_channel *module_channels = (mm_module_channel*)mpp_channels;
+    mm_module_channel *module_channels = mpp_channels;
 
     for (mm_word channel_counter = 0; ; channel_counter++)
     {
@@ -3360,8 +3360,7 @@ mppt_achn_not_audible:
     if (act_ch->type == ACHN_FOREGROUND)
     {
         // Has parent
-        mm_module_channel *module_channels = (mm_module_channel *)mpp_channels;
-        module_channels[act_ch->parent].alloc = 255;
+        mpp_channels[act_ch->parent].alloc = 255;
     }
 
     act_ch->type = ACHN_DISABLED;
@@ -3382,8 +3381,7 @@ mppt_achn_audible:
         if (act_ch->type == ACHN_FOREGROUND)
         {
             // Stop channel if channel ended
-            mm_module_channel *module_channels = (mm_module_channel *)mpp_channels;
-            module_channels[act_ch->parent].alloc = 255;
+            mpp_channels[act_ch->parent].alloc = 255;
         }
 
 #ifdef SYS_GBA
