@@ -35,44 +35,9 @@ typedef struct {
 
 #define C_FLAGS_X           (1 << 3)
 
-// Instrument struct : mm_mas_instrument
-
-#define C_MASI_GVOL         0
-#define C_MASI_FADE         1
-#define C_MASI_RANDVOL      2
-#define C_MASI_DCT          3
-#define C_MASI_NNA          4
-#define C_MASI_ENVFLAGS     5
-#define C_MASI_PAN          6
-#define C_MASI_DCA          7
-#define C_MASI_MAP          8
-#define C_MASI_ENVELOPES    12 // TODO: This is misleading!
-// #define C_MASI_ENVELOPES    248
-
 // Instrument envelope struct : mm_mas_envelope
 
-#define C_MASIE_SIZE        0
-#define C_MASIE_LSTART      1
-#define C_MASIE_LEND        2
-#define C_MASIE_SSTART      3
-#define C_MASIE_SEND        4
-#define C_MASIE_NODEC       5
-#define C_MASIE_FILTER      6
-#define C_MASIE_NODES       8
-
 #define ENVFLAG_A           (1 << 3)
-
-// Sample structure : mm_mas_sample_info
-
-#define C_MASS_DV           0
-#define C_MASS_PAN          1
-#define C_MASS_FREQ         2
-#define C_MASS_VIT          4
-#define C_MASS_VID          5
-#define C_MASS_VIS          6
-#define C_MASS_GV           7
-#define C_MASS_VIR          8
-#define C_MASS_MSLID        10
 
 // Sample structure : mm_mas_gba_sample
 

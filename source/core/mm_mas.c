@@ -66,13 +66,13 @@ mm_word mm_num_ach;
 mm_module_channel mm_schannels[MP_SCHANNELS];
 
 // Layer data for module playback.
-mpl_layer_information mmLayerMain; // MPL_SIZE
+mpl_layer_information mmLayerMain;
 
 // Layer data for jingle playback.
-mpl_layer_information mmLayerSub; // MPL_SIZE
+mpl_layer_information mmLayerSub;
 
 // Holds intermediate data during the module processing.
-mpv_active_information mpp_vars; // MPV_SIZE
+mpv_active_information mpp_vars;
 
 // Pointer to layer data during processing.
 mpl_layer_information *mpp_layerp;
