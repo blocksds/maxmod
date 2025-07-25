@@ -3,6 +3,9 @@
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
 // Copyright (c) 2023, Lorenzooone (lollo.lollo.rbiz@gmail.com)
 
+#ifndef MM_MIXER_DS_TYPES_H__
+#define MM_MIXER_DS_TYPES_H__
+
 #include <mm_types.h>
 
 #include "ds/arm7/mm_main7.h"
@@ -61,3 +64,5 @@ typedef union t_mmixdatads
     mm_mix_data_c_ds mix_data_c;
 }
 mm_mix_data_ds;
+
+#endif // MM_MIXER_DS_TYPES_H__
