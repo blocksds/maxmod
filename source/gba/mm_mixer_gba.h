@@ -32,7 +32,6 @@
 
 #define REG_SGFIFOA     (volatile uint32_t *)0x40000A0
 #define REG_SGFIFOB     (volatile uint32_t *)0x40000A4
-#define REG_VCOUNT      *(volatile uint16_t *)0x4000006
 
 extern mm_word mm_mixlen;
 
