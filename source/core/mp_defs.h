@@ -11,6 +11,4 @@
 #define MPP_PLAY_ONCE   1
 #define MPP_PLAY_JINGLE 2
 
-#define MP_SCHANNELS    4
-
 #endif // MP_DEFS_H
