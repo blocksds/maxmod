@@ -21,8 +21,8 @@
 #include "gba/mm_main_gba.h"
 #include "gba/mm_mixer_gba.h"
 #elif defined(SYS_NDS)
+#include "ds/arm7/mm_main7.h"
 #include "ds/arm7/mm_mixer_super.h"
-#include "ds/common/mm_main_ds.h"
 #endif
 
 #ifdef SYS_NDS

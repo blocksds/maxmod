@@ -8,6 +8,10 @@
 
 #include <mm_types.h>
 
+extern mm_addr mmModuleBank;
+extern mm_addr mmSampleBank;
+
+void mmInit7(void);
 void mmLockChannelsQuick(mm_word);
 void mmUnlockChannelsQuick(mm_word);
 void mmGetSoundBank(mm_word n_songs, mm_word n_samples, mm_addr bank);

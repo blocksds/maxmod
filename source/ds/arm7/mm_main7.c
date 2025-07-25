@@ -25,9 +25,7 @@
 #elif defined(SYS_NDS)
 #include "ds/arm7/mm_comms7.h"
 #include "ds/arm7/mm_main7.h"
-#include "ds/arm7/mm_main_ds7.h"
 #include "ds/arm7/mm_mixer_super.h"
-#include "ds/common/mm_main_ds.h"
 #endif
 
 static mm_word mmEventForwarder(mm_word, mm_word);

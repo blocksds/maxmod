@@ -13,7 +13,6 @@
 #include <mm_types.h>
 
 #include "ds/common/mm_stream.h"
-#include "ds/common/mm_main_ds.h"
 #ifdef SYS_NDS9
 #include "ds/arm9/mm_flusher.h"
 #endif
@@ -39,6 +38,26 @@
 #define CHANNEL_RIGHT 5
 
 #define NUM_TIMERS 4
+
+#ifdef SYS_NDS7
+
+static uint32_t previous_irq_state;
+
+// Function to disable interrupts via the status register
+static void mmSuspendIRQ_t(void)
+{
+    uint32_t base_cpsr_state = getCPSR();
+    previous_irq_state = base_cpsr_state & CPSR_FLAG_IRQ_DIS;
+    setCPSR(base_cpsr_state | CPSR_FLAG_IRQ_DIS);
+}
+
+// Function to enable interrupts via the status register
+static void mmRestoreIRQ_t(void)
+{
+    setCPSR(previous_irq_state | (getCPSR() & (~CPSR_FLAG_IRQ_DIS)));
+}
+
+#endif // SYS_NDS7
 
 static mm_hword mmsPreviousTimer;
 static mm_word StreamCounter;

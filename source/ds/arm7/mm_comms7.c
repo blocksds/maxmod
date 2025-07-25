@@ -21,7 +21,6 @@
 #include "ds/arm7/mm_comms7.h"
 #include "ds/arm7/mm_main7.h"
 #include "ds/common/mm_comm_messages_ds.h"
-#include "ds/common/mm_main_ds.h"
 #include "ds/common/mm_stream.h"
 
 /*****************************************************************************************************************************
