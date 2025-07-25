@@ -15,7 +15,6 @@
 #include "mm_types.h"
 #include "mm_msl.h"
 
-#define SEEK_SET 0
 #ifndef MM_FILENAME_SIZE
 #define MM_FILENAME_SIZE 64
 #endif
