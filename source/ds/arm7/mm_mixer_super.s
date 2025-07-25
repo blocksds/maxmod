@@ -11,8 +11,11 @@
     .global mm_mix_data
     .global mm_output_slice
 
-    .global mmMixB
-    .type   mmMixB STT_FUNC
+    .global mmbResampleData
+    .type   mmbResampleData STT_FUNC
+    .global mmbZerofillBuffer
+    .type   mmbZerofillBuffer STT_FUNC
+
     .global mmMixC
     .type   mmMixC STT_FUNC
 
@@ -144,112 +147,6 @@ mm_output_slice: // 0 = first half, 1 = second half
     .align 2
 //----------------------------------------------------------------------
 
-//*********************************************************
-mmMixB:
-//*********************************************************
-    stmfd   sp!, {r4-r11, lr}
-
-    mov     r7, r0
-    mov     r10, r1
-    mov     r12, r2
-
-    ldr     r0, =REG_DMA
-    ldr     r1, =mm_mix_data+MB_FETCH
-    str     r1, [r0, #4]                    // set dma destination
-
-    ldr     r11, =mm_mix_data + MB_SHADOW   // get mode B shadow data
-    bic     r10, #0x00FF0000                // clear top 16 bits
-    bic     r10, #0xFF000000                // (only 16 channels)
-
-    movs    r10, r10, lsr #1                // start loop
-    bcc     mmb_next
-mmb_loop:
-    ldr     r1, [r12, #C_SAMP]
-    bics    r6, r1, #0xFF000000
-    beq     mmb_disabled
-mmb_active:
-
-
-    ldrb    r0, [r12, #C_CNT]               // shift out start bit of control
-    movs    r0, r0, lsl #25                 //
-    bcc     mmb_continue
-mmb_newnote:
-    movs    r0, r0, lsr #25                 // clear start bit
-    strb    r0, [r12, #C_CNT]
-    ldrh    r0, [r12, #C_VOL]               // copy volume/panning levels
-    ldrb    r1, [r12, #C_CNT]
-    orr     r0, r0, r1, lsl #16 + 9
-    str     r0, [r12, #C_CVOL]
-
-    // **todo: CLIP sample offset
-    ldr     r0, [r12, #C_READ]
-    lsl     r0, #8 + SFRAC
-    str     r0, [r12, #C_READ]
-    mov     r1, #1                          // add zero padding
-    b       1f
-mmb_continue:
-    mov     r1, #0
-1:  push    {r1}
-
-//---------------------------------
-// do volume ramping
-//---------------------------------
-
-    ldrh    r0, [r12, #C_CVOL]          // get volume+shift value
-    bl      translateVolume             //
-
-    ldrh    r4, [r12, #C_CPAN]          // assemble volume|shift|panning
-    lsr     r4, #9                      //
-    orr     r4, r0, r4, lsl #16         //
-
-    str     r4, [r11]                   // -write to shadow
-
-    bl      mmb_getdest                 // fill wave buffer
-
-    pop     {r1}
-    bl      mmbResampleData             // mmbResampleData( dest, zeropad )
-    b       mmb_next                    //
-
-mmb_disabled:
-    mov     r0, #64 << 16               // write pan=center, vol=silent
-    str     r0, [r11]                   //
-
-    bl      mmb_getdest                 //
-    bl      zerofill_buffer             // zero wavebuffer
-
-mmb_next:
-    add     r11, #4                     // increment pointers
-    add     r12, #C_SIZE                //
-    movs    r10, r10, lsr #1            // shift out next bit
-    bcs     mmb_loop                    // loop until finished
-    bne     mmb_next
-
-    ldr     r0,=mm_output_slice         // swap mixing slice
-    ldrb    r1, [r0]                    //
-    cmp     r1, #0                      //
-    moveq   r1, #1                      //
-    movne   r1, #0                      //
-//    add     r1, #1
-//    cmp     r1, #2
-//    movgt   r1, #0
-    strb    r1, [r0]                    //
-
-    ldmfd   sp!, {r4-r11, lr}
-    bx      lr
-
-//-----------------------------------------------------------------------
-mmb_getdest:
-//-----------------------------------------------------------------------
-    ldr     r0, =mm_mix_data + MB_OUTPUT    // calc destination address...
-    ldr     r1, =mm_mix_data + MB_SHADOW
-    sub     r1, r11, r1                     // r0 = channel * 4
-    add     r0, r0, r1, lsl #9 - 2          // add channel * 512 to dest
-    //sub     r0, r0, r1, lsl #8 - 2        //
-    ldr     r1, =mm_output_slice            //
-    ldrb    r1, [r1]                        //
-    add     r0, r0, r1, lsl #8              // add output slice offset
-    bx      lr
-
 //***************************************************************************************
 mmbResampleData:
 //***************************************************************************************
@@ -326,7 +223,7 @@ mmbResampleData:
     bne     \restart                                // (then loop)
 
     str     pos, [r12, #C_READ]                     // save position & return
-4:  pop     {r10-r12, pc}
+4:  pop     {r4-r12, pc}
 
 .endm
 //-------------------------------------------------------------------------
@@ -334,10 +231,14 @@ mmbResampleData:
 
 #define zeropad_size 32
 
+    push    {r4-r12, lr}
+
+    mov     r11, r4 // shadow
+    mov     r12, r3 // mix_ch
+
 // note r11 = shadow entry, r12 = channel data
 // r0 = dest, r1 = zeropadding
 
-    push    {r10-r12, lr}
     ldr     src, [r12, #C_SAMP]
     bic     src, #0xFF000000
     add     src, #0x2000000
@@ -656,13 +557,15 @@ mb8n_exit:
     pop     {src, r12, pc}                  // return
 
 //*********************************************************
-zerofill_buffer:
+mmbZerofillBuffer: // In: {r0 = buffer}
 //*********************************************************
 // destination size must be a multiple of 32 samples
 
 // **todo: complete zerofill not neccesary??
 
-    push    {r10-r12, lr}
+    // m1-m4 = r0-r3 (no need to push them when called from C)
+    // count, dest = r6, r10 (they have to be pushed)
+    push    {count, dest, lr}
     mov     dest, r0
     mov     count, #128
     mov     m1, #0
@@ -676,7 +579,7 @@ zerofill_buffer:
     subs    count, #32
     bne     1b
 
-    pop     {r10-r12, pc}
+    pop     {count, dest, pc}
 
 //--------------------------------------------------------
 calc_mixcount: // { a, b, amount }

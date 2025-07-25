@@ -26,6 +26,9 @@
 #define SWM_CHANNEL_2 7
 
 #define MIX_TIMER_NUMBER 0
+
+#define SFRAC 10
+
 static void mm_reset_channels(void);
 static void mm_startup_wait(void);
 static void DisableSWM(void);
@@ -563,7 +566,87 @@ static ARM_CODE void mmMixA(void)
     }
 }
 
-void mmMixB(mm_byte *volume_table, mm_word ch_mask, mm_mixer_channel *mix_ch);
+void mmbZerofillBuffer(mm_addr buffer);
+void mmbResampleData(mm_addr dest, mm_word do_zero_padding, mm_word *shadow,
+                     mm_mixer_channel *mix_ch);
+
+static mm_addr mmb_getdest(mm_word channel)
+{
+    // Calc destination address...
+    mm_byte *dest = &(mm_mix_data.mix_data_b.output[0][0]) + (channel * 512);
+
+    mm_word slice = mm_output_slice;
+
+    return dest + (slice << 8); // add output slice offset
+}
+
+static void ARM_CODE mmMixB(void)
+{
+    mm_word ch_mask = mm_ch_mask & 0xFFFF; // Clear top 16 bits (only 16 channels)
+    mm_mixer_channel *mix_ch = &mm_mix_channels[0];
+
+    DMA1_DEST = (mm_word)&(mm_mix_data.mix_data_b.fetch[0]);
+
+    // Get mode B shadow data (word pointer, don't access individual fields)
+    mm_word *shadow = (mm_word *)&(mm_mix_data.mix_data_b.shadow[0]);
+
+    for (int i = 0; i < 16; i++, shadow++, mix_ch++)
+    {
+        if ((ch_mask & BIT(i)) == 0)
+            continue;
+
+        if (mix_ch->samp == 0) // Check if channel is disabled
+        {
+            *shadow = 64 << 16; // write pan=center, vol=silent
+            mmbZerofillBuffer(mmb_getdest(i)); // zero wavebuffer
+            continue;
+        }
+
+        // The channel is active
+
+        mm_byte do_zero_padding;
+
+        if (mix_ch->key_on == 1)
+        {
+            // New note
+            mix_ch->key_on = 0; // clear start bit
+
+            mm_word vol = mix_ch->vol;
+            mm_word pan = mix_ch->tpan;
+
+            mix_ch->cvol = vol | (pan << (16 + 9));
+
+            // **todo: CLIP sample offset
+            mix_ch->read = mix_ch->read << (8 + SFRAC);
+
+            do_zero_padding = 1; // add zero padding
+        }
+        else
+        {
+            do_zero_padding = 0;
+        }
+
+        // Do volume ramping
+        {
+            // get volume+shift value
+            mm_word volume = translateVolume(mix_ch->cvol);
+
+            // assemble volume|shift|panning
+            mm_hword pan = mix_ch->cpan >> 9;
+
+            // -write to shadow
+            *shadow = volume | (pan << 16);
+        }
+
+        mm_addr dest = mmb_getdest(i); // fill wave buffer
+
+        mmbResampleData(dest, do_zero_padding, shadow, mix_ch);
+    }
+
+    // Swap mixing slice
+    mm_output_slice ^= 1;
+}
+
 void mmMixC(mm_byte *volume_table, mm_word ch_mask, mm_mixer_channel *mix_ch);
 
 ARM_CODE void mmMixerMix(void)
@@ -577,13 +660,7 @@ ARM_CODE void mmMixerMix(void)
     }
     else if (mm_mixing_mode == MM_MODE_B)
     {
-        extern mm_byte mmVolumeTable[];
-
-        mm_byte *volume_table = &mmVolumeTable[0];
-        mm_word ch_mask = mm_ch_mask;
-        mm_mixer_channel *mix_ch = &mm_mix_channels[0];
-
-        mmMixB(volume_table, ch_mask, mix_ch);
+        mmMixB();
     }
     else // if (mm_mixing_mode == MM_MODE_C)
     {
