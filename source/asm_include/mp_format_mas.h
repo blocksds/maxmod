@@ -51,7 +51,7 @@ typedef struct {
 #define C_SAMPLEN_LEN       4
 #define C_SAMPLEN_FORMAT    8
 #define C_SAMPLEN_REP       9
-#define C_SAMPLEC_DFREQ     10 // TODO: Why is the name different?
+#define C_SAMPLEN_DFREQ     10
 #define C_SAMPLEN_POINT     12
 #define C_SAMPLEN_DATA      16
 

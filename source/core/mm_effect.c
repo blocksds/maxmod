@@ -231,7 +231,7 @@ got_handle:
 
     // set pitch to original * pitch
 
-    mm_word dfreq = *(mm_hword *)(sample_ptr + 8 + C_SAMPLEC_DFREQ);
+    mm_word dfreq = *(mm_hword *)(sample_ptr + 8 + C_SAMPLEN_DFREQ);
     mx_ch->freq = (sound->rate * dfreq) >> (10 - 2);
 
     // reset read position
@@ -270,7 +270,7 @@ got_handle:
     mx_ch->samp = source;
 
     // Set pitch to original * pitch
-    mm_word dfreq = *(mm_hword *)(source + C_SAMPLEC_DFREQ);
+    mm_word dfreq = *(mm_hword *)(source + C_SAMPLEN_DFREQ);
     mx_ch->freq = (sound->rate * dfreq) >> 10;
 
     // Clear sample offset

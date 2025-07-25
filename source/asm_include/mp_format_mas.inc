@@ -17,7 +17,7 @@
 .equ	C_SAMPLEN_LEN	,4
 .equ	C_SAMPLEN_FORMAT,8
 .equ	C_SAMPLEN_REP	,9
-.equ	C_SAMPLEC_DFREQ	,10 // TODO: Why is the name different?
+.equ	C_SAMPLEN_DFREQ	,10
 .equ	C_SAMPLEN_POINT	,12
 .equ	C_SAMPLEN_DATA	,16
 
