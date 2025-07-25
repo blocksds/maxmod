@@ -9,31 +9,28 @@
 // MAS header structure
 
 typedef struct {
-    mm_byte     len;
-    mm_byte     instn;
-    mm_byte     sampn;
-    mm_byte     pattn;
+    mm_byte     order_count;
+    mm_byte     inst_count;
+    mm_byte     samp_count;
+    mm_byte     patt_count;
     mm_byte     flags;
-    mm_byte     gv;
-    mm_byte     speed;
-    mm_byte     tempo;
-    mm_byte     rep;
-    mm_byte     padding[3]; // TODO: Check this
+    mm_byte     global_volume;
+    mm_byte     initial_speed;
+    mm_byte     initial_tempo;
+    mm_byte     restart_pos;
+    mm_byte     padding[3]; // Unused
     mm_byte     chanvol[32];
     mm_byte     chanpan[32];
     mm_byte     order[200];
     mm_word     tables[];
 } mas_header;
 
-#define C_FLAGS_GS          1
-#define C_FLAGS_OS          2
-#define C_FLAGS_SS          3
-#define C_FLAGS_XS          4
-#define C_FLAGS_DS          5
-// #define C_FLAGS_LS          5 // HUH???
-#define C_FLAGS_LS          6
-
-#define C_FLAGS_X           (1 << 3)
+#define MAS_HEADER_FLAG_LINK_GXX    (1 << 0) // Shared Gxx
+#define MAS_HEADER_FLAG_OLD_EFFECTS (1 << 1) // TODO: Unused flag
+#define MAS_HEADER_FLAG_FREQ_MODE   (1 << 2) // 1 = Linear freqs, 0 = Amiga freqs
+#define MAS_HEADER_FLAG_XM_MODE     (1 << 3) // 1 = XM mode, 0 = Other/IT mode?
+#define MAS_HEADER_FLAG_MSL_DEP     (1 << 4) // TODO: Unused flag
+#define MAS_HEADER_FLAG_OLD_MODE    (1 << 5) // 1 = MOD/S3M, 0 = Other
 
 // Instrument envelope struct : mm_mas_envelope
 

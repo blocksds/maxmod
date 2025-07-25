@@ -167,7 +167,7 @@ IWRAM_CODE ARM_CODE mm_word mmAllocChannel(void)
 IWRAM_CODE ARM_CODE void mmReadPattern(mpl_layer_information *mpp_layer)
 {
     // Prepare vars
-    mm_word instr_count = ((mas_header*)mpp_layer->songadr)->instn;
+    mm_word instr_count = ((mas_header*)mpp_layer->songadr)->inst_count;
     mm_word flags = mpp_layer->flags;
     mm_module_channel *module_channels = mpp_channels;
 
@@ -227,7 +227,7 @@ IWRAM_CODE ARM_CODE void mmReadPattern(mpl_layer_information *mpp_layer)
                 if (module_channel->inst != instr)
                 {
                     // Check 'mod/s3m' flag
-                    if (flags & (1 << (C_FLAGS_LS - 1)))
+                    if (flags & MAS_HEADER_FLAG_OLD_MODE)
                         pattern_flags |= MF_START;
 
                     // Set new instrument flag
@@ -313,7 +313,7 @@ IWRAM_CODE ARM_CODE mm_byte mmChannelStartACHN(mm_module_channel *module_channel
 IWRAM_CODE ARM_CODE mm_word mmGetPeriod(mpl_layer_information *mpp_layer, mm_word tuning, mm_byte note)
 {
     // Tuning not used here with linear periods
-    if (mpp_layer->flags & (1 << (C_FLAGS_SS - 1)))
+    if (mpp_layer->flags & MAS_HEADER_FLAG_FREQ_MODE)
         return ((mm_word *)IT_PitchTable)[note]; // Read 2 halfwords at once
 
     mm_word r0 = note_table_mod[note];      // (note mod 12) << 1
@@ -380,7 +380,7 @@ IWRAM_CODE ARM_CODE void mmUpdateChannel_T0(mm_module_channel *module_channel, m
     if ((module_channel->flags & MF_HASVCMD) == 0)
         goto start_channel;
 
-    mm_bool is_xm_mode = mpp_layer->flags & (1 << (C_FLAGS_XS - 1));
+    mm_bool is_xm_mode = mpp_layer->flags & MAS_HEADER_FLAG_XM_MODE;
 
     if (is_xm_mode) // XM effects
     {
@@ -476,7 +476,7 @@ channel_started:
 
     if (module_channel->flags & (MF_START | MF_DVOL))
     {
-        if (((mpp_layer->flags & C_FLAGS_X) == 0) || (module_channel->flags & MF_DVOL))
+        if (((mpp_layer->flags & MAS_HEADER_FLAG_XM_MODE) == 0) || (module_channel->flags & MF_DVOL))
         {
             // Reset volume
             active_channel->fade = 1 << 10;
@@ -502,7 +502,7 @@ channel_started:
     {
         active_channel->flags &= ~MCAF_KEYON;
 
-        mm_bool is_xm_mode = mpp_layer->flags & C_FLAGS_X;
+        mm_bool is_xm_mode = mpp_layer->flags & MAS_HEADER_FLAG_XM_MODE;
 
         // XM starts fade immediately on note-off
         if (is_xm_mode)

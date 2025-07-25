@@ -361,7 +361,7 @@ void mpp_setposition(mpl_layer_information *layer_info, mm_word position)
             return;
 
         // Set position to 'restart'
-        position = header->rep;
+        position = header->restart_pos;
     }
 
     // Calculate pattern address
@@ -528,8 +528,8 @@ void mmPlayModule(mm_word address, mm_word mode, mm_word layer)
 
     mas_header* header = (mm_addr)address;
 
-    mm_word instn_size = header->instn;
-    mm_word sampn_size = header->sampn;
+    mm_word instn_size = header->inst_count;
+    mm_word sampn_size = header->samp_count;
 
     // Setup instrument, sample and pattern tables
     layer_info->insttable = (mm_word)&header->tables[0];
@@ -540,10 +540,10 @@ void mmPlayModule(mm_word address, mm_word mode, mm_word layer)
     mpp_setposition(layer_info, 0);
 
     // Load initial tempo
-    mpp_setbpm(layer_info, header->tempo);
+    mpp_setbpm(layer_info, header->initial_tempo);
 
     // Load initial global volume
-    layer_info->gv = header->gv;
+    layer_info->gv = header->global_volume;
 
     // Load song flags
     mm_word flags = header->flags;
@@ -551,7 +551,7 @@ void mmPlayModule(mm_word address, mm_word mode, mm_word layer)
     layer_info->oldeffects = (flags >> 1) & 1;
 
     // Load speed
-    layer_info->speed = header->speed;
+    layer_info->speed = header->initial_speed;
 
     // mpp_playing = true, set valid flag
     layer_info->isplaying = 1;
@@ -952,7 +952,7 @@ mm_word mpph_psd(mm_word period, mm_word slide_value)
 IWRAM_CODE
 mm_word mpph_PitchSlide_Up(mm_word period, mm_word slide_value, mpl_layer_information *layer)
 {
-    if (layer->flags & (1 << (C_FLAGS_SS - 1)))
+    if (layer->flags & MAS_HEADER_FLAG_FREQ_MODE)
     {
         return mpph_psu(period, slide_value);
     }
@@ -973,7 +973,7 @@ mm_word mpph_PitchSlide_Up(mm_word period, mm_word slide_value, mpl_layer_inform
 IWRAM_CODE
 mm_word mpph_LinearPitchSlide_Up(mm_word period, mm_word slide_value, mpl_layer_information *layer)
 {
-    if (layer->flags & (1 << (C_FLAGS_SS - 1)))
+    if (layer->flags & MAS_HEADER_FLAG_FREQ_MODE)
         return mpph_psu(period, slide_value);
     else
         return mpph_psd(period, slide_value);
@@ -983,7 +983,7 @@ mm_word mpph_LinearPitchSlide_Up(mm_word period, mm_word slide_value, mpl_layer_
 IWRAM_CODE
 mm_word mpph_FinePitchSlide_Up(mm_word period, mm_word slide_value, mpl_layer_information *layer)
 {
-    if (layer->flags & (1 << (C_FLAGS_SS - 1))) // mpph_psu_fine
+    if (layer->flags & MAS_HEADER_FLAG_FREQ_MODE) // mpph_psu_fine
     {
         // mpph_psu_fine
 
@@ -1014,7 +1014,7 @@ mm_word mpph_FinePitchSlide_Up(mm_word period, mm_word slide_value, mpl_layer_in
 IWRAM_CODE
 mm_word mpph_PitchSlide_Down(mm_word period, mm_word slide_value, mpl_layer_information *layer)
 {
-    if (layer->flags & (1 << (C_FLAGS_SS - 1)))
+    if (layer->flags & MAS_HEADER_FLAG_FREQ_MODE)
     {
         return mpph_psd(period, slide_value);
     }
@@ -1036,7 +1036,7 @@ mm_word mpph_PitchSlide_Down(mm_word period, mm_word slide_value, mpl_layer_info
 IWRAM_CODE
 mm_word mpph_LinearPitchSlide_Down(mm_word period, mm_word slide_value, mpl_layer_information *layer)
 {
-    if (layer->flags & (1 << (C_FLAGS_SS - 1)))
+    if (layer->flags & MAS_HEADER_FLAG_FREQ_MODE)
         return mpph_psd(period, slide_value);
     else
         return mpph_psu(period, slide_value);
@@ -1046,7 +1046,7 @@ mm_word mpph_LinearPitchSlide_Down(mm_word period, mm_word slide_value, mpl_laye
 IWRAM_CODE
 mm_word mpph_FinePitchSlide_Down(mm_word period, mm_word slide_value, mpl_layer_information *layer)
 {
-    if (layer->flags & (1 << (C_FLAGS_SS - 1))) // mpph_psd_fine
+    if (layer->flags & MAS_HEADER_FLAG_FREQ_MODE) // mpph_psd_fine
     {
         // mpph_psd_fine
 
@@ -1470,7 +1470,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
 
             mm_word glis = vcmd_glissando_table[volcmd];
 
-            if (layer->flags & (1 << (C_FLAGS_GS - 1))) // Shared Gxx
+            if (layer->flags & MAS_HEADER_FLAG_LINK_GXX) // Shared Gxx
             {
                 if (glis == 0)
                     glis = channel->memory[MPP_IT_PORTAMEM];
@@ -1544,7 +1544,7 @@ mm_word mpp_Channel_ExchangeMemory(mm_byte effect, mm_byte param,
     mm_byte table_entry;
 
     // Check flags for XM mode
-    if (layer->flags & (1 << (C_FLAGS_XS - 1)))
+    if (layer->flags & MAS_HEADER_FLAG_XM_MODE)
     {
         const mm_byte mpp_effect_memmap_xm[] = {
             0, 0, 0, 0, 2, 3, 4, 0, 0, 5, 0, 6, 7, 0, 0, 8, 9, 10, 11, 0, 0, 0, 0, 12, 0, 0, 0,
@@ -1719,7 +1719,7 @@ IWRAM_CODE static
 mm_word mpph_VolumeSlide(int volume, mm_word param, mm_word tick, int max_volume,
                          mpl_layer_information *layer)
 {
-    if (layer->flags & (1 << (C_FLAGS_XS - 1))) // mpph_vs_XM
+    if (layer->flags & MAS_HEADER_FLAG_XM_MODE) // mpph_vs_XM
     {
         if (tick != 0)
         {
@@ -1992,7 +1992,7 @@ mm_word mppe_glis_backdoor(mm_word param, mm_word period, mm_active_channel *act
 
     mm_word new_period;
 
-    if (layer->flags & (1 << (C_FLAGS_SS - 1))) // Test S flag
+    if (layer->flags & MAS_HEADER_FLAG_FREQ_MODE)
     {
         if (channel->period < target_period) // Slide up
         {
@@ -2055,7 +2055,7 @@ mm_word mppe_Glissando(mm_word param, mm_word period, mm_active_channel *act_ch,
 {
     if (layer->tick == 0)
     {
-        if (layer->flags & (1 << (C_FLAGS_GS - 1)))
+        if (layer->flags & MAS_HEADER_FLAG_LINK_GXX)
         {
             // Gxx is shared, IT MODE ONLY!!
 
@@ -2336,7 +2336,7 @@ void mppe_Tremolo(mm_word param, mm_module_channel *channel, mpl_layer_informati
 
     mm_sword result = (sine * depth) >> 6; // Sine * depth / 64
 
-    if (layer->flags & (1 << (C_FLAGS_XS - 1)))
+    if (layer->flags & MAS_HEADER_FLAG_XM_MODE)
         result >>= 1;
 
     mpp_vars.volplus = result; // Set volume addition variable
@@ -2412,7 +2412,7 @@ void mppe_SetGlobalVolume(mm_word param, mpl_layer_information *layer)
     if (layer->tick != 0)
         return;
 
-    mm_word mask = (1 << (C_FLAGS_XS - 1)) | (1 << (C_FLAGS_LS - 1));
+    mm_word mask = MAS_HEADER_FLAG_XM_MODE | MAS_HEADER_FLAG_OLD_MODE;
 
     mm_word maxvol;
 
@@ -2430,7 +2430,7 @@ void mppe_GlobalVolumeSlide(mm_word param, mpl_layer_information *layer)
 {
     mm_word maxvol;
 
-    if (layer->flags & (1 << (C_FLAGS_XS - 1)))
+    if (layer->flags & MAS_HEADER_FLAG_XM_MODE)
         maxvol = 64;
     else
         maxvol = 128;
@@ -3017,7 +3017,7 @@ mm_word mpp_Update_ACHN_notest_envelopes(mpl_layer_information *layer,
 
                 // TODO: The original code wanted to do this, but the check was
                 // incorrect, so only the second assignment was used.
-                //if (layer->flags & BIT(C_FLAGS_XS - 1))
+                //if (layer->flags & MAS_HEADER_FLAG_XM_MODE)
                 //    act_ch->flags |= MCAF_ENVEND;
                 //else
                     act_ch->flags |= MCAF_ENVEND | MCAF_FADE;
@@ -3046,7 +3046,7 @@ mm_word mpp_Update_ACHN_notest_envelopes(mpl_layer_information *layer,
         act_ch->flags |= MCAF_FADE | MCAF_ENVEND;
 
         // Check XM MODE and cut note
-        if (layer->flags & BIT(C_FLAGS_XS - 1))
+        if (layer->flags & MAS_HEADER_FLAG_XM_MODE)
             act_ch->fade = 0;
     }
 
@@ -3227,7 +3227,7 @@ mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *layer,
 
     mm_mas_sample_info *sample = mpp_SamplePointer(act_ch->sample, layer);
 
-    if (layer->flags & BIT(C_FLAGS_SS - 1))
+    if (layer->flags & MAS_HEADER_FLAG_FREQ_MODE)
     {
         // Linear frequencies
 
