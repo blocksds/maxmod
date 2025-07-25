@@ -15,7 +15,6 @@
 #include "core/mm_effect.h"
 #include "core/mm_main.h"
 #include "core/mm_mas_arm.h"
-#include "core/mp_defs.h"
 #include "core/mp_format_mas.h"
 #include "core/mp_mas_structs.h"
 #include "ds/arm7/mm_comms7.h"

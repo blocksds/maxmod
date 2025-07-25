@@ -11,7 +11,6 @@
 #include <mm_types.h>
 #include <mm_msl.h>
 
-#include "core/mp_defs.h"
 #include "core/mp_format_mas.h"
 #include "ds/arm9/mm_main9.h"
 

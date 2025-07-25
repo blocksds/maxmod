@@ -18,7 +18,6 @@
 #include "core/mm_main.h"
 #include "core/mm_mas_arm.h"
 #include "core/mm_mixer.h"
-#include "core/mp_defs.h"
 #include "core/mp_format_mas.h"
 #include "ds/arm7/mm_main7.h"
 #include "ds/arm7/mm_mixer_super.h"

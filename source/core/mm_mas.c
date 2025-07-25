@@ -13,7 +13,6 @@
 
 #include "core/mm_main.h"
 #include "core/mm_mas_arm.h"
-#include "core/mp_defs.h"
 #include "core/mp_format_mas.h"
 #include "core/mp_mas_structs.h"
 
@@ -226,7 +225,7 @@ void mmJingle(mm_word module_ID)
     if (module_ID >= mmGetModuleCount())
         return;
 
-    mpps_backdoor(module_ID, MPP_PLAY_ONCE, 1);
+    mpps_backdoor(module_ID, MM_PLAY_ONCE, 1);
 }
 
 // Reset channel data, and any active channels linked to the layer.
@@ -347,7 +346,7 @@ void mpp_setposition(mpl_layer_information *layer_info, mm_word position)
             break;
         }
 
-        if (layer_info->mode != MPP_PLAY_LOOP)
+        if (layer_info->mode != MM_PLAY_LOOP)
         {
             // It's playing once
 

@@ -10,7 +10,6 @@
 #include <mm_mas.h>
 #include <mm_types.h>
 
-#include "core/mp_defs.h"
 #include "core/mp_format_mas.h"
 #include "ds/arm9/mm_main9.h"
 

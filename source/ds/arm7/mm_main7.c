@@ -16,7 +16,6 @@
 #include "core/mm_main.h"
 #include "core/mm_mas_arm.h"
 #include "core/mm_mixer.h"
-#include "core/mp_defs.h"
 #include "core/mp_mas_structs.h"
 
 #if defined(SYS_GBA)
