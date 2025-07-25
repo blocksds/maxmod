@@ -11,15 +11,6 @@
 #define MPP_PLAY_ONCE   1
 #define MPP_PLAY_JINGLE 2
 
-
-#ifdef SYS_GBA
-
-// Number of bits used in fractional part of sample reading
-#define SAMPFRAC        12
-
-#endif
-
-
 #define MP_SCHANNELS    4
 
 // Callback parameters
