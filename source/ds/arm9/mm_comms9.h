@@ -9,5 +9,6 @@
 #include <mm_types.h>
 
 void mmSendBank(mm_word num_songs, mm_word num_samples, mm_addr bank_addr);
+void mmSetupComms(mm_word);
 
 #endif

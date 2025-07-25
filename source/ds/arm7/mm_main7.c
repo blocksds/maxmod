@@ -27,7 +27,6 @@
 #include "ds/arm7/mm_main7.h"
 #include "ds/arm7/mm_main_ds7.h"
 #include "ds/arm7/mm_mixer_super.h"
-#include "ds/common/mm_comms.h"
 #include "ds/common/mm_main_ds.h"
 #endif
 

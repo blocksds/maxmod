@@ -18,7 +18,6 @@
 #include "ds/arm9/mm_flusher.h"
 #include "ds/arm9/mm_main9.h"
 #include "ds/common/mm_comm_messages_ds.h"
-#include "ds/common/mm_comms.h"
 
 /*****************************************************************************************************************************
 
