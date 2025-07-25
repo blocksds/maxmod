@@ -2,6 +2,9 @@
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
 // Copyright (c) 2023, Lorenzooone (lollo.lollo.rbiz@gmail.com)
+// Copyright (c) 2025, Antonio Niño Díaz (antonio_nd@outlook.com)
+
+#include <nds.h>
 
 #include <maxmod9.h>
 #include <mm_mas.h>
@@ -9,10 +12,14 @@
 
 #include "core/mp_defs.h"
 #include "core/mp_format_mas.h"
-#include "ds/arm9/mm_flusher.h"
 #include "ds/arm9/mm_main9.h"
 
 #define BASE_SAMPLE_ADDRESS 0x2000000
+
+static void mmFlushBank(void)
+{
+    DC_FlushRange(mmMemoryBank, (mmModuleCount + mmSampleCount) * 4);
+}
 
 // Load a module into memory. Must be used before starting
 // a module.

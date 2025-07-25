@@ -13,7 +13,6 @@
 
 #include "core/mp_defs.h"
 #include "core/mp_format_mas.h"
-#include "ds/arm9/mm_flusher.h"
 #include "ds/arm9/mm_main9.h"
 
 #ifndef MM_FILENAME_SIZE

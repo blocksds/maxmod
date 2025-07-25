@@ -13,9 +13,6 @@
 #include <mm_types.h>
 
 #include "ds/common/mm_stream.h"
-#ifdef SYS_NDS9
-#include "ds/arm9/mm_flusher.h"
-#endif
 
 // Is this correct?! Or is it supposed to be the same as "BUS_SPEED"???
 #define CLOCK 33554432
