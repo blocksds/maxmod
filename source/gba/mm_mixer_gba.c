@@ -18,6 +18,9 @@
 
 mm_byte mp_mix_seg; // Mixing segment select
 
+// Pointer to a user function to be called during the vblank irq
+static mm_voidfunc mm_vblank_function;
+
 // Set channel volume
 void mmMixerSetVolume(int channel, mm_word volume)
 {
@@ -113,6 +116,12 @@ IWRAM_CODE ARM_CODE void mmVBlank(void)
     // Call user handler
     if (mm_vblank_function != NULL)
         mm_vblank_function();
+}
+
+// Set function to be called during the vblank IRQ
+void mmSetVBlankHandler(mm_voidfunc function)
+{
+    mm_vblank_function = function;
 }
 
 // Initialize mixer

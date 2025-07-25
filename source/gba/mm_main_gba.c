@@ -21,9 +21,6 @@
 #define mixlen 1056 // 16 KHz
 static uint32_t mixbuffer[mixlen / sizeof(uint32_t)];
 
-// Pointer to a user function to be called during the vblank irq
-mm_voidfunc mm_vblank_function;
-
 // Address of soundbank in memory/rom
 mm_addr mp_solution;
 
@@ -127,12 +124,6 @@ bool mmEnd(void)
     }
 
     return true;
-}
-
-// Set function to be called during the vblank IRQ
-void mmSetVBlankHandler(mm_voidfunc function)
-{
-    mm_vblank_function = function;
 }
 
 // Work routine, user _must_ call this every frame.
