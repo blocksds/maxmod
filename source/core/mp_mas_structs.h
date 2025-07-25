@@ -12,7 +12,6 @@
 
 #include "core/mm_channel_types.h"
 
-// There was an incomplete version of this struct in mm_types: mm_modlayer
 typedef struct {
     mm_byte     tick;       // Current tick count
     mm_byte     row;        // Current row being played
@@ -99,18 +98,10 @@ static_assert(sizeof(mpv_active_information) == 16);
 #define MF_DVOL         2
 #define MF_HASVCMD      4
 #define MF_HASFX        8
-#define MF_NEWINSTR     16
-
+#define MF_NEWINSTR     16  // New instrument
+#define MF_UNKNOWN      32  // TODO: This is set by mmutil but not used
 #define MF_NOTEOFF      64  // LOCKED
 #define MF_NOTECUT      128 // LOCKED
-
-// #define MF_NEWINSTR         1 // new instrument
-// #define MF_DVOL             2
-// #define MF_START            4
-// #define MF_HASFX            8
-// #define MF_HASVCMD          16
-// #define MF_NOTEOFF          64  // LOCKED
-// #define MF_NOTECUT          128 // LOCKED
 
 // Other Definitions
 // -----------------

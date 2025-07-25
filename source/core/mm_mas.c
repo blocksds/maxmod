@@ -1100,7 +1100,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
 
     mm_byte volcmd = channel->volcmd;
 
-    if (mas->flags & (1 << 3)) // XM commands
+    if (mas->flags & MAS_HEADER_FLAG_XM_MODE) // XM commands
     {
         if (volcmd == 0) // 0 = none
         {
@@ -3284,7 +3284,7 @@ mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *layer,
 
     // Get global volume
     mm_byte gv = layer->gv;
-    if (layer->flags & BIT(4 - 1))
+    if (layer->flags & MAS_HEADER_FLAG_XM_MODE)
         gv <<= 1; // XM mode global volume is only 0->64, shift to 0->128
     vol = (vol * gv) >> 10;
 
