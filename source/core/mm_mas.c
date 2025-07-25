@@ -354,7 +354,7 @@ void mpp_setposition(mpl_layer_information *layer_info, mm_word position)
             mppStop();
 
             if (mmCallback != NULL)
-                mmCallback(MPCB_SONGFINISHED, mpp_clayer);
+                mmCallback(MMCB_SONGFINISHED, mpp_clayer);
         }
 
         // If the song has ended in the call to mppStop()
@@ -2626,7 +2626,7 @@ void mppex_SongMessage(mm_word param, mpl_layer_information *layer)
         return;
 
     if (mmCallback != NULL)
-        mmCallback(MPCB_SONGMESSAGE, param & 0xF);
+        mmCallback(MMCB_SONGMESSAGE, param & 0xF);
 }
 
 // EFFECT Sxy: Extended Effects
