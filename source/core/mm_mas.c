@@ -750,15 +750,15 @@ void mpp_Channel_NewNote(mm_module_channel *module_channel, mpl_layer_informatio
     }
     else
     {
-        mm_hword bflags = (module_channel->bflags >> 6) & 3;
+        mm_hword nna = (module_channel->bflags >> 6) & 3;
 
-        if (bflags == 0)
+        if (nna == IT_NNA_CUT)
             goto mppt_NNA_CUT;
-        else if (bflags == 1)
+        else if (nna == IT_NNA_CONT)
             goto mppt_NNA_CONTINUE;
-        else if (bflags == 2)
+        else if (nna == IT_NNA_OFF)
             goto mppt_NNA_OFF;
-        else if (bflags == 3)
+        else if (nna == IT_NNA_FADE)
             goto mppt_NNA_FADE;
     }
 

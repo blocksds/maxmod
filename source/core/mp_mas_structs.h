@@ -106,7 +106,7 @@ static_assert(sizeof(mpv_active_information) == 16);
 // Other Definitions
 // -----------------
 
-#define IT_NNA_CUT      0 // New note actions (TODO: They aren't used)
+#define IT_NNA_CUT      0 // New note actions
 #define IT_NNA_CONT     1
 #define IT_NNA_OFF      2
 #define IT_NNA_FADE     3
