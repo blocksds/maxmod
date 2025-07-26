@@ -309,7 +309,7 @@ void mmStop(void)
     mppStop();
 }
 
-static uintptr_t mpp_PatternPointer(mm_word entry, mpl_layer_information *layer)
+static mm_mas_pattern *mpp_PatternPointer(mm_word entry, mpl_layer_information *layer)
 {
     mas_header *header = (mas_header *)layer->songadr;
 
@@ -319,7 +319,7 @@ static uintptr_t mpp_PatternPointer(mm_word entry, mpl_layer_information *layer)
     // Calculate pattern address
     uintptr_t patt_addr = (uintptr_t)header + *(mm_word *)patt_offset;
 
-    return patt_addr;
+    return (mm_mas_pattern *)patt_addr;
 }
 
 // Set sequence position.
@@ -365,10 +365,10 @@ void mpp_setposition(mpl_layer_information *layer_info, mm_word position)
     }
 
     // Calculate pattern address
-    uintptr_t patt_addr = mpp_PatternPointer(entry, layer_info);
+    mm_mas_pattern *patt = mpp_PatternPointer(entry, layer_info);
 
     // Save pattern size
-    layer_info->nrows = *(mm_byte *)patt_addr;
+    layer_info->nrows = patt->row_count;
 
     // Reset tick/row
     layer_info->tick = 0;
@@ -377,10 +377,10 @@ void mpp_setposition(mpl_layer_information *layer_info, mm_word position)
     layer_info->pattdelay = 0;
 
     // Store pattern data address
-    layer_info->pattread = patt_addr + 1;
+    layer_info->pattread = patt->pattern_data;
 
     // Reset pattern loop
-    layer_info->ploop_adr = patt_addr + 1;
+    layer_info->ploop_adr = patt->pattern_data;
     layer_info->ploop_row = 0;
     layer_info->ploop_times = 0;
 }

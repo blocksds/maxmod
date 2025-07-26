@@ -172,7 +172,7 @@ IWRAM_CODE ARM_CODE void mmReadPattern(mpl_layer_information *mpp_layer)
     mm_module_channel *module_channels = mpp_channels;
 
     mpp_vars.pattread_p = mpp_layer->pattread;
-    mm_byte* pattern = (mm_byte*)mpp_vars.pattread_p;
+    mm_byte *pattern = mpp_vars.pattread_p;
 
     mm_word update_bits = 0;
 
@@ -253,7 +253,7 @@ IWRAM_CODE ARM_CODE void mmReadPattern(mpl_layer_information *mpp_layer)
         module_channel->flags = pattern_flags | (compr_flags >> 4);
     }
 
-    mpp_layer->pattread = (mm_word)pattern;
+    mpp_layer->pattread = pattern;
     mpp_layer->mch_update = update_bits;
 }
 

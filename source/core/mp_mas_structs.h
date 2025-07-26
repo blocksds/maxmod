@@ -32,10 +32,10 @@ typedef struct {
     mm_byte     fpattdelay;
     mm_byte     pattdelay;
 
-    mm_byte     ploop_row;
-    mm_byte     ploop_times;
-    mm_word     ploop_adr;
-    mm_word     pattread;
+    mm_byte     ploop_row;   // }
+    mm_byte     ploop_times; // } Variables used for pattern loops
+    mm_byte    *ploop_adr;   // }
+    mm_byte    *pattread;
     mm_byte     ploop_jump;
     mm_byte     valid;
 
@@ -59,7 +59,7 @@ static_assert(sizeof(mpl_layer_information) == 56);
 
 typedef struct {
     mm_word     reserved;
-    mm_word     pattread_p;
+    mm_byte    *pattread_p;
     mm_byte     afvol;
     mm_byte     sampoff;
     mm_sbyte    volplus;

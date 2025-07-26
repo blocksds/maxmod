@@ -111,7 +111,7 @@ typedef struct tmm_mas_sample_info
 
 typedef struct tmm_mas_pattern
 {
-    mm_byte     row_count;
+    mm_byte     row_count; // Number of rows of the pattern
 
     mm_byte     pattern_data[];
 
