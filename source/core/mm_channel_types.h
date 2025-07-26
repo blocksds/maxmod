@@ -45,14 +45,23 @@ static_assert(sizeof(mm_module_channel) == 40);
 static_assert(sizeof(mm_module_channel) == MM_SIZEOF_MODCH);
 #endif
 
-// BFLAGS:
+// New note action (NNA)
+#define MCH_BFLAGS_NNA_SHIFT    6
+#define MCH_BFLAGS_NNA_MASK     (3 << MCH_BFLAGS_NNA_SHIFT)
+#define MCH_BFLAGS_NNA_GET(x)   (((x) & MCH_BFLAGS_NNA_MASK) >> MCH_BFLAGS_NNA_SHIFT)
+#define MCH_BFLAGS_NNA_SET(x)   (((x) << MCH_BFLAGS_NNA_SHIFT) & MCH_BFLAGS_NNA_MASK)
+
+#define MCH_BFLAGS_TREMOR       (1 << 9)    // Tremor variable
+#define MCH_BFLAGS_CUT_VOLUME   (1 << 10)   // Cut channel volume
+
+// BFLAGS
 // /////ctv nnppttvv
 // nn...............new note action (NNA)
-// pp...............panbrello waveform
-// tt...............tremolo waveform
-// vv...............vibrato waveform
-// dd...............duplicate check type
-// v................volume envelope enabled
+// pp...............panbrello waveform      // TODO: Unused
+// tt...............tremolo waveform        // TODO: Unused
+// vv...............vibrato waveform        // TODO: Unused
+// dd...............duplicate check type    // TODO: Unused (Not in bitfield!)
+// v................volume envelope enabled // TODO: Unused
 // t................tremor variable...
 // c................cut channel volume
 // //////...........reserved

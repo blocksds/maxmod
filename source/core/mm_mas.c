@@ -697,7 +697,7 @@ void mpp_Channel_NewNote(mm_module_channel *module_channel, mpl_layer_informatio
 
     mm_mas_instrument *instrument = get_instrument(layer, module_channel->inst);
 
-    if ((module_channel->bflags >> 6) == 0) // Fetch NNA
+    if ((MCH_BFLAGS_NNA_GET(module_channel->bflags)) == IT_NNA_CUT)
         goto mppt_NNA_CUT; // Skip if zero
 
     bool do_dca = false;
@@ -750,7 +750,7 @@ void mpp_Channel_NewNote(mm_module_channel *module_channel, mpl_layer_informatio
     }
     else
     {
-        mm_hword nna = (module_channel->bflags >> 6) & 3;
+        mm_hword nna = MCH_BFLAGS_NNA_GET(module_channel->bflags);
 
         if (nna == IT_NNA_CUT)
             goto mppt_NNA_CUT;
@@ -2526,7 +2526,8 @@ void mppex_InstControl(mm_word param, mm_active_channel *act_ch,
     else if (subparam <= 6) // mppex_ic_nna
     {
         // Overwrite NNA
-        channel->bflags = (channel->bflags & 0xFF3F) | ((subparam - 3) << 6);
+        channel->bflags &= ~MCH_BFLAGS_NNA_MASK;
+        channel->bflags |= MCH_BFLAGS_NNA_SET(subparam - 3);
     }
     else if (subparam <= 8) // mppex_ic_envelope
     {
@@ -2754,15 +2755,15 @@ void mppe_OldTremor(mm_word param, mm_module_channel *channel,
     }
     else // New
     {
-        channel->bflags ^= 3 << 9;
+        channel->bflags ^= MCH_BFLAGS_TREMOR | MCH_BFLAGS_CUT_VOLUME;
 
-        if (channel->bflags & (1 << 10))
+        if (channel->bflags & MCH_BFLAGS_CUT_VOLUME)
             channel->fxmem = (param >> 4) + 1;
         else
             channel->fxmem = (param & 0xF) + 1;
     }
 
-    if ((channel->bflags & (1 << 10)) == 0) // Cut note
+    if ((channel->bflags & MCH_BFLAGS_CUT_VOLUME) == 0) // Cut note
         mpp_vars.volplus = -64;
 }
 

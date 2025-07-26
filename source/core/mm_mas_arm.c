@@ -265,7 +265,7 @@ static IWRAM_CODE ARM_CODE mm_mas_instrument *get_instrument(mpl_layer_informati
 IWRAM_CODE ARM_CODE mm_byte mmChannelStartACHN(mm_module_channel *module_channel, mm_active_channel *active_channel, mpl_layer_information *mpp_layer, mm_byte channel_counter)
 {
     // Clear tremor/cutvol
-    module_channel->bflags &= ~(6 << 8);
+    module_channel->bflags &= ~(MCH_BFLAGS_CUT_VOLUME | MCH_BFLAGS_TREMOR);
 
     if (active_channel)
     {
@@ -449,8 +449,8 @@ channel_started:
             mm_mas_instrument *instrument = get_instrument(mpp_layer, module_channel->inst);
 
             // Clear old nna and set the new one
-            module_channel->bflags &= ~(3 << 6);
-            module_channel->bflags |= ((instrument->nna & 3) << 6);
+            module_channel->bflags &= ~MCH_BFLAGS_NNA_MASK;
+            module_channel->bflags |= MCH_BFLAGS_NNA_SET(instrument->nna);
 
             if (instrument->env_flags & MAS_INSTR_FLAG_VOL_ENV_ENABLED)
                 active_channel->flags |= MCAF_VOLENV;
