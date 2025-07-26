@@ -22,55 +22,6 @@
 #include "ds/common/mm_comm_messages_ds.h"
 #include "ds/common/mm_stream.h"
 
-/*****************************************************************************************************************************
-
-[value] represents a 1 byte value
-[[value]] represents a 2 byte value
-[[[value]]] represents a 3 byte value
-[[[[value]]]] represents a 4 byte value
-... represents data with a variable length
-
-message table:
------------------------------------------------------------------------------------------------------------------
-message			size	parameters			desc
------------------------------------------------------------------------------------------------------------------
-0: BANK			6	[[#songs]] [[[mm_bank]]]	get sound bank
-1: SELCHAN		4	[[bitmask]] [cmd]		select channels
-2: START		4	[[id]] [mode] 			start module
-3: PAUSE		1	---				pause module
-4: RESUME		1	---				resume module
-5: STOP			1	---				stop module
-6: POSITION		2	[position]			set playback position
-7: STARTSUB		3	[[id]]				start submodule
-8: MASTERVOL		3	[[volume]]			set master volume
-9: MASTERVOLSUB		3	[[volume]]			set master volume for sub module
-A: MASTERTEMPO		3	[[tempo]]			set master tempo
-B: MASTERPITCH		3	[[pitch]]			set master pitch
-C: MASTEREFFECTVOL	3	[[volume]]			set master effect volume, bbaa= volume
-D: OPENSTREAM		10	[[[[wave]]]] [[clks]] [[len]] [format]    open audio stream
-E: CLOSESTREAM		1	---				close audio stream
-F: SELECTMODE		2	[mode]				select audio mode
-
-10: EFFECT		5	[[id]] [[handle]]		play effect, default params
-11: EFFECTVOL		4	[[handle]] [volume]		set effect volume
-12: EFFECTPAN		4	[[handle]] [panning]		set effect panning
-13: EFFECTRATE		5	[[handle]] [[rate]]		set effect pitch
-14: EFFECTMULRATE	5	[[handle]] [[factor]]		scale effect pitch
-15: EFFECTOPT		4	[[handle]] [options]		set effect options
-16: EFFECTEX		11	[[[[sample/id]]]] [[rate]] [[handle]] [vol] [pan] play effect, full params
-17: ---			-	---				---
-
-18: REVERBENABLE	1	---				enable reverb
-19: REVERBDISABLE	1	---				disable reverb
-1A: REVERBCFG		3..14	[[flags]] : [[[[memory]]]] [[delay]] [[rate]] [[feedback]] [panning]
-1B: REVERBSTART		1	[channels]			start reverb
-1C: REVERBSTOP		1	[channels]			stop reverb
-
-1D: EFFECTCANCELALL	1	---				cancel all effects
-
-1E->3F: Reserved
-******************************************************************************************************************************/
-
 /***********************************************************************
  * Value32 format
  *
@@ -201,7 +152,7 @@ static ARM_CODE mm_word ReadNFifoBytes(int n_bytes)
 // Do the actual processing with a switch
 static ARM_CODE void ProcessNextMessage(void)
 {
-    enum message_ids msg_id = (enum message_ids)ReadNFifoBytes(1);
+    enum mm_message_ids msg_id = (enum mm_message_ids)ReadNFifoBytes(1);
 
     switch (msg_id)
     {
