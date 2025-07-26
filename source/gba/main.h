@@ -6,9 +6,9 @@
 #ifndef MM_GBA_MAIN_H
 #define MM_GBA_MAIN_H
 
-#include <mm_types.h>
+#include <mm_msl.h>
 
 // Address of soundbank in memory/rom
-extern mm_addr mp_solution;
+extern msl_head *mp_solution;
 
 #endif // MM_GBA_MAIN_H

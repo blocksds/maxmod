@@ -9,6 +9,7 @@
 
 #include <maxmod.h>
 #include <mm_mas.h>
+#include <mm_msl.h>
 
 #include "core/effect.h"
 #include "core/mas.h"
@@ -21,7 +22,7 @@
 static uint32_t mixbuffer[mixlen / sizeof(uint32_t)];
 
 // Address of soundbank in memory/rom
-mm_addr mp_solution;
+msl_head *mp_solution;
 
 // Number of modules in sound bank
 mm_word mmModuleCount;
@@ -40,11 +41,8 @@ bool mmInit(mm_gba_system* setup)
 {
     mp_solution = setup->soundbank;
 
-    // The first word of the soundbank contains the number of samples followed
-    // by the number of songs.
-    mm_word first_word = *(mm_word *)mp_solution;
-    mmSampleCount = first_word & 0xFFFF;
-    mmModuleCount = (first_word >> 16) & 0xFFFF;
+    mmSampleCount = mp_solution->head_data.sampleCount;
+    mmModuleCount = mp_solution->head_data.moduleCount;
 
     mm_achannels = setup->active_channels;
     mm_pchannels = setup->module_channels;
