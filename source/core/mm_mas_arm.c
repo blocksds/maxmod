@@ -88,7 +88,7 @@ static mm_hword ST3_FREQTABLE[] =
 
 // LUT for linear periods. Values are 16.16 bit
 // https://ftp.modland.com/pub/documents/format_documentation/Impulse%20Tracker%20v2.04%20(.it).html
-__attribute__((aligned (4))) // Align to 4 bytes so that we can read in one read
+__attribute__((aligned (4))) // Align to 4 bytes so that we can read 2 hwords in one read
 static mm_hword IT_PitchTable[] =
 {
     2048, 0,   2170, 0,   2299, 0,   2435, 0,   2580, 0,   2734, 0,
