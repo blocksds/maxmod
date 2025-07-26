@@ -15,7 +15,7 @@
 
 #define BASE_SAMPLE_ADDRESS 0x2000000
 
-static void mmFlushBank(void)
+static void mmFlushMemoryBank(void)
 {
     DC_FlushRange(mmMemoryBank, (mmModuleCount + mmSampleCount) * 4);
 }
@@ -43,8 +43,7 @@ void mmLoad(mm_word module_ID)
     for (mm_word i = 0; i < header->samp_count; i++)
         mmLoadEffect(((mm_mas_sample_info*)(sample_table[i] + ((mm_word)header)))->msl_id);
 
-    // Flush the Bank
-    mmFlushBank();
+    mmFlushMemoryBank();
 }
 
 // Unload a module from memory.
@@ -69,8 +68,7 @@ void mmUnload(mm_word module_ID)
     mmcbMemory(MMCB_DELETESONG, mmModuleBankArr[module_ID]);
     mmModuleBankArr[module_ID] = 0;
 
-    // Flush the Bank
-    mmFlushBank();
+    mmFlushMemoryBank();
 }
 
 // Load a sound effect into memory. Use before mmEffect.
@@ -91,8 +89,7 @@ void mmLoadEffect(mm_word sample_ID)
     // Increment instance count
     mmSampleBankArr[sample_ID] += 1 << 24;
 
-    // Flush the Bank
-    mmFlushBank();
+    mmFlushMemoryBank();
 }
 
 // Unload sound effect from memory.
@@ -119,6 +116,5 @@ void mmUnloadEffect(mm_word sample_ID)
 
     mmSampleBankArr[sample_ID] = sample_data;
 
-    // Flush the Bank
-    mmFlushBank();
+    mmFlushMemoryBank();
 }
