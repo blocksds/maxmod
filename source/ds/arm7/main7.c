@@ -5,26 +5,16 @@
 
 #include <nds.h>
 
-#if defined(SYS_GBA)
-#include <maxmod.h>
-#elif defined(SYS_NDS)
 #include <maxmod7.h>
-#endif
 #include <mm_mas.h>
 
 #include "core/effect.h"
 #include "core/mas.h"
 #include "core/mixer.h"
 #include "core/mas_structs.h"
-
-#if defined(SYS_GBA)
-#include "gba/main_gba.h"
-#include "gba/mixer_gba.h"
-#elif defined(SYS_NDS)
 #include "ds/arm7/comms7.h"
 #include "ds/arm7/main7.h"
 #include "ds/arm7/mixer.h"
-#endif
 
 static mm_word mmEventForwarder(mm_word, mm_word);
 static void StopActiveChannel(mm_word);
@@ -115,23 +105,13 @@ static void StopActiveChannel(mm_word index)
     mm_module_channel *channels;
     mm_word num_channels;
 
-#ifdef SYS_NDS
     mm_mixer_channel *mix_ch = &mm_mix_channels[index];
-#endif
-#ifdef SYS_GBA
-    mm_mixer_channel *mix_ch = &mm_mixchannels[index];
-#endif
 
-#ifdef SYS_GBA
-    mix_ch->src = -1;
-#endif
-#ifdef SYS_NDS
     mix_ch->key_on = 0;
     mix_ch->samp = 0;
     mix_ch->tpan = 0;
     mix_ch->vol = 0;
     mix_ch->cvol = 0;
-#endif
 
     // There are more channels than physical sound channels,
     // but there was no check for that in the asm... :/
