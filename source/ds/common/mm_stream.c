@@ -60,25 +60,9 @@ static mm_hword mmsPreviousTimer;
 static mm_word StreamCounter;
 static mm_stream_data mmsData;
 
-static mm_word getAndUpdateStreamPosition(mm_bool);
 static void StreamExecuteUpdate(mm_word);
 static void ForceStreamRequest(mm_word);
-static mm_byte* CopyDataMonoStream(mm_byte*, mm_word, mm_word, mm_word);
-static mm_byte* CopyDataStereoStream(mm_byte*, mm_word, mm_word, mm_word, mm_word);
 static void CopyDataToStream(mm_word);
-static mm_bool is_stereo_format(mm_stream_formats);
-static mm_bool is_16bit_format(mm_stream_formats);
-//static mm_bool is_8bit_format(mm_stream_formats);
-#ifdef MM_SUPPORT_4BIT_STREAM
-static mm_bool is_4bit_format(mm_stream_formats);
-#endif
-static mm_byte get_shift_for_format(mm_stream_formats);
-#ifdef SYS_NDS7
-static mm_byte get_cnt_format(mm_stream_formats);
-static void init_sound_channel(mm_byte, mm_byte, uintptr_t);
-static void start_sound_channel(mm_byte);
-static void stop_sound_channel(mm_byte);
-#endif
 
 // Checks if a format is stereo or not
 static mm_bool is_stereo_format(mm_stream_formats format)
