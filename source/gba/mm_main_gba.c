@@ -49,8 +49,8 @@ bool mmInit(mm_gba_system* setup)
 
     mm_achannels = setup->active_channels;
     mm_pchannels = setup->module_channels;
-    mm_num_mch = (mm_word)setup->mod_channel_count;
-    mm_num_ach = (mm_word)setup->mix_channel_count;
+    mm_num_mch = setup->mod_channel_count;
+    mm_num_ach = setup->mix_channel_count;
 
     mmMixerInit(setup); // Initialize software/hardware mixer
 

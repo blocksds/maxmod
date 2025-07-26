@@ -60,11 +60,10 @@ void mmMixerSetRead(int channel, mm_word value)
 // Test if mixing channel is active
 mm_word mmMixerChannelActive(int channel)
 {
-    // Nonzero (-1) = enabled, zero = disabled
     if (mm_mixchannels[channel].src & (1U << 31))
-        return 0;
+        return 0; // zero = disabled
 
-    return 0xFFFFFFFF;
+    return 0xFFFFFFFF; // non-zero (-1) = enabled
 }
 
 // Set channel source
