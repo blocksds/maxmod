@@ -9,7 +9,6 @@
 #include <maxmod.h>
 #include <mm_mas.h>
 
-#include "core/mm_main.h"
 #include "core/mm_mas_arm.h"
 #include "core/mp_format_mas.h"
 #include "core/mp_mas_structs.h"
@@ -43,6 +42,9 @@
 #define NOTE_OFF 255
 
 #define MULT_PERIOD 133808
+
+// Bitmask to select which hardware/software channels are free to use
+mm_word mm_ch_mask;
 
 static mm_byte note_table_oct[] =
 {

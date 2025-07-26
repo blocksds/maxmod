@@ -11,7 +11,6 @@
 #include <mm_mas.h>
 #include <mm_msl.h>
 
-#include "core/mm_main.h"
 #include "core/mm_mas_arm.h"
 #include "core/mp_format_mas.h"
 #include "core/mp_mas_structs.h"
@@ -95,6 +94,15 @@ mm_byte mpp_clayer;
 // Speed divider for DS timing.
 static mm_word mpp_resolution;
 #endif
+
+// Function pointer to user event handler
+static mm_callback mmCallback;
+
+// Set function for handling playback events
+void mmSetEventHandler(mm_callback handler)
+{
+    mmCallback = handler;
+}
 
 // Suspend main module and associated channels.
 static void mpp_suspend(void)

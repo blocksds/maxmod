@@ -13,6 +13,8 @@
 // This is the number of channels for the sub layer (used for jingles)
 #define MP_SCHANNELS    4
 
+extern mm_word mm_ch_mask;
+
 extern mpl_layer_information mmLayerMain;
 extern mpl_layer_information mmLayerSub;
 
@@ -28,6 +30,8 @@ extern mm_module_channel *mm_pchannels;
 extern mm_word mm_num_mch;
 extern mm_word mm_num_ach;
 extern mm_module_channel mm_schannels[MP_SCHANNELS];
+
+void mmSetEventHandler(mm_callback);
 
 void mmSetResolution(mm_word);
 void mmPulse(void);

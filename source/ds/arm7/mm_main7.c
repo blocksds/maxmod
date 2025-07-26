@@ -13,7 +13,6 @@
 #include <mm_mas.h>
 
 #include "core/mm_effect.h"
-#include "core/mm_main.h"
 #include "core/mm_mas_arm.h"
 #include "core/mm_mixer.h"
 #include "core/mp_mas_structs.h"
@@ -57,7 +56,7 @@ mm_module_channel mm_rds_pchannels[NUM_CHANNELS];
 mm_active_channel mm_rds_achannels[NUM_CHANNELS];
 
 // Variable that will be 'true' if we are ready for playback
-mm_byte mmInitialized;
+static mm_byte mmInitialized;
 
 // Returns true if the system is ready for playback
 mm_bool mmIsInitialized(void)

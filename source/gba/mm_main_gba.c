@@ -11,7 +11,6 @@
 #include <mm_mas.h>
 
 #include "core/mm_effect.h"
-#include "core/mm_main.h"
 #include "core/mm_mas_arm.h"
 #include "core/mm_mixer.h"
 #include "core/mp_mas_structs.h"
