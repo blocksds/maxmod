@@ -181,14 +181,6 @@ void mmMixerInit(void)
     mmSelectMode(MM_MODE_A);
 }
 
-// Set channel source
-void mmMixerSetSource(int channel, mm_word p_sample)
-{
-    //mm_mix_channels[channel].tpan = (p_sample >> 24) - 2;
-    mm_mix_channels[channel].samp = p_sample;
-    mm_mix_channels[channel].key_on = 1;
-}
-
 // Set channel volume
 void mmMixerSetVolume(int channel, mm_word volume)
 {
@@ -233,12 +225,22 @@ void mmMixerStopChannel(int channel)
     mm_mix_channels[channel].tpan = 0;
 }
 
+#if 0
 // Test active status of channel
 // returns nonzero if active
 mm_word mmMixerChannelActive(int channel)
 {
     return mm_mix_channels[channel].samp;
 }
+
+// Set channel source
+void mmMixerSetSource(int channel, mm_word p_sample)
+{
+    //mm_mix_channels[channel].tpan = (p_sample >> 24) - 2;
+    mm_mix_channels[channel].samp = p_sample;
+    mm_mix_channels[channel].key_on = 1;
+}
+#endif
 
 // Select audio mode
 void mmSelectMode(mm_mode_enum mode)

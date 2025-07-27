@@ -57,6 +57,7 @@ void mmMixerSetRead(int channel, mm_word value)
     mm_mixchannels[channel].read = value;
 }
 
+#if 0
 // Test if mixing channel is active
 mm_word mmMixerChannelActive(int channel)
 {
@@ -75,6 +76,7 @@ void mmMixerSetSource(int channel, mm_word p_sample)
     // Reset read position
     mm_mixchannels[channel].read = 0;
 }
+#endif
 
 // Set channel mixing rate
 void mmMixerSetFreq(int channel, mm_word rate)
