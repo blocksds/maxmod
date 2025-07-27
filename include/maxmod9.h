@@ -121,12 +121,20 @@ void mmSelectMode(mm_mode_enum mode);
 
 /// Loads a module into memory for playback.
 ///
-/// Must be used before starting to play a module with mmStart().
+/// Must be used before starting to play a module with mmStart(). If the
+/// sound bank is in the filesystem, this function will load the required data
+/// from the sound bank and save it in RAM.
+///
+/// It loads all module information and the samples required by it. If any of
+/// the samples can't be loaded, all information is freed before returning.
 ///
 /// @param module_ID
 ///     Index of module to be loaded. Values are defined in the soundbank header
 ///     output. (prefixed with "MOD_")
-void mmLoad(mm_word module_ID);
+///
+/// @return
+///     It returns 0 on success and a non-zero value on error.
+mm_word mmLoad(mm_word module_ID);
 
 /// Unloads and frees memory space occupied by a module.
 ///
@@ -134,22 +142,33 @@ void mmLoad(mm_word module_ID);
 ///
 /// @param module_ID
 ///     Index of module to be unloaded from memory.
-void mmUnload(mm_word module_ID);
+///
+/// @return
+///     It returns 0 on success and a non-zero value on error.
+mm_word mmUnload(mm_word module_ID);
 
 /// Loads a sound effect into memory for playback.
 ///
-/// May be played with mmEffect()/mmEffectEx() afterwards.
+/// May be played with mmEffect()/mmEffectEx() afterwards. If the sound bank is
+/// in the filesystem, this function will load the required data from the sound
+/// bank and save it in RAM.
 ///
 /// @param sample_ID
 ///     Index of sample to be loaded. Values are defined in the soundbank header
 ///     output (prefixed with "SFX_)
-void mmLoadEffect(mm_word sample_ID);
+///
+/// @return
+///     It returns 0 on success and a non-zero value on error.
+mm_word mmLoadEffect(mm_word sample_ID);
 
 /// Unloads a sound effect and frees the memory if the reference count becomes zero.
 ///
 /// @param sample_ID
 ///     Index of sample to be unloaded.
-void mmUnloadEffect(mm_word sample_ID);
+///
+/// @return
+///     It returns 0 on success and a non-zero value on error.
+mm_word mmUnloadEffect(mm_word sample_ID);
 
 /// Lock audio channels to prevent Maxmod from using them.
 ///

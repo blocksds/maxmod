@@ -22,14 +22,17 @@ static void mmFlushMemoryBank(void)
 // Load a module into memory. Must be used before starting
 // a module.
 // module_ID : ID of module. (defined in soundbank header)
-void mmLoad(mm_word module_ID)
+mm_word mmLoad(mm_word module_ID)
 {
     // Check if Free
     if (mmModuleBank[module_ID] != NULL)
-        return;
+        return 1;
 
     // Load module into memory
     mm_addr ptr = (mm_addr)mmcbMemory(MMCB_SONGREQUEST, module_ID);
+    if (ptr == NULL)
+        return 2;
+
     mmModuleBank[module_ID] = ptr;
 
     mm_mas_head *header = (mm_mas_head *)(mmModuleBank[module_ID] + 8);
@@ -38,18 +41,30 @@ void mmLoad(mm_word module_ID)
 
     // Load samples
     for (mm_word i = 0; i < header->sampl_count; i++)
-        mmLoadEffect(((mm_mas_sample_info*)(sample_table[i] + ((mm_word)header)))->msl_id);
+    {
+        mm_word sfx_id = ((mm_mas_sample_info*)(sample_table[i] + ((mm_word)header)))->msl_id;
+        if (mmLoadEffect(sfx_id) != 0)
+        {
+            // If a sample can't be loaded, unload everything that has been
+            // loaded until now. mmModuleBank[module_ID] has already been set,
+            // so mmUnload() can be called.
+            mmUnload(module_ID);
+            return 3;
+        }
+    }
 
     mmFlushMemoryBank();
+
+    return 0;
 }
 
 // Unload a module from memory.
 // module_ID : ID of module. (defined in soundbank header)
-void mmUnload(mm_word module_ID)
+mm_word mmUnload(mm_word module_ID)
 {
     // Check existence
     if (mmModuleBank[module_ID] == NULL)
-        return;
+        return 1;
 
     mm_mas_head *header = (mm_mas_head *)(((mm_word)mmModuleBank[module_ID]) + 8);
 
@@ -64,11 +79,13 @@ void mmUnload(mm_word module_ID)
     mmModuleBank[module_ID] = NULL;
 
     mmFlushMemoryBank();
+
+    return 0;
 }
 
 // Load a sound effect into memory. Use before mmEffect.
 // sample_ID : ID of sample. (defined in soundbank header)
-void mmLoadEffect(mm_word sample_ID)
+mm_word mmLoadEffect(mm_word sample_ID)
 {
     mm_word sample_data = mmSampleBank[sample_ID];
 
@@ -76,6 +93,9 @@ void mmLoadEffect(mm_word sample_ID)
     if (sample_data == 0)
     {
         mm_word ptr = mmcbMemory(MMCB_SAMPREQUEST, sample_ID);
+        if (ptr == 0)
+            return 1;
+
         mmSampleBank[sample_ID] = ptr & 0x00FFFFFF;
     }
 
@@ -83,17 +103,19 @@ void mmLoadEffect(mm_word sample_ID)
     mmSampleBank[sample_ID] += 1 << 24;
 
     mmFlushMemoryBank();
+
+    return 0;
 }
 
 // Unload sound effect from memory.
 // sample_ID : ID of sample. (defined in soundbank header)
-void mmUnloadEffect(mm_word sample_ID)
+mm_word mmUnloadEffect(mm_word sample_ID)
 {
     mm_word sample_data = mmSampleBank[sample_ID];
 
     // Check existence
     if (sample_data == 0)
-        return;
+        return 1;
 
     // Decrement instance count
     sample_data -= 1 << 24;
@@ -108,4 +130,6 @@ void mmUnloadEffect(mm_word sample_ID)
     mmSampleBank[sample_ID] = sample_data;
 
     mmFlushMemoryBank();
+
+    return 0;
 }
