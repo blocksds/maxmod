@@ -34,8 +34,8 @@ typedef struct tmslheaddata
 typedef struct tmslhead
 {
     msl_head_data   head_data;
-    mm_addr         sampleTable[]; // [MSL_NSAMPS];
-    //mm_addr         moduleTable[MSL_NSONGS];
+    mm_addr         sampleTable[]; // [sampleCount]
+    //mm_addr         moduleTable[moduleCount];
 } msl_head;
 
 #ifdef __cplusplus

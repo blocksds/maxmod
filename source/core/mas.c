@@ -189,18 +189,18 @@ void mmSetJingleVolume(mm_word volume)
 static void mpps_backdoor(mm_word id, mm_pmode mode, mm_word layer)
 {
 #if defined(SYS_GBA)
-    // Resolve song address
-    uintptr_t solution = (uintptr_t)mp_solution;
+    // In the MSL format, the module table goes right after the sample table,
+    // but the size of both isn't fixed. We need to calculate the start of the
+    // module table by checking how big the sample table is.
+    mm_hword sampleCount = mp_solution->head_data.sampleCount;
+    mm_word *moduleTable = (mm_word *)&(mp_solution->sampleTable[sampleCount]);
 
-    uintptr_t r3 = *(mm_hword *)solution;
+    // Calculate the address of the module now that we have the module table. It
+    // represents offsets inside the soundbank.
+    mm_word moduleAddress = (mm_word)mp_solution + 8 + moduleTable[id];
 
-    r3 = solution + 12 + (r3 * 4);
-
-    uintptr_t r0 = r3 + (id * 4);
-
-    r0 = solution + 8 + *(mm_word *)r0;
-
-    mmPlayModule(r0, mode, layer);
+    // Play this module
+    mmPlayModule(moduleAddress, mode, layer);
 #elif defined(SYS_NDS)
     mm_word *bank = (mm_word *)mmModuleBank;
 
