@@ -8,8 +8,8 @@
 #include <string.h>
 
 #include <maxmod.h>
+#include <mm_mas.h>
 
-#include "core/format_mas.h"
 #include "gba/main.h"
 #include "gba/mixer.h"
 

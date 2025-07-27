@@ -17,7 +17,6 @@
 #include "core/effect.h"
 #include "core/mas.h"
 #include "core/mixer.h"
-#include "core/format_mas.h"
 #include "ds/arm7/main7.h"
 #include "ds/arm7/mixer.h"
 

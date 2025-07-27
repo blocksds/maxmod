@@ -10,7 +10,6 @@
 #include <mm_mas.h>
 
 #include "core/mas.h"
-#include "core/format_mas.h"
 #include "core/mas_structs.h"
 
 #define ARM_CODE   __attribute__((target("arm")))

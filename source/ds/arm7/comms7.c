@@ -14,7 +14,6 @@
 
 #include "core/effect.h"
 #include "core/mas.h"
-#include "core/format_mas.h"
 #include "core/mas_structs.h"
 #include "ds/arm7/comms7.h"
 #include "ds/arm7/main7.h"

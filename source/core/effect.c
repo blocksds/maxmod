@@ -14,7 +14,6 @@
 
 #include "core/mas.h"
 #include "core/mixer.h"
-#include "core/format_mas.h"
 #include "core/mas_structs.h"
 #if defined(SYS_GBA)
 #include "gba/main.h"
