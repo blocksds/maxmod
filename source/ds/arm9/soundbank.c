@@ -17,7 +17,12 @@
 #define MM_FILENAME_SIZE 64
 #define FILE_PREFIX_SIZE 8
 
+// Pointer to the sound bank when it's stored in RAM. Not used when the sound
+// bank is in the filesystem.
 static msl_head *mmsAddress;
+
+// Path to the sound bank when it's stored in the filesystem. Not used when the
+// sound bank is in RAM.
 static char mmsFile[MM_FILENAME_SIZE + 1];
 
 // Default soundbank handler (memory)
