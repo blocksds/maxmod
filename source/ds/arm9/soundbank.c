@@ -17,42 +17,8 @@
 #define MM_FILENAME_SIZE 64
 #define FILE_PREFIX_SIZE 8
 
-static mm_word mmsHandleMemoryOp(mm_word, mm_word);
-static mm_word mmsHandleFileOp(mm_word, mm_word);
-static mm_word mmLoadDataFromSoundBank(mm_word, mm_word);
-
 static msl_head *mmsAddress;
 static char mmsFile[MM_FILENAME_SIZE + 1];
-
-// Setup default handler for a soundbank loaded in memory
-void mmSoundBankInMemory(mm_addr address)
-{
-    mmsAddress = (msl_head *)address;
-
-    mmSetCustomSoundBankHandler(mmsHandleMemoryOp);
-}
-
-// Setup default handler for a soundbank file
-void mmSoundBankInFiles(const char *filename)
-{
-    int i = 0;
-    // Store filename
-    for (; i < MM_FILENAME_SIZE; i++)
-    {
-        if (filename[i] == '\0')
-            break;
-        mmsFile[i] = filename[i];
-    }
-    mmsFile[i] = '\0';
-
-    mmSetCustomSoundBankHandler(mmsHandleFileOp);
-}
-
-// Setup default handler for a soundbank file
-void mmSetCustomSoundBankHandler(mm_callback p_loader)
-{
-    mmcbMemory = p_loader;
-}
 
 // Default soundbank handler (memory)
 static mm_word mmsHandleMemoryOp(mm_word msg, mm_word param)
@@ -75,33 +41,6 @@ static mm_word mmsHandleMemoryOp(mm_word msg, mm_word param)
                 mm_word index = param;
                 retval = ((mm_word)mmsAddress->sampleTable[index]) + ((mm_word)mmsAddress);
             }
-            break;
-
-        default:
-            break;
-    }
-
-    return retval;
-}
-
-// Default soundbank handler (filesystem)
-static mm_word mmsHandleFileOp(mm_word msg, mm_word param)
-{
-    mm_word retval = 0;
-
-    switch (msg)
-    {
-        case MMCB_SONGREQUEST:
-            retval = mmLoadDataFromSoundBank(param, 0);
-            break;
-
-        case MMCB_SAMPREQUEST:
-            retval = mmLoadDataFromSoundBank(param, 1);
-            break;
-
-        case MMCB_DELETESONG:
-        case MMCB_DELETESAMPLE:
-            free((mm_addr)param);
             break;
 
         default:
@@ -173,4 +112,61 @@ static mm_word mmLoadDataFromSoundBank(mm_word index, mm_word command)
 error:
     fclose(fp);
     return 0;
+}
+
+// Default soundbank handler (filesystem)
+static mm_word mmsHandleFileOp(mm_word msg, mm_word param)
+{
+    mm_word retval = 0;
+
+    switch (msg)
+    {
+        case MMCB_SONGREQUEST:
+            retval = mmLoadDataFromSoundBank(param, 0);
+            break;
+
+        case MMCB_SAMPREQUEST:
+            retval = mmLoadDataFromSoundBank(param, 1);
+            break;
+
+        case MMCB_DELETESONG:
+        case MMCB_DELETESAMPLE:
+            free((mm_addr)param);
+            break;
+
+        default:
+            break;
+    }
+
+    return retval;
+}
+
+// Setup default handler for a soundbank loaded in memory
+void mmSoundBankInMemory(mm_addr address)
+{
+    mmsAddress = (msl_head *)address;
+
+    mmSetCustomSoundBankHandler(mmsHandleMemoryOp);
+}
+
+// Setup default handler for a soundbank file
+void mmSoundBankInFiles(const char *filename)
+{
+    int i = 0;
+    // Store filename
+    for (; i < MM_FILENAME_SIZE; i++)
+    {
+        if (filename[i] == '\0')
+            break;
+        mmsFile[i] = filename[i];
+    }
+    mmsFile[i] = '\0';
+
+    mmSetCustomSoundBankHandler(mmsHandleFileOp);
+}
+
+// Setup default handler for a soundbank file
+void mmSetCustomSoundBankHandler(mm_callback p_loader)
+{
+    mmcbMemory = p_loader;
 }
