@@ -70,8 +70,10 @@ mm_word mmMixerChannelActive(int channel)
 // Set channel source
 void mmMixerSetSource(int channel, mm_word p_sample)
 {
+    mm_mas_gba_sample *sample = (mm_mas_gba_sample *)p_sample; // + 8 ?
+
     // Set sample data address
-    mm_mixchannels[channel].src = p_sample + C_SAMPLE_DATA;
+    mm_mixchannels[channel].src = (mm_word)(&(sample->data[0]));
 
     // Reset read position
     mm_mixchannels[channel].read = 0;

@@ -24,20 +24,4 @@
 // In XM, bits 0 and 3 are always set together. In IT, they can be set
 // independently. Other formats don't use them.
 
-// Sample structure : mm_mas_gba_sample
-
-#define C_SAMPLE_LEN        0
-#define C_SAMPLE_LOOP       4
-#define C_SAMPLE_DATA       12
-
-// Sample structure : mm_mas_ds_sample
-
-#define C_SAMPLEN_LSTART    0
-#define C_SAMPLEN_LEN       4
-#define C_SAMPLEN_FORMAT    8
-#define C_SAMPLEN_REP       9
-#define C_SAMPLEN_DFREQ     10
-#define C_SAMPLEN_POINT     12
-#define C_SAMPLEN_DATA      16
-
 #endif // MM_CORE_FORMAT_MAS_H__

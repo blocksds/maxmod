@@ -197,8 +197,8 @@ void mmMixerSetPan(int channel, mm_byte panning)
 // Rate is 3.10 fixed point (value of 2048 will raise original pitch by 1 octave)
 void mmMixerSetFreq(int channel, mm_word rate)
 {
-    mm_hword dfreq = *((mm_hword*)(mm_mix_channels[channel].samp + 0x2000000 + C_SAMPLEN_DFREQ));
-    mm_word freq = (dfreq * rate) >> 10;
+    mm_mas_ds_sample *sample = (mm_mas_ds_sample *)(mm_mix_channels[channel].samp + 0x2000000);
+    mm_word freq = (sample->default_frequency * rate) >> 10;
 
     if (freq >= 0x1FFF)
         freq = 0x1FFF;

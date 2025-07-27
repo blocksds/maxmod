@@ -223,16 +223,13 @@ got_handle:
 
     msl_head *head = mp_solution;
     mm_word sample_offset = (mm_word)head->sampleTable[sound->id & 0xFFFF];
+    mm_byte *sample_addr = ((mm_byte *)mp_solution) + sample_offset;
+    mm_mas_gba_sample *sample = (mm_mas_gba_sample *)(sample_addr + 8);
 
-    mm_byte *sample_ptr = (mm_byte *)mp_solution;
-    sample_ptr += sample_offset;
-
-    mx_ch->src = (mm_word)(sample_ptr + 8 + C_SAMPLE_DATA);
+    mx_ch->src = (mm_word)(&(sample->data[0]));
 
     // set pitch to original * pitch
-
-    mm_word dfreq = *(mm_hword *)(sample_ptr + 8 + C_SAMPLEN_DFREQ);
-    mx_ch->freq = (sound->rate * dfreq) >> (10 - 2);
+    mx_ch->freq = (sound->rate * sample->default_frequency) >> (10 - 2);
 
     // reset read position
     mx_ch->read = 0;
@@ -269,9 +266,10 @@ got_handle:
     mx_ch->key_on = 0;
     mx_ch->samp = source;
 
+    mm_mas_ds_sample *sample = (mm_mas_ds_sample *)source;
+
     // Set pitch to original * pitch
-    mm_word dfreq = *(mm_hword *)(source + C_SAMPLEN_DFREQ);
-    mx_ch->freq = (sound->rate * dfreq) >> 10;
+    mx_ch->freq = (sound->rate * sample->default_frequency) >> 10;
 
     // Clear sample offset
     mx_ch->read = 0;
