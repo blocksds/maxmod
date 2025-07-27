@@ -85,7 +85,7 @@ static void SendCommandHwordByte(mm_word id, mm_hword arg1, mm_byte arg2)
     SendString(buffer, 2);
 }
 
-// Send a soundbank to ARM7
+// Send a memory bank to the ARM7
 void mmSendBank(mm_word num_songs, mm_word num_samples, mm_addr bank_addr)
 {
     mm_word buffer[MAX_PARAM_WORDS];

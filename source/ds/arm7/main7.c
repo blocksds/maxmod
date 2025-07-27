@@ -211,8 +211,8 @@ static mm_word mmEventForwarder(mm_word msg, mm_word param)
     return mmARM9msg(MSG_ARM7_SONG_EVENT, msg | (param << 8));
 }
 
-// Load sound bank address
-void mmGetSoundBank(mm_word n_songs, mm_word n_samples, mm_addr bank)
+// Load memory bank address
+void mmGetMemoryBank(mm_word n_songs, mm_word n_samples, mm_addr bank)
 {
     mmModuleCount = n_songs;
     mmSampleCount = n_samples;

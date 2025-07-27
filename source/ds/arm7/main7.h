@@ -14,7 +14,7 @@ extern mm_addr mmSampleBank;
 void mmInit7(void);
 void mmLockChannelsQuick(mm_word);
 void mmUnlockChannelsQuick(mm_word);
-void mmGetSoundBank(mm_word n_songs, mm_word n_samples, mm_addr bank);
+void mmGetMemoryBank(mm_word n_songs, mm_word n_samples, mm_addr bank);
 
 #define NUM_CHANNELS 32
 #define NUM_PHYS_CHANNELS 16
