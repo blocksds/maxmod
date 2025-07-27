@@ -245,8 +245,7 @@ void mmMixerSetSource(int channel, mm_word p_sample)
 // Select audio mode
 void mmSelectMode(mm_mode_enum mode)
 {
-    uint32_t saved_ime = REG_IME;
-    REG_IME = IME_DISABLE;
+    int old_ime = enterCriticalSection();
 
     // reset mixer channels
     for (size_t i = 0; i < NUM_CHANNELS; i++)
@@ -291,7 +290,7 @@ void mmSelectMode(mm_mode_enum mode)
             break;
     }
 
-    REG_IME = saved_ime;
+    leaveCriticalSection(old_ime);
 }
 
 // Update hardware data

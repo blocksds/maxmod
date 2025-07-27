@@ -261,15 +261,13 @@ static mm_sfxhand mmCreateEffectHandle(void)
     if (i >= EFFECT_CHANNELS)
         return NO_HANDLES_AVAILABLE;
 
-    // Disable IRQ, cannot be interrupted by sfx update
-    mm_hword old_ime = REG_IME;
-    REG_IME = 0;
+    // Disable IRQ, prevent interruptions while updating the bitmask
+    int old_ime = enterCriticalSection();
 
-    // Set bit
     sfx_bitmask |= 1 << i;
 
     // Re-enable IRQ
-    REG_IME = old_ime;
+    leaveCriticalSection(old_ime);
 
     sfx_instances[i] += 1;
 
