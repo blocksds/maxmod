@@ -41,8 +41,12 @@ mm_word mmSampleCount;
 // by mmLoad().
 mm_addr *mmModuleBank;
 
-// Address of sample bank
-mm_addr mmSampleBank;
+// Same as mmModuleBank, but for samples instead of modules. It should start
+// right after the end mmModuleBank. However, only the bottom 24 bits hold the
+// address (minus 0x2000000). The top 8 bit are the number of times that the
+// sample has been requested to be loaded (in case a sample is used by multiple
+// modules).
+mm_word *mmSampleBank;
 
 // Memory for module/active channels for NDS system
 mm_module_channel mm_rds_pchannels[NUM_CHANNELS];

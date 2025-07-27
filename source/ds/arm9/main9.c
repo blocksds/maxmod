@@ -36,7 +36,12 @@ mm_addr mmMemoryBank;
 // by mmLoad().
 mm_addr *mmModuleBank;
 
-mm_addr mmSampleBank;
+// Same as mmModuleBank, but for samples instead of modules. It should start
+// right after the end mmModuleBank. However, only the bottom 24 bits hold the
+// address (minus 0x2000000). The top 8 bit are the number of times that the
+// sample has been requested to be loaded (in case a sample is used by multiple
+// modules).
+mm_word *mmSampleBank;
 
 // Pointer to event handler
 mm_callback mmCallback;
@@ -63,13 +68,13 @@ bool mmInit(mm_ds_system *system)
     mmSampleCount = system->samp_count;
     mmMemoryBank = system->mem_bank;
     mmModuleBank = (mm_addr *)system->mem_bank;
-    mmSampleBank = system->mem_bank + mmModuleCount;
+    mmSampleBank = (mm_word *)(system->mem_bank + mmModuleCount);
 
     for (mm_word i = 0; i < mmModuleCount; i++)
         mmModuleBank[i] = NULL;
 
     for (mm_word i = 0; i < mmSampleCount; i++)
-        ((mm_word*)mmSampleBank)[i] = 0;
+        mmSampleBank[i] = 0;
 
     // Setup communications
     mmSetupComms(system->fifo_channel);

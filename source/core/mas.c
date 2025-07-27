@@ -3189,7 +3189,7 @@ mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information *layer
 
         mx_ch->src = (mm_word)(&(sample->data[0]));
 #else
-        mm_word source = *(mm_word *)(mmSampleBank + sample->msl_id * 4);
+        mm_word source = mmSampleBank[sample->msl_id];
 
         source &= 0xFFFFFF; // Mask out counter value
         source += 8;

@@ -246,7 +246,7 @@ got_handle:
     {
         // This is using an ID number
 
-        source = *(mm_word *)(mmSampleBank + source * 4);
+        source = mmSampleBank[source];
 
         source &= 0xFFFFFF; // Mask out counter value
 

@@ -9,7 +9,7 @@
 #include <mm_types.h>
 
 extern mm_addr *mmModuleBank;
-extern mm_addr mmSampleBank;
+extern mm_word *mmSampleBank;
 
 void mmInit7(void);
 void mmLockChannelsQuick(mm_word);

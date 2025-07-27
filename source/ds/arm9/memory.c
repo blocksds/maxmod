@@ -70,19 +70,17 @@ void mmUnload(mm_word module_ID)
 // sample_ID : ID of sample. (defined in soundbank header)
 void mmLoadEffect(mm_word sample_ID)
 {
-    mm_word *mmSampleBankArr = (mm_word*)mmSampleBank;
-
-    mm_word sample_data = mmSampleBankArr[sample_ID];
+    mm_word sample_data = mmSampleBank[sample_ID];
 
     // Alloc if not existing
     if (sample_data == 0)
     {
-        mm_addr ptr = (mm_addr)mmcbMemory(MMCB_SAMPREQUEST, sample_ID);
-        mmSampleBankArr[sample_ID] = ((mm_word)ptr) & 0x00FFFFFF;
+        mm_word ptr = mmcbMemory(MMCB_SAMPREQUEST, sample_ID);
+        mmSampleBank[sample_ID] = ptr & 0x00FFFFFF;
     }
 
     // Increment instance count
-    mmSampleBankArr[sample_ID] += 1 << 24;
+    mmSampleBank[sample_ID] += 1 << 24;
 
     mmFlushMemoryBank();
 }
@@ -91,9 +89,7 @@ void mmLoadEffect(mm_word sample_ID)
 // sample_ID : ID of sample. (defined in soundbank header)
 void mmUnloadEffect(mm_word sample_ID)
 {
-    mm_word *mmSampleBankArr = (mm_word*)mmSampleBank;
-
-    mm_word sample_data = mmSampleBankArr[sample_ID];
+    mm_word sample_data = mmSampleBank[sample_ID];
 
     // Check existence
     if (sample_data == 0)
@@ -109,7 +105,7 @@ void mmUnloadEffect(mm_word sample_ID)
         sample_data = 0;
     }
 
-    mmSampleBankArr[sample_ID] = sample_data;
+    mmSampleBank[sample_ID] = sample_data;
 
     mmFlushMemoryBank();
 }
