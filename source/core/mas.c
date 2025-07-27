@@ -423,18 +423,15 @@ void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
     if (mpp_clayer == 0)
     {
         // Multiply by master tempo
-        mm_word r1 = (mm_mastertempo * bpm) >> 10;
+        mm_word tempo = (mm_mastertempo * bpm) >> 10;
 
         // Samples per tick ~= mixfreq / (bpm / 2.5) ~= mixfreq * 2.5 / bpm
-        mm_word r0 = mm_bpmdv;
-
-        // DO NOT TRUST THE COMMENTS IN THE ASM!
-        r0 = r0 / r1;
+        mm_word rate = mm_bpmdv / tempo;
 
         // Make it a multiple of two
-        r0 &= ~1;
+        rate &= ~1;
 
-        layer_info->tickrate = r0;
+        layer_info->tickrate = rate;
 
         //layer_info->sampcount = 0; // TODO: Commented out in original code
 
