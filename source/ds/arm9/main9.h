@@ -10,9 +10,11 @@
 
 extern mm_word mmModuleCount;
 extern mm_word mmSampleCount;
-extern mm_addr mmModuleBank;
+
 extern mm_addr mmMemoryBank;
+extern mm_addr *mmModuleBank;
 extern mm_addr mmSampleBank;
+
 extern mm_callback mmcbMemory;
 extern mm_callback mmCallback;
 extern mm_byte mmActiveStatus;

@@ -27,13 +27,15 @@ mm_word mmModuleCount;
 // Number of samples in sound bank
 mm_word mmSampleCount;
 
-// Address of bank in memory
+// Address of bank in memory. It contains the module bank followed by the sample
+// bank.
 mm_addr mmMemoryBank;
 
-// Address of module bank
-mm_addr mmModuleBank;
+// This is a pointer to an array of pointers. Each pointer points to the memory
+// that holds a module in main RAM, or to NULL if the module hasn't been loaded
+// by mmLoad().
+mm_addr *mmModuleBank;
 
-// Address of sample bank
 mm_addr mmSampleBank;
 
 // Pointer to event handler
@@ -60,11 +62,11 @@ bool mmInit(mm_ds_system *system)
     mmModuleCount = system->mod_count;
     mmSampleCount = system->samp_count;
     mmMemoryBank = system->mem_bank;
-    mmModuleBank = system->mem_bank;
+    mmModuleBank = (mm_addr *)system->mem_bank;
     mmSampleBank = system->mem_bank + mmModuleCount;
 
     for (mm_word i = 0; i < mmModuleCount; i++)
-        ((mm_word*)mmModuleBank)[i] = 0;
+        mmModuleBank[i] = NULL;
 
     for (mm_word i = 0; i < mmSampleCount; i++)
         ((mm_word*)mmSampleBank)[i] = 0;

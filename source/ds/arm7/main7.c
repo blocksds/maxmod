@@ -2,6 +2,7 @@
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
 // Copyright (c) 2023, Lorenzooone (lollo.lollo.rbiz@gmail.com)
+// Copyright (c) 2025, Antonio Niño Díaz (antonio_nd@outlook.com)
 
 #include <nds.h>
 
@@ -35,8 +36,10 @@ mm_word mmModuleCount;
 // Number of samples in sound bank
 mm_word mmSampleCount;
 
-// Address of module bank
-mm_addr mmModuleBank;
+// This is a pointer to an array of pointers. Each pointer points to the memory
+// that holds a module in main RAM, or to NULL if the module hasn't been loaded
+// by mmLoad().
+mm_addr *mmModuleBank;
 
 // Address of sample bank
 mm_addr mmSampleBank;
@@ -216,10 +219,10 @@ void mmGetMemoryBank(mm_word n_songs, mm_word n_samples, mm_addr bank)
 {
     mmModuleCount = n_songs;
     mmSampleCount = n_samples;
-    mmModuleBank = bank;
 
-    // What is this * 4 from? Is it a sizeof?!
-    mmSampleBank = bank + (n_songs * 4);
+    // In the memory bank the sample bank goes right after the module bank
+    mmModuleBank = bank;
+    mmSampleBank = bank + (n_songs * sizeof(mm_addr));
 
     // Initialize system
     mmInit7();

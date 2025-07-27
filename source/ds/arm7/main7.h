@@ -8,7 +8,7 @@
 
 #include <mm_types.h>
 
-extern mm_addr mmModuleBank;
+extern mm_addr *mmModuleBank;
 extern mm_addr mmSampleBank;
 
 void mmInit7(void);

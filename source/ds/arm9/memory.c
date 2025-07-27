@@ -24,17 +24,15 @@ static void mmFlushMemoryBank(void)
 // module_ID : ID of module. (defined in soundbank header)
 void mmLoad(mm_word module_ID)
 {
-    mm_word *mmModuleBankArr = (mm_word*)mmModuleBank;
-
     // Check if Free
-    if (mmModuleBankArr[module_ID] != 0)
+    if (mmModuleBank[module_ID] != NULL)
         return;
 
     // Load module into memory
     mm_addr ptr = (mm_addr)mmcbMemory(MMCB_SONGREQUEST, module_ID);
-    mmModuleBankArr[module_ID] = (mm_word)ptr;
+    mmModuleBank[module_ID] = ptr;
 
-    mm_mas_head *header = (mm_mas_head *)(mmModuleBankArr[module_ID] + 8);
+    mm_mas_head *header = (mm_mas_head *)(mmModuleBank[module_ID] + 8);
 
     mm_word *sample_table = (mm_word *)&header->tables[header->instr_count];
 
@@ -49,13 +47,11 @@ void mmLoad(mm_word module_ID)
 // module_ID : ID of module. (defined in soundbank header)
 void mmUnload(mm_word module_ID)
 {
-    mm_word *mmModuleBankArr = (mm_word*)mmModuleBank;
-
     // Check existence
-    if (mmModuleBankArr[module_ID] == 0)
+    if (mmModuleBank[module_ID] == NULL)
         return;
 
-    mm_mas_head *header = (mm_mas_head *)(mmModuleBankArr[module_ID] + 8);
+    mm_mas_head *header = (mm_mas_head *)(((mm_word)mmModuleBank[module_ID]) + 8);
 
     mm_word *sample_table = (mm_word *)&header->tables[header->instr_count];
 
@@ -64,8 +60,8 @@ void mmUnload(mm_word module_ID)
         mmUnloadEffect(((mm_mas_sample_info*)(sample_table[i] + ((mm_word)header)))->msl_id);
 
     // Free module
-    mmcbMemory(MMCB_DELETESONG, mmModuleBankArr[module_ID]);
-    mmModuleBankArr[module_ID] = 0;
+    mmcbMemory(MMCB_DELETESONG, (mm_word)mmModuleBank[module_ID]);
+    mmModuleBank[module_ID] = NULL;
 
     mmFlushMemoryBank();
 }
