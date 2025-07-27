@@ -21,10 +21,10 @@ typedef struct {
     mm_byte     speed;      // Speed of module (ticks / row)
     mm_byte     isplaying;  // Module is active
     mm_byte     bpm;        // Tempo of module
-    mm_word     insttable;
-    mm_word     samptable;
-    mm_word     patttable;
-    mm_word     songadr;
+    mm_word    *insttable;  // Table of offsets (from mm_mas_head base) to instrument data
+    mm_word    *samptable;  // Table of offsets (from mm_mas_head base) to sample data
+    mm_word    *patttable;  // Table of offsets (from mm_mas_head base) to pattern data
+    mm_mas_head *songadr;   // Pointer to the current MAS module being played
     mm_byte     flags;
     mm_byte     oldeffects;
     mm_byte     pattjump;

@@ -169,7 +169,7 @@ IWRAM_CODE ARM_CODE mm_word mmAllocChannel(void)
 IWRAM_CODE ARM_CODE void mmReadPattern(mpl_layer_information *mpp_layer)
 {
     // Prepare vars
-    mm_word instr_count = ((mm_mas_head*)mpp_layer->songadr)->instr_count;
+    mm_word instr_count = mpp_layer->songadr->instr_count;
     mm_word flags = mpp_layer->flags;
     mm_module_channel *module_channels = mpp_channels;
 
@@ -261,7 +261,8 @@ IWRAM_CODE ARM_CODE void mmReadPattern(mpl_layer_information *mpp_layer)
 
 static IWRAM_CODE ARM_CODE mm_mas_instrument *get_instrument(mpl_layer_information *mpp_layer, mm_byte instN)
 {
-    return (mm_mas_instrument*)(mpp_layer->songadr + ((mm_word*)mpp_layer->insttable)[instN - 1]);
+    mm_byte *base = (mm_byte *)mpp_layer->songadr;
+    return (mm_mas_instrument*)(base + mpp_layer->insttable[instN - 1]);
 }
 
 IWRAM_CODE ARM_CODE mm_byte mmChannelStartACHN(mm_module_channel *module_channel, mm_active_channel *active_channel, mpl_layer_information *mpp_layer, mm_byte channel_counter)
@@ -332,7 +333,8 @@ IWRAM_CODE ARM_CODE mm_word mmGetPeriod(mpl_layer_information *mpp_layer, mm_wor
 
 static IWRAM_CODE ARM_CODE mm_mas_sample_info *get_sample(mpl_layer_information *mpp_layer, mm_byte sampleN)
 {
-    return (mm_mas_sample_info*)(mpp_layer->songadr + ((mm_word*)mpp_layer->samptable)[sampleN - 1]);
+    mm_byte *base = (mm_byte *)mpp_layer->songadr;
+    return (mm_mas_sample_info*)(base + mpp_layer->samptable[sampleN - 1]);
 }
 
 static IWRAM_CODE ARM_CODE mm_active_channel *get_active_channel(mm_module_channel *module_channel)

@@ -319,22 +319,15 @@ void mmStop(void)
 
 static mm_mas_pattern *mpp_PatternPointer(mm_word entry, mpl_layer_information *layer)
 {
-    mm_mas_head *header = (mm_mas_head *)layer->songadr;
-
-    // Calculate pattern offset (in table)
-    uintptr_t patt_offset = layer->patttable + entry * 4;
-
-    // Calculate pattern address
-    uintptr_t patt_addr = (uintptr_t)header + *(mm_word *)patt_offset;
-
-    return (mm_mas_pattern *)patt_addr;
+    mm_byte *base = (mm_byte *)layer->songadr;
+    return (mm_mas_pattern *)(base + layer->patttable[entry]);
 }
 
 // Set sequence position.
 // Input r5 = layer, position = r0
 void mpp_setposition(mpl_layer_information *layer_info, mm_word position)
 {
-    mm_mas_head *header = (mm_mas_head *)layer_info->songadr;
+    mm_mas_head *header = layer_info->songadr;
 
     mm_byte entry;
 
@@ -509,6 +502,8 @@ static void mpp_resetvars(mpl_layer_information *layer_info)
 // Start playing module.
 void mmPlayModule(mm_word address, mm_word mode, mm_word layer)
 {
+    mm_mas_head *header = (mm_mas_head *)address;
+
     mpp_clayer = layer;
 
     mpl_layer_information *layer_info;
@@ -530,19 +525,17 @@ void mmPlayModule(mm_word address, mm_word mode, mm_word layer)
 
     layer_info->mode = mode;
 
-    layer_info->songadr = address;
+    layer_info->songadr = header;
 
     mpp_resetchannels(layer_info, channels, num_ch);
-
-    mm_mas_head *header = (mm_addr)address;
 
     mm_word instn_size = header->instr_count;
     mm_word sampn_size = header->sampl_count;
 
     // Setup instrument, sample and pattern tables
-    layer_info->insttable = (mm_word)&header->tables[0];
-    layer_info->samptable = (mm_word)&header->tables[instn_size];
-    layer_info->patttable = (mm_word)&header->tables[instn_size + sampn_size];
+    layer_info->insttable = (mm_word *)&header->tables[0];
+    layer_info->samptable = (mm_word *)&header->tables[instn_size];
+    layer_info->patttable = (mm_word *)&header->tables[instn_size + sampn_size];
 
     // Set pattern to 0
     mpp_setposition(layer_info, 0);
@@ -689,7 +682,8 @@ mm_active_channel *mpp_Channel_GetACHN(mm_module_channel *channel)
 IWRAM_CODE static
 mm_mas_instrument *get_instrument(mpl_layer_information *mpp_layer, mm_byte instN)
 {
-    return (mm_mas_instrument*)(mpp_layer->songadr + ((mm_word*)mpp_layer->insttable)[instN - 1]);
+    mm_byte *base = (mm_byte *)mpp_layer->songadr;
+    return (mm_mas_instrument*)(base + mpp_layer->insttable[instN - 1]);
 }
 
 // Process new note
@@ -1104,11 +1098,11 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
 {
     mm_byte tick = layer->tick;
 
-    mm_mas_head *mas = (mm_mas_head *)layer->songadr;
+    mm_mas_head *header = layer->songadr;
 
     mm_byte volcmd = channel->volcmd;
 
-    if (mas->flags & MAS_HEADER_FLAG_XM_MODE) // XM commands
+    if (header->flags & MAS_HEADER_FLAG_XM_MODE) // XM commands
     {
         if (volcmd == 0) // 0 = none
         {
@@ -1595,7 +1589,8 @@ mm_word mpp_Channel_ExchangeMemory(mm_byte effect, mm_byte param,
 IWRAM_CODE static
 mm_mas_instrument *mpp_InstrumentPointer(mpl_layer_information *mpp_layer, mm_byte instN)
 {
-    return (mm_mas_instrument*)(mpp_layer->songadr + ((mm_word*)mpp_layer->insttable)[instN - 1]);
+    mm_byte *base = (mm_byte *)mpp_layer->songadr;
+    return (mm_mas_instrument*)(base + mpp_layer->insttable[instN - 1]);
 }
 
 // Process module tick
@@ -1984,7 +1979,8 @@ mm_mas_sample_info *mpp_SamplePointer(int sampleN, mpl_layer_information *layer)
 {
     // TODO: This is also in mm_mas_arm.c as get_sample(), we need to unify both
     // functions when the two files are reorganized.
-    return (mm_mas_sample_info *)(layer->songadr + ((mm_word *)layer->samptable)[sampleN - 1]);
+    mm_byte *base = (mm_byte *)layer->songadr;
+    return (mm_mas_sample_info *)(base + layer->samptable[sampleN - 1]);
 }
 
 IWRAM_CODE static
