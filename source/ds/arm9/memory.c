@@ -35,12 +35,12 @@ void mmLoad(mm_word module_ID)
     mm_addr ptr = (mm_addr)mmcbMemory(MMCB_SONGREQUEST, module_ID);
     mmModuleBankArr[module_ID] = (mm_word)ptr;
 
-    mas_header *header = (mas_header *)(mmModuleBankArr[module_ID] + 8);
+    mm_mas_head *header = (mm_mas_head *)(mmModuleBankArr[module_ID] + 8);
 
-    mm_word *sample_table = &header->tables[header->inst_count];
+    mm_word *sample_table = (mm_word *)&header->tables[header->instr_count];
 
     // Load samples
-    for (mm_word i = 0; i < header->samp_count; i++)
+    for (mm_word i = 0; i < header->sampl_count; i++)
         mmLoadEffect(((mm_mas_sample_info*)(sample_table[i] + ((mm_word)header)))->msl_id);
 
     mmFlushMemoryBank();
@@ -56,12 +56,12 @@ void mmUnload(mm_word module_ID)
     if (mmModuleBankArr[module_ID] == 0)
         return;
 
-    mas_header *header = (mas_header *)(mmModuleBankArr[module_ID] + 8);
+    mm_mas_head *header = (mm_mas_head *)(mmModuleBankArr[module_ID] + 8);
 
-    mm_word *sample_table = &header->tables[header->inst_count];
+    mm_word *sample_table = (mm_word *)&header->tables[header->instr_count];
 
     // Free samples
-    for (mm_word i = 0; i < header->samp_count; i++)
+    for (mm_word i = 0; i < header->sampl_count; i++)
         mmUnloadEffect(((mm_mas_sample_info*)(sample_table[i] + ((mm_word)header)))->msl_id);
 
     // Free module

@@ -6,24 +6,7 @@
 #ifndef MM_CORE_FORMAT_MAS_H__
 #define MM_CORE_FORMAT_MAS_H__
 
-// MAS header structure
-
-typedef struct {
-    mm_byte     order_count;
-    mm_byte     inst_count;
-    mm_byte     samp_count;
-    mm_byte     patt_count;
-    mm_byte     flags;
-    mm_byte     global_volume;
-    mm_byte     initial_speed;
-    mm_byte     initial_tempo;
-    mm_byte     restart_pos;
-    mm_byte     padding[3]; // Unused
-    mm_byte     chanvol[32];
-    mm_byte     chanpan[32];
-    mm_byte     order[200];
-    mm_word     tables[];
-} mas_header;
+// MAS header structure : mm_mas_head
 
 #define MAS_HEADER_FLAG_LINK_GXX    (1 << 0) // Shared Gxx
 #define MAS_HEADER_FLAG_OLD_EFFECTS (1 << 1) // TODO: Unused flag

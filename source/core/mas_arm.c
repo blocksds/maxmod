@@ -169,7 +169,7 @@ IWRAM_CODE ARM_CODE mm_word mmAllocChannel(void)
 IWRAM_CODE ARM_CODE void mmReadPattern(mpl_layer_information *mpp_layer)
 {
     // Prepare vars
-    mm_word instr_count = ((mas_header*)mpp_layer->songadr)->inst_count;
+    mm_word instr_count = ((mm_mas_head*)mpp_layer->songadr)->instr_count;
     mm_word flags = mpp_layer->flags;
     mm_module_channel *module_channels = mpp_channels;
 

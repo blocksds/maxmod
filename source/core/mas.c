@@ -319,7 +319,7 @@ void mmStop(void)
 
 static mm_mas_pattern *mpp_PatternPointer(mm_word entry, mpl_layer_information *layer)
 {
-    mas_header *header = (mas_header *)layer->songadr;
+    mm_mas_head *header = (mm_mas_head *)layer->songadr;
 
     // Calculate pattern offset (in table)
     uintptr_t patt_offset = layer->patttable + entry * 4;
@@ -334,7 +334,7 @@ static mm_mas_pattern *mpp_PatternPointer(mm_word entry, mpl_layer_information *
 // Input r5 = layer, position = r0
 void mpp_setposition(mpl_layer_information *layer_info, mm_word position)
 {
-    mas_header *header = (mas_header *)layer_info->songadr;
+    mm_mas_head *header = (mm_mas_head *)layer_info->songadr;
 
     mm_byte entry;
 
@@ -343,7 +343,7 @@ void mpp_setposition(mpl_layer_information *layer_info, mm_word position)
         layer_info->position = position;
 
         // Get sequence entry
-        entry = header->order[position];
+        entry = header->sequence[position];
         if (entry == 254)
         {
             position++;
@@ -369,7 +369,7 @@ void mpp_setposition(mpl_layer_information *layer_info, mm_word position)
             return;
 
         // Set position to 'restart'
-        position = header->restart_pos;
+        position = header->repeat_position;
     }
 
     // Calculate pattern address
@@ -534,10 +534,10 @@ void mmPlayModule(mm_word address, mm_word mode, mm_word layer)
 
     mpp_resetchannels(layer_info, channels, num_ch);
 
-    mas_header* header = (mm_addr)address;
+    mm_mas_head *header = (mm_addr)address;
 
-    mm_word instn_size = header->inst_count;
-    mm_word sampn_size = header->samp_count;
+    mm_word instn_size = header->instr_count;
+    mm_word sampn_size = header->sampl_count;
 
     // Setup instrument, sample and pattern tables
     layer_info->insttable = (mm_word)&header->tables[0];
@@ -569,11 +569,11 @@ void mmPlayModule(mm_word address, mm_word mode, mm_word layer)
 
     // Setup channel volumes
     for (mm_word i = 0; i < num_ch; i++)
-        channels[i].cvolume = header->chanvol[i];
+        channels[i].cvolume = header->channel_volume[i];
 
     // Setup channel pannings
     for (mm_word i = 0; i < num_ch; i++)
-        channels[i].panning = header->chanpan[i];
+        channels[i].panning = header->channel_panning[i];
 }
 
 // Set master pitch
@@ -1104,7 +1104,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
 {
     mm_byte tick = layer->tick;
 
-    mas_header *mas = (mas_header *)layer->songadr;
+    mm_mas_head *mas = (mm_mas_head *)layer->songadr;
 
     mm_byte volcmd = channel->volcmd;
 
