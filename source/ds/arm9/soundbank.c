@@ -15,7 +15,6 @@
 #include "ds/arm9/main9.h"
 
 #define MM_FILENAME_SIZE 64
-#define FILE_PREFIX_SIZE 8
 
 // Pointer to the sound bank when it's stored in RAM. Not used when the sound
 // bank is in the filesystem.
@@ -97,7 +96,7 @@ static mm_word mmLoadDataFromSoundBank(mm_word index, mm_word command)
     if (fread(&size, sizeof(mm_word), 1, fp) == 0)
         goto error;
 
-    size += FILE_PREFIX_SIZE;
+    size += sizeof(mm_mas_prefix);
 
     mm_byte *data = malloc(size);
 
