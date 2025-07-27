@@ -28,15 +28,21 @@ typedef struct tmslheaddata
 {
     mm_hword    sampleCount;
     mm_hword    moduleCount;
-    mm_word     reserved[2];
-} msl_head_data;
+    mm_word     reserved[2]; // This contains the string "*maxmod*"
+}
+msl_head_data;
 
 typedef struct tmslhead
 {
     msl_head_data   head_data;
+
+    // The table of samples is followed by the list of modules. They are both
+    // variable-length, so you need to check head_data.sampleCOunt to know where
+    // the module table starts.
     mm_addr         sampleTable[]; // [sampleCount]
     //mm_addr         moduleTable[moduleCount];
-} msl_head;
+}
+msl_head;
 
 #ifdef __cplusplus
 }
