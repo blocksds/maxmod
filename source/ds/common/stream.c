@@ -15,26 +15,26 @@
 #include "ds/common/stream.h"
 
 // Is this correct?! Or is it supposed to be the same as "BUS_SPEED"???
-#define CLOCK 33554432
-#define DELAY_SAMPLES 16
+#define CLOCK           33554432
+#define DELAY_SAMPLES   16
 
-#define TIMER_SPEED 1024
-#define TIMER_AUTO 0xC3
-#define TIMER_MANUAL 0x83
-#define TIMER_DISABLE 0
+#define TIMER_SPEED     1024
+#define TIMER_AUTO      0xC3
+#define TIMER_MANUAL    0x83
+#define TIMER_DISABLE   0
 
-#define MAX_VOLUME 127
-#define LEFT_PANNING 0
-#define RIGHT_PANNING 127
-#define CENTER_PANNING 64
+#define MAX_VOLUME      127
+#define LEFT_PANNING    0
+#define RIGHT_PANNING   127
+#define CENTER_PANNING  64
 
 #define START_CHANNEL_LOOP 0x88
 
-#define CHANNEL_LEFT 4
-#define CHANNEL_CENTER 4
-#define CHANNEL_RIGHT 5
+#define CHANNEL_LEFT    4
+#define CHANNEL_CENTER  4
+#define CHANNEL_RIGHT   5
 
-#define NUM_TIMERS 4
+#define NUM_TIMERS      4
 
 #ifdef SYS_NDS7
 
@@ -59,10 +59,6 @@ static void mmRestoreIRQ_t(void)
 static mm_hword mmsPreviousTimer;
 static mm_word StreamCounter;
 static mm_stream_data mmsData;
-
-static void StreamExecuteUpdate(mm_word);
-static void ForceStreamRequest(mm_word);
-static void CopyDataToStream(mm_word);
 
 // Checks if a format is stereo or not
 static mm_bool is_stereo_format(mm_stream_formats format)
@@ -135,6 +131,159 @@ static mm_byte get_cnt_format(mm_stream_formats format)
     }
 }
 #endif
+
+// Copy mono data with different shifts
+// It may be better to keep everything separate for faster speeds?!
+static ARM_CODE mm_byte *CopyDataMonoStream(mm_byte *work_memory_ptr, mm_word dest_pos,
+                                            mm_word curr_samples_num, mm_word shift)
+{
+    mm_byte* wave_memory_ptr = (mm_byte*)mmsData.wave_memory;
+
+    wave_memory_ptr += (dest_pos << shift) >> 1;
+
+    if (shift == 0)
+    {
+        // Copy 2 bytes at a time
+        for (mm_word i = 0; i < (curr_samples_num >> 2); i++)
+        {
+            *((mm_hword*)wave_memory_ptr) = *((mm_hword*)work_memory_ptr);
+            wave_memory_ptr += 2;
+            work_memory_ptr += 2;
+        }
+    }
+    else
+    {
+        // Copy 4 bytes at a time
+        for (mm_word i = 0; i < (curr_samples_num >> (2 - (shift - 1))); i++)
+        {
+            *((mm_word*)wave_memory_ptr) = *((mm_word*)work_memory_ptr);
+            wave_memory_ptr += 4;
+            work_memory_ptr += 4;
+        }
+    }
+
+    return work_memory_ptr;
+}
+
+// Copy stereo data with different shifts
+// It may be better to keep everything separate for faster speeds?!
+static ARM_CODE mm_byte *CopyDataStereoStream(mm_byte *work_memory_ptr, mm_word dest_pos,
+                                              mm_word curr_samples_num, mm_word shift,
+                                              mm_word length)
+{
+    mm_byte *wave_memory_ptr = (mm_byte*)mmsData.wave_memory;
+    mm_word left = 0;
+    mm_word right = 0;
+
+    wave_memory_ptr += (dest_pos << shift) >> 1;
+    // Copy 4 bytes at a time
+    for (mm_word i = 0; i < (curr_samples_num >> (2 - shift)); i++)
+    {
+        if (shift != 2)
+        {
+            left = (*((mm_word*)work_memory_ptr)) & 0xFF00FF;
+            right = ((*((mm_word*)work_memory_ptr)) >> 8) & 0xFF00FF;
+            left |= left >> 8;
+            right |= right >> 8;
+        }
+        else
+        {
+            left = (*((mm_word*)work_memory_ptr)) & 0xFFFF;
+            right = ((*((mm_word*)work_memory_ptr)) >> 16) & 0xFFFF;
+        }
+        *((mm_hword*)wave_memory_ptr) = left;
+        *((mm_hword*)(wave_memory_ptr + ((length << shift) >> 1))) = right;
+        wave_memory_ptr += 2;
+        work_memory_ptr += 4;
+    }
+
+    return work_memory_ptr;
+}
+
+// Copy/de-interleave data from work buffer into the wave buffer
+static ARM_CODE void CopyDataToStream(mm_word num_samples)
+{
+    // Do nothing if there is no data
+    if (num_samples == 0)
+        return;
+
+    mm_word position = mmsData.position;
+    mm_word length = mmsData.length_cut;
+    mm_byte* work_memory_ptr = (mm_byte*)mmsData.work_memory;
+
+    while (num_samples != 0)
+    {
+        mm_word dest_pos = position;
+        mm_word remaining_samples = length - position;
+        mm_word curr_samples_num = num_samples;
+
+        if (curr_samples_num >= remaining_samples)
+        {
+            curr_samples_num = remaining_samples;
+            position = 0;
+        }
+        else
+        {
+            position += curr_samples_num;
+        }
+
+        num_samples -= curr_samples_num;
+
+        if (is_stereo_format(mmsData.format))
+            work_memory_ptr = CopyDataStereoStream(work_memory_ptr, dest_pos, curr_samples_num, get_shift_for_format(mmsData.format), length);
+        else
+            work_memory_ptr = CopyDataMonoStream(work_memory_ptr, dest_pos, curr_samples_num, get_shift_for_format(mmsData.format));
+    }
+
+    mmsData.position = position;
+}
+
+// Executes the stream update
+static void StreamExecuteUpdate(mm_word stream_position)
+{
+    // Update StreamCounter
+    StreamCounter += stream_position;
+
+    while (stream_position != 0)
+    {
+        mm_word processing_samples = stream_position;
+
+        // Cut to work buffer size
+        // This was only > in the asm, but it could cause issues...?
+        if (processing_samples >= mmsData.length_cut)
+            processing_samples = mmsData.length_cut - 1;
+
+        // Do callback
+        mm_word filled_samples = mmsData.callback(processing_samples, mmsData.work_memory, mmsData.format);
+
+        // Prevent bad filling...?
+        //if(filled_samples > processing_samples)
+        //    filled_samples = processing_samples;
+
+        // Copy samples to stream
+        CopyDataToStream(filled_samples);
+
+        // Processed samples
+        stream_position -= filled_samples;
+
+        // Break if 0 samples output or remaining < amount filled
+        if ((filled_samples == 0) || (stream_position < filled_samples))
+        {
+            mmsData.remainder += stream_position * mmsData.clocks;
+            break;
+        }
+    }
+
+#ifdef SYS_NDS9
+    DC_FlushRange(mmsData.wave_memory, mmsData.length_words * 4);
+#endif
+}
+
+// Force a data request
+static void ForceStreamRequest(mm_word num_samples)
+{
+    StreamExecuteUpdate((num_samples >> 2) << 2);
+}
 
 #ifdef SYS_NDS7
 void mmStreamOpen(mm_stream *stream, mm_addr wavebuffer, mm_addr workbuffer)
@@ -321,156 +470,6 @@ void mmStreamUpdate(void)
 
     // Determine how many samples to mix
     StreamExecuteUpdate(getAndUpdateStreamPosition(1));
-}
-
-// Executes the stream update
-static void StreamExecuteUpdate(mm_word stream_position)
-{
-    // Update StreamCounter
-    StreamCounter += stream_position;
-
-    while (stream_position != 0)
-    {
-        mm_word processing_samples = stream_position;
-
-        // Cut to work buffer size
-        // This was only > in the asm, but it could cause issues...?
-        if (processing_samples >= mmsData.length_cut)
-            processing_samples = mmsData.length_cut - 1;
-
-        // Do callback
-        mm_word filled_samples = mmsData.callback(processing_samples, mmsData.work_memory, mmsData.format);
-
-        // Prevent bad filling...?
-        //if(filled_samples > processing_samples)
-        //    filled_samples = processing_samples;
-
-        // Copy samples to stream
-        CopyDataToStream(filled_samples);
-
-        // Processed samples
-        stream_position -= filled_samples;
-
-        // Break if 0 samples output or remaining < amount filled
-        if ((filled_samples == 0) || (stream_position < filled_samples))
-        {
-            mmsData.remainder += stream_position * mmsData.clocks;
-            break;
-        }
-    }
-
-#ifdef SYS_NDS9
-    DC_FlushRange(mmsData.wave_memory, mmsData.length_words * 4);
-#endif
-}
-
-// Force a data request
-static void ForceStreamRequest(mm_word num_samples)
-{
-    StreamExecuteUpdate((num_samples >> 2) << 2);
-}
-
-// Copy mono data with different shifts
-// It may be better to keep everything separate for faster speeds?!
-static ARM_CODE mm_byte *CopyDataMonoStream(mm_byte* work_memory_ptr, mm_word dest_pos, mm_word curr_samples_num, mm_word shift)
-{
-    mm_byte* wave_memory_ptr = (mm_byte*)mmsData.wave_memory;
-
-    wave_memory_ptr += (dest_pos << shift) >> 1;
-
-    if (shift == 0)
-    {
-        // Copy 2 bytes at a time
-        for (mm_word i = 0; i < (curr_samples_num >> 2); i++)
-        {
-            *((mm_hword*)wave_memory_ptr) = *((mm_hword*)work_memory_ptr);
-            wave_memory_ptr += 2;
-            work_memory_ptr += 2;
-        }
-    }
-    else
-    {
-        // Copy 4 bytes at a time
-        for (mm_word i = 0; i < (curr_samples_num >> (2 - (shift - 1))); i++)
-        {
-            *((mm_word*)wave_memory_ptr) = *((mm_word*)work_memory_ptr);
-            wave_memory_ptr += 4;
-            work_memory_ptr += 4;
-        }
-    }
-
-    return work_memory_ptr;
-}
-
-// Copy stereo data with different shifts
-// It may be better to keep everything separate for faster speeds?!
-static ARM_CODE mm_byte *CopyDataStereoStream(mm_byte* work_memory_ptr, mm_word dest_pos, mm_word curr_samples_num, mm_word shift, mm_word length)
-{
-    mm_byte *wave_memory_ptr = (mm_byte*)mmsData.wave_memory;
-    mm_word left = 0;
-    mm_word right = 0;
-
-    wave_memory_ptr += (dest_pos << shift) >> 1;
-    // Copy 4 bytes at a time
-    for (mm_word i = 0; i < (curr_samples_num >> (2 - shift)); i++)
-    {
-        if (shift != 2)
-        {
-            left = (*((mm_word*)work_memory_ptr)) & 0xFF00FF;
-            right = ((*((mm_word*)work_memory_ptr)) >> 8) & 0xFF00FF;
-            left |= left >> 8;
-            right |= right >> 8;
-        }
-        else
-        {
-            left = (*((mm_word*)work_memory_ptr)) & 0xFFFF;
-            right = ((*((mm_word*)work_memory_ptr)) >> 16) & 0xFFFF;
-        }
-        *((mm_hword*)wave_memory_ptr) = left;
-        *((mm_hword*)(wave_memory_ptr + ((length << shift) >> 1))) = right;
-        wave_memory_ptr += 2;
-        work_memory_ptr += 4;
-    }
-
-    return work_memory_ptr;
-}
-
-//Copy/de-interleave data from work buffer into the wave buffer
-static ARM_CODE void CopyDataToStream(mm_word num_samples)
-{
-    // Do nothing if there is no data
-    if (num_samples == 0)
-        return;
-
-    mm_word position = mmsData.position;
-    mm_word length = mmsData.length_cut;
-    mm_byte* work_memory_ptr = (mm_byte*)mmsData.work_memory;
-
-    while (num_samples != 0)
-    {
-        mm_word dest_pos = position;
-        mm_word remaining_samples = length - position;
-        mm_word curr_samples_num = num_samples;
-
-        if (curr_samples_num >= remaining_samples)
-        {
-            curr_samples_num = remaining_samples;
-            position = 0;
-        }
-        else
-        {
-            position += curr_samples_num;
-        }
-
-        num_samples -= curr_samples_num;
-
-        if (is_stereo_format(mmsData.format))
-            work_memory_ptr = CopyDataStereoStream(work_memory_ptr, dest_pos, curr_samples_num, get_shift_for_format(mmsData.format), length);
-        else
-            work_memory_ptr = CopyDataMonoStream(work_memory_ptr, dest_pos, curr_samples_num, get_shift_for_format(mmsData.format));
-    }
-
-    mmsData.position = position;
 }
 
 // Close audio stream

@@ -35,13 +35,9 @@
  * Following bytes: data
  ***********************************************************************/
 
-#define EFFECT_CHANNELS 16
-#define MAX_PARAM_WORDS 4
-#define NO_HANDLES_AVAILABLE 0
-
-static mm_sfxhand mmValidateEffectHandle(mm_sfxhand);
-static mm_sfxhand mmCreateEffectHandle(void);
-static void mmReceiveMessage(uint32_t, void*);
+#define EFFECT_CHANNELS         16
+#define MAX_PARAM_WORDS         4
+#define NO_HANDLES_AVAILABLE    0
 
 // Flag used by the mmStreamBegin() and mmStreamEnd()
 volatile mm_byte mm_stream_arm9_flag;
@@ -52,13 +48,6 @@ mm_word mmFifoChannel;
 mm_word sfx_bitmask;
 
 mm_byte sfx_instances[EFFECT_CHANNELS];
-
-// ARM9 Communication Setup
-void mmSetupComms(mm_word channel)
-{
-    mmFifoChannel = channel;
-    fifoSetValue32Handler(channel, mmReceiveMessage, 0);
-}
 
 // Send data via Datamsg
 static void SendString(mm_word* values, int num_words)
@@ -234,17 +223,6 @@ void mmSelectMode(mm_mode_enum mode)
     SendCommandByte(MSG_SELECTMODE, mode);
 }
 
-// Returns same handle, or a newer valid handle
-static mm_sfxhand mmValidateEffectHandle(mm_sfxhand handle)
-{
-    mm_byte instance_num = (handle & 0xFF) - 1;
-
-    if ((instance_num < EFFECT_CHANNELS) && (sfx_instances[instance_num] == ((handle >> 8) & 0xFF)))
-        return handle;
-
-    return mmCreateEffectHandle();
-}
-
 // Return effect handle
 // NO_HANDLES_AVAILABLE = no channels available
 static mm_sfxhand mmCreateEffectHandle(void)
@@ -272,6 +250,17 @@ static mm_sfxhand mmCreateEffectHandle(void)
     sfx_instances[i] += 1;
 
     return (sfx_instances[i] << 8) | (i + 1);
+}
+
+// Returns same handle, or a newer valid handle
+static mm_sfxhand mmValidateEffectHandle(mm_sfxhand handle)
+{
+    mm_byte instance_num = (handle & 0xFF) - 1;
+
+    if ((instance_num < EFFECT_CHANNELS) && (sfx_instances[instance_num] == ((handle >> 8) & 0xFF)))
+        return handle;
+
+    return mmCreateEffectHandle();
 }
 
 // Play sound effect, default parameters
@@ -472,4 +461,11 @@ static void mmReceiveMessage(uint32_t value32, void *userdata)
         sfx_bitmask &= ~(value32 & 0xFFFF);
         mmActiveStatus = (value32 >> 16) & 1;
     }
+}
+
+// ARM9 Communication Setup
+void mmSetupComms(mm_word channel)
+{
+    mmFifoChannel = channel;
+    fifoSetValue32Handler(channel, mmReceiveMessage, 0);
 }

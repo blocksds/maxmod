@@ -40,41 +40,6 @@ static mm_byte ReverbNoDryRight;
 static mm_bool ReverbEnabled;
 static mm_byte ReverbStarted;
 
-static void ResetSoundAndCapture(void);
-static void CopyDrySettings(void);
-
-// Enable Reverb System (lock reverb channels from sequencer)
-void mmReverbEnable(void)
-{
-    // Catch if reverb is already enabled
-    if (ReverbEnabled)
-        return;
-
-    // Set enabled flag
-    ReverbEnabled = 1;
-
-    // Lock reverb channels
-    mmLockChannels(REVERB_CHN_MASK);
-
-    ResetSoundAndCapture();
-}
-
-// Disable Reverb System
-void mmReverbDisable(void)
-{
-    // Catch if reverb is already disabled
-    if (!ReverbEnabled)
-        return;
-
-    // Set disabled flag
-    ReverbEnabled = 0;
-
-    ResetSoundAndCapture();
-
-    // Unlock reverb channels
-    mmLockChannels(REVERB_CHN_MASK);
-}
-
 // Set the reverb channel back to the default
 static void SetReverbChannelToDefault(mm_byte channel)
 {
@@ -114,6 +79,39 @@ static void ResetSoundAndCapture(void)
     ReverbNoDryRight = 0;
 }
 
+
+// Enable Reverb System (lock reverb channels from sequencer)
+void mmReverbEnable(void)
+{
+    // Catch if reverb is already enabled
+    if (ReverbEnabled)
+        return;
+
+    // Set enabled flag
+    ReverbEnabled = 1;
+
+    // Lock reverb channels
+    mmLockChannels(REVERB_CHN_MASK);
+
+    ResetSoundAndCapture();
+}
+
+// Disable Reverb System
+void mmReverbDisable(void)
+{
+    // Catch if reverb is already disabled
+    if (!ReverbEnabled)
+        return;
+
+    // Set disabled flag
+    ReverbEnabled = 0;
+
+    ResetSoundAndCapture();
+
+    // Unlock reverb channels
+    mmLockChannels(REVERB_CHN_MASK);
+}
+
 void SetupChannel(mm_reverb_cfg* config, mm_byte channel)
 {
     // Memory/SRC
@@ -141,6 +139,26 @@ void SetupChannel(mm_reverb_cfg* config, mm_byte channel)
     // panning/CNT:panning
     if (config->flags & MMRF_PANNING)
         SCHANNEL_PAN(channel) = config->panning;
+}
+
+// Setup SOUNDCNT with dry settings
+void CopyDrySettings(void)
+{
+    // Catch if reverb has not started
+    if (!ReverbStarted)
+        return;
+
+    mm_hword mixer_info = REG_SOUNDCNT;
+
+    // Clear source bits
+    mixer_info &= 0xFFFFF0FF;
+
+    if (ReverbNoDryLeft)
+        mixer_info |= 1 << 8;
+    if (ReverbNoDryRight)
+        mixer_info |= 2 << 10;
+
+    REG_SOUNDCNT = mixer_info;
 }
 
 // Configure reverb system
@@ -257,26 +275,6 @@ void mmReverbConfigure(mm_reverb_cfg* config)
 
     // Save flags
     ReverbFlags = config->flags;
-}
-
-// Setup SOUNDCNT with dry settings
-void CopyDrySettings(void)
-{
-    // Catch if reverb has not started
-    if (!ReverbStarted)
-        return;
-
-    mm_hword mixer_info = REG_SOUNDCNT;
-
-    // Clear source bits
-    mixer_info &= 0xFFFFF0FF;
-
-    if (ReverbNoDryLeft)
-        mixer_info |= 1 << 8;
-    if (ReverbNoDryRight)
-        mixer_info |= 2 << 10;
-
-    REG_SOUNDCNT = mixer_info;
 }
 
 // Start reverb output
