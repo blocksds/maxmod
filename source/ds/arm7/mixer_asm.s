@@ -4,8 +4,6 @@
 
     .syntax unified
 
-#include "core/format_mas.inc"
-
 //======================================================================
 
     .global mm_mix_data
@@ -58,7 +56,18 @@
 // channel structure
 //----------------------------------------------------------------------
 
-    // mm_mixer_channel in asm_include/mp_mixer_ds.h
+    // Sample structure : mm_mas_ds_sample
+
+    .equ    C_SAMPLEN_LSTART, 0
+    .equ    C_SAMPLEN_LEN,    4
+    .equ    C_SAMPLEN_FORMAT, 8
+    .equ    C_SAMPLEN_REP,    9
+    .equ    C_SAMPLEN_DFREQ,  10
+    .equ    C_SAMPLEN_POINT,  12
+    .equ    C_SAMPLEN_DATA,   16
+
+    // Mixer channel : mm_mixer_channel
+
     .equ    C_SAMP, 0   // mainram address
     .equ    C_CNT,  3   // LSBs = target panning 0..127, MSB = key-on
     .equ    C_FREQ, 4   // unsigned 3.10, top 3 cleared

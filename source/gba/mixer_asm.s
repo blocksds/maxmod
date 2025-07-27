@@ -2,10 +2,6 @@
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
 
-// DEFINITIONS
-
-#include "core/format_mas.inc"
-
 // timer freq = 2^24 / mixfreq
 // mixlen ~= mixfreq * 0.01673
 // recommended mixing frequencies: 5734, 7884, 10512, 13379, 15768, 18157,
@@ -29,28 +25,32 @@
 // more definitions
 //===============================================
 
-.equ    SAMPFRAC, 12 @ Number of bits used in fractional part of sample reading
+    .equ    SAMPFRAC, 12 @ Number of bits used in fractional part of sample reading
 
-// MIXER CHANNEL FORMAT
+    // Sample structure : mm_mas_gba_sample
 
-.equ    CHN_SIZE, 24
+    .equ    C_SAMPLE_LEN,  0
+    .equ    C_SAMPLE_LOOP, 4
+    .equ    C_SAMPLE_DATA, 12
 
-.equ    CHN_SRC,  0
-.equ    CHN_READ, 4
-.equ    CHN_VOL,  8
-.equ    CHN_PAN,  9
-// 10
-// 11
-.equ    CHN_FREQ, 12
-.equ    CHN_SIZE, 16
+    // Mixer channel : mm_mixer_channel
 
-/////////////////////.equ    CHN_LOOP, 8
-/////////////////////.equ    CHN_LEN, 16
+    .equ    CHN_SIZE, 24
+
+    .equ    CHN_SRC,  0
+    .equ    CHN_READ, 4
+    .equ    CHN_VOL,  8
+    .equ    CHN_PAN,  9
+    // 10
+    // 11
+    .equ    CHN_FREQ, 12
+    .equ    CHN_SIZE, 16
 
 //-------------------------------------
 
-.equ    FETCH_SIZE, 384
-.equ    FETCH_THRESHOLD, (6016) // 7040      // frequency threshold (dont use fetch for high freqs!)
+    .equ    FETCH_SIZE, 384
+    // Frequency threshold (dont use fetch for high freqs!)
+    .equ    FETCH_THRESHOLD, (6016) // 7040
 
 //======================================================================
 //                               MEMORY
