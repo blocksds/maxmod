@@ -33,8 +33,6 @@
 #define REG_SGFIFOA     (volatile uint32_t *)0x40000A0
 #define REG_SGFIFOB     (volatile uint32_t *)0x40000A4
 
-extern mm_word mm_mixlen;
-
 extern mm_addr mm_mixbuffer;
 extern mm_mixer_channel *mm_mixchannels;
 extern mm_addr mm_wavebuffer;
