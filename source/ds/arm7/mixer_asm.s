@@ -14,12 +14,8 @@
     .global mmbZerofillBuffer
     .type   mmbZerofillBuffer STT_FUNC
 
-    .global mmMixC
-    .type   mmMixC STT_FUNC
-
-    .global mmVolumeTable
-    .global mmVolumeDivTable
-    .global mmVolumeShiftTable
+    .global mmcMixChunk
+    .type   mmcMixChunk STT_FUNC
 
 //----------------------------------------------------------------------
 
@@ -33,24 +29,12 @@
     .equ    MM_nDSCHANNELS,  32     // [channels]
     .equ    MM_SW_CHUNKLEN,  112    // [samples]
     .equ    MM_SW_BUFFERLEN, 224    // [samples], note: nothing
-    .equ    CLK_DIV,         524288 // VALUE = 16777216 * CLK / 512 / 32
 
     .equ    SFRAC, 10
 
     .equ    REG_DMA,     0x40000BC
     .equ    DMA_ENABLE,  (1 << 31)
     .equ    DMA_32BIT,   (1 << 26)
-    .equ    DMA_CONTROL, (DMA_ENABLE | DMA_32BIT)
-
-    .equ    CSOUND_CNT,  0
-    .equ    CSOUND_SAD,  4
-    .equ    CSOUND_TMR,  8
-    .equ    CSOUND_PNT,  0xA
-    .equ    CSOUND_LEN,  0xC
-
-    .equ    SOUNDxCNT_ENABLE, 0x80000000
-
-    .equ    SWI_DIVIDE, 0x09
 
 //----------------------------------------------------------------------
 // channel structure
@@ -76,10 +60,6 @@
     .equ    C_CVOL, 12  // current volume  0..65535
     .equ    C_CPAN, 14  // current panning 0..65535
     .equ    C_SIZE, 16
-
-    .equ    CF_START, 128
-
-    .equ    C_READ_FRAC, 10
 
 //----------------------------------------------------------------------
     .bss
@@ -155,6 +135,12 @@ mm_output_slice: // 0 = first half, 1 = second half
     .arm
     .align 2
 //----------------------------------------------------------------------
+
+// *****************************************************************************
+// *****************************************************************************
+//                                   MODE B
+// *****************************************************************************
+// *****************************************************************************
 
 //***************************************************************************************
 mmbResampleData:
@@ -620,229 +606,22 @@ _value_unclipped:
     mov     count, r0
     bx      lr
 
-//------------------------------------------------------------------------------------
-translateVolume: // { volume 0..65535 }
-//------------------------------------------------------------------------------------
-    ldr     r3, =mmVolumeTable
-    ldrb    r1, [r3, r0, lsr #7 + 5]    // r1 = shift data
-    add     r2, r0, #16 << (7 + 5)
-    ldrb    r2, [r3, r2, lsr #7 + 5]    // r2 = shift level
-    add     r2, #5                      // ***add this to the table values instead
-    movs    r1, r1, lsl #8              // assemble data
-    orr     r0, r1, r0, lsr r2
-    bx      lr                          // return
-
-//*********************************************************
-mmMixC:
-//*********************************************************
-    stmfd   sp!, {r4-r11, lr}
-
-    mov     r7, r0
-    mov     r10, r1
-    mov     r12, r2
-
-    ldr     r11, =mm_mix_data + MC_SHADOW
-    mov     r8, #1
-
-    tst     r10, r8                     // test channel bit and update if bit set
-    beq     .mmc_next                   //
-
-//--------------------------------------------------
-.mmc_update_loop:
-//--------------------------------------------------
-
-    ldr     r1, [r12, #C_SAMP]          // read sample address
-    bics    r6, r1, #0xFF000000         // channel is disabled if address == 0
-    beq     .mmc_disabled               //
-    add     r6, r6, #0x2000000          // add wram offset to address
-
-    ldrb    r1, [r12, #C_CNT]           // test and clear start bit
-    tst     r1, #CF_START               //
-    bic     r1, #CF_START               //
-    strb    r1, [r12, #C_CNT]           //
-    beq     .mmc_continue               // continue channel / start new note
-                        //--------------------------------------
-
-    ldrb    r4, [r12, #C_READ]          // shift sample offset (for swm only)
-    mov     r0, r4, lsl#C_READ_FRAC + 8 // r4 = offset/256
-    str     r0, [r12, #C_READ]          //
-
-    ldrh    r0, [r12, #C_VOL]           // set direct volume levels on key-on
-    ldrb    r1, [r12, #C_CNT]           //
-    orr     r0, r0, r1, lsl #16 + 9     //
-    str     r0, [r12, #C_CVOL]          //
-
-    cmp     r8, #1 << 16                // skip the rest for software channels
-    bcs     .mmc_next                   //
-
-    cmp     r4, #0                      // convert sample offset into wordcount
-    beq     1f                          //
-    ldrb    r3, [r6, #C_SAMPLEN_FORMAT] //
-    cmp     r3, #1                      //
-    movgt   r4, #0                      // adpcm,else = 0
-    moveq   r4, r4, lsl #(9 - 2)        // 16-bit = lsl#1
-    movne   r4, r4, lsl #(8 - 2)        // 8-bit = lsl#0
-1:  //--------------------------------------
-    //add    r2, r6, #C_SAMPLEN_DATA      // r2 = source address (+offset)
-    ldr     r2, [r6, #C_SAMPLEN_POINT]
-    cmp     r2, #0
-    addeq   r2, r6, #C_SAMPLEN_DATA
-
-    add     r2, r2, r4, lsl #2          // r3 = loop start (-offset)
-                                        // r4 = length
-    ldrb    r3, [r6, #C_SAMPLEN_REP]    //
-    cmp     r3, #1                      //
-    bne     .mmc_nlooping               // if no sample loop ->
-                                        //
-    ldrh    r3, [r6, #C_SAMPLEN_LSTART] //
-    subs    r3, r3, r4                  //
-    addmi   r2, r2, r3, lsl#2           //-truncate offsets that enter looped region
-    movmi   r3, #0                      //-
-    ldr     r4, [r6, #C_SAMPLEN_LEN]    //
-    //--------------------------------------
-
-    str     r4, [r11, #MC_SH_LEN]       // write LEN to shadow
-
-    b       .mmc_looping
-
-.mmc_nlooping:
-
-    ldr     r5, [r6, #C_SAMPLEN_LEN]    // r14 = length
-    subs    r14, r5, r4                 //
-    submi   r2, r2, r4, lsl #2          // cancel sample offset if greater than length
-    movmi   r14, r5                     //
-
-    mov     r3, #0
-
-    str     r14, [r11, #MC_SH_LEN]      // write LEN to shadow
-
-.mmc_looping:
-
-    str     r2, [r11, #MC_SH_SRC]       // write new source+loop point data to shadow buffer
-    strh    r3, [r11, #MC_SH_PNT]       //
-
-    //------------------------------
-    // set top 8 bits of CNT
-    ldrh    r0, [r6, #C_SAMPLEN_FORMAT] //
-    lsr     r1, r0, #8                  //-r1 = rep
-    and     r0, #0xFF                   //-r0 = fmt
-    orr     r1, r1, r0, lsl #2          //-combine
-    lsl     r1, #3                      //-shift into place
-    add     r1, #0x80                   //-add start bit
-    strb    r1, [r11, #MC_SH_CNT + 3]   //
-    //------------------------------
-
-    b    .mmc_started
-
-.mmc_continue:
-//-----------------
-// adjust pitch, volume, panning
-
-    cmp     r8, #1 << 16
-    bcs     .mmc_next
-//.mmc_hw_ch:
-//-------------
-
-    ldr     r1, =mm_mix_data + MC_SHADOW    // GREAT HACK OF JUSTICE
-    sub     r1, r11, r1                     //
-    add     r1, #0x4000000                  //
-    add     r1, #0x0000400                  //
-    ldrb    r1, [r1, #3]                    //
-    tst     r1, #128                        //
-    beq     .mmc_disabled                   //
-
-//    ldr     r1, [r11, #CSOUND_CNT]
-//    tst     r1, #SOUNDxCNT_ENABLE
-//
-//    moveq   r1, #0
-//    streq   r1, [r12, #C_SAMP]
-//    beq     .mmc_next
-
-.mmc_started:
-//----------------------------------------------------------------
-
-    ldr     r0, =CLK_DIV                // calc & set timer
-    ldrh    r1, [r12, #C_FREQ]
-    cmp     r1, #0
-    moveq   r0, #0
-    beq     1f
-    // TODO: Replace this by __aeabi_idiv()?
-    swi     SWI_DIVIDE << 16            // r0 = r0 / r1
-    neg     r0, r0
-1:  strh    r0, [r11, #MC_SH_TMR]
-
-    ldrh    r0, [r12, #C_CVOL]          // set volume
-    bl      translateVolume             //
-    strh    r0, [r11, #MC_SH_CNT]       //
-
-    ldrh    r2, [r12, #C_CPAN]          // set panning
-    lsr     r2, #9                      //
-    strb    r2, [r11, #MC_SH_CNT + 2]   //
-
-.mmc_next:
-
-    add     r11, #MC_SH_SIZE            // point to next shadow channel
-    add     r12, #C_SIZE                // point to next mixing channel
-    movs    r8, r8, lsl #1              // shift channel bit
-    beq     mmSoftwareMixingRoutine     // exit if past 32 channels
-    tst     r10, r8                     // test ch mask with channel bit
-    bne     .mmc_update_loop            // process if set
-    b       .mmc_next                   // loop
-
-.mmc_disabled:
-    cmp     r8, #1 << 16
-    bcs     .mmc_next                   // [do nothing]
-    mov     r0, #0
-    str     r0, [r11, #CSOUND_CNT]      // clear channel cnt
-    str     r0, [r12, #C_SAMP]          // ***hope this works
-    b       .mmc_next
-
-.pool
-
-/**************************************************************************************
- * mmVolumeTable
- *
- * LUT containing values to help convert a certain value into
- * value and shift amount for the hardware channels
- **************************************************************************************/
-mmVolumeTable:
-mmVolumeDivTable:
-    // divider values
-    .byte   3, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0
-
-mmVolumeShiftTable:
-// shift values
-    .byte   0, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4
-
-/**************************************************************************************
- * mmDoSoftwareMixingRoutine()
- *
- * Software mix extended channels into the streams.
- **************************************************************************************/
-mmSoftwareMixingRoutine:
-
-    ldr     r9, =mm_ch_mask             // r9 = software channel selection
-    ldrh    r9, [r9, #2]                //
-
-    ldr     r0, =REG_DMA                // setup dma destination
-    ldr     r1, =mm_mix_data + MC_FETCH //
-    str     r1, [r0, #0x4]              // 0x4=DMAxDAD
-
-    bl      mmMixChunk
-
-    ldmfd   sp!, {r4-r11, lr}           // return
-    bx      lr
+// *****************************************************************************
+// *****************************************************************************
+//                                   MODE C
+// *****************************************************************************
+// *****************************************************************************
 
 //---------------------------------------------
 // software mix chunk
 //---------------------------------------------
-mmMixChunk:
+mmcMixChunk:
 //---------------------------------------------
 
 // clear work buffer
 //--------------------
 
-    stmfd   sp!, {lr}                       // save mix count, channels, return
+    stmfd   sp!, {r4-r11, lr}               // save mix count, channels, return
 
     ldr     r0, =mm_mix_data + MC_MIX_WMEM
     mov     r1, #0                          // clear work buffer
@@ -1108,7 +887,7 @@ mmMixChunk:
     eor     r2, #1                      //
     strb    r2, [r1]                    //
 
-    ldmfd   sp!, {pc}                   // return
+    ldmfd   sp!, {r4-r11, pc}           // return
 
 volume_addition:
     .space 4

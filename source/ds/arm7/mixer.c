@@ -414,10 +414,20 @@ static ARM_CODE void SlideMixingLevels(mm_word throttle)
 
 #define SLIDE_THROTTLE 6144 //45
 
+// LUTs containing values to help convert a certain value into value and shift
+// amount for the hardware channels.
+
+mm_byte mmVolumeDivTable[] = { // divider values
+    3, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0
+};
+
+mm_byte mmVolumeShiftTable[] = { // shift values
+    0, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4
+};
+
 static ARM_CODE mm_word translateVolume(mm_word volume) // volume = 0..65535
 {
     mm_word shift_data = mmVolumeDivTable[volume >> (7 + 5)];
-    //mm_word shift_level = mmVolumeTable[(volume + (16 << (7 + 5))) >> (7 + 5)];
     mm_word shift_level = mmVolumeShiftTable[volume >> (7 + 5)];
 
     shift_level += 5; // Add this to the table values instead
@@ -638,7 +648,151 @@ static void ARM_CODE mmMixB(void)
     mm_output_slice ^= 1;
 }
 
-void mmMixC(mm_byte *volume_table, mm_word ch_mask, mm_mixer_channel *mix_ch);
+void mmcMixChunk(void);
+
+static ARM_CODE void mmMixC(void)
+{
+    mm_word ch_mask = mm_ch_mask;
+    mm_mixer_channel *mix_ch = &mm_mix_channels[0];
+    mmshadow_c_ds *shadow = (mmshadow_c_ds *)&(mm_mix_data.mix_data_c.shadow[0]);
+
+    for (mm_word channel = 0; channel < 32; channel++, shadow++, mix_ch++)
+    {
+        // Test channel bit. Update the channel if it's set. Ignore it if not.
+        if ((ch_mask & BIT(channel)) == 0)
+            continue;
+
+        // Read sample address. If the address is 0, the channel is disabled.
+        if (mix_ch->samp == 0)
+        {
+            // Silence channel if it's a hardware channel
+            if (channel < 16)
+            {
+                shadow->cnt = 0;
+                mix_ch->samp = 0;
+                mix_ch->tpan = 0;
+                mix_ch->key_on = 0;
+            }
+            continue;
+        }
+
+        // Add main RAM offset to get the address of the sample data
+        mm_mas_ds_sample *sample = (mm_mas_ds_sample *)(mix_ch->samp + 0x2000000);
+
+        // Test and clear start bit
+        bool was_key_on = mix_ch->key_on;
+        mix_ch->key_on = 0;
+
+        if (was_key_on) // Continue channel / start new note
+        {
+            // shift sample offset (for swm only): offset / 256
+
+            // TODO: The original only reads one byte instead of 32, is that a bug?
+            mm_word sample_offset = (mm_byte)mix_ch->read & 0xFF;
+            mix_ch->read = sample_offset << (C_READ_FRAC + 8);
+
+            // set direct volume levels on key-on
+            mix_ch->cvol = mix_ch->vol;
+            mix_ch->cpan = mix_ch->tpan << 9;
+
+            if (channel >= 16) // skip the rest for software channels
+                continue;
+
+            mm_sword length = sample_offset;
+
+            if (sample_offset != 0) // convert sample offset into word count
+            {
+                if (sample->format == 0)
+                    length = length << (8 - 2); // 8-bit = lsl #0
+                else if (sample->format == 1)
+                    length = length << (9 - 2); // 16-bit = lsl #1
+                else
+                    length = 0; // ADPCM and others = 0
+            }
+
+            mm_word source_addr = sample->point;
+            if (source_addr == 0)
+                source_addr = (mm_word)&(sample->data[0]);
+
+            source_addr += length << 2;
+
+            mm_sword loop_start;
+
+            if (sample->repeat_mode == 1) // Forward loop
+            {
+                loop_start = sample->loop_start - length;
+
+                if (loop_start < 0)
+                {
+                    // Truncate offsets that enter looped region
+                    source_addr += loop_start << 2;
+                    loop_start = 0;
+                }
+
+                shadow->len = sample->length; // write LEN to shadow
+            }
+            else // No loop
+            {
+                mm_sword new_length = sample->length - length;
+                if (new_length < 0)
+                {
+                    // Cancel sample offset if greater than length
+                    source_addr -= length << 2;
+                    new_length = sample->length;
+                }
+
+                loop_start = 0;
+
+                shadow->len = new_length; // write LEN to shadow
+            }
+
+            // write new source+loop point data to shadow buffer
+            shadow->src = source_addr;
+            shadow->pnt = loop_start;
+
+            // Combine and add start bit
+            shadow->cnt &= 0x00FFFFFF;
+            shadow->cnt |= (sample->repeat_mode << 27) | (sample->format << 29)
+                         | SCHANNEL_ENABLE;
+        }
+        else
+        {
+            // adjust pitch, volume, panning
+
+            if (channel >= 16)
+                continue;
+
+            if ((SCHANNEL_CR(channel) & SCHANNEL_ENABLE) == 0)
+            {
+                // Silence channel if it's a hardware channel
+                if (channel < 16)
+                {
+                    shadow->cnt = 0;
+                    mix_ch->samp = 0;
+                    mix_ch->tpan = 0;
+                    mix_ch->key_on = 0;
+                }
+                continue;
+            }
+        }
+
+        // calc & set timer
+        if (mix_ch->freq == 0)
+            shadow->tmr = 0;
+        else
+            shadow->tmr = -(CLK_DIV / mix_ch->freq);
+
+        shadow->cnt &= 0xFF000000;
+        shadow->cnt |= translateVolume(mix_ch->cvol);
+        shadow->cnt |= ((mm_word)mix_ch->cpan & 0xFE00) << (16 - 9);
+    }
+
+    // Setup DMA destination
+    DMA1_DEST = (mm_word)&(mm_mix_data.mix_data_c.fetch[0]);
+
+    // Software mix extended channels into the streams.
+    mmcMixChunk();
+}
 
 ARM_CODE void mmMixerMix(void)
 {
@@ -655,12 +809,6 @@ ARM_CODE void mmMixerMix(void)
     }
     else // if (mm_mixing_mode == MM_MODE_C)
     {
-        extern mm_byte mmVolumeTable[];
-
-        mm_byte *volume_table = &mmVolumeTable[0];
-        mm_word ch_mask = mm_ch_mask;
-        mm_mixer_channel *mix_ch = &mm_mix_channels[0];
-
-        mmMixC(volume_table, ch_mask, mix_ch);
+        mmMixC();
     }
 }

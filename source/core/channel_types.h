@@ -112,6 +112,8 @@ typedef struct {
 
 static_assert(sizeof(mm_mixer_channel) == 16);
 
+#define C_READ_FRAC 10
+
 // scale = 65536*1024*2 / mixrate
 #define MIXER_SCALE         4096 //6151
 
