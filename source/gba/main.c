@@ -18,7 +18,7 @@
 #include "gba/mixer.h"
 
 // Buffer that holds the mixed data
-#define mixlen 1056 // 16 KHz
+#define mixlen MM_MIXLEN_16KHZ // 16 KHz
 static uint32_t mixbuffer[mixlen / sizeof(uint32_t)];
 
 // Address of soundbank in memory/rom
@@ -88,7 +88,7 @@ bool mmInitDefault(mm_addr soundbank, mm_word number_of_channels)
 
     mm_gba_system setup =
     {
-        .mixing_mode = 3,
+        .mixing_mode = MM_MIX_16KHZ,
         .mod_channel_count = number_of_channels,
         .mix_channel_count = number_of_channels,
         .module_channels = module_channels,
