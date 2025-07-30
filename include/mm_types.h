@@ -254,7 +254,7 @@ typedef struct t_mmsoundeffect
 /// should be defined like this (as a global array):
 ///
 /// ```c
-/// u8 my_mixing_buffer[ MM_MIXEN_16KHZ ] __attribute__((aligned(4)));
+/// u8 my_mixing_buffer[MM_MIXLEN_16KHZ] __attribute__((aligned(4)));
 /// ```
 ///
 /// Notice also that the mixing buffer should be aligned by 4 bytes.
