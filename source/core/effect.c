@@ -205,20 +205,13 @@ got_handle:
 
     ch->flags = MCAF_EFFECT;
 
-    // setup voice
+    // Setup voice
 
 #if defined(SYS_GBA)
+
     mm_mixer_channel *mx_ch = &mm_mixchannels[channel];
-#endif
-#if defined(SYS_NDS7)
-    mm_mixer_channel *mx_ch = &mm_mix_channels[channel];
-#endif
 
-    // set sample data address
-
-    // TODO: Cleanup the code below with proper C structs
-
-#if defined(SYS_GBA)
+    // Set sample data address
 
     msl_head *head = mp_solution;
     mm_word sample_offset = (mm_word)head->sampleTable[sound->id & 0xFFFF];
@@ -238,7 +231,9 @@ got_handle:
 
 #elif defined(SYS_NDS7)
 
-    // Set sample address
+    mm_mixer_channel *mx_ch = &mm_mix_channels[channel];
+
+    // Set sample data address
 
     mm_word source = (mm_word)sound->sample;
 
@@ -438,24 +433,21 @@ void mmUpdateEffects(void)
         if (channel < 0)
             continue;
 
-#if defined(SYS_GBA)
-        mm_mixer_channel *mx_ch = &mm_mixchannels[channel];
-#endif
-#if defined(SYS_NDS7)
-        mm_mixer_channel *mx_ch = &mm_mix_channels[channel];
-#endif
-
         // Test if channel is still active
 
 #if defined(SYS_GBA)
-        if ((mx_ch->src & (1u << 31)) == 0)
+        mm_mixer_channel *mx_ch = &mm_mixchannels[channel];
+
+        if ((mx_ch->src & (1U << 31)) == 0)
             continue;
 #elif defined(SYS_NDS7)
+        mm_mixer_channel *mx_ch = &mm_mix_channels[channel];
+
         if (mx_ch->samp)
             continue;
 #endif
 
-        // Free achanel
+        // Free achanel if it isn't active
 
         mm_active_channel *ch = &mm_achannels[channel];
 
