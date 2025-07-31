@@ -29,10 +29,14 @@ extern "C" {
 typedef struct tmm_mas_prefix
 {
     mm_word     size;
-    mm_byte     type;
+    mm_byte     type; // MAS_TYPE_SONG, MAS_TYPE_SAMPLE_GBA or MAS_TYPE_SAMPLE_NDS
     mm_byte     version;
     mm_byte     reserved[2]; // Unused
 } mm_mas_prefix;
+
+#define MAS_TYPE_SONG       0
+#define MAS_TYPE_SAMPLE_GBA 1
+#define MAS_TYPE_SAMPLE_NDS 2
 
 typedef struct tmm_mas_head
 {
