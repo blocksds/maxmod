@@ -16,11 +16,6 @@
     .global     mmMixerMix
     .type       mmMixerMix STT_FUNC
 
-    .global     mm_mixlen
-    .global     mm_bpmdv
-    .global     mp_writepos
-    .global     mm_mixchannels
-
 //===============================================
 // more definitions
 //===============================================
@@ -58,24 +53,6 @@
 
     .section .bss
     .align 2
-
-    .global mm_mixbuffer, mm_mixchannels, mm_wavebuffer, mm_mixlen
-    .global mm_mixch_count, mm_mixch_end, mm_ratescale, mm_timerfreq
-
-mp_writepos:        .space 4    // wavebuffer write position
-
-mm_mixbuffer:       .space 4    // dont move (see init)
-mm_mixchannels:     .space 4    // dont move
-mm_wavebuffer:      .space 4    // dont move
-mm_mixlen:          .space 4    // dont move
-mm_mixch_count:     .space 4    // dont move
-mm_mixch_end:       .space 4    // dont move
-mm_ratescale:       .space 4    // dont move
-mm_timerfreq:       .space 4    // dont move
-
-mm_bpmdv:           .space 4
-
-.align 2
 
 mm_fetch:           .space FETCH_SIZE + 16
 

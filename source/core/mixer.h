@@ -8,8 +8,6 @@
 
 #include <mm_types.h>
 
-extern mm_word mm_mixlen;
-
 void mmMixerSetVolume(int channel, mm_word volume);
 void mmMixerSetPan(int channel, mm_byte panning);
 void mmMixerSetFreq(int channel, mm_word rate);

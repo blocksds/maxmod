@@ -18,6 +18,26 @@
 
 mm_byte mp_mix_seg; // Mixing segment select
 
+mm_addr mm_mixbuffer;
+
+mm_mixer_channel *mm_mixchannels;
+
+mm_word mm_bpmdv;
+
+mm_word mm_mixlen;
+
+mm_word mm_ratescale;
+
+mm_word mp_writepos; // wavebuffer write position
+
+static mm_addr mm_wavebuffer;
+
+static mm_word mm_mixch_count;
+
+mm_addr mm_mixch_end;
+
+static mm_word mm_timerfreq;
+
 // Pointer to a user function to be called during the vblank irq
 static mm_voidfunc mm_vblank_function;
 
