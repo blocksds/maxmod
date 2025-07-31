@@ -76,11 +76,22 @@ typedef struct tmm_mas_instrument
     mm_byte     dca;
     mm_hword    note_map_offset : 15;
     mm_hword    is_note_map_invalid : 1;
-    mm_hword    note_map[121]; // TODO: note_map[0] is reserved (should be zero)
+    mm_hword    reserved; // Always zero
 
-    mm_byte     envelopes[];
+    mm_byte     data[]; // The data that follows is variable
 
-    // ::envelopes
+    // Volume envelope, panning envelope and pitch envelopes.
+    //
+    // Any of them may be missing. Check env_flags to see which envelopes are
+    // present.
+    //mm_byte     envelopes[];
+
+    // After the envelopes there is a note map if is_note_map_invalid == 0.
+    //
+    // The address of the note map is the base of the mm_mas_instrument struct
+    // plus the value of note_map_offset.
+    //mm_hword    note_map[120];
+
 } mm_mas_instrument;
 
 #define MAS_INSTR_FLAG_VOL_ENV_EXISTS   (1 << 0) // Volume envelope exists

@@ -2994,7 +2994,7 @@ mm_word mpp_Update_ACHN_notest_envelopes(mpl_layer_information *layer,
 
     // Get envelope flags
 
-    mm_byte *env_ptr = (mm_byte*)&(instrument->note_map[1]);
+    mm_byte *env_ptr = (mm_byte*)&(instrument->data[0]);
 
     if (instrument->env_flags & MAS_INSTR_FLAG_VOL_ENV_EXISTS)
     {
