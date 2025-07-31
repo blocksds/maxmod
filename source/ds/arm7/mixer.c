@@ -469,9 +469,9 @@ static ARM_CODE void mmMixA(void)
             if (offset != 0)
             {
                 // Test sample format
-                if (sample->format == 0)
+                if (sample->format == MM_SFORMAT_8BIT)
                     offset = offset << (8 - 2); // 8-bit = LSL 0
-                if (sample->format == 1)
+                if (sample->format == MM_SFORMAT_16BIT)
                     offset = offset << (9 - 2); // 16-bit = LSL 1
                 else
                     offset = 0; // ADPCM/other = invalid
@@ -485,7 +485,7 @@ static ARM_CODE void mmMixA(void)
 
             mm_byte rep_mode = sample->repeat_mode; // check repeat mode
 
-            if (rep_mode == 1) // mma_looping | 1 == forward loop
+            if (rep_mode == MM_SREPEAT_FORWARD) // mma_looping | forward loop
             {
                 mm_sword lstart = sample->loop_start; // Get loopstart position
 
@@ -702,9 +702,9 @@ static ARM_CODE void mmMixC(void)
 
             if (sample_offset != 0) // convert sample offset into word count
             {
-                if (sample->format == 0)
+                if (sample->format == MM_SFORMAT_8BIT)
                     length = length << (8 - 2); // 8-bit = lsl #0
-                else if (sample->format == 1)
+                else if (sample->format == MM_SFORMAT_16BIT)
                     length = length << (9 - 2); // 16-bit = lsl #1
                 else
                     length = 0; // ADPCM and others = 0
@@ -718,7 +718,7 @@ static ARM_CODE void mmMixC(void)
 
             mm_sword loop_start;
 
-            if (sample->repeat_mode == 1) // Forward loop
+            if (sample->repeat_mode == MM_SREPEAT_FORWARD) // Forward loop
             {
                 loop_start = sample->loop_start - length;
 

@@ -153,8 +153,8 @@ typedef struct tmm_mas_ds_sample
         mm_word     loop_length;
         mm_word     length;
     };
-    mm_byte     format;             // 0 = 8 bit, 1 = 16 bit, 2 = ADPCM/other (invalid)
-    mm_byte     repeat_mode;        // 1 = forward loop, 2 = no loop
+    mm_byte     format;             // MM_SFORMAT_8BIT, MM_SFORMAT_16BIT or MM_SFORMAT_ADPCM
+    mm_byte     repeat_mode;        // MM_SREPEAT_FORWARD or MM_SREPEAT_OFF
     mm_hword    default_frequency;
     mm_word     point;              // Always zero in mmutil
 
@@ -163,12 +163,12 @@ typedef struct tmm_mas_ds_sample
     // ::sample data
 } mm_mas_ds_sample;
 
-#define MM_SFORMAT_8BIT         0
-#define MM_SFORMAT_16BIT        1
-#define MM_SFORMAT_ADPCM        2
+#define MM_SFORMAT_8BIT         0 // 8 bit
+#define MM_SFORMAT_16BIT        1 // 16 bit
+#define MM_SFORMAT_ADPCM        2 // ADPCM (invalid)
 
-#define MM_SREPEAT_FORWARD      1
-#define MM_SREPEAT_OFF          2
+#define MM_SREPEAT_FORWARD      1 // Forward loop
+#define MM_SREPEAT_OFF          2 // No loop
 
 #ifdef __cplusplus
 }
