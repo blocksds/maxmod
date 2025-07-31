@@ -3185,9 +3185,9 @@ mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information *layer
         mm_word sample_offset = (mm_word)head->sampleTable[sample->msl_id];
 
         mm_byte *sample_addr = ((mm_byte *)mp_solution) + sample_offset;
-        mm_mas_gba_sample *sample = (mm_mas_gba_sample *)(sample_addr + sizeof(mm_mas_prefix));
+        mm_mas_gba_sample *gba_sample = (mm_mas_gba_sample *)(sample_addr + sizeof(mm_mas_prefix));
 
-        mx_ch->src = (mm_word)(&(sample->data[0]));
+        mx_ch->src = (mm_word)(&(gba_sample->data[0]));
 #else
         mm_word source = mmSampleBank[sample->msl_id];
 

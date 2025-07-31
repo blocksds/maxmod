@@ -385,9 +385,7 @@ IWRAM_CODE ARM_CODE void mmUpdateChannel_T0(mm_module_channel *module_channel, m
     if ((module_channel->flags & MF_HASVCMD) == 0)
         goto start_channel;
 
-    mm_bool is_xm_mode = mpp_layer->flags & MAS_HEADER_FLAG_XM_MODE;
-
-    if (is_xm_mode) // XM effects
+    if (mpp_layer->flags & MAS_HEADER_FLAG_XM_MODE) // XM effects
     {
         // Glissando is 193..202
         if ((module_channel->volcmd < GLISSANDO_IT_VOLCMD_START) ||

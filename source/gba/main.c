@@ -74,7 +74,7 @@ bool mmInitDefault(mm_addr soundbank, mm_word number_of_channels)
     size_t size_of_channel = sizeof(mm_module_channel) + sizeof(mm_active_channel) + sizeof(mm_mixer_channel);
     size_t size_of_buffer = mixlen + (number_of_channels * size_of_channel);
 
-    mm_addr mm_init_default_buffer = calloc(1, size_of_buffer);
+    mm_init_default_buffer = calloc(1, size_of_buffer);
     if (mm_init_default_buffer == NULL)
         return false;
 
