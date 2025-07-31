@@ -31,7 +31,7 @@ typedef struct tmm_mas_prefix
     mm_word     size;
     mm_byte     type;
     mm_byte     version;
-    mm_byte     reserved[2];
+    mm_byte     reserved[2]; // Unused
 } mm_mas_prefix;
 
 typedef struct tmm_mas_head
@@ -129,6 +129,8 @@ typedef struct tmm_mas_sample_info
     mm_hword    av_rate; // VIR
     mm_hword    msl_id;
 
+    // If msl_id == 0xFFFF this is a mm_mas_gba_sample or mm_mas_ds_sample
+    // struct. If not, there is no more data.
     mm_byte     data[];
 
     // ::sample may follow
