@@ -32,6 +32,19 @@ typedef struct tmslheaddata
 }
 msl_head_data;
 
+/// This structure represents a sound bank file.
+///
+/// A sound bank file is just a MSL file. It's composed of a MSL header followed
+/// by multiple MAS files. There are two types of MAS file:
+///
+/// - MAS file formed of one sample: Sound effects. Created from WAV files.
+///
+/// - MAS file with samples, instruments and patterns: Songs. Created from MOD,
+///   S3M, XM and IT files).
+///
+/// The MSL header contains the total number of samples and modules, as well as
+/// two tables with offsets to each MAS file with a sample and each MAS file
+/// with a module.
 typedef struct tmslhead
 {
     msl_head_data   head_data;
