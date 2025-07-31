@@ -17,8 +17,8 @@
 ///
 /// @brief Type definitions for Maxmod.
 
-#ifndef MM_TYPES_H
-#define MM_TYPES_H
+#ifndef MM_TYPES_H__
+#define MM_TYPES_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -497,4 +497,4 @@ enum
 }
 #endif
 
-#endif // MM_TYPES_H
+#endif // MM_TYPES_H__

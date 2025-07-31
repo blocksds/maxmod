@@ -15,8 +15,8 @@
 
 // MAXMOD MODULE FORMAT DEFINITIONS
 
-#ifndef MM_MAS_H
-#define MM_MAS_H
+#ifndef MM_MAS_H__
+#define MM_MAS_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -174,4 +174,4 @@ typedef struct tmm_mas_ds_sample
 }
 #endif
 
-#endif
+#endif // MM_MAS_H__

@@ -21,8 +21,8 @@
 #error "maxmod9.h is for ARM9!"
 #endif
 
-#ifndef MAXMOD_H
-#define MAXMOD_H
+#ifndef MAXMOD_H__
+#define MAXMOD_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -602,4 +602,4 @@ void mmReverbDisable(void);
 }
 #endif
 
-#endif // MAXMOD_H
+#endif // MAXMOD_H__

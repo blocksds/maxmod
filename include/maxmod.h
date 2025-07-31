@@ -17,8 +17,8 @@
 ///
 /// @brief Global include of Maxmod for GBA.
 
-#ifndef MAXMOD_H
-#define MAXMOD_H
+#ifndef MAXMOD_H__
+#define MAXMOD_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -493,4 +493,4 @@ extern mm_word mp_writepos;     // mixer's write position
 }
 #endif
 
-#endif // MAXMOD_H
+#endif // MAXMOD_H__

@@ -15,8 +15,8 @@
 
 // MAXMOD SOUNDBANK FORMAT DEFINITIONS
 
-#ifndef MM_MSL_H
-#define MM_MSL_H
+#ifndef MM_MSL_H__
+#define MM_MSL_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,4 +48,4 @@ msl_head;
 }
 #endif
 
-#endif // MM_MSL_H
+#endif // MM_MSL_H__
