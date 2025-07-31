@@ -8,7 +8,7 @@
 
 #include <mm_types.h>
 
-#include "ds/arm7/main7.h"
+#include "ds/arm7/main_ds7.h"
 
 #define MM_MIX_B_NUM_SAMPLES 128
 #define MM_MIX_B_OUTPUT_CH_SIZE (128 * 4)

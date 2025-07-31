@@ -11,8 +11,8 @@
 #include <maxmod9.h>
 #include <mm_types.h>
 
-#include "ds/arm9/comms9.h"
-#include "ds/arm9/main9.h"
+#include "ds/arm9/comms_ds9.h"
+#include "ds/arm9/main_ds9.h"
 
 #define FIFO_MAXMOD 3
 

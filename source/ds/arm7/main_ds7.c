@@ -13,8 +13,8 @@
 #include "core/mas.h"
 #include "core/mixer.h"
 #include "core/mas_structs.h"
-#include "ds/arm7/comms7.h"
-#include "ds/arm7/main7.h"
+#include "ds/arm7/comms_ds7.h"
+#include "ds/arm7/main_ds7.h"
 #include "ds/arm7/mixer.h"
 
 static mm_word mmEventForwarder(mm_word, mm_word);

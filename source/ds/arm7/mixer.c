@@ -17,7 +17,7 @@
 #include "core/effect.h"
 #include "core/mas.h"
 #include "core/mixer.h"
-#include "ds/arm7/main7.h"
+#include "ds/arm7/main_ds7.h"
 #include "ds/arm7/mixer.h"
 
 #define SWM_CHANNEL_1 6

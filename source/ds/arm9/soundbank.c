@@ -12,7 +12,7 @@
 #include <mm_types.h>
 #include <mm_msl.h>
 
-#include "ds/arm9/main9.h"
+#include "ds/arm9/main_ds9.h"
 
 #define MM_FILENAME_SIZE 64
 

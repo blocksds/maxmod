@@ -15,10 +15,10 @@
 #include "core/mas_structs.h"
 
 #if defined(SYS_GBA)
-#include "gba/main.h"
+#include "gba/main_gba.h"
 #include "gba/mixer.h"
 #elif defined(SYS_NDS)
-#include "ds/arm7/main7.h"
+#include "ds/arm7/main_ds7.h"
 #include "ds/arm7/mixer.h"
 #endif
 

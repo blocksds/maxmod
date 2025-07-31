@@ -10,7 +10,7 @@
 #include <mm_mas.h>
 #include <mm_types.h>
 
-#include "ds/arm9/main9.h"
+#include "ds/arm9/main_ds9.h"
 
 #define BASE_SAMPLE_ADDRESS 0x2000000
 

@@ -10,7 +10,7 @@
 #include <maxmod.h>
 #include <mm_mas.h>
 
-#include "gba/main.h"
+#include "gba/main_gba.h"
 #include "gba/mixer.h"
 
 #define ARM_CODE   __attribute__((target("arm")))
