@@ -301,7 +301,9 @@ IWRAM_CODE ARM_CODE mm_byte mmChannelStartACHN(mm_module_channel *module_channel
     else
     {
         // Read notemap entry
-        mm_hword notemap_entry = *((mm_hword*)(((mm_word)instrument) + instrument->note_map_offset + (module_channel->pnoter << 1)));
+        mm_hword *note_map = (mm_hword*)(((mm_word)instrument) + instrument->note_map_offset);
+        mm_hword notemap_entry = note_map[module_channel->pnoter];
+
         // Write note value
         module_channel->note = notemap_entry & 0xFF;
         // Write sample value

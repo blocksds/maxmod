@@ -706,10 +706,11 @@ void mpp_Channel_NewNote(mm_module_channel *module_channel, mpl_layer_informatio
     {
         // Don't do DCA
     }
-    else if (dct == 1) // DTC Note
+    else if (dct == 1) // DCT Note
     {
         // Get pattern note and translate to real note with note/sample map
-        mm_byte note = instrument->note_map[module_channel->note - 1] & 0xFF;
+        mm_hword *note_map = (mm_hword*)(((mm_word)instrument) + instrument->note_map_offset);
+        mm_byte note = note_map[module_channel->note - 1] & 0xFF;
 
         // Compare it with the last note
         if (note == module_channel->note)
@@ -717,16 +718,15 @@ void mpp_Channel_NewNote(mm_module_channel *module_channel, mpl_layer_informatio
     }
     else if (dct == 2) // DCT Sample
     {
-        // **WARNING: code not functional with new instrument table
-
-        // Get pattern note and translate to real note with note/sample map
-        mm_byte sample = (instrument->note_map[module_channel->note - 1] >> 8) & 0xFF;
+        // Get pattern note and translate to real sample with note/sample map
+        mm_hword *note_map = (mm_hword*)(((mm_word)instrument) + instrument->note_map_offset);
+        mm_byte sample = note_map[module_channel->note - 1] >> 8;
 
         // Compare it with achn's sample
         if (sample == act_ch->sample)
             do_dca = true; // Equal? perform DCA. Otherwise, skip.
     }
-    else if (dct == 3) // DTC Instrument
+    else if (dct == 3) // DCT Instrument
     {
         // Load instrument and compare it with the active one
         if (module_channel->inst == act_ch->inst)
