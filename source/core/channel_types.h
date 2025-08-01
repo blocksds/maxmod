@@ -21,8 +21,8 @@ typedef struct {
     mm_byte     cflags; // Pattern comression flags, called "maskvariable" in ITTECH.TXT
     mm_byte     panning;
     mm_byte     volcmd; // Volume column command
-    mm_byte     effect; // Effect number    } Combined
-    mm_byte     param;  // Effect parameter }
+    mm_byte     effect; // Effect number
+    mm_byte     param;  // Effect parameter
     mm_byte     fxmem;  // Effect memory
     mm_byte     note;   // Translated note
     mm_byte     flags;  // Channel flags
@@ -31,8 +31,8 @@ typedef struct {
     mm_byte     vibdep;
     mm_byte     vibspd;
     mm_byte     vibpos;
-    mm_byte     volume;  // } Combined
-    mm_byte     cvolume; // }
+    mm_byte     volume;
+    mm_byte     cvolume;
     mm_word     period;
     mm_hword    bflags;
     mm_byte     pnoter;  // Pattern note
@@ -71,20 +71,20 @@ static_assert(sizeof(mm_module_channel) == MM_SIZEOF_MODCH);
 
 typedef struct {
     mm_word     period;     // internal period
-    mm_hword    fade;       //    }
-    mm_hword    envc_vol;   //    }
-    mm_hword    envc_pan;   //    } COMBINED
-    mm_hword    envc_pic;   //    } during volume reset
-    mm_hword    avib_dep;   //    } AND NEWNOTE, CHECK NEWNOTE ON CHANGES
-    mm_hword    avib_pos;   //    }
-    mm_byte     fvol;       // } COMBINED for SPEED
-    mm_byte     type;       // }
+    mm_hword    fade;
+    mm_hword    envc_vol;
+    mm_hword    envc_pan;
+    mm_hword    envc_pic;
+    mm_hword    avib_dep;
+    mm_hword    avib_pos;
+    mm_byte     fvol;
+    mm_byte     type;
     mm_byte     inst;
     mm_byte     panning;
     mm_byte     volume;
     mm_byte     sample;
-    mm_byte     parent;     // } COMBINED
-    mm_byte     flags;      // }
+    mm_byte     parent;
+    mm_byte     flags;
     mm_byte     envn_vol;
     mm_byte     envn_pan;
     mm_byte     envn_pic;
