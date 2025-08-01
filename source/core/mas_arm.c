@@ -45,7 +45,7 @@
 // Bitmask to select which hardware/software channels are free to use
 mm_word mm_ch_mask;
 
-static mm_byte note_table_oct[] =
+static const mm_byte note_table_oct[] =
 {
     0, 0, 0,
     1, 1, 1,
@@ -59,7 +59,7 @@ static mm_byte note_table_oct[] =
     9, 9, 9
 };
 
-static mm_byte note_table_mod[] =
+static const mm_byte note_table_mod[] =
 {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
@@ -74,7 +74,7 @@ static mm_byte note_table_mod[] =
 };
 
 // LUT for amiga periods.
-static mm_hword ST3_FREQTABLE[] =
+static const mm_hword ST3_FREQTABLE[] =
 {
     // More accurate scalars
     1712 * 8, 1616 * 8, 1524 * 8, 1440 * 8, 1356 * 8, 1280 * 8,
@@ -90,7 +90,7 @@ static mm_hword ST3_FREQTABLE[] =
 // LUT for linear periods. Values are 16.16 bit
 // https://ftp.modland.com/pub/documents/format_documentation/Impulse%20Tracker%20v2.04%20(.it).html
 __attribute__((aligned (4))) // Align to 4 bytes so that we can read 2 hwords in one read
-static mm_hword IT_PitchTable[] =
+static const mm_hword IT_PitchTable[] =
 {
     2048, 0,   2170, 0,   2299, 0,   2435, 0,   2580, 0,   2734, 0,
     2896, 0,   3069, 0,   3251, 0,   3444, 0,   3649, 0,   3866, 0, // C-0 > B-0

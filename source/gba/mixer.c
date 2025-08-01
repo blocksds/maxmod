@@ -165,7 +165,7 @@ void mmMixerInit(mm_gba_system *setup)
     mm_word mode = setup->mixing_mode;
 
     // round(rate / 59.737)
-    static mm_hword mp_mixing_lengths[] = {
+    static const mm_hword mp_mixing_lengths[] = {
         136,  176,   224,   264,   304,   352,   448,   528
     //  8khz, 10khz, 13khz, 16khz, 18khz, 21khz, 27khz, 32khz
     };
@@ -173,7 +173,7 @@ void mmMixerInit(mm_gba_system *setup)
     mm_mixlen = mp_mixing_lengths[mode];
 
     // 15768*16384 / rate
-    static mm_hword mp_rate_scales[] = {
+    static const mm_hword mp_rate_scales[] = {
         31812, 24576, 19310, 16384, 14228, 12288,  9655,  8192
     //  8khz,  10khz, 13khz, 16khz, 18khz, 21khz, 27khz, 32khz
     //  8121,  10512, 13379, 15768, 18157, 21024, 26758, 31536
@@ -182,7 +182,7 @@ void mmMixerInit(mm_gba_system *setup)
     mm_ratescale = mp_rate_scales[mode];
 
     // gbaclock / rate
-    static mm_hword mp_timing_sheet[] = {
+    static const mm_hword mp_timing_sheet[] = {
         -2066, -1596, -1254, -1064, -924,  -798,  -627,  -532
     //  8khz,  10khz, 13khz, 16khz, 18khz, 21khz, 27khz, 32khz
     };
@@ -190,7 +190,7 @@ void mmMixerInit(mm_gba_system *setup)
     mm_timerfreq = mp_timing_sheet[mode];
 
     // rate * 2.5
-    static mm_word mp_bpm_divisors[] = {
+    static const mm_word mp_bpm_divisors[] = {
         20302, 26280, 33447, 39420, 45393, 52560, 66895, 78840
     };
 

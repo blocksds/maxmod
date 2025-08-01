@@ -806,7 +806,7 @@ mppt_alloc_channel:
 }
 
 // value = 2^(val/192), 16.16 fixed
-static mm_hword mpp_TABLE_LinearSlideUpTable[] = {
+static const mm_hword mpp_TABLE_LinearSlideUpTable[] = {
     0,     237,   475,   714,   953,   // 0->4 // ADD 1.0
     1194,  1435,  1677,  1920,  2164,  // 5->9
     2409,  2655,  2902,  3149,  3397,  // 10->14
@@ -862,7 +862,7 @@ static mm_hword mpp_TABLE_LinearSlideUpTable[] = {
 };
 
 // value = 2^(-val/192), 16.16 fixed
-static mm_hword mpp_TABLE_LinearSlideDownTable[] = {
+static const mm_hword mpp_TABLE_LinearSlideDownTable[] = {
     65535, 65300, 65065, 64830, 64596, 64364, 64132, 63901, // 0->7
     63670, 63441, 63212, 62984, 62757, 62531, 62306, 62081, // 8->15
     61858, 61635, 61413, 61191, 60971, 60751, 60532, 60314, // 16->23
@@ -898,14 +898,14 @@ static mm_hword mpp_TABLE_LinearSlideDownTable[] = {
     26008                                                   // 256
 };
 
-static mm_hword mpp_TABLE_FineLinearSlideUpTable[] = {
+static const mm_hword mpp_TABLE_FineLinearSlideUpTable[] = {
     0,   59,  118, 178, 237, // 0->4   ADD 1x
     296, 356, 415, 475, 535, // 5->9
     594, 654, 714, 773, 833, // 10->14
     893                      // 15
 };
 
-static mm_hword mpp_TABLE_FineLinearSlideDownTable[] = {
+static const mm_hword mpp_TABLE_FineLinearSlideDownTable[] = {
     65535, 65477, 65418, 65359, 65300, 65241, 65182, 65359, // 0->7
     65065, 65006, 64947, 64888, 64830, 64772, 64713, 64645  // 8->15
 };
@@ -1817,7 +1817,7 @@ mm_word mpph_VolumeSlide64(int volume, mm_word param, mm_word tick,
     return mpph_VolumeSlide(volume, param, tick, 64, layer);
 }
 
-static mm_sbyte mpp_TABLE_FineSineData[] = {
+static const mm_sbyte mpp_TABLE_FineSineData[] = {
       0,   2,   3,   5,   6,   8,   9,  11,  12,  14,  16,  17,  19,  20,  22,  23,
      24,  26,  27,  29,  30,  32,  33,  34,  36,  37,  38,  39,  41,  42,  43,  44,
      45,  46,  47,  48,  49,  50,  51,  52,  53,  54,  55,  56,  56,  57,  58,  59,

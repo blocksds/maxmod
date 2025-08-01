@@ -417,11 +417,11 @@ static ARM_CODE void SlideMixingLevels(mm_word throttle)
 // LUTs containing values to help convert a certain value into value and shift
 // amount for the hardware channels.
 
-mm_byte mmVolumeDivTable[] = { // divider values
+const mm_byte mmVolumeDivTable[] = { // divider values
     3, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-mm_byte mmVolumeShiftTable[] = { // shift values
+const mm_byte mmVolumeShiftTable[] = { // shift values
     0, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4
 };
 
