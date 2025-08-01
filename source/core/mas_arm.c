@@ -128,20 +128,20 @@ static const mm_hword IT_PitchTable[] =
 IWRAM_CODE ARM_CODE mm_word mmAllocChannel(void)
 {
     // Pointer to active channels
-    mm_active_channel *ch = &mm_achannels[0];
+    mm_active_channel *act_ch = &mm_achannels[0];
 
     mm_word bitmask = mm_ch_mask;
     mm_word best_channel = NO_CHANNEL_AVAILABLE; // 255 = none
     mm_word best_volume = 0x80000000;
 
-    for (mm_word i = 0; bitmask != 0; i++, bitmask >>= 1, ch++)
+    for (mm_word i = 0; bitmask != 0; i++, bitmask >>= 1, act_ch++)
     {
         // If not available, skip
         if ((bitmask & 1) == 0)
             continue;
 
-        mm_word fvol = ch->fvol;
-        mm_word type = ch->type;
+        mm_word fvol = act_ch->fvol;
+        mm_word type = act_ch->type;
 
         // Compare background/disabled
         if (ACHN_BACKGROUND < type)
@@ -342,19 +342,19 @@ static IWRAM_CODE ARM_CODE mm_mas_sample_info *get_sample(mpl_layer_information 
 
 static IWRAM_CODE ARM_CODE mm_active_channel *get_active_channel(mm_module_channel *module_channel)
 {
-    mm_active_channel* active_channel = NULL;
+    mm_active_channel *act_ch = NULL;
 
     // Get channel, if available
     if (module_channel->alloc != NO_CHANNEL_AVAILABLE)
-        active_channel = &mm_achannels[module_channel->alloc];
+        act_ch = &mm_achannels[module_channel->alloc];
 
-    return active_channel;
+    return act_ch;
 }
 
 // For tick 0
 IWRAM_CODE ARM_CODE void mmUpdateChannel_T0(mm_module_channel *module_channel, mpl_layer_information* mpp_layer, mm_byte channel_counter)
 {
-    mm_active_channel *active_channel;
+    mm_active_channel *act_ch;
 
     // Test start flag
     if ((module_channel->flags & MF_START) == 0)
@@ -404,10 +404,10 @@ IWRAM_CODE ARM_CODE void mmUpdateChannel_T0(mm_module_channel *module_channel, m
 
 glissando_affected:
 
-    active_channel = get_active_channel(module_channel);
-    if (active_channel)
+    act_ch = get_active_channel(module_channel);
+    if (act_ch)
     {
-        mmChannelStartACHN(module_channel, active_channel, mpp_layer, channel_counter);
+        mmChannelStartACHN(module_channel, act_ch, mpp_layer, channel_counter);
 
         module_channel->flags &= ~MF_START;
         goto dont_start_channel;
@@ -417,28 +417,28 @@ start_channel:
 
     mpp_Channel_NewNote(module_channel, mpp_layer);
 
-    active_channel = get_active_channel(module_channel);
-    if (active_channel == NULL)
+    act_ch = get_active_channel(module_channel);
+    if (act_ch == NULL)
     {
         mmUpdateChannel_TN(module_channel, mpp_layer);
         return;
     }
 
-    mm_word note = mmChannelStartACHN(module_channel, active_channel, mpp_layer, channel_counter);
+    mm_word note = mmChannelStartACHN(module_channel, act_ch, mpp_layer, channel_counter);
 
-    if (active_channel->sample)
+    if (act_ch->sample)
     {
-        mm_mas_sample_info *sample = get_sample(mpp_layer, active_channel->sample);
+        mm_mas_sample_info *sample = get_sample(mpp_layer, act_ch->sample);
         module_channel->period = mmGetPeriod(mpp_layer, sample->frequency << 2, note);
-        active_channel->flags |= MCAF_START;
+        act_ch->flags |= MCAF_START;
     }
 
     goto channel_started;
 
 dont_start_channel:
 
-    active_channel = get_active_channel(module_channel);
-    if (active_channel == NULL)
+    act_ch = get_active_channel(module_channel);
+    if (act_ch == NULL)
     {
         mmUpdateChannel_TN(module_channel, mpp_layer);
         return;
@@ -458,19 +458,19 @@ channel_started:
             module_channel->bflags |= MCH_BFLAGS_NNA_SET(instrument->nna);
 
             if (instrument->env_flags & MAS_INSTR_FLAG_VOL_ENV_ENABLED)
-                active_channel->flags |= MCAF_VOLENV;
+                act_ch->flags |= MCAF_VOLENV;
             else
-                active_channel->flags &= ~MCAF_VOLENV;
+                act_ch->flags &= ~MCAF_VOLENV;
 
             // The MSB determines if we need to set a new panning value
             if (instrument->panning & 0x80)
                 module_channel->panning = (instrument->panning & 0x7F) << 1;
         }
 
-        if (active_channel->sample)
+        if (act_ch->sample)
         {
             // Get sample pointer
-            mm_mas_sample_info *sample = get_sample(mpp_layer, active_channel->sample);
+            mm_mas_sample_info *sample = get_sample(mpp_layer, act_ch->sample);
             module_channel->volume = sample->default_volume;
 
             // The MSB determines if we need to set a new panning value
@@ -484,34 +484,34 @@ channel_started:
         if (((mpp_layer->flags & MAS_HEADER_FLAG_XM_MODE) == 0) || (module_channel->flags & MF_DVOL))
         {
             // Reset volume
-            active_channel->fade = 1 << 10;
-            active_channel->envc_vol = 0;
-            active_channel->envc_pan = 0;
-            active_channel->envc_pic = 0;
-            active_channel->avib_dep = 0;
-            active_channel->avib_pos = 0;
-            active_channel->envn_vol = 0;
-            active_channel->envn_pan = 0;
-            active_channel->envn_pic = 0;
+            act_ch->fade = 1 << 10;
+            act_ch->envc_vol = 0;
+            act_ch->envc_pan = 0;
+            act_ch->envc_pic = 0;
+            act_ch->avib_dep = 0;
+            act_ch->avib_pos = 0;
+            act_ch->envn_vol = 0;
+            act_ch->envn_pan = 0;
+            act_ch->envn_pic = 0;
 
             // Clear fx memory
             module_channel->fxmem = 0;
 
             // Set keyon and clear envend + fade
-            active_channel->flags |= MCAF_KEYON;
-            active_channel->flags &= ~(MCAF_ENVEND | MCAF_FADE);
+            act_ch->flags |= MCAF_KEYON;
+            act_ch->flags &= ~(MCAF_ENVEND | MCAF_FADE);
         }
     }
 
     if (module_channel->flags & MF_NOTEOFF)
     {
-        active_channel->flags &= ~MCAF_KEYON;
+        act_ch->flags &= ~MCAF_KEYON;
 
         mm_bool is_xm_mode = mpp_layer->flags & MAS_HEADER_FLAG_XM_MODE;
 
         // XM starts fade immediately on note-off
         if (is_xm_mode)
-            active_channel->flags |= MCAF_FADE;
+            act_ch->flags |= MCAF_FADE;
     }
 
     if (module_channel->flags & MF_NOTECUT)
@@ -528,7 +528,7 @@ channel_started:
 IWRAM_CODE ARM_CODE void mmUpdateChannel_TN(mm_module_channel *module_channel, mpl_layer_information *mpp_layer)
 {
     // Get channel, if available
-    mm_active_channel *active_channel = get_active_channel(module_channel);
+    mm_active_channel *act_ch = get_active_channel(module_channel);
 
     // Get period, edited by other functions...
     mm_word period = module_channel->period;
@@ -541,17 +541,17 @@ IWRAM_CODE ARM_CODE void mmUpdateChannel_TN(mm_module_channel *module_channel, m
 
     // Update volume commands
     if (module_channel->flags & MF_HASVCMD)
-        period = mpp_Process_VolumeCommand(mpp_layer, active_channel, module_channel, period);
+        period = mpp_Process_VolumeCommand(mpp_layer, act_ch, module_channel, period);
 
     // Update effects
     if (module_channel->flags & MF_HASFX)
-        period = mpp_Process_Effect(mpp_layer, active_channel, module_channel, period);
+        period = mpp_Process_Effect(mpp_layer, act_ch, module_channel, period);
 
-    if (!active_channel)
+    if (!act_ch)
         return;
 
     int volume = (module_channel->volume * module_channel->cvolume) >> 5;
-    active_channel->volume = volume;
+    act_ch->volume = volume;
     mm_sword vol_addition = mpp_vars.volplus;
 
     volume += vol_addition << 3;
@@ -566,18 +566,18 @@ IWRAM_CODE ARM_CODE void mmUpdateChannel_TN(mm_module_channel *module_channel, m
 
     if (mpp_vars.notedelay)
     {
-        active_channel->flags |= MCAF_UPDATED;
+        act_ch->flags |= MCAF_UPDATED;
         return;
     }
 
     // Copy panning and period
-    active_channel->panning = module_channel->panning;
-    active_channel->period = module_channel->period;
+    act_ch->panning = module_channel->panning;
+    act_ch->period = module_channel->period;
     // Set to 0 temporarily. Reserved for later use.
     mpp_vars.panplus = 0;
 
-    active_channel->flags |= MCAF_UPDATED;
+    act_ch->flags |= MCAF_UPDATED;
 
-    period = mpp_Update_ACHN_notest(mpp_layer, active_channel,
+    period = mpp_Update_ACHN_notest(mpp_layer, act_ch,
                                     period, module_channel->alloc);
 }

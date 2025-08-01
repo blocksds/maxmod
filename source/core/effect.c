@@ -194,22 +194,22 @@ got_handle:
     }
 
     // setup channel
-    mm_active_channel *ch = &mm_achannels[channel];
+    mm_active_channel *act_ch = &mm_achannels[channel];
 
-    ch->fvol = releaseLevel;
+    act_ch->fvol = releaseLevel;
 
     if (handle == 0)
-        ch->type = ACHN_BACKGROUND;
+        act_ch->type = ACHN_BACKGROUND;
     else
-        ch->type = ACHN_CUSTOM;
+        act_ch->type = ACHN_CUSTOM;
 
-    ch->flags = MCAF_EFFECT;
+    act_ch->flags = MCAF_EFFECT;
 
     // Setup voice
 
 #if defined(SYS_GBA)
 
-    mm_mixer_channel *mx_ch = &mm_mixchannels[channel];
+    mm_mixer_channel *mix_ch = &mm_mixchannels[channel];
 
     // Set sample data address
 
@@ -218,20 +218,20 @@ got_handle:
     mm_byte *sample_addr = ((mm_byte *)mp_solution) + sample_offset;
     mm_mas_gba_sample *sample = (mm_mas_gba_sample *)(sample_addr + sizeof(mm_mas_prefix));
 
-    mx_ch->src = (mm_word)(&(sample->data[0]));
+    mix_ch->src = (mm_word)(&(sample->data[0]));
 
     // set pitch to original * pitch
-    mx_ch->freq = (sound->rate * sample->default_frequency) >> (10 - 2);
+    mix_ch->freq = (sound->rate * sample->default_frequency) >> (10 - 2);
 
     // reset read position
-    mx_ch->read = 0;
+    mix_ch->read = 0;
 
-    mx_ch->vol = (sound->volume * mm_sfx_mastervolume) >> 10;
-    mx_ch->pan = sound->panning;
+    mix_ch->vol = (sound->volume * mm_sfx_mastervolume) >> 10;
+    mix_ch->pan = sound->panning;
 
 #elif defined(SYS_NDS7)
 
-    mm_mixer_channel *mx_ch = &mm_mix_channels[channel];
+    mm_mixer_channel *mix_ch = &mm_mix_channels[channel];
 
     // Set sample data address
 
@@ -247,9 +247,9 @@ got_handle:
 
         if (source == 0)
         {
-            mx_ch->key_on = 0;
-            mx_ch->samp = 0;
-            mx_ch->tpan = 0;
+            mix_ch->key_on = 0;
+            mix_ch->samp = 0;
+            mix_ch->tpan = 0;
             return 0;
         }
 
@@ -257,23 +257,23 @@ got_handle:
         source += 0x2000000;
     }
 
-    mx_ch->key_on = 0;
-    mx_ch->samp = source;
+    mix_ch->key_on = 0;
+    mix_ch->samp = source;
 
     mm_mas_ds_sample *sample = (mm_mas_ds_sample *)source;
 
     // Set pitch to original * pitch
-    mx_ch->freq = (sound->rate * sample->default_frequency) >> 10;
+    mix_ch->freq = (sound->rate * sample->default_frequency) >> 10;
 
     // Clear sample offset
-    mx_ch->read = 0;
+    mix_ch->read = 0;
 
     // Set panning | start bit
-    mx_ch->tpan = sound->panning >> 1;
-    mx_ch->key_on = 1;
+    mix_ch->tpan = sound->panning >> 1;
+    mix_ch->key_on = 1;
 
     // Set volume
-    mx_ch->vol = (sound->volume * mm_sfx_mastervolume) >> 2;
+    mix_ch->vol = (sound->volume * mm_sfx_mastervolume) >> 2;
 
 #endif
 
@@ -361,10 +361,10 @@ mm_word mmEffectCancel(mm_sfxhand handle)
         return 0;
 
     // Free achannel
-    mm_active_channel *ch = &mm_achannels[channel];
+    mm_active_channel *act_ch = &mm_achannels[channel];
 
-    ch->type = ACHN_BACKGROUND;
-    ch->fvol = 0; // Clear volume for channel allocator
+    act_ch->type = ACHN_BACKGROUND;
+    act_ch->fvol = 0; // Clear volume for channel allocator
 
     mme_clear_channel((handle & 0xFF) - 1);
 
@@ -382,9 +382,9 @@ void mmEffectRelease(mm_sfxhand handle)
         return;
 
     // Release achannel
-    mm_active_channel *ch = &mm_achannels[channel];
+    mm_active_channel *act_ch = &mm_achannels[channel];
 
-    ch->type = ACHN_BACKGROUND;
+    act_ch->type = ACHN_BACKGROUND;
 
     mme_clear_channel((handle & 0xFF) - 1);
 }
@@ -407,10 +407,10 @@ void mmEffectCancelAll(void)
         mmMixerSetVolume(channel, 0);
 
         // Free achannel
-        mm_active_channel *ch = &mm_achannels[channel];
+        mm_active_channel *act_ch = &mm_achannels[channel];
 
-        ch->type = ACHN_BACKGROUND;
-        ch->fvol = 0;
+        act_ch->type = ACHN_BACKGROUND;
+        act_ch->fvol = 0;
     }
 
     mmResetEffects();
@@ -436,23 +436,23 @@ void mmUpdateEffects(void)
         // Test if channel is still active
 
 #if defined(SYS_GBA)
-        mm_mixer_channel *mx_ch = &mm_mixchannels[channel];
+        mm_mixer_channel *mix_ch = &mm_mixchannels[channel];
 
-        if ((mx_ch->src & (1U << 31)) == 0)
+        if ((mix_ch->src & (1U << 31)) == 0)
             continue;
 #elif defined(SYS_NDS7)
-        mm_mixer_channel *mx_ch = &mm_mix_channels[channel];
+        mm_mixer_channel *mix_ch = &mm_mix_channels[channel];
 
-        if (mx_ch->samp)
+        if (mix_ch->samp)
             continue;
 #endif
 
         // Free achanel if it isn't active
 
-        mm_active_channel *ch = &mm_achannels[channel];
+        mm_active_channel *act_ch = &mm_achannels[channel];
 
-        ch->type = 0;
-        ch->flags = 0;
+        act_ch->type = 0;
+        act_ch->flags = 0;
 
         mm_sfx_channels[i].counter = 0;
         mm_sfx_channels[i].channel = 0;

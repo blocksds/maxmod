@@ -3150,9 +3150,9 @@ mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information *layer
                                         mm_active_channel *act_ch, mm_word channel)
 {
 #if defined(SYS_GBA)
-    mm_mixer_channel *mx_ch = &mm_mixchannels[channel];
+    mm_mixer_channel *mix_ch = &mm_mixchannels[channel];
 #else
-    mm_mixer_channel *mx_ch = &mm_mix_channels[channel];
+    mm_mixer_channel *mix_ch = &mm_mix_channels[channel];
 #endif
 
     // Update mixing information
@@ -3176,13 +3176,13 @@ mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information *layer
 #ifdef SYS_GBA
         mm_mas_gba_sample *gba_sample = (mm_mas_gba_sample *)&(sample->data[0]);
 
-        mx_ch->src = (mm_word)&(gba_sample->data[0]);
+        mix_ch->src = (mm_word)&(gba_sample->data[0]);
 #else
         mm_mas_ds_sample *ds_sample = (mm_mas_ds_sample *)&(sample->data[0]);
 
-        mx_ch->samp = ((mm_word)ds_sample) - 0x2000000;
-        mx_ch->tpan = 0;
-        mx_ch->key_on = 1;
+        mix_ch->samp = ((mm_word)ds_sample) - 0x2000000;
+        mix_ch->tpan = 0;
+        mix_ch->key_on = 1;
 #endif
     }
     else
@@ -3195,35 +3195,35 @@ mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information *layer
         mm_byte *sample_addr = ((mm_byte *)mp_solution) + sample_offset;
         mm_mas_gba_sample *gba_sample = (mm_mas_gba_sample *)(sample_addr + sizeof(mm_mas_prefix));
 
-        mx_ch->src = (mm_word)(&(gba_sample->data[0]));
+        mix_ch->src = (mm_word)(&(gba_sample->data[0]));
 #else
         mm_word source = mmSampleBank[sample->msl_id];
 
         source &= 0xFFFFFF; // Mask out counter value
         source += 8;
 
-        mx_ch->samp = source;
-        mx_ch->tpan = 0;
-        mx_ch->key_on = 1;
+        mix_ch->samp = source;
+        mix_ch->tpan = 0;
+        mix_ch->key_on = 1;
 #endif
     }
 
 #ifdef SYS_GBA
-    mx_ch->read = ((mm_word)mpp_vars.sampoff) << (MP_SAMPFRAC + 8);
+    mix_ch->read = ((mm_word)mpp_vars.sampoff) << (MP_SAMPFRAC + 8);
 #else
-    mx_ch->read = mpp_vars.sampoff;
+    mix_ch->read = mpp_vars.sampoff;
 #endif
 
 mppt_achn_nostart:
 
-    return mx_ch;
+    return mix_ch;
 }
 
 // This returns the resulting volume of the channel
 static IWRAM_CODE
 mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *layer,
                                                 mm_active_channel *act_ch, mm_word period,
-                                                mm_mixer_channel *mx_ch)
+                                                mm_mixer_channel *mix_ch)
 {
     // Set pitch
     // ---------
@@ -3249,9 +3249,9 @@ mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *layer,
 
 #ifdef SYS_GBA
         const mm_word scale = (4096 * 65536) / 15768;
-        mx_ch->freq = (scale * value) >> 16;
+        mix_ch->freq = (scale * value) >> 16;
 #else
-        mx_ch->freq = (MIXER_SCALE * value) >> (16 + 1);
+        mix_ch->freq = (MIXER_SCALE * value) >> (16 + 1);
 #endif
     }
     else
@@ -3267,9 +3267,9 @@ mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *layer,
 
 #ifdef SYS_GBA
             const mm_word scale = (4096 * 65536) / 15768;
-            mx_ch->freq = (scale * value) >> 16;
+            mix_ch->freq = (scale * value) >> 16;
 #else
-            mx_ch->freq = (MIXER_SCALE * value) >> (16 + 1);
+            mix_ch->freq = (MIXER_SCALE * value) >> (16 + 1);
 #endif
         }
     }
@@ -3322,7 +3322,7 @@ mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *layer,
 
 static IWRAM_CODE
 void mpp_Update_ACHN_notest_disable_and_panning(mm_word volume, mm_active_channel *act_ch,
-                                                mm_mixer_channel *mx_ch)
+                                                mm_mixer_channel *mix_ch)
 {
     if (volume != 0)
         goto mppt_achn_audible;
@@ -3332,7 +3332,7 @@ void mpp_Update_ACHN_notest_disable_and_panning(mm_word volume, mm_active_channe
     {
         if (act_ch->volume == 0)
         {
-            if (mx_ch->cvol == 0)
+            if (mix_ch->cvol == 0)
                 goto mppt_achn_not_audible;
         }
     }
@@ -3352,11 +3352,11 @@ mppt_achn_not_audible:
     // ------------
 
 #ifdef SYS_GBA
-    mx_ch->src = 1 << 31; // Stop mixer channel
+    mix_ch->src = 1 << 31; // Stop mixer channel
 #else
-    mx_ch->samp = 0; // Stop mixer channel
-    mx_ch->tpan = 0;
-    mx_ch->key_on = 0;
+    mix_ch->samp = 0; // Stop mixer channel
+    mix_ch->tpan = 0;
+    mix_ch->key_on = 0;
 #endif
 
     if (act_ch->type == ACHN_FOREGROUND)
@@ -3370,14 +3370,14 @@ mppt_achn_not_audible:
 
 mppt_achn_audible:
 
-    mx_ch->vol = volume;
+    mix_ch->vol = volume;
 
     // Check if mixer channel has ended
 #ifdef SYS_GBA
-    if (mx_ch->src & (1 << 31))
+    if (mix_ch->src & (1 << 31))
     {
 #else
-    if (mx_ch->samp == 0)
+    if (mix_ch->samp == 0)
     {
 #endif
         if (act_ch->type == ACHN_FOREGROUND)
@@ -3387,11 +3387,11 @@ mppt_achn_audible:
         }
 
 #ifdef SYS_GBA
-        mx_ch->src = 1 << 31; // Stop mixer channel
+        mix_ch->src = 1 << 31; // Stop mixer channel
 #else
-        mx_ch->samp = 0; // Stop mixer channel
-        mx_ch->tpan = 0;
-        mx_ch->key_on = 0;
+        mix_ch->samp = 0; // Stop mixer channel
+        mix_ch->tpan = 0;
+        mix_ch->key_on = 0;
 #endif
 
         act_ch->type = ACHN_DISABLED;
@@ -3410,11 +3410,11 @@ mppt_achn_audible:
         newpan = 255;
 
 #ifdef SYS_NDS
-    mx_ch->tpan = newpan >> 1;
+    mix_ch->tpan = newpan >> 1;
 #endif
 
 #ifdef SYS_GBA
-    mx_ch->pan = newpan;
+    mix_ch->pan = newpan;
 #endif
 
     return;
@@ -3426,7 +3426,7 @@ mm_word mpp_Update_ACHN_notest(mpl_layer_information *layer, mm_active_channel *
 {
     // TODO: This variable was left uninitialized in the original assembly code,
     // so this was the actual result of that code.
-    mm_mixer_channel *mx_ch = (mm_mixer_channel *)ch;
+    mm_mixer_channel *mix_ch = (mm_mixer_channel *)ch;
 
     // ------------------------------------------------------------------------
     // Process Envelope
@@ -3450,13 +3450,13 @@ mm_word mpp_Update_ACHN_notest(mpl_layer_information *layer, mm_active_channel *
 
 mppt_achn_noinst:
 
-    mx_ch = mpp_Update_ACHN_notest_update_mix(layer, act_ch, ch);
+    mix_ch = mpp_Update_ACHN_notest_update_mix(layer, act_ch, ch);
 
 mppt_achn_nostart_:
 
-    mm_word volume = mpp_Update_ACHN_notest_set_pitch_volume(layer, act_ch, period, mx_ch);
+    mm_word volume = mpp_Update_ACHN_notest_set_pitch_volume(layer, act_ch, period, mix_ch);
 
-    mpp_Update_ACHN_notest_disable_and_panning(volume, act_ch, mx_ch);
+    mpp_Update_ACHN_notest_disable_and_panning(volume, act_ch, mix_ch);
 
     return period;
 }
