@@ -117,7 +117,8 @@ static void mpp_suspend(void)
 
     for (mm_word count = mm_num_ach; count != 0; count--, act_ch++, mix_ch++)
     {
-        if ((act_ch->flags >> 6) != 0)
+        // If this channel is used by a jingle or a sound effect, leave it alone
+        if ((act_ch->flags & (MCAF_SUB | MCAF_EFFECT)) != 0)
             continue;
 
 #ifdef SYS_GBA
@@ -263,8 +264,9 @@ static void mpp_resetchannels(mpl_layer_information *layer_info,
 
     for (mm_word i = 0; i < mm_num_ach; i++, act_ch++, mix_ch++)
     {
-        // Test if layer matches
-        if ((act_ch->flags >> 6) != layer)
+        // Test if layer matches and if this channel isn't being used for a
+        // sound effect.
+        if (((act_ch->flags & (MCAF_SUB | MCAF_EFFECT)) >> 6) != layer)
             continue;
 
         // Clear achannel data to zero
@@ -1634,7 +1636,9 @@ IWRAM_CODE void mppProcessTick(void)
     {
         if (act_ch->type != ACHN_DISABLED)
         {
-            if (mpp_clayer == (act_ch->flags >> 6))
+            // Check if this active channel is being used by the selected layer
+            // (and check that it isn't a sound effect).
+            if (mpp_clayer == ((act_ch->flags & (MCAF_SUB | MCAF_EFFECT)) >> 6))
             {
                 mpv_active_information *info = &mpp_vars;
 
@@ -2533,8 +2537,12 @@ void mppex_InstControl(mm_word param, mm_active_channel *act_ch,
     {
         if (act_ch != NULL)
         {
-            act_ch->flags &= ~(1 << 5);
-            act_ch->flags |= (subparam - 7) << 5;
+            int val = subparam - 7; // val can be 0 or 1
+
+            if (val)
+                act_ch->flags |= MCAF_VOLENV;
+            else
+                act_ch->flags &= ~MCAF_VOLENV;
         }
     }
 }
@@ -2938,7 +2946,7 @@ void mpph_ProcessEnvelope(mm_word count, mm_word node, mm_mas_envelope *address,
 
         // Process envelope sustain loop
 
-        if (act_ch->flags & 1) // Locked
+        if (act_ch->flags & MCAF_KEYON) // Locked
         {
             if (node == address->sus_end)
             {

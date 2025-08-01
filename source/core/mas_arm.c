@@ -274,7 +274,9 @@ IWRAM_CODE ARM_CODE mm_byte mmChannelStartACHN(mm_module_channel *module_channel
         // Set foreground type
         active_channel->type = ACHN_FOREGROUND;
         // Clear SUB/EFFECT and store layer
-        active_channel->flags = (active_channel->flags & (~(3 << 6))) | (mpp_clayer << 6);
+        active_channel->flags &= ~(MCAF_SUB | MCAF_EFFECT);
+        if (mpp_clayer)
+            active_channel->flags |= MCAF_SUB;
         // Store parent
         active_channel->parent = channel_counter;
         // Copy instrument

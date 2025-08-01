@@ -73,14 +73,14 @@ static_assert(sizeof(mpv_active_information) == 16);
 // Active Channel Flags
 // --------------------
 
-#define MCAF_KEYON      1   // key is on... LOCKED
-#define MCAF_FADE       2   // note-fade is activated
-#define MCAF_START      4   // [re]start sample
-#define MCAF_UPDATED    8   // already updated by pchannel routine
-#define MCAF_ENVEND     16  // end of envelope
-#define MCAF_VOLENV     32  // volume envelope enabled
-#define MCAF_SUB        64  // sublayer.................locked..
-#define MCAF_EFFECT     128 // subsublayer.............................LOCKED (mpEffect)
+#define MCAF_KEYON      (1 << 0) // key is on... LOCKED
+#define MCAF_FADE       (1 << 1) // note-fade is activated
+#define MCAF_START      (1 << 2) // [re]start sample
+#define MCAF_UPDATED    (1 << 3) // already updated by pchannel routine
+#define MCAF_ENVEND     (1 << 4) // end of envelope
+#define MCAF_VOLENV     (1 << 5) // volume envelope enabled
+#define MCAF_SUB        (1 << 6) // sublayer.................locked..
+#define MCAF_EFFECT     (1 << 7) // subsublayer.............................LOCKED (mpEffect)
 
 // Active Channel Types
 // --------------------
