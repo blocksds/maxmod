@@ -30,10 +30,6 @@
 #define IWRAM_CODE __attribute__((section(".iwram"), long_call))
 #endif
 
-#ifndef BIT
-#define BIT(n) (1 << (n))
-#endif
-
 #define S3M_FREQ_DIVIDER        57268224 // (s3m,xm,it)
 #define MOD_FREQ_DIVIDER_PAL    56750314 // (mod)
 #define MOD_FREQ_DIVIDER_NTSC   57272724 // (---)
@@ -47,13 +43,11 @@ static void mppe_ChannelVolumeSlide(mm_word param, mm_module_channel *channel,
 static mm_word mppe_DoVibrato(mm_word period, mm_module_channel *channel,
                               mpl_layer_information *layer);
 
-IWRAM_CODE static
-mm_word mppe_glis_backdoor(mm_word param, mm_word period, mm_active_channel *act_ch,
-                           mm_module_channel *channel, mpl_layer_information *layer);
+static mm_word mppe_glis_backdoor(mm_word param, mm_word period, mm_active_channel *act_ch,
+                                  mm_module_channel *channel, mpl_layer_information *layer);
 
-IWRAM_CODE static
-void mpp_Update_ACHN(mpl_layer_information *layer, mm_active_channel *act_ch,
-                     mm_word period, mm_word ch);
+static void mpp_Update_ACHN(mpl_layer_information *layer, mm_active_channel *act_ch,
+                            mm_word period, mm_word ch);
 
 // Channel data/sizes
 mm_active_channel *mm_achannels;
@@ -636,8 +630,7 @@ void mppUpdateSub(void)
 #ifdef SYS_NDS
 
 // Update module layer
-IWRAM_CODE static
-void mppUpdateLayer(mpl_layer_information *layer)
+static void mppUpdateLayer(mpl_layer_information *layer)
 {
     mpp_layerp = layer;
     mm_word new_tick = (layer->tickrate * 2) + layer->tickfrac;
@@ -667,8 +660,7 @@ void mmPulse(void)
 
 // It gets the active channel from a module channel. It returns NULL if there
 // isn't an active channel.
-IWRAM_CODE static
-mm_active_channel *mpp_Channel_GetACHN(mm_module_channel *channel)
+static mm_active_channel *mpp_Channel_GetACHN(mm_module_channel *channel)
 {
     mm_word alloc = channel->alloc;
     if (alloc == 255)
@@ -677,16 +669,14 @@ mm_active_channel *mpp_Channel_GetACHN(mm_module_channel *channel)
     return &mm_achannels[alloc];
 }
 
-IWRAM_CODE static
-mm_mas_instrument *get_instrument(mpl_layer_information *mpp_layer, mm_byte instN)
+static mm_mas_instrument *get_instrument(mpl_layer_information *mpp_layer, mm_byte instN)
 {
     mm_byte *base = (mm_byte *)mpp_layer->songadr;
     return (mm_mas_instrument*)(base + mpp_layer->insttable[instN - 1]);
 }
 
 // Process new note
-IWRAM_CODE
-void mpp_Channel_NewNote(mm_module_channel *module_channel, mpl_layer_information *layer)
+IWRAM_CODE void mpp_Channel_NewNote(mm_module_channel *module_channel, mpl_layer_information *layer)
 {
     if (module_channel->inst == 0)
         return;
@@ -912,8 +902,7 @@ static const mm_hword mpp_TABLE_FineLinearSlideDownTable[] = {
     65065, 65006, 64947, 64888, 64830, 64772, 64713, 64645  // 8->15
 };
 
-IWRAM_CODE static
-mm_word mpph_psu(mm_word period, mm_word slide_value)
+static mm_word mpph_psu(mm_word period, mm_word slide_value)
 {
     if (slide_value >= 192)
         period *= 2;
@@ -932,8 +921,7 @@ mm_word mpph_psu(mm_word period, mm_word slide_value)
     return ret;
 }
 
-IWRAM_CODE static
-mm_word mpph_psd(mm_word period, mm_word slide_value)
+static mm_word mpph_psd(mm_word period, mm_word slide_value)
 {
     mm_word val = (period >> 5) * mpp_TABLE_LinearSlideDownTable[slide_value];
 
@@ -949,7 +937,6 @@ mm_word mpph_psd(mm_word period, mm_word slide_value)
 
 // Linear/Amiga slide up
 // The slide value is provided divided by 4
-IWRAM_CODE
 mm_word mpph_PitchSlide_Up(mm_word period, mm_word slide_value, mpl_layer_information *layer)
 {
     if (layer->flags & MAS_HEADER_FLAG_FREQ_MODE)
@@ -970,7 +957,6 @@ mm_word mpph_PitchSlide_Up(mm_word period, mm_word slide_value, mpl_layer_inform
 }
 
 // Linear slide up
-IWRAM_CODE
 mm_word mpph_LinearPitchSlide_Up(mm_word period, mm_word slide_value, mpl_layer_information *layer)
 {
     if (layer->flags & MAS_HEADER_FLAG_FREQ_MODE)
@@ -980,7 +966,6 @@ mm_word mpph_LinearPitchSlide_Up(mm_word period, mm_word slide_value, mpl_layer_
 }
 
 // Slide value in range of (0 - 15)
-IWRAM_CODE
 mm_word mpph_FinePitchSlide_Up(mm_word period, mm_word slide_value, mpl_layer_information *layer)
 {
     if (layer->flags & MAS_HEADER_FLAG_FREQ_MODE) // mpph_psu_fine
@@ -1011,7 +996,6 @@ mm_word mpph_FinePitchSlide_Up(mm_word period, mm_word slide_value, mpl_layer_in
     }
 }
 
-IWRAM_CODE
 mm_word mpph_PitchSlide_Down(mm_word period, mm_word slide_value, mpl_layer_information *layer)
 {
     if (layer->flags & MAS_HEADER_FLAG_FREQ_MODE)
@@ -1033,7 +1017,6 @@ mm_word mpph_PitchSlide_Down(mm_word period, mm_word slide_value, mpl_layer_info
     }
 }
 
-IWRAM_CODE
 mm_word mpph_LinearPitchSlide_Down(mm_word period, mm_word slide_value, mpl_layer_information *layer)
 {
     if (layer->flags & MAS_HEADER_FLAG_FREQ_MODE)
@@ -1043,7 +1026,6 @@ mm_word mpph_LinearPitchSlide_Down(mm_word period, mm_word slide_value, mpl_laye
 }
 
 // Slide value in range of (0 - 15)
-IWRAM_CODE
 mm_word mpph_FinePitchSlide_Down(mm_word period, mm_word slide_value, mpl_layer_information *layer)
 {
     if (layer->flags & MAS_HEADER_FLAG_FREQ_MODE) // mpph_psd_fine
@@ -1089,7 +1071,6 @@ mm_word mpph_FinePitchSlide_Down(mm_word period, mm_word slide_value, mpl_layer_
 #define MPP_GLIS_MEM            0
 #define MPP_IT_PORTAMEM         2
 
-IWRAM_CODE
 mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
                                   mm_active_channel *act_ch,
                                   mm_module_channel *channel, mm_word period)
@@ -1515,8 +1496,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
     return period;
 }
 
-IWRAM_CODE static
-void mpph_FastForward(mpl_layer_information *layer, int rows_to_skip)
+static void mpph_FastForward(mpl_layer_information *layer, int rows_to_skip)
 {
     if (rows_to_skip == 0)
         return;
@@ -1537,9 +1517,9 @@ void mpph_FastForward(mpl_layer_information *layer, int rows_to_skip)
 }
 
 // An effect of 0 means custom behaviour, or disabled
-IWRAM_CODE static
-mm_word mpp_Channel_ExchangeMemory(mm_byte effect, mm_byte param,
-                                   mm_module_channel *channel, mpl_layer_information *layer)
+static mm_word mpp_Channel_ExchangeMemory(mm_byte effect, mm_byte param,
+                                          mm_module_channel *channel,
+                                          mpl_layer_information *layer)
 {
     mm_byte table_entry;
 
@@ -1584,8 +1564,7 @@ mm_word mpp_Channel_ExchangeMemory(mm_byte effect, mm_byte param,
     }
 }
 
-IWRAM_CODE static
-mm_mas_instrument *mpp_InstrumentPointer(mpl_layer_information *mpp_layer, mm_byte instN)
+static mm_mas_instrument *mpp_InstrumentPointer(mpl_layer_information *mpp_layer, mm_byte instN)
 {
     mm_byte *base = (mm_byte *)mpp_layer->songadr;
     return (mm_mas_instrument*)(base + mpp_layer->insttable[instN - 1]);
@@ -1718,9 +1697,8 @@ IWRAM_CODE void mppProcessTick(void)
 }
 
 // Note: This is also used for panning slide
-IWRAM_CODE static
-mm_word mpph_VolumeSlide(int volume, mm_word param, mm_word tick, int max_volume,
-                         mpl_layer_information *layer)
+static mm_word mpph_VolumeSlide(int volume, mm_word param, mm_word tick, int max_volume,
+                                mpl_layer_information *layer)
 {
     if (layer->flags & MAS_HEADER_FLAG_XM_MODE) // mpph_vs_XM
     {
@@ -1814,9 +1792,8 @@ mm_word mpph_VolumeSlide(int volume, mm_word param, mm_word tick, int max_volume
     }
 }
 
-IWRAM_CODE static
-mm_word mpph_VolumeSlide64(int volume, mm_word param, mm_word tick,
-                           mpl_layer_information *layer)
+static mm_word mpph_VolumeSlide64(int volume, mm_word param, mm_word tick,
+                                  mpl_layer_information *layer)
 {
     return mpph_VolumeSlide(volume, param, tick, 64, layer);
 }
@@ -1840,9 +1817,8 @@ static const mm_sbyte mpp_TABLE_FineSineData[] = {
     -24, -23, -22, -20, -19, -17, -16, -14, -12, -11,  -9,  -8,  -6,  -5,  -3,  -2,
 };
 
-IWRAM_CODE static
-mm_word mppe_DoVibrato(mm_word period, mm_module_channel *channel,
-                       mpl_layer_information *layer)
+static mm_word mppe_DoVibrato(mm_word period, mm_module_channel *channel,
+                              mpl_layer_information *layer)
 {
     mm_byte position;
 
@@ -1872,8 +1848,7 @@ mm_word mppe_DoVibrato(mm_word period, mm_module_channel *channel,
 // =============================================================================
 
 // EFFECT Axy: SET SPEED
-IWRAM_CODE static
-void mppe_SetSpeed(mm_word param, mpl_layer_information *layer)
+static void mppe_SetSpeed(mm_word param, mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -1883,8 +1858,7 @@ void mppe_SetSpeed(mm_word param, mpl_layer_information *layer)
 }
 
 // EFFECT Bxy: SET POSITION
-IWRAM_CODE static
-void mppe_PositionJump(mm_word param, mpl_layer_information *layer)
+static void mppe_PositionJump(mm_word param, mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -1893,8 +1867,7 @@ void mppe_PositionJump(mm_word param, mpl_layer_information *layer)
 }
 
 // EFFECT Cxy: PATTERN BREAK
-IWRAM_CODE static
-void mppe_PatternBreak(mm_word param, mpl_layer_information *layer)
+static void mppe_PatternBreak(mm_word param, mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -1906,17 +1879,15 @@ void mppe_PatternBreak(mm_word param, mpl_layer_information *layer)
 }
 
 // EFFECT Dxy: VOLUME SLIDE
-IWRAM_CODE static
-void mppe_VolumeSlide(mm_word param, mm_module_channel *channel,
+static void mppe_VolumeSlide(mm_word param, mm_module_channel *channel,
                       mpl_layer_information *layer)
 {
     channel->volume = mpph_VolumeSlide64(channel->volume, param, layer->tick, layer);
 }
 
 // EFFECT Exy/Fxy: Portamento
-IWRAM_CODE static
-mm_word mppe_Portamento(mm_word param, mm_word period,
-                        mm_module_channel *channel, mpl_layer_information *layer)
+static mm_word mppe_Portamento(mm_word param, mm_word period,
+                               mm_module_channel *channel, mpl_layer_information *layer)
 {
     bool is_fine = false;
 
@@ -1974,8 +1945,7 @@ mm_word mppe_Portamento(mm_word param, mm_word period,
 }
 
 // Calculate sample address.
-IWRAM_CODE static
-mm_mas_sample_info *mpp_SamplePointer(int sampleN, mpl_layer_information *layer)
+static mm_mas_sample_info *mpp_SamplePointer(int sampleN, mpl_layer_information *layer)
 {
     // TODO: This is also in mm_mas_arm.c as get_sample(), we need to unify both
     // functions when the two files are reorganized.
@@ -1983,9 +1953,8 @@ mm_mas_sample_info *mpp_SamplePointer(int sampleN, mpl_layer_information *layer)
     return (mm_mas_sample_info *)(base + layer->samptable[sampleN - 1]);
 }
 
-IWRAM_CODE static
-mm_word mppe_glis_backdoor(mm_word param, mm_word period, mm_active_channel *act_ch,
-                           mm_module_channel *channel, mpl_layer_information *layer)
+static mm_word mppe_glis_backdoor(mm_word param, mm_word period, mm_active_channel *act_ch,
+                                  mm_module_channel *channel, mpl_layer_information *layer)
 {
     if (act_ch == NULL) // Exit if no active channel
         return period;
@@ -2053,9 +2022,8 @@ mm_word mppe_glis_backdoor(mm_word param, mm_word period, mm_active_channel *act
 }
 
 // EFFECT Gxy: Glissando
-IWRAM_CODE static
-mm_word mppe_Glissando(mm_word param, mm_word period, mm_active_channel *act_ch,
-                       mm_module_channel *channel, mpl_layer_information *layer)
+static mm_word mppe_Glissando(mm_word param, mm_word period, mm_active_channel *act_ch,
+                              mm_module_channel *channel, mpl_layer_information *layer)
 {
     if (layer->tick == 0)
     {
@@ -2095,9 +2063,8 @@ mm_word mppe_Glissando(mm_word param, mm_word period, mm_active_channel *act_ch,
 }
 
 // EFFECT Hxy: Vibrato
-IWRAM_CODE static
-mm_word mppe_Vibrato(mm_word param, mm_word period, mm_module_channel *channel,
-                     mpl_layer_information *layer)
+static mm_word mppe_Vibrato(mm_word param, mm_word period, mm_module_channel *channel,
+                            mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return mppe_DoVibrato(period, channel, layer);
@@ -2123,9 +2090,8 @@ mm_word mppe_Vibrato(mm_word param, mm_word period, mm_module_channel *channel,
 }
 
 // EFFECT Jxy: Arpeggio
-IWRAM_CODE static
-mm_word mppe_Arpeggio(mm_word param, mm_word period, mm_active_channel *act_ch,
-                      mm_module_channel *channel, mpl_layer_information *layer)
+static mm_word mppe_Arpeggio(mm_word param, mm_word period, mm_active_channel *act_ch,
+                             mm_module_channel *channel, mpl_layer_information *layer)
 {
     if (layer->tick == 0)
         channel->fxmem = 0;
@@ -2168,9 +2134,8 @@ mm_word mppe_Arpeggio(mm_word param, mm_word period, mm_active_channel *act_ch,
 }
 
 // EFFECT Kxy: Vibrato+Volume Slide
-IWRAM_CODE static
-mm_word mppe_VibratoVolume(mm_word param, mm_word period, mm_module_channel *channel,
-                           mpl_layer_information *layer)
+static mm_word mppe_VibratoVolume(mm_word param, mm_word period, mm_module_channel *channel,
+                                  mpl_layer_information *layer)
 {
     mm_word new_period = mppe_DoVibrato(period, channel, layer);
 
@@ -2180,9 +2145,8 @@ mm_word mppe_VibratoVolume(mm_word param, mm_word period, mm_module_channel *cha
 }
 
 // EFFECT Lxy: Portamento+Volume Slide
-IWRAM_CODE static
-mm_word mppe_PortaVolume(mm_word param, mm_word period, mm_active_channel *act_ch,
-                         mm_module_channel *channel, mpl_layer_information *layer)
+static mm_word mppe_PortaVolume(mm_word param, mm_word period, mm_active_channel *act_ch,
+                                mm_module_channel *channel, mpl_layer_information *layer)
 {
     mm_word mem = channel->memory[MPP_GLIS_MEM];
 
@@ -2194,9 +2158,8 @@ mm_word mppe_PortaVolume(mm_word param, mm_word period, mm_active_channel *act_c
 }
 
 // EFFECT Mxy: Set Channel Volume
-IWRAM_CODE static
-void mppe_ChannelVolume(mm_word param, mm_module_channel *channel,
-                        mpl_layer_information *layer)
+static void mppe_ChannelVolume(mm_word param, mm_module_channel *channel,
+                               mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -2208,16 +2171,14 @@ void mppe_ChannelVolume(mm_word param, mm_module_channel *channel,
 }
 
 // EFFECT Nxy: Channel Volume Slide
-IWRAM_CODE static
-void mppe_ChannelVolumeSlide(mm_word param, mm_module_channel *channel,
-                             mpl_layer_information *layer)
+static void mppe_ChannelVolumeSlide(mm_word param, mm_module_channel *channel,
+                                    mpl_layer_information *layer)
 {
     channel->cvolume = mpph_VolumeSlide64(channel->cvolume, param, layer->tick, layer);
 }
 
 // EFFECT Oxy Sample Offset
-IWRAM_CODE static
-void mppe_SampleOffset(mm_word param, mpl_layer_information *layer)
+static void mppe_SampleOffset(mm_word param, mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -2227,9 +2188,8 @@ void mppe_SampleOffset(mm_word param, mpl_layer_information *layer)
 
 #if 0
 // EFFECT Pxy Panning Slide
-IWRAM_CODE static
-void mppe_PanningSlide(mm_word param, mm_module_channel *channel,
-                       mpl_layer_information *layer)
+static void mppe_PanningSlide(mm_word param, mm_module_channel *channel,
+                              mpl_layer_information *layer)
 {
     // TODO: This is unused! Is that a mistake, or was this buggy?
     channel->panning = mpph_VolumeSlide(channel->panning, param, layer->tick, 255, layer);
@@ -2237,8 +2197,7 @@ void mppe_PanningSlide(mm_word param, mm_module_channel *channel,
 #endif
 
 // EFFECT Qxy Retrigger Note
-IWRAM_CODE static
-void mppe_Retrigger(mm_word param, mm_active_channel *act_ch, mm_module_channel *channel)
+static void mppe_Retrigger(mm_word param, mm_active_channel *act_ch, mm_module_channel *channel)
 {
     // We don't check layer->tick here. We set channel->fxmem to the parameter
     // and every time this function gets called it goes down by one. When it
@@ -2315,8 +2274,7 @@ void mppe_Retrigger(mm_word param, mm_active_channel *act_ch, mm_module_channel 
 }
 
 // EFFECT Rxy: Tremolo
-IWRAM_CODE static
-void mppe_Tremolo(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
+static void mppe_Tremolo(mm_word param, mm_module_channel *channel, mpl_layer_information *layer)
 {
     // X = speed, Y = depth
 
@@ -2347,8 +2305,7 @@ void mppe_Tremolo(mm_word param, mm_module_channel *channel, mpl_layer_informati
 }
 
 // EFFECT Txy: Set Tempo / Tempo Slide
-IWRAM_CODE static
-void mppe_SetTempo(mm_word param, mpl_layer_information *layer)
+static void mppe_SetTempo(mm_word param, mpl_layer_information *layer)
 {
     if (param < 0x10) // 0x = Slide down
     {
@@ -2384,9 +2341,8 @@ void mppe_SetTempo(mm_word param, mpl_layer_information *layer)
 }
 
 // EFFECT Uxy: Fine Vibrato
-IWRAM_CODE static
-mm_word mppe_FineVibrato(mm_word param, mm_word period, mm_module_channel *channel,
-                         mpl_layer_information *layer)
+static mm_word mppe_FineVibrato(mm_word param, mm_word period, mm_module_channel *channel,
+                                mpl_layer_information *layer)
 {
     if (layer->tick == 0)
     {
@@ -2410,8 +2366,7 @@ mm_word mppe_FineVibrato(mm_word param, mm_word period, mm_module_channel *chann
 }
 
 // EFFECT Vxy: Set Global Volume
-IWRAM_CODE static
-void mppe_SetGlobalVolume(mm_word param, mpl_layer_information *layer)
+static void mppe_SetGlobalVolume(mm_word param, mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -2429,8 +2384,7 @@ void mppe_SetGlobalVolume(mm_word param, mpl_layer_information *layer)
 }
 
 // EFFECT Wxy: Global Volume Slide
-IWRAM_CODE static
-void mppe_GlobalVolumeSlide(mm_word param, mpl_layer_information *layer)
+static void mppe_GlobalVolumeSlide(mm_word param, mpl_layer_information *layer)
 {
     mm_word maxvol;
 
@@ -2443,8 +2397,7 @@ void mppe_GlobalVolumeSlide(mm_word param, mpl_layer_information *layer)
 }
 
 // EFFECT Xxy: Set Panning
-IWRAM_CODE static
-void mppe_SetPanning(mm_word param, mm_module_channel *channel,
+static void mppe_SetPanning(mm_word param, mm_module_channel *channel,
                      mpl_layer_information *layer)
 {
     if (layer->tick == 0)
@@ -2455,9 +2408,8 @@ void mppe_SetPanning(mm_word param, mm_module_channel *channel,
 //                                  EXTENDED EFFECTS
 // =============================================================================
 
-IWRAM_CODE static
-void mppex_XM_FVolSlideUp(mm_word param, mm_module_channel *channel,
-                          mpl_layer_information *layer)
+static void mppex_XM_FVolSlideUp(mm_word param, mm_module_channel *channel,
+                                 mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -2470,9 +2422,8 @@ void mppex_XM_FVolSlideUp(mm_word param, mm_module_channel *channel,
     channel->volume = volume;
 }
 
-IWRAM_CODE static
-void mppex_XM_FVolSlideDown(mm_word param, mm_module_channel *channel,
-                            mpl_layer_information *layer)
+static void mppex_XM_FVolSlideDown(mm_word param, mm_module_channel *channel,
+                                   mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -2485,9 +2436,8 @@ void mppex_XM_FVolSlideDown(mm_word param, mm_module_channel *channel,
     channel->volume = volume;
 }
 
-IWRAM_CODE static
-void mppex_OldRetrig(mm_word param, mm_active_channel *act_ch,
-                     mm_module_channel *channel, mpl_layer_information *layer)
+static void mppex_OldRetrig(mm_word param, mm_active_channel *act_ch,
+                            mm_module_channel *channel, mpl_layer_information *layer)
 {
     if (layer->tick == 0)
     {
@@ -2505,8 +2455,7 @@ void mppex_OldRetrig(mm_word param, mm_active_channel *act_ch,
     }
 }
 
-IWRAM_CODE static
-void mppex_FPattDelay(mm_word param, mpl_layer_information *layer)
+static void mppex_FPattDelay(mm_word param, mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -2514,9 +2463,8 @@ void mppex_FPattDelay(mm_word param, mpl_layer_information *layer)
     layer->fpattdelay = param & 0xF;
 }
 
-IWRAM_CODE static
-void mppex_InstControl(mm_word param, mm_active_channel *act_ch,
-                       mm_module_channel *channel, mpl_layer_information *layer)
+static void mppex_InstControl(mm_word param, mm_active_channel *act_ch,
+                              mm_module_channel *channel, mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -2547,14 +2495,12 @@ void mppex_InstControl(mm_word param, mm_active_channel *act_ch,
     }
 }
 
-IWRAM_CODE static
-void mppex_SetPanning(mm_word param, mm_module_channel *channel)
+static void mppex_SetPanning(mm_word param, mm_module_channel *channel)
 {
     channel->panning = param << 4;
 }
 
-IWRAM_CODE static
-void mppex_SoundControl(mm_word param)
+static void mppex_SoundControl(mm_word param)
 {
     if (param != 0x91)
         return;
@@ -2563,8 +2509,7 @@ void mppex_SoundControl(mm_word param)
     // TODO
 }
 
-IWRAM_CODE static
-void mppex_PatternLoop(mm_word param, mpl_layer_information *layer)
+static void mppex_PatternLoop(mm_word param, mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -2594,9 +2539,8 @@ void mppex_PatternLoop(mm_word param, mpl_layer_information *layer)
     }
 }
 
-IWRAM_CODE static
-void mppex_NoteCut(mm_word param, mm_module_channel *channel,
-                   mpl_layer_information *layer)
+static void mppex_NoteCut(mm_word param, mm_module_channel *channel,
+                          mpl_layer_information *layer)
 {
     mm_word reference = param & 0xF;
 
@@ -2606,8 +2550,7 @@ void mppex_NoteCut(mm_word param, mm_module_channel *channel,
     channel->volume = 0;
 }
 
-IWRAM_CODE static
-void mppex_NoteDelay(mm_word param, mpl_layer_information *layer)
+static void mppex_NoteDelay(mm_word param, mpl_layer_information *layer)
 {
     mm_word reference = param & 0xF;
 
@@ -2617,8 +2560,7 @@ void mppex_NoteDelay(mm_word param, mpl_layer_information *layer)
     mpp_vars.notedelay = reference;
 }
 
-IWRAM_CODE static
-void mppex_PatternDelay(mm_word param, mpl_layer_information *layer)
+static void mppex_PatternDelay(mm_word param, mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -2627,8 +2569,7 @@ void mppex_PatternDelay(mm_word param, mpl_layer_information *layer)
         layer->pattdelay = (param & 0xF) + 1;
 }
 
-IWRAM_CODE static
-void mppex_SongMessage(mm_word param, mpl_layer_information *layer)
+static void mppex_SongMessage(mm_word param, mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -2638,9 +2579,8 @@ void mppex_SongMessage(mm_word param, mpl_layer_information *layer)
 }
 
 // EFFECT Sxy: Extended Effects
-IWRAM_CODE static
-void mppe_Extended(mm_word param, mm_active_channel *act_ch,
-                   mm_module_channel *channel, mpl_layer_information *layer)
+static void mppe_Extended(mm_word param, mm_active_channel *act_ch,
+                          mm_module_channel *channel, mpl_layer_information *layer)
 {
     mm_word subcmd = param >> 4;
 
@@ -2706,18 +2646,16 @@ void mppe_Extended(mm_word param, mm_active_channel *act_ch,
 // =============================================================================
 
 // EFFECT 0xx: Set Volume
-IWRAM_CODE static
-void mppe_SetVolume(mm_word param, mm_module_channel *channel,
-                    mpl_layer_information *layer)
+static void mppe_SetVolume(mm_word param, mm_module_channel *channel,
+                           mpl_layer_information *layer)
 {
     if (layer->tick == 0)
         channel->volume = param;
 }
 
 // EFFECT 1xx: Key Off
-IWRAM_CODE static
-void mppe_KeyOff(mm_word param, mm_active_channel *act_ch,
-                 mpl_layer_information *layer)
+static void mppe_KeyOff(mm_word param, mm_active_channel *act_ch,
+                        mpl_layer_information *layer)
 {
     if (layer->tick != param)
         return;
@@ -2728,9 +2666,8 @@ void mppe_KeyOff(mm_word param, mm_active_channel *act_ch,
 
 #if 0
 // EFFECT 1xx: Envelope Position
-IWRAM_CODE static
-void mppe_EnvelopePos(mm_word param, mm_active_channel *act_ch,
-                      mpl_layer_information *layer)
+static void mppe_EnvelopePos(mm_word param, mm_active_channel *act_ch,
+                             mpl_layer_information *layer)
 {
     if (layer->tick != 0)
         return;
@@ -2749,9 +2686,8 @@ void mppe_EnvelopePos(mm_word param, mm_active_channel *act_ch,
 
 // EFFECT 3xy: Old Tremor
 // TODO: Is this used?
-IWRAM_CODE static
-void mppe_OldTremor(mm_word param, mm_module_channel *channel,
-                    mpl_layer_information *layer)
+static void mppe_OldTremor(mm_word param, mm_module_channel *channel,
+                           mpl_layer_information *layer)
 {
     if (layer->tick == 0)
         return;
@@ -2776,8 +2712,8 @@ void mppe_OldTremor(mm_word param, mm_module_channel *channel,
 }
 
 // Process pattern effect
-IWRAM_CODE mm_word mpp_Process_Effect(mpl_layer_information *layer, mm_active_channel *act_ch,
-                                      mm_module_channel *channel, mm_word period)
+mm_word mpp_Process_Effect(mpl_layer_information *layer, mm_active_channel *act_ch,
+                           mm_module_channel *channel, mm_word period)
 {
     mm_word param = mpp_Channel_ExchangeMemory(channel->effect, channel->param, channel, layer);
     mm_word effect = channel->effect;
@@ -2917,7 +2853,6 @@ struct {
 } mm_pe_ret;
 
 // Processes the envelope at <address>
-IWRAM_CODE
 void mpph_ProcessEnvelope(mm_word count, mm_word node, mm_mas_envelope *address,
                           mm_active_channel *act_ch)
 {
@@ -2994,9 +2929,8 @@ void mpph_ProcessEnvelope(mm_word count, mm_word node, mm_mas_envelope *address,
     mm_pe_ret.exit_value = (mm_word)address; // TODO: This was undefined in the ASM version!
 }
 
-static IWRAM_CODE
-mm_word mpp_Update_ACHN_notest_envelopes(mpl_layer_information *layer,
-                                         mm_active_channel *act_ch, mm_word period)
+static mm_word mpp_Update_ACHN_notest_envelopes(mpl_layer_information *layer,
+                                                mm_active_channel *act_ch, mm_word period)
 {
     mm_mas_instrument *instrument = mpp_InstrumentPointer(layer, act_ch->inst);
 
@@ -3108,9 +3042,8 @@ mppt_has_volenv:
     return period;
 }
 
-static IWRAM_CODE
-mm_word mpp_Update_ACHN_notest_auto_vibrato(mpl_layer_information *layer,
-                                            mm_active_channel *act_ch, mm_word period)
+static mm_word mpp_Update_ACHN_notest_auto_vibrato(mpl_layer_information *layer,
+                                                   mm_active_channel *act_ch, mm_word period)
 {
     mm_mas_sample_info *sample = mpp_SamplePointer(act_ch->sample, layer);
 
@@ -3145,9 +3078,9 @@ mm_word mpp_Update_ACHN_notest_auto_vibrato(mpl_layer_information *layer,
     return period;
 }
 
-static IWRAM_CODE
-mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information *layer,
-                                        mm_active_channel *act_ch, mm_word channel)
+static mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information *layer,
+                                                           mm_active_channel *act_ch,
+                                                           mm_word channel)
 {
 #if defined(SYS_GBA)
     mm_mixer_channel *mix_ch = &mm_mixchannels[channel];
@@ -3220,10 +3153,9 @@ mppt_achn_nostart:
 }
 
 // This returns the resulting volume of the channel
-static IWRAM_CODE
-mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *layer,
-                                                mm_active_channel *act_ch, mm_word period,
-                                                mm_mixer_channel *mix_ch)
+static mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *layer,
+                                                       mm_active_channel *act_ch, mm_word period,
+                                                       mm_mixer_channel *mix_ch)
 {
     // Set pitch
     // ---------
@@ -3320,9 +3252,8 @@ mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *layer,
     return vol;
 }
 
-static IWRAM_CODE
-void mpp_Update_ACHN_notest_disable_and_panning(mm_word volume, mm_active_channel *act_ch,
-                                                mm_mixer_channel *mix_ch)
+static void mpp_Update_ACHN_notest_disable_and_panning(mm_word volume, mm_active_channel *act_ch,
+                                                       mm_mixer_channel *mix_ch)
 {
     if (volume != 0)
         goto mppt_achn_audible;
@@ -3420,7 +3351,6 @@ mppt_achn_audible:
     return;
 }
 
-IWRAM_CODE
 mm_word mpp_Update_ACHN_notest(mpl_layer_information *layer, mm_active_channel *act_ch,
                                mm_word period, mm_word ch)
 {
@@ -3461,9 +3391,8 @@ mppt_achn_nostart_:
     return period;
 }
 
-IWRAM_CODE static
-void mpp_Update_ACHN(mpl_layer_information *layer, mm_active_channel *act_ch,
-                     mm_word period, mm_word ch)
+static void mpp_Update_ACHN(mpl_layer_information *layer, mm_active_channel *act_ch,
+                            mm_word period, mm_word ch)
 {
     if (act_ch->flags & MCAF_UPDATED)
         return;
