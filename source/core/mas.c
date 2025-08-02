@@ -382,7 +382,7 @@ void mpp_setposition(mpl_layer_information *layer_info, mm_word position)
 }
 
 // Set playback position
-void mmPosition(mm_word position)
+void mmSetPosition(mm_word position)
 {
     // TODO: This was commented out in the original code. If it is uncommented,
     // all channels will be reseted when setting the position. If not, the

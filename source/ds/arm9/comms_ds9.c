@@ -159,7 +159,7 @@ void mmStop(void)
 }
 
 // Set playback position
-void mmPosition(mm_word position)
+void mmSetPosition(mm_word position)
 {
     SendCommandByte(MSG_POSITION, position);
 }

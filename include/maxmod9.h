@@ -295,7 +295,19 @@ void mmStop(void);
 ///
 /// @param position
 ///     New position in module sequence.
-void mmPosition(mm_word position);
+void mmSetPosition(mm_word position);
+
+/// Set playback position.
+///
+/// @note
+///     Alias of mmSetPosition().
+///
+/// @param position
+///     New position in module sequence.
+static inline void mmPosition(mm_word position)
+{
+    mmSetPosition(position);
+}
 
 /// Plays a jingle.
 ///

@@ -267,15 +267,18 @@ mm_word mmGetPosition(void);
 ///
 /// @param position
 ///     New position in module sequence.
-void mmPosition(mm_word position);
+void mmSetPosition(mm_word position);
 
-/// Set playback position (alias for mmPosition()).
+/// Set playback position.
+///
+/// @note
+///     Alias of mmSetPosition().
 ///
 /// @param position
 ///     New position in module sequence.
-static inline void mmSetPosition(mm_word position)
+static inline void mmPosition(mm_word position)
 {
-    mmPosition(position);
+    mmSetPosition(position);
 }
 
 /// Used to determine if a module is playing.

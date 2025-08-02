@@ -195,7 +195,7 @@ static ARM_CODE void ProcessNextMessage(void)
             mmStop();
             break;
         case MSG_POSITION:
-            mmPosition(ReadNFifoBytes(1));
+            mmSetPosition(ReadNFifoBytes(1));
             break;
         case MSG_MASTERVOL:
         {
