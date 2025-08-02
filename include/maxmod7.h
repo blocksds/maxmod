@@ -226,14 +226,25 @@ void mmSetModuleTempo(mm_word tempo);
 ///     Range = 0x200 -> 0x800 = 0.5 -> 2.0
 void mmSetModulePitch(mm_word pitch);
 
-/// Play direct MAS file.
+/// Play individual MAS file from RAM.
+///
+/// A soundbank is a MSL file that contains one or more MAS files. Each MAS file
+/// can contain a sample or a module. This function allows you to play samples
+/// or modules without the need for a soundbank.
+///
+/// Normally, Maxmod plays MAS files from the sound bank provided to mmInit().
+/// This function lets you play MAS files outside of that soundbank.
+///
+/// @warning
+///     You need to initialize Maxmod with mmInit() and provide it a valid
+///     soundbank even if you plan to use mmPlayModule() to play everything.
 ///
 /// @param address
-///     TODO
+///     Address of the MAS file.
 /// @param mode
-///     TODO
+///     Playback mode: MM_PLAY_ONCE or MM_PLAY_LOOP.
 /// @param layer
-///     TODO
+///     Layer 0 is the regular module layer. Layer 1 is the jingle layer.
 void mmPlayModule(mm_word address, mm_word mode, mm_word layer);
 
 // ***************************************************************************
