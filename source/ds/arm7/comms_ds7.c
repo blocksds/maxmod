@@ -186,11 +186,27 @@ static ARM_CODE void ProcessNextMessage(void)
             break;
         }
         case MSG_PAUSE:
-            mmPause();
+        {
+            mm_layer_type layer = ReadNFifoBytes(1);
+
+            if (layer == MM_MAIN)
+                mmPause();
+            else
+                mmJinglePause();
+
             break;
+        }
         case MSG_RESUME:
-            mmResume();
+        {
+            mm_layer_type layer = ReadNFifoBytes(1);
+
+            if (layer == MM_MAIN)
+                mmResume();
+            else
+                mmJingleResume();
+
             break;
+        }
         case MSG_STOP:
         {
             mm_layer_type layer = ReadNFifoBytes(1);

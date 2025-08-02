@@ -376,6 +376,16 @@ static inline void mmJingle(mm_word module_ID)
     mmJingleStart(module_ID, MM_PLAY_ONCE);
 }
 
+/// Pauses playback of the active jingle.
+///
+/// Resume with mmJingleResume().
+void mmJinglePause(void);
+
+/// Resume jingle playback.
+///
+/// Pause with mmJinglePause().
+void mmJingleResume(void);
+
 /// Stops playback of the active jingle.
 ///
 /// Start again (from the beginning) with mmJingleStart().

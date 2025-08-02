@@ -98,7 +98,7 @@ void mmSetEventHandler(mm_callback handler)
 }
 
 // Suspend main module and associated channels.
-static void mpp_suspend(void)
+static void mpp_suspend(mm_layer_type layer)
 {
     mm_active_channel *act_ch = &mm_achannels[0];
 
@@ -111,8 +111,9 @@ static void mpp_suspend(void)
 
     for (mm_word count = mm_num_ach; count != 0; count--, act_ch++, mix_ch++)
     {
-        // If this channel is used by a jingle or a sound effect, leave it alone
-        if ((act_ch->flags & (MCAF_SUB | MCAF_EFFECT)) != 0)
+        // Make sure that this channel is used by the requested layer. Also,
+        // check that this isn't a sound effect (MCAF_EFFECT isn't set).
+        if ((act_ch->flags & (MCAF_SUB | MCAF_EFFECT)) != (layer << 6))
             continue;
 
 #ifdef SYS_GBA
@@ -132,7 +133,7 @@ void mmPause(void)
 
     mmLayerMain.isplaying = 0;
 
-    mpp_suspend();
+    mpp_suspend(MM_MAIN);
 }
 
 // Resume module playback.
@@ -142,6 +143,24 @@ void mmResume(void)
         return;
 
     mmLayerMain.isplaying = 1;
+}
+
+void mmJinglePause(void)
+{
+    if (mmLayerSub.valid == 0)
+        return;
+
+    mmLayerSub.isplaying = 0;
+
+    mpp_suspend(MM_JINGLE);
+}
+
+void mmJingleResume(void)
+{
+    if (mmLayerSub.valid == 0)
+        return;
+
+    mmLayerSub.isplaying = 1;
 }
 
 // Returns true if module is playing.

@@ -143,19 +143,31 @@ void mmStart(mm_word module_ID, mm_pmode mode)
 // Pause module playback
 void mmPause(void)
 {
-    SendCommand(MSG_PAUSE);
+    SendCommandByte(MSG_PAUSE, MM_MAIN);
 }
 
 // Resume module playback
 void mmResume(void)
 {
-    SendCommand(MSG_RESUME);
+    SendCommandByte(MSG_RESUME, MM_MAIN);
 }
 
 // Stop module playback
 void mmStop(void)
 {
     SendCommandByte(MSG_STOP, MM_MAIN);
+}
+
+// Pause module playback
+void mmJinglePause(void)
+{
+    SendCommandByte(MSG_PAUSE, MM_JINGLE);
+}
+
+// Resume module playback
+void mmJingleResume(void)
+{
+    SendCommandByte(MSG_RESUME, MM_JINGLE);
 }
 
 // Stop jingle playback
