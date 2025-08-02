@@ -212,7 +212,20 @@ void mmJingle(mm_word module_ID);
 ///
 /// @return
 ///     Returns nonzero if a jingle is actively playing.
-mm_bool mmActiveSub(void);
+mm_bool mmJingleActive(void);
+
+/// Check if a jingle is playing or not.
+///
+/// @deprecated
+///     Alias of mmJingleActive().
+///
+/// @return
+///     Returns nonzero if a jingle is actively playing.
+__attribute__ ((deprecated))
+static inline mm_bool mmActiveSub(void)
+{
+    return mmJingleActive();
+}
 
 /// Use this function to change the master volume scale for module playback.
 ///

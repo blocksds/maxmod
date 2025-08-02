@@ -151,7 +151,7 @@ mm_bool mmActive(void)
 }
 
 // Returns true if a jingle is playing.
-mm_bool mmActiveSub(void)
+mm_bool mmJingleActive(void)
 {
     return mmLayerSub.isplaying;
 }
