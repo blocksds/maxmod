@@ -328,7 +328,23 @@ static inline void mmPosition(mm_word position)
 ///
 /// @param module_ID
 ///     Index of module to be played. (Defined in soundbank header)
-void mmJingle(mm_word module_ID);
+/// @param mode
+///     Mode of playback. Can be MM_PLAY_LOOP (play and loop until stopped
+///     manually) or MM_PLAY_ONCE (play until end).
+void mmJingleStart(mm_word module_ID, mm_pmode mode);
+
+/// Plays a jingle.
+///
+/// @deprecated
+///     Use mmJingleStart() instead.
+///
+/// @param module_ID
+///     Index of module to be played. (Defined in soundbank header)
+__attribute__((deprecated))
+static inline void mmJingle(mm_word module_ID)
+{
+    mmJingleStart(module_ID, MM_PLAY_ONCE);
+}
 
 /// Use this function to change the master volume scale for module playback.
 ///

@@ -181,7 +181,7 @@ static ARM_CODE void ProcessNextMessage(void)
             if (layer == MM_MAIN)
                 mmStart(id, mode);
             else
-                mmJingle(id);
+                mmJingleStart(id, mode);
 
             break;
         }

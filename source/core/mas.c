@@ -207,10 +207,6 @@ static void mpps_backdoor(mm_word id, mm_pmode mode, mm_layer_type layer)
 #endif
 }
 
-// Start module playback
-//
-// module_ID : id of module
-// mode : mode of playback
 void mmStart(mm_word id, mm_pmode mode)
 {
     if (id >= mmGetModuleCount())
@@ -219,15 +215,12 @@ void mmStart(mm_word id, mm_pmode mode)
     mpps_backdoor(id, mode, MM_MAIN);
 }
 
-// Start jingle playback
-//
-// module_ID : index of module
-void mmJingle(mm_word module_ID)
+void mmJingleStart(mm_word module_ID, mm_pmode mode)
 {
     if (module_ID >= mmGetModuleCount())
         return;
 
-    mpps_backdoor(module_ID, MM_PLAY_ONCE, MM_JINGLE);
+    mpps_backdoor(module_ID, mode, MM_JINGLE);
 }
 
 // Reset channel data, and any active channels linked to the layer.

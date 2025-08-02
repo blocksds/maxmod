@@ -171,9 +171,9 @@ void mmSetPosition(mm_word position)
 }
 
 // Start jingle
-void mmJingle(mm_word module_ID)
+void mmJingleStart(mm_word module_ID, mm_pmode mode)
 {
-    SendCommandHwordByteByte(MSG_START, module_ID, MM_PLAY_ONCE, MM_JINGLE);
+    SendCommandHwordByteByte(MSG_START, module_ID, mode, MM_JINGLE);
 }
 
 // Set module volume
