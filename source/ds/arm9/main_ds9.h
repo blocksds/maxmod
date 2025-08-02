@@ -17,6 +17,5 @@ extern mm_word *mmSampleBank;
 
 extern mm_callback mmcbMemory;
 extern mm_callback mmCallback;
-extern mm_byte mmActiveStatus;
 
 #endif // MM_DS_ARM9_MAIN9_H__

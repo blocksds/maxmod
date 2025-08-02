@@ -115,9 +115,11 @@ mm_bool mmSendUpdateToARM9(void)
 {
     uint32_t value = 0;
 
-    // Signal that it's active
+    // Tell the ARM9 if there is a module or a jingle playing
     if (mmLayerMain.isplaying)
-        value = 1 << 16;
+        value |= 1 << 16;
+    if (mmLayerSub.isplaying)
+        value |= 1 << 17;
 
     value |= mm_sfx_clearmask;
 

@@ -46,15 +46,6 @@ mm_word *mmSampleBank;
 // Pointer to event handler
 mm_callback mmCallback;
 
-// Record of playing status.
-mm_byte mmActiveStatus;
-
-// Returns nonzero if module is playing
-mm_bool mmActive(void)
-{
-    return mmActiveStatus;
-}
-
 // Set function for handling playback events
 void mmSetEventHandler(mm_callback handler)
 {

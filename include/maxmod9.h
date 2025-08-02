@@ -399,6 +399,12 @@ void mmJingleResume(void);
 /// Any channels used by the active module will be freed.
 void mmJingleStop(void);
 
+/// Check if a jingle is playing or not.
+///
+/// @return
+///     Returns nonzero if a jingle is actively playing.
+mm_bool mmJingleActive(void);
+
 /// Use this function to change the master volume scale for jingle playback.
 ///
 /// @param volume

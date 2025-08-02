@@ -48,6 +48,9 @@ mm_word sfx_bitmask;
 
 mm_byte sfx_instances[EFFECT_CHANNELS];
 
+// Record of playing status of the main module and the jingle.
+static mm_byte mmActiveStatus; // Bit 0 = main layer. Bit 1 = sub layer (jingle)
+
 // Send data via Datamsg
 static void SendString(mm_word* values, int num_words)
 {
@@ -136,7 +139,7 @@ void mmUnlockChannels(mm_word bitmask)
 // Start module playback
 void mmStart(mm_word module_ID, mm_pmode mode)
 {
-    mmActiveStatus = 1;
+    mmActiveStatus |= (1 << 0);
     SendCommandHwordByteByte(MSG_START, module_ID, mode, MM_MAIN);
 }
 
@@ -161,6 +164,7 @@ void mmStop(void)
 // Start jingle
 void mmJingleStart(mm_word module_ID, mm_pmode mode)
 {
+    mmActiveStatus |= (1 << 1);
     SendCommandHwordByteByte(MSG_START, module_ID, mode, MM_JINGLE);
 }
 
@@ -467,6 +471,17 @@ void mmEffectCancelAll(void)
     SendCommand(MSG_EFFECTCANCELALL);
 }
 
+// Returns nonzero if module is playing
+mm_bool mmActive(void)
+{
+    return (mmActiveStatus >> 0) & 1;
+}
+
+mm_bool mmJingleActive(void)
+{
+    return (mmActiveStatus >> 1) & 1;
+}
+
 // Default maxmod message receiving code
 static void mmReceiveMessage(uint32_t value32, void *userdata)
 {
@@ -486,7 +501,7 @@ static void mmReceiveMessage(uint32_t value32, void *userdata)
     else if (cmd == MSG_ARM7_UPDATE)
     {
         sfx_bitmask &= ~(value32 & 0xFFFF);
-        mmActiveStatus = (value32 >> 16) & 1;
+        mmActiveStatus = (value32 >> 16) & 3;
     }
 }
 
