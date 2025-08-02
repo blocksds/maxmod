@@ -176,7 +176,13 @@ static ARM_CODE void ProcessNextMessage(void)
         {
             mm_word id = ReadNFifoBytes(2);
             mm_pmode mode = (mm_pmode)ReadNFifoBytes(1);
-            mmStart(id, mode);
+            mm_layer_type layer = ReadNFifoBytes(1);
+
+            if (layer == MM_MAIN)
+                mmStart(id, mode);
+            else
+                mmJingle(id);
+
             break;
         }
         case MSG_PAUSE:
@@ -191,15 +197,18 @@ static ARM_CODE void ProcessNextMessage(void)
         case MSG_POSITION:
             mmPosition(ReadNFifoBytes(1));
             break;
-        case MSG_STARTSUB:
-            mmJingle(ReadNFifoBytes(2));
-            break;
         case MSG_MASTERVOL:
-            mmSetModuleVolume(ReadNFifoBytes(2));
+        {
+            mm_hword volume = ReadNFifoBytes(2);
+            mm_layer_type layer = ReadNFifoBytes(1);
+
+            if (layer == MM_MAIN)
+                mmSetModuleVolume(volume);
+            else
+                mmSetJingleVolume(volume);
+
             break;
-        case MSG_MASTERVOLSUB:
-            mmSetJingleVolume(ReadNFifoBytes(2));
-            break;
+        }
         case MSG_MASTERTEMPO:
             mmSetModuleTempo(ReadNFifoBytes(2));
             break;

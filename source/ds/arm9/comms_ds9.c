@@ -85,6 +85,16 @@ static void SendCommandHwordByte(mm_word id, mm_hword arg1, mm_byte arg2)
     SendString(buffer, 2);
 }
 
+static void SendCommandHwordByteByte(mm_word id, mm_hword arg1, mm_byte arg2, mm_byte arg3)
+{
+    mm_word buffer[MAX_PARAM_WORDS];
+
+    buffer[0] = (arg1 << 16) | (id << 8) | 5;
+    buffer[1] = arg2 | (arg3 << 8);
+
+    SendString(buffer, 2);
+}
+
 // Send a memory bank to the ARM7
 void mmSendBank(mm_word num_songs, mm_word num_samples, mm_addr bank_addr)
 {
@@ -127,7 +137,7 @@ void mmUnlockChannels(mm_word bitmask)
 void mmStart(mm_word module_ID, mm_pmode mode)
 {
     mmActiveStatus = 1;
-    SendCommandHwordByte(MSG_START, module_ID, mode);
+    SendCommandHwordByteByte(MSG_START, module_ID, mode, MM_MAIN);
 }
 
 // Pause module playback
@@ -157,19 +167,19 @@ void mmPosition(mm_word position)
 // Start jingle
 void mmJingle(mm_word module_ID)
 {
-    SendCommandHword(MSG_STARTSUB, module_ID);
+    SendCommandHwordByteByte(MSG_START, module_ID, MM_PLAY_ONCE, MM_JINGLE);
 }
 
 // Set module volume
 void mmSetModuleVolume(mm_word vol)
 {
-    SendCommandHword(MSG_MASTERVOL, vol);
+    SendCommandHwordByte(MSG_MASTERVOL, vol, MM_MAIN);
 }
 
 // Set jingle volume
 void mmSetJingleVolume(mm_word vol)
 {
-    SendCommandHword(MSG_MASTERVOLSUB, vol);
+    SendCommandHwordByte(MSG_MASTERVOL, vol, MM_JINGLE);
 }
 
 // Set master tempo

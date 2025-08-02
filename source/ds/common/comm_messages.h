@@ -18,9 +18,9 @@ enum mm_message_ids
     MSG_RESUME          = 0x04, // Resume module
     MSG_STOP            = 0x05, // Stop module
     MSG_POSITION        = 0x06, // Set playback position (only the pattern, not row or tick)
-    MSG_STARTSUB        = 0x07, // Start submodule (jingle)
+    // 0x07 is reserved
     MSG_MASTERVOL       = 0x08, // Set master volume
-    MSG_MASTERVOLSUB    = 0x09, // Set master volume for submodule (jingle)
+    // 0x09 is reserved
     MSG_MASTERTEMPO     = 0x0A, // Set master tempo
     MSG_MASTERPITCH     = 0x0B, // Set master pitch
     MSG_MASTEREFFECTVOL = 0x0C, // Set master effect volume, bbaa = volume
@@ -35,7 +35,6 @@ enum mm_message_ids
     MSG_EFFECTMULRATE   = 0x14, // Scale effect pitch
     MSG_EFFECTOPT       = 0x15, // Set effect options
     MSG_EFFECTEX        = 0x16, // Play effect, define all parameters manually
-
     // 0x17 is reserved
 
     MSG_REVERBENABLE    = 0x18, // Enable reverb
