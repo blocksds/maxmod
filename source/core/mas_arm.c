@@ -275,7 +275,7 @@ IWRAM_CODE ARM_CODE mm_byte mmChannelStartACHN(mm_module_channel *module_channel
         active_channel->type = ACHN_FOREGROUND;
         // Clear SUB/EFFECT and store layer
         active_channel->flags &= ~(MCAF_SUB | MCAF_EFFECT);
-        if (mpp_clayer)
+        if (mpp_clayer == MM_JINGLE)
             active_channel->flags |= MCAF_SUB;
         // Store parent
         active_channel->parent = channel_counter;

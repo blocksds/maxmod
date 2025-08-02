@@ -148,7 +148,7 @@ void mmFrame(void)
     mpp_nchannels = mm_num_mch;
 
     // layer=0 (main)
-    mpp_clayer = 0;
+    mpp_clayer = MM_MAIN;
 
     // Copy layer pointer
     mpp_layerp = &mmLayerMain; // mpp_layerA

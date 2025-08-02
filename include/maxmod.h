@@ -359,7 +359,7 @@ void mmSetModulePitch(mm_word pitch);
 /// @param mode
 ///     Playback mode: MM_PLAY_ONCE or MM_PLAY_LOOP.
 /// @param layer
-///     Layer 0 is the regular module layer. Layer 1 is the jingle layer.
+///     MM_MAIN (main module layer) or MM_JINGLE (sub/jingle layer).
 void mmPlayModule(mm_word address, mm_word mode, mm_word layer);
 
 // ***************************************************************************

@@ -57,6 +57,22 @@ typedef enum
     MM_MODE_C  ///< Selects the extended mixing audio mode.
 } mm_mode_enum;
 
+/// Layer types
+typedef enum
+{
+    /// Main module song being played.
+    ///
+    /// On GBA the max number of channels is defined when calling mmInit(), in
+    /// the `module_channels` field. On DS the max number of channels is 32.
+    MM_MAIN = 0,
+
+    /// Sub module song being played (jingle).
+    ///
+    /// This layer is limited to 4 channels.
+    MM_JINGLE = 1
+}
+mm_layer_type;
+
 /// Formats for software streaming.
 ///
 /// ADPCM streaming is not supported by the DS hardware. The loop point data

@@ -23,7 +23,7 @@ extern mpv_active_information mpp_vars;
 extern mm_module_channel *mpp_channels;
 
 extern mm_byte mpp_nchannels;
-extern mm_byte mpp_clayer;
+extern mm_layer_type mpp_clayer;
 
 extern mm_active_channel *mm_achannels;
 extern mm_module_channel *mm_pchannels;

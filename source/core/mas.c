@@ -81,7 +81,7 @@ mm_word mm_masterpitch;
 mm_byte mpp_nchannels;
 
 // Layer selection, 0 = main, 1 = sub
-mm_byte mpp_clayer;
+mm_layer_type mpp_clayer;
 
 #if defined(SYS_NDS7) || defined(SYS_NDS)
 // Speed divider for DS timing.
@@ -286,7 +286,7 @@ static void mppStop(void)
     mm_module_channel *channels;
     mm_word num_ch;
 
-    if (mpp_clayer != 0)
+    if (mpp_clayer != MM_MAIN)
     {
         layer_info = &mmLayerSub;
         channels = &mm_schannels[0];
@@ -308,7 +308,7 @@ static void mppStop(void)
 // Stop module playback.
 void mmStop(void)
 {
-    mpp_clayer = 0;
+    mpp_clayer = MM_MAIN;
     mppStop();
 }
 
@@ -415,7 +415,7 @@ void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
     layer_info->bpm = bpm;
 
 #ifdef SYS_GBA
-    if (mpp_clayer == 0)
+    if (mpp_clayer == MM_MAIN)
     {
         // Multiply by master tempo
         mm_word tempo = (mm_mastertempo * bpm) >> 10;
@@ -444,7 +444,7 @@ void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
     // vsync = ~59.8261 HZ (says GBATEK)
     // divider = hz * 2.5 * 64
 
-    if (mpp_clayer == 0)
+    if (mpp_clayer == MM_MAIN)
     {
         // Multiply by master tempo
         bpm = bpm * mm_mastertempo;
@@ -477,7 +477,7 @@ void mmSetModuleTempo(mm_word tempo)
         tempo = min;
 
     mm_mastertempo = tempo;
-    mpp_clayer = 0;
+    mpp_clayer = MM_MAIN;
 
     if (mmLayerMain.bpm != 0)
        mpp_setbpm(&mmLayerMain, mmLayerMain.bpm);
@@ -502,7 +502,7 @@ void mmPlayModule(mm_word address, mm_word mode, mm_word layer)
     mm_module_channel *channels;
     mm_word num_ch;
 
-    if (layer == 0)
+    if (layer == MM_MAIN)
     {
         layer_info = &mmLayerMain;
         channels = mm_pchannels;
@@ -586,11 +586,11 @@ void mmSetResolution(mm_word divider)
 {
     mpp_resolution = divider;
 
-    mpp_clayer = 0;
+    mpp_clayer = MM_MAIN;
     if (mmLayerMain.bpm != 0)
        mpp_setbpm(&mmLayerMain, mmLayerMain.bpm);
 
-    mpp_clayer = 1;
+    mpp_clayer = MM_JINGLE;
     if (mmLayerSub.bpm != 0)
        mpp_setbpm(&mmLayerSub, mmLayerSub.bpm);
 }
@@ -607,7 +607,7 @@ void mppUpdateSub(void)
 
     mpp_channels = &mm_schannels[0];
     mpp_nchannels = MP_SCHANNELS;
-    mpp_clayer = 1;
+    mpp_clayer = MM_JINGLE;
     mpp_layerp = &mmLayerSub;
 
     mm_word tickrate = mmLayerSub.tickrate;
@@ -646,13 +646,13 @@ void mmPulse(void)
     // Update main layer
     mpp_channels = mm_pchannels;
     mpp_nchannels = mm_num_mch;
-    mpp_clayer = 0;
+    mpp_clayer = MM_MAIN;
     mppUpdateLayer(&mmLayerMain);
 
     // Update sub layer
     mpp_channels = mm_schannels;
     mpp_nchannels = MP_SCHANNELS;
-    mpp_clayer = 1;
+    mpp_clayer = MM_JINGLE;
     mppUpdateLayer(&mmLayerSub);
 }
 
@@ -3177,7 +3177,7 @@ static mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *la
 
         mm_word value = ((period >> 8) * (speed << 2)) >> 8;
 
-        if (mpp_clayer == 0)
+        if (mpp_clayer == MM_MAIN)
             value = (value * mm_masterpitch) >> 10;
 
 #ifdef SYS_GBA
@@ -3195,7 +3195,7 @@ static mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *la
         {
             mm_word value = MOD_FREQ_DIVIDER_PAL / period;
 
-            if (mpp_clayer == 0)
+            if (mpp_clayer == MM_MAIN)
                 value = (value * mm_masterpitch) >> 10;
 
 #ifdef SYS_GBA
