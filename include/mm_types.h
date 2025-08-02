@@ -390,59 +390,6 @@ typedef struct t_mmstreamdata
     mm_word             remainder;
 } mm_stream_data;
 
-/*
-typedef struct t_mmsoundcnt_ds
-{
-    mm_word     volume_mul : 7;
-    mm_word     unused : 1;
-    mm_word     volume_div : 2;
-    mm_word     unused2 : 5;
-    mm_word     hold : 1;
-    mm_word     panning : 7;
-    mm_word     unused3 : 1;
-    mm_word     wave_duty : 3;
-    mm_word     repeat_mode : 2;
-    mm_word     format : 2;
-    mm_word     status : 1;
-    mm_word     src : 27;
-    mm_word     unused4 : 5;
-    mm_hword    timer;
-    mm_hword    loop_start;
-    mm_word     word_length : 22;
-    mm_word     unused5 : 10;
-} __attribute__((packed)) mmsoundcnt_ds;
-*/
-
-/*
-typedef struct t_mmlayer
-{
-    // current tick count
-    mm_byte     tick;
-
-    // current row being played
-    mm_byte     row;
-
-    // module sequence position
-    mm_byte     position;
-
-    // number of rows in current pattern
-    mm_byte     nrows;
-
-    // global volume multiplier
-    mm_byte     global_volume;
-
-    // speed of module (ticks/row)
-    mm_byte     speed;
-
-    // module is active
-    mm_byte     active;
-
-    // tempo of module
-    mm_byte     bpm;
-
-} mm_modlayer; // mpl_layer_information is more complete
-*/
-
 typedef struct tmm_voice
 {
     // data source information
