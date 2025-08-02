@@ -27,20 +27,20 @@
 #define COMPR_FLAG_VOLC     (1 << 2)
 #define COMPR_FLAG_EFFC     (1 << 3)
 
-#define GLISSANDO_EFFECT 7
-#define GLISSANDO_IT_VOLCMD_START 193
-#define GLISSANDO_IT_VOLCMD_END 202
-#define GLISSANDO_MX_VOLCMD_START 0xF0
-#define GLISSANDO_MX_VOLCMD_END 0xFF
+#define GLISSANDO_EFFECT            7
+#define GLISSANDO_IT_VOLCMD_START   193
+#define GLISSANDO_IT_VOLCMD_END     202
+#define GLISSANDO_MX_VOLCMD_START   0xF0
+#define GLISSANDO_MX_VOLCMD_END     0xFF
 
-#define NO_CHANNEL_AVAILABLE 255
+#define NO_CHANNEL_AVAILABLE        255
 
-#define MAX_VOL_ACH 0x80
+#define MAX_VOL_ACH     0x80
 
-#define NOTE_CUT 254
-#define NOTE_OFF 255
+#define NOTE_CUT        254
+#define NOTE_OFF        255
 
-#define MULT_PERIOD 133808
+#define MULT_PERIOD     133808
 
 // Bitmask to select which hardware/software channels are free to use
 mm_word mm_ch_mask;
@@ -258,13 +258,16 @@ IWRAM_CODE ARM_CODE void mmReadPattern(mpl_layer_information *mpp_layer)
     mpp_layer->mch_update = update_bits;
 }
 
-static IWRAM_CODE ARM_CODE mm_mas_instrument *get_instrument(mpl_layer_information *mpp_layer, mm_byte instN)
+static IWRAM_CODE ARM_CODE
+mm_mas_instrument *get_instrument(mpl_layer_information *mpp_layer, mm_byte instN)
 {
     mm_byte *base = (mm_byte *)mpp_layer->songadr;
     return (mm_mas_instrument*)(base + mpp_layer->insttable[instN - 1]);
 }
 
-IWRAM_CODE ARM_CODE mm_byte mmChannelStartACHN(mm_module_channel *module_channel, mm_active_channel *active_channel, mpl_layer_information *mpp_layer, mm_byte channel_counter)
+IWRAM_CODE ARM_CODE
+mm_byte mmChannelStartACHN(mm_module_channel *module_channel, mm_active_channel *active_channel,
+                           mpl_layer_information *mpp_layer, mm_byte channel_counter)
 {
     // Clear tremor/cutvol
     module_channel->bflags &= ~(MCH_BFLAGS_CUT_VOLUME | MCH_BFLAGS_TREMOR);
@@ -316,7 +319,8 @@ IWRAM_CODE ARM_CODE mm_byte mmChannelStartACHN(mm_module_channel *module_channel
     return module_channel->note;
 }
 
-IWRAM_CODE ARM_CODE mm_word mmGetPeriod(mpl_layer_information *mpp_layer, mm_word tuning, mm_byte note)
+IWRAM_CODE ARM_CODE
+mm_word mmGetPeriod(mpl_layer_information *mpp_layer, mm_word tuning, mm_byte note)
 {
     // Tuning not used here with linear periods
     if (mpp_layer->flags & MAS_HEADER_FLAG_FREQ_MODE)
@@ -334,13 +338,15 @@ IWRAM_CODE ARM_CODE mm_word mmGetPeriod(mpl_layer_information *mpp_layer, mm_wor
     return ret_val;
 }
 
-static IWRAM_CODE ARM_CODE mm_mas_sample_info *get_sample(mpl_layer_information *mpp_layer, mm_byte sampleN)
+static IWRAM_CODE ARM_CODE
+mm_mas_sample_info *get_sample(mpl_layer_information *mpp_layer, mm_byte sampleN)
 {
     mm_byte *base = (mm_byte *)mpp_layer->songadr;
     return (mm_mas_sample_info*)(base + mpp_layer->samptable[sampleN - 1]);
 }
 
-static IWRAM_CODE ARM_CODE mm_active_channel *get_active_channel(mm_module_channel *module_channel)
+static IWRAM_CODE ARM_CODE
+mm_active_channel *get_active_channel(mm_module_channel *module_channel)
 {
     mm_active_channel *act_ch = NULL;
 
@@ -352,7 +358,9 @@ static IWRAM_CODE ARM_CODE mm_active_channel *get_active_channel(mm_module_chann
 }
 
 // For tick 0
-IWRAM_CODE ARM_CODE void mmUpdateChannel_T0(mm_module_channel *module_channel, mpl_layer_information* mpp_layer, mm_byte channel_counter)
+IWRAM_CODE ARM_CODE void
+mmUpdateChannel_T0(mm_module_channel *module_channel, mpl_layer_information *mpp_layer,
+                   mm_byte channel_counter)
 {
     mm_active_channel *act_ch;
 
@@ -525,7 +533,8 @@ channel_started:
 
 // For ticks that are not the first one. Note that mpp_layer->ticks may be zero
 // when this function is called (if a channel is active and the row increases).
-IWRAM_CODE ARM_CODE void mmUpdateChannel_TN(mm_module_channel *module_channel, mpl_layer_information *mpp_layer)
+IWRAM_CODE ARM_CODE
+void mmUpdateChannel_TN(mm_module_channel *module_channel, mpl_layer_information *mpp_layer)
 {
     // Get channel, if available
     mm_active_channel *act_ch = get_active_channel(module_channel);
