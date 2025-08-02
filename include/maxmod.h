@@ -271,11 +271,12 @@ void mmSetPosition(mm_word position);
 
 /// Set playback position.
 ///
-/// @note
+/// @deprecated
 ///     Alias of mmSetPosition().
 ///
 /// @param position
 ///     New position in module sequence.
+__attribute__((deprecated))
 static inline void mmPosition(mm_word position)
 {
     mmSetPosition(position);
