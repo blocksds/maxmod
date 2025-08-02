@@ -245,13 +245,6 @@ void mmResume(void);
 /// Any channels used by the active module will be freed.
 void mmStop(void);
 
-/// Stops playback of the active jingle.
-///
-/// Start again (from the beginning) with mmJingleStart().
-///
-/// Any channels used by the active module will be freed.
-void mmJingleStop(void);
-
 /// Get current number of elapsed ticks in the row being played.
 ///
 /// @return
@@ -295,66 +288,11 @@ static inline void mmPosition(mm_word position)
 ///     Nonzero if a module is currently playing.
 mm_bool mmActive(void);
 
-/// Plays a jingle.
-///
-/// Jingles are normal modules that can be mixed with the normal module
-/// playback.
-///
-/// For GBA, the module is read directly from the cartridge space. For jingles,
-/// the playback mode is fixed to MM_PLAY_ONCE.
-///
-/// Note that jingles must be limited to 4 channels only.
-///
-/// @param module_ID
-///     Index of module to be played. (Defined in soundbank header)
-/// @param mode
-///     Mode of playback. Can be MM_PLAY_LOOP (play and loop until stopped
-///     manually) or MM_PLAY_ONCE (play until end).
-void mmJingleStart(mm_word module_ID, mm_pmode mode);
-
-/// Plays a jingle.
-///
-/// @deprecated
-///     Use mmJingleStart() instead.
-///
-/// @param module_ID
-///     Index of module to be played. (Defined in soundbank header)
-__attribute__((deprecated))
-static inline void mmJingle(mm_word module_ID)
-{
-    mmJingleStart(module_ID, MM_PLAY_ONCE);
-}
-
-/// Check if a jingle is playing or not.
-///
-/// @return
-///     Returns nonzero if a jingle is actively playing.
-mm_bool mmJingleActive(void);
-
-/// Check if a jingle is playing or not.
-///
-/// @deprecated
-///     Alias of mmJingleActive().
-///
-/// @return
-///     Returns nonzero if a jingle is actively playing.
-__attribute__ ((deprecated))
-static inline mm_bool mmActiveSub(void)
-{
-    return mmJingleActive();
-}
-
 /// Use this function to change the master volume scale for module playback.
 ///
 /// @param volume
 ///     New volume level. Ranges from 0 (silent) to 1024 (normal).
 void mmSetModuleVolume(mm_word volume);
-
-/// Use this function to change the master volume scale for jingle playback.
-///
-/// @param volume
-///     New volume level. Ranges from 0 (silent) to 1024 (normal).
-void mmSetJingleVolume(mm_word volume);
 
 /// Change the master tempo for module playback.
 ///
@@ -401,6 +339,74 @@ void mmSetModulePitch(mm_word pitch);
 /// @param layer
 ///     MM_MAIN (main module layer) or MM_JINGLE (sub/jingle layer).
 void mmPlayModule(mm_word address, mm_word mode, mm_word layer);
+
+// ***************************************************************************
+/// @}
+/// @defgroup gba_jingle_playback GBA: Jingle Playback
+/// @{
+// ***************************************************************************
+
+/// Plays a jingle.
+///
+/// Jingles are normal modules that can be mixed with the normal module
+/// playback.
+///
+/// For GBA, the module is read directly from the cartridge space. For jingles,
+/// the playback mode is fixed to MM_PLAY_ONCE.
+///
+/// Note that jingles must be limited to 4 channels only.
+///
+/// @param module_ID
+///     Index of module to be played. (Defined in soundbank header)
+/// @param mode
+///     Mode of playback. Can be MM_PLAY_LOOP (play and loop until stopped
+///     manually) or MM_PLAY_ONCE (play until end).
+void mmJingleStart(mm_word module_ID, mm_pmode mode);
+
+/// Plays a jingle.
+///
+/// @deprecated
+///     Use mmJingleStart() instead.
+///
+/// @param module_ID
+///     Index of module to be played. (Defined in soundbank header)
+__attribute__((deprecated))
+static inline void mmJingle(mm_word module_ID)
+{
+    mmJingleStart(module_ID, MM_PLAY_ONCE);
+}
+
+/// Stops playback of the active jingle.
+///
+/// Start again (from the beginning) with mmJingleStart().
+///
+/// Any channels used by the active module will be freed.
+void mmJingleStop(void);
+
+/// Check if a jingle is playing or not.
+///
+/// @return
+///     Returns nonzero if a jingle is actively playing.
+mm_bool mmJingleActive(void);
+
+/// Check if a jingle is playing or not.
+///
+/// @deprecated
+///     Alias of mmJingleActive().
+///
+/// @return
+///     Returns nonzero if a jingle is actively playing.
+__attribute__ ((deprecated))
+static inline mm_bool mmActiveSub(void)
+{
+    return mmJingleActive();
+}
+
+/// Use this function to change the master volume scale for jingle playback.
+///
+/// @param volume
+///     New volume level. Ranges from 0 (silent) to 1024 (normal).
+void mmSetJingleVolume(mm_word volume);
 
 // ***************************************************************************
 /// @}

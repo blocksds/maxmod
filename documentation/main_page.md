@@ -26,6 +26,7 @@ Maxmod Programming Reference {#mainpage}
 
 - @ref gba_init
 - @ref gba_module_playback
+- @ref gba_jingle_playback
 - @ref gba_sound_effects
 - @ref gba_playback_events
 - @ref gba_misc
@@ -34,6 +35,7 @@ Maxmod Programming Reference {#mainpage}
 
 - @ref nds_arm9_init
 - @ref nds_arm9_module_playback
+- @ref nds_arm9_jingle_playback
 - @ref nds_arm9_sound_effects
 - @ref nds_arm9_streaming
 - @ref nds_arm9_reverb
@@ -43,6 +45,7 @@ Maxmod Programming Reference {#mainpage}
 
 - @ref nds_arm7_init
 - @ref nds_arm7_module_playback
+- @ref nds_arm7_jingle_playback
 - @ref nds_arm7_sound_effects
 - @ref nds_arm7_streaming
 - @ref nds_arm7_reverb

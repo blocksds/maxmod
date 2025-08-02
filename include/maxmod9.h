@@ -291,13 +291,6 @@ void mmResume(void);
 /// Any channels used by the active module will be freed.
 void mmStop(void);
 
-/// Stops playback of the active jingle.
-///
-/// Start again (from the beginning) with mmJingleStart().
-///
-/// Any channels used by the active module will be freed.
-void mmJingleStop(void);
-
 /// Set the current sequence [aka order-list] position for the active module.
 ///
 /// @param position
@@ -317,46 +310,11 @@ static inline void mmPosition(mm_word position)
     mmSetPosition(position);
 }
 
-/// Plays a jingle.
-///
-/// Jingles are normal modules that can be mixed with the normal module
-/// playback.
-///
-/// For DS, the module must be loaded into memory first (mmLoad).
-///
-/// Note that jingles must be limited to 4 channels only.
-///
-/// @param module_ID
-///     Index of module to be played. (Defined in soundbank header)
-/// @param mode
-///     Mode of playback. Can be MM_PLAY_LOOP (play and loop until stopped
-///     manually) or MM_PLAY_ONCE (play until end).
-void mmJingleStart(mm_word module_ID, mm_pmode mode);
-
-/// Plays a jingle.
-///
-/// @deprecated
-///     Use mmJingleStart() instead.
-///
-/// @param module_ID
-///     Index of module to be played. (Defined in soundbank header)
-__attribute__((deprecated))
-static inline void mmJingle(mm_word module_ID)
-{
-    mmJingleStart(module_ID, MM_PLAY_ONCE);
-}
-
 /// Use this function to change the master volume scale for module playback.
 ///
 /// @param volume
 ///     New volume level. Ranges from 0 (silent) to 1024 (normal).
 void mmSetModuleVolume(mm_word volume);
-
-/// Use this function to change the master volume scale for jingle playback.
-///
-/// @param volume
-///     New volume level. Ranges from 0 (silent) to 1024 (normal).
-void mmSetJingleVolume(mm_word volume);
 
 /// Change the master tempo for module playback.
 ///
@@ -388,6 +346,54 @@ void mmSetModulePitch(mm_word pitch);
 /// @return
 ///     Nonzero if a module is currently playing.
 mm_bool mmActive(void);
+
+// ***************************************************************************
+/// @}
+/// @defgroup nds_arm9_jingle_playback NDS: ARM9 Jingle Playback
+/// @{
+// ***************************************************************************
+
+/// Plays a jingle.
+///
+/// Jingles are normal modules that can be mixed with the normal module
+/// playback.
+///
+/// For DS, the module must be loaded into memory first (mmLoad).
+///
+/// Note that jingles must be limited to 4 channels only.
+///
+/// @param module_ID
+///     Index of module to be played. (Defined in soundbank header)
+/// @param mode
+///     Mode of playback. Can be MM_PLAY_LOOP (play and loop until stopped
+///     manually) or MM_PLAY_ONCE (play until end).
+void mmJingleStart(mm_word module_ID, mm_pmode mode);
+
+/// Plays a jingle.
+///
+/// @deprecated
+///     Use mmJingleStart() instead.
+///
+/// @param module_ID
+///     Index of module to be played. (Defined in soundbank header)
+__attribute__((deprecated))
+static inline void mmJingle(mm_word module_ID)
+{
+    mmJingleStart(module_ID, MM_PLAY_ONCE);
+}
+
+/// Stops playback of the active jingle.
+///
+/// Start again (from the beginning) with mmJingleStart().
+///
+/// Any channels used by the active module will be freed.
+void mmJingleStop(void);
+
+/// Use this function to change the master volume scale for jingle playback.
+///
+/// @param volume
+///     New volume level. Ranges from 0 (silent) to 1024 (normal).
+void mmSetJingleVolume(mm_word volume);
 
 // ***************************************************************************
 /// @}
