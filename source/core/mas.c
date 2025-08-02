@@ -536,7 +536,7 @@ void mmPlayModule(mm_word address, mm_word mode, mm_word layer)
     mpp_setbpm(layer_info, header->initial_tempo);
 
     // Load initial global volume
-    layer_info->gv = header->global_volume;
+    layer_info->global_volume = header->global_volume;
 
     // Load song flags
     mm_word flags = header->flags;
@@ -2380,7 +2380,7 @@ static void mppe_SetGlobalVolume(mm_word param, mpl_layer_information *layer)
     else
         maxvol = 128;
 
-    layer->gv = (param < maxvol) ? param : maxvol;
+    layer->global_volume = (param < maxvol) ? param : maxvol;
 }
 
 // EFFECT Wxy: Global Volume Slide
@@ -2393,7 +2393,8 @@ static void mppe_GlobalVolumeSlide(mm_word param, mpl_layer_information *layer)
     else
         maxvol = 128;
 
-    layer->gv = mpph_VolumeSlide(layer->gv, param, layer->tick, maxvol, layer);
+    layer->global_volume = mpph_VolumeSlide(layer->global_volume, param,
+                                            layer->tick, maxvol, layer);
 }
 
 // EFFECT Xxy: Set Panning
@@ -3224,10 +3225,10 @@ static mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *la
     vol *= mpp_vars.afvol; // ((CV * VOL) / 32 * VEV / 64) 7-bit
 
     // Get global volume
-    mm_byte gv = layer->gv;
+    mm_byte global_volume = layer->global_volume;
     if (layer->flags & MAS_HEADER_FLAG_XM_MODE)
-        gv <<= 1; // XM mode global volume is only 0->64, shift to 0->128
-    vol = (vol * gv) >> 10;
+        global_volume <<= 1; // XM mode global volume is only 0->64, shift to 0->128
+    vol = (vol * global_volume) >> 10;
 
     vol = (vol * act_ch->fade) >> 10;
 

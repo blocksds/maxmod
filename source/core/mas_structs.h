@@ -17,7 +17,7 @@ typedef struct {
     mm_byte     row;        // Current row being played
     mm_byte     position;   // Module sequence position
     mm_byte     nrows;      // Number of rows in current pattern
-    mm_byte     gv;         // Global volume multiplier
+    mm_byte     global_volume; // Global volume multiplier
     mm_byte     speed;      // Speed of module (ticks / row)
     mm_byte     isplaying;  // Module is active
     mm_byte     bpm;        // Tempo of module
