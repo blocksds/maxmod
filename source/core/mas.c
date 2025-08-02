@@ -180,7 +180,7 @@ void mmSetJingleVolume(mm_word volume)
     mmLayerSub.volume = volume; // mpp_layerB
 }
 
-static void mpps_backdoor(mm_word id, mm_pmode mode, mm_word layer)
+static void mpps_backdoor(mm_word id, mm_pmode mode, mm_layer_type layer)
 {
 #if defined(SYS_GBA)
     // In the MSL format, the module table goes right after the sample table,
@@ -216,7 +216,7 @@ void mmStart(mm_word id, mm_pmode mode)
     if (id >= mmGetModuleCount())
         return;
 
-    mpps_backdoor(id, mode, 0);
+    mpps_backdoor(id, mode, MM_MAIN);
 }
 
 // Start jingle playback
@@ -227,7 +227,7 @@ void mmJingle(mm_word module_ID)
     if (module_ID >= mmGetModuleCount())
         return;
 
-    mpps_backdoor(module_ID, MM_PLAY_ONCE, 1);
+    mpps_backdoor(module_ID, MM_PLAY_ONCE, MM_JINGLE);
 }
 
 // Reset channel data, and any active channels linked to the layer.
