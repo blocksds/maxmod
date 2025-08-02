@@ -152,6 +152,13 @@ void mmResume(void);
 /// Any channels used by the active module will be freed.
 void mmStop(void);
 
+/// Stops playback of the active jingle.
+///
+/// Start again (from the beginning) with mmJingleStart().
+///
+/// Any channels used by the active module will be freed.
+void mmJingleStop(void);
+
 /// Get current number of elapsed ticks in the row being played.
 ///
 /// @return

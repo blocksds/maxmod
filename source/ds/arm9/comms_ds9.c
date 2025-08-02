@@ -155,7 +155,13 @@ void mmResume(void)
 // Stop module playback
 void mmStop(void)
 {
-    SendCommand(MSG_STOP);
+    SendCommandByte(MSG_STOP, MM_MAIN);
+}
+
+// Stop jingle playback
+void mmJingleStop(void)
+{
+    SendCommandByte(MSG_STOP, MM_JINGLE);
 }
 
 // Set playback position

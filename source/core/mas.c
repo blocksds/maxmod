@@ -253,14 +253,13 @@ static void mpp_resetchannels(mpl_layer_information *layer_info,
     mm_mixer_channel *mix_ch = &mm_mixchannels[0];
 #endif
 
-    mm_byte layer = mpp_clayer;
     mm_active_channel *act_ch = &mm_achannels[0];
 
     for (mm_word i = 0; i < mm_num_ach; i++, act_ch++, mix_ch++)
     {
         // Test if layer matches and if this channel isn't being used for a
         // sound effect.
-        if (((act_ch->flags & (MCAF_SUB | MCAF_EFFECT)) >> 6) != layer)
+        if (((act_ch->flags & (MCAF_SUB | MCAF_EFFECT)) >> 6) != mpp_clayer)
             continue;
 
         // Clear achannel data to zero
@@ -305,10 +304,15 @@ static void mppStop(void)
     mpp_resetchannels(layer_info, channels, num_ch);
 }
 
-// Stop module playback.
 void mmStop(void)
 {
     mpp_clayer = MM_MAIN;
+    mppStop();
+}
+
+void mmJingleStop(void)
+{
+    mpp_clayer = MM_JINGLE;
     mppStop();
 }
 
