@@ -158,6 +158,12 @@ void mmStop(void)
     SendCommandByte(MSG_STOP, MM_MAIN);
 }
 
+// Start jingle
+void mmJingleStart(mm_word module_ID, mm_pmode mode)
+{
+    SendCommandHwordByteByte(MSG_START, module_ID, mode, MM_JINGLE);
+}
+
 // Pause module playback
 void mmJinglePause(void)
 {
@@ -180,12 +186,6 @@ void mmJingleStop(void)
 void mmSetPosition(mm_word position)
 {
     SendCommandByte(MSG_POSITION, position);
-}
-
-// Start jingle
-void mmJingleStart(mm_word module_ID, mm_pmode mode)
-{
-    SendCommandHwordByteByte(MSG_START, module_ID, mode, MM_JINGLE);
 }
 
 // Set module volume
