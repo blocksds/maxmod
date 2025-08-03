@@ -333,7 +333,8 @@ void mmSetModulePitch(mm_word pitch);
 ///     soundbank even if you plan to use mmPlayModule() to play everything.
 ///
 /// @param address
-///     Address of the MAS file.
+///     Address of the MAS file, skipping the first few bytes of the prefix.
+///     Add `sizeof(mm_mas_prefix)` to the pointer to your MAS file.
 /// @param mode
 ///     Playback mode: MM_PLAY_ONCE or MM_PLAY_LOOP.
 /// @param layer

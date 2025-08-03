@@ -36,16 +36,18 @@ mm_word mmModuleCount;
 // Number of samples in sound bank
 mm_word mmSampleCount;
 
-// This is a pointer to an array of pointers. Each pointer points to the memory
-// that holds a module in main RAM, or to NULL if the module hasn't been loaded
+// This is a pointer to an array of pointers. Each pointer points to a module in
+// MAS format stored in main RAM, or to NULL if the module hasn't been loaded
 // by mmLoad().
 mm_addr *mmModuleBank;
 
-// Same as mmModuleBank, but for samples instead of modules. It should start
-// right after the end mmModuleBank. However, only the bottom 24 bits hold the
-// address (minus 0x2000000). The top 8 bit are the number of times that the
-// sample has been requested to be loaded (in case a sample is used by multiple
-// modules).
+// Same as mmModuleBank, but for samples instead of modules. The MAS files it
+// points to only contain one sample.
+//
+// mmSampleBank should start right after the end mmModuleBank. However, only the
+// bottom 24 bits hold the address (minus 0x2000000). The top 8 bit are the
+// number of times that the sample has been requested to be loaded (in case a
+// sample is used by multiple modules).
 mm_word *mmSampleBank;
 
 // Memory for module/active channels for NDS system

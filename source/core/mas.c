@@ -215,13 +215,12 @@ static void mpps_backdoor(mm_word id, mm_pmode mode, mm_layer_type layer)
     // Play this module
     mmPlayModule(moduleAddress, mode, layer);
 #elif defined(SYS_NDS)
-    mm_word *bank = (mm_word *)mmModuleBank;
-
-    uintptr_t address = bank[id];
-
+    mm_word address = (mm_word)mmModuleBank[id];
     if (address == 0)
         return;
 
+    // This address is a pointer to a MAS file that contains the module data.
+    // Pass it to mmPlayModule skipping the file prefix.
     mmPlayModule(address + sizeof(mm_mas_prefix), mode, layer);
 #endif
 }
@@ -3155,9 +3154,13 @@ static mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information
         mix_ch->src = (mm_word)(&(gba_sample->data[0]));
 #else
         mm_word source = mmSampleBank[sample->msl_id];
-
         source &= 0xFFFFFF; // Mask out counter value
-        source += 8;
+
+        // The pointers in mmSampleBank are pointers to MAS file objects. We
+        // need to skip the header of the MAS file to get the pointer to the
+        // sample data. Normally there is more data after the header, but a MAS
+        // file generated from a WAV file only has the header and a sample.
+        source += sizeof(mm_mas_prefix);
 
         mix_ch->samp = source;
         mix_ch->tpan = 0;

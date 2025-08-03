@@ -233,7 +233,6 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
         // This is using an ID number
 
         source = mmSampleBank[source];
-
         source &= 0xFFFFFF; // Mask out counter value
 
         if (source == 0)
@@ -244,8 +243,14 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
             return 0;
         }
 
-        source += 8; // TODO: Remove magic number
+        // Turn this into a main RAM address from an offset
         source += 0x2000000;
+
+        // The pointers in mmSampleBank are pointers to MAS file objects. We
+        // need to skip the header of the MAS file to get the pointer to the
+        // sample data. Normally there is more data after the header, but a MAS
+        // file generated from a WAV file only has the header and a sample.
+        source += sizeof(mm_mas_prefix);
     }
 
     mix_ch->key_on = 0;
