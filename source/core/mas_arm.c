@@ -214,8 +214,9 @@ IWRAM_CODE ARM_CODE void mmReadPattern(mpl_layer_information *mpp_layer)
             // Act if it's playing
             if ((pattern_flags & (MF_NOTECUT | MF_NOTEOFF)) == 0)
             {
-                // TODO: Shouldn't this be >= ?!
-                // Cleans input
+                // Validate instrument. Note that instrument index 0 means "no
+                // instrument". If instr_count is 10, the minimum valid
+                // instrument is 1 and the maximum is 10.
                 if (instr > instr_count)
                     instr = 0;
 
