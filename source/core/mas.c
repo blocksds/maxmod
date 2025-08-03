@@ -242,12 +242,9 @@ void mmJingleStart(mm_word module_ID, mm_pmode mode)
 }
 
 // Reset channel data, and any active channels linked to the layer.
-static void mpp_resetchannels(mpl_layer_information *layer_info,
-                              mm_module_channel *channels,
+static void mpp_resetchannels(mm_module_channel *channels,
                               mm_word num_ch)
 {
-    (void)layer_info;
-
     // Clear channel data to 0
     memset(channels, 0, sizeof(mm_module_channel) * num_ch);
 
@@ -312,7 +309,7 @@ static void mppStop(void)
     layer_info->isplaying = 0;
     layer_info->valid = 0;
 
-    mpp_resetchannels(layer_info, channels, num_ch);
+    mpp_resetchannels(channels, num_ch);
 }
 
 void mmStop(void)
@@ -403,7 +400,7 @@ void mmSetPosition(mm_word position)
     // all channels will be reseted when setting the position. If not, the
     // channels will keep playing and they will only be silenced when the notes
     // end or when a new note overwrites it.
-    //mpp_resetchannels(&mmLayerMain, mm_pchannels, mm_num_mch);
+    //mpp_resetchannels(mm_pchannels, mm_num_mch);
 
     mpp_setposition(&mmLayerMain, position);
 }
@@ -537,7 +534,7 @@ void mmPlayModule(mm_word address, mm_word mode, mm_word layer)
 
     layer_info->songadr = header;
 
-    mpp_resetchannels(layer_info, channels, num_ch);
+    mpp_resetchannels(channels, num_ch);
 
     mm_word instn_size = header->instr_count;
     mm_word sampn_size = header->sampl_count;
