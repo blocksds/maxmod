@@ -51,6 +51,11 @@ mm_byte sfx_instances[EFFECT_CHANNELS];
 // Record of playing status of the main module and the jingle.
 static mm_byte mmActiveStatus; // Bit 0 = main layer. Bit 1 = sub layer (jingle)
 
+// The position of the main module. Received from the ARM7. It contains the
+// pattern and the row, but not the tick: it's updated once per frame so it's
+// too inaccurate to be useful.
+static mm_hword mmLayerMainPosition;
+
 // Send data via Datamsg
 static void SendString(mm_word* values, int num_words)
 {
@@ -480,6 +485,22 @@ mm_bool mmJingleActive(void)
     return (mmActiveStatus >> 1) & 1;
 }
 
+mm_word mmGetPositionRow(void)
+{
+    if (mmActive() == 0)
+        return 0;
+
+    return mmLayerMainPosition >> 8;
+}
+
+mm_word mmGetPosition(void)
+{
+    if (mmActive() == 0)
+        return 0;
+
+    return mmLayerMainPosition & 0xFF;
+}
+
 // Default maxmod message receiving code
 static void mmReceiveMessage(uint32_t value32, void *userdata)
 {
@@ -500,6 +521,10 @@ static void mmReceiveMessage(uint32_t value32, void *userdata)
     {
         sfx_bitmask &= ~(value32 & 0xFFFF);
         mmActiveStatus = (value32 >> 16) & 3;
+    }
+    else if (cmd == MSG_ARM7_SET_POSITION)
+    {
+        mmLayerMainPosition = value32 & 0xFFFF;
     }
 }
 

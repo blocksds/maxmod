@@ -111,9 +111,26 @@ mm_bool mmARM9msg(mm_byte cmd, mm_word value)
 }
 
 // Give ARM9 some data
-mm_bool mmSendUpdateToARM9(void)
+void mmSendUpdateToARM9(void)
 {
-    uint32_t value = 0;
+    uint32_t value;
+
+    // Send first message
+    //-------------------
+
+    // Send the position before the "is playing" state to prevent race
+    // conditions in which the "is playing" status is read, then the position is
+    // checked, but the position hasn't been updated.
+
+    // It doesn't make sense to send the tick
+    value = (mmGetPositionRow() << 8) | mmGetPosition();
+
+    mmARM9msg(MSG_ARM7_SET_POSITION, value);
+
+    // Send second message
+    //--------------------
+
+    value = mm_sfx_clearmask;
 
     // Tell the ARM9 if there is a module or a jingle playing
     if (mmLayerMain.isplaying)
@@ -121,11 +138,9 @@ mm_bool mmSendUpdateToARM9(void)
     if (mmLayerSub.isplaying)
         value |= 1 << 17;
 
-    value |= mm_sfx_clearmask;
-
     mm_sfx_clearmask = 0;
 
-    return mmARM9msg(MSG_ARM7_UPDATE, value);
+    mmARM9msg(MSG_ARM7_UPDATE, value);
 }
 
 // Process messages waiting in the fifo

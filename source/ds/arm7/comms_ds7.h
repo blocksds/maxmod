@@ -12,7 +12,7 @@
 #include "ds/common/comm_messages.h"
 
 mm_bool mmARM9msg(mm_byte cmd, mm_word value);
-mm_bool mmSendUpdateToARM9(void);
+void mmSendUpdateToARM9(void);
 void mmProcessComms(void);
 void mmSetupComms(mm_word);
 

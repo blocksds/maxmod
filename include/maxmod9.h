@@ -347,6 +347,18 @@ void mmSetModulePitch(mm_word pitch);
 ///     Nonzero if a module is currently playing.
 mm_bool mmActive(void);
 
+/// Get current row being played.
+///
+/// @return
+///     The current row.
+mm_word mmGetPositionRow(void);
+
+/// Get current pattern order being played.
+///
+/// @return
+///     The current pattern.
+mm_word mmGetPosition(void);
+
 // ***************************************************************************
 /// @}
 /// @defgroup nds_arm9_jingle_playback NDS: ARM9 Jingle Playback
