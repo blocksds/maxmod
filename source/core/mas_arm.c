@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: ISC
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
-// Copyright (c) 2021, Antonio Niño Díaz (antonio_nd@outlook.com)
+// Copyright (c) 2021-2025, Antonio Niño Díaz (antonio_nd@outlook.com)
 // Copyright (c) 2023, Lorenzooone (lollo.lollo.rbiz@gmail.com)
 
 #include <stddef.h>
@@ -154,10 +154,6 @@ IWRAM_CODE ARM_CODE mm_word mmAllocChannel(void)
         // Save this channel and volume level
         best_channel = i;
         best_volume = fvol << 23;
-
-        // Exit immediately if volume is zero
-        //if (best_volume == 0) // TODO: This was commented out
-        //    break;
     }
 
     return best_channel;
