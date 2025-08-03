@@ -401,6 +401,12 @@ mm_word mmEffectCancel(mm_sfxhand handle);
 /// This enables the sound effect to be interrupted by music/other sound effects
 /// if the need arises. The handle will be invalidated.
 ///
+/// @warning
+///     A released effect can't be stopped with mmEffectCancel() because the
+///     handle is invalid. It can't be cancelled with mmEffectCancelAll()
+///     either because the sound effect handling engine has lost track of the
+///     effect! Make sure this effect ends by itself.
+///
 /// @param handle
 ///     Sound effect handle received from mmEffect() or mmEffectEx().
 void mmEffectRelease(mm_sfxhand handle);
