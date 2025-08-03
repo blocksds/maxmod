@@ -41,13 +41,13 @@ static void mm_reset_channels(void)
 
     // Reset channel allocation
     for (int i = 0; i < NUM_CHANNELS; i++)
-        channels[i].alloc = 255;
+        channels[i].alloc = NO_CHANNEL_AVAILABLE;
 
     channels = &mm_schannels[0];
 
     // Reset channel allocation
     for (int i = 0; i < MP_SCHANNELS; i++)
-        channels[i].alloc = 255;
+        channels[i].alloc = NO_CHANNEL_AVAILABLE;
 
     mmResetEffects();
 }

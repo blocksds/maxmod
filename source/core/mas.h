@@ -13,6 +13,9 @@
 // This is the number of channels for the sub layer (used for jingles)
 #define MP_SCHANNELS    4
 
+// Returned by mmAllocChannel() if there are no channels available
+#define NO_CHANNEL_AVAILABLE        255
+
 extern mm_word mm_ch_mask;
 
 extern mpl_layer_information mmLayerMain;

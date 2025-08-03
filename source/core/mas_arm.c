@@ -33,8 +33,6 @@
 #define GLISSANDO_MX_VOLCMD_START   0xF0
 #define GLISSANDO_MX_VOLCMD_END     0xFF
 
-#define NO_CHANNEL_AVAILABLE        255
-
 #define MAX_VOL_ACH     0x80
 
 #define NOTE_CUT        254

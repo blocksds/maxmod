@@ -254,7 +254,7 @@ static void mpp_resetchannels(mpl_layer_information *layer_info,
 
     // Reset channel indexes
     for (mm_word i = 0; i < num_ch; i++)
-        channels[i].alloc = 255;
+        channels[i].alloc = NO_CHANNEL_AVAILABLE;
 
     // Reset active channels linked to this layer.
 
@@ -682,7 +682,7 @@ void mmPulse(void)
 static mm_active_channel *mpp_Channel_GetACHN(mm_module_channel *channel)
 {
     mm_word alloc = channel->alloc;
-    if (alloc == 255)
+    if (alloc == NO_CHANNEL_AVAILABLE)
         return NULL;
 
     return &mm_achannels[alloc];
@@ -701,7 +701,7 @@ IWRAM_CODE void mpp_Channel_NewNote(mm_module_channel *module_channel, mpl_layer
         return;
 
     mm_active_channel *act_ch = mpp_Channel_GetACHN(module_channel);
-    if (act_ch == 0)
+    if (act_ch == NULL)
         goto mppt_alloc_channel;
 
     mm_mas_instrument *instrument = get_instrument(layer, module_channel->inst);
@@ -3314,7 +3314,7 @@ mppt_achn_not_audible:
     if (act_ch->type == ACHN_FOREGROUND)
     {
         // Has parent
-        mpp_channels[act_ch->parent].alloc = 255;
+        mpp_channels[act_ch->parent].alloc = NO_CHANNEL_AVAILABLE;
     }
 
     act_ch->type = ACHN_DISABLED;
@@ -3335,7 +3335,7 @@ mppt_achn_audible:
         if (act_ch->type == ACHN_FOREGROUND)
         {
             // Stop channel if channel ended
-            mpp_channels[act_ch->parent].alloc = 255;
+            mpp_channels[act_ch->parent].alloc = NO_CHANNEL_AVAILABLE;
         }
 
 #ifdef SYS_GBA
