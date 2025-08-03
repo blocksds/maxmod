@@ -808,6 +808,9 @@ mppt_alloc_channel:
     module_channel->alloc = alloc; // Save it
 
 #ifdef SYS_NDS
+    if (alloc == NO_CHANNEL_AVAILABLE)
+        return;
+
     if (act_ch == 0) // Same channel
         return;
 
