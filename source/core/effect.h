@@ -8,9 +8,13 @@
 
 #include <mm_types.h>
 
+#define EFFECT_CHANNELS 16
+
 void mmResetEffects(void);
 void mmUpdateEffects(void);
 
+#ifdef SYS_NDS
 extern mm_word mm_sfx_clearmask;
+#endif
 
 #endif // MM_CORE_EFFECT_H__

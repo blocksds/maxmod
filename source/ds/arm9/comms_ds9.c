@@ -13,6 +13,7 @@
 #include <mm_mas.h>
 #include <mm_types.h>
 
+#include "core/effect.h"
 #include "ds/arm9/main_ds9.h"
 #include "ds/common/comm_messages.h"
 
@@ -34,7 +35,6 @@
  * Following bytes: data
  ***********************************************************************/
 
-#define EFFECT_CHANNELS         16
 #define MAX_PARAM_WORDS         4
 #define NO_HANDLES_AVAILABLE    0
 
@@ -266,7 +266,7 @@ static mm_sfxhand mmCreateEffectHandle(void)
     // Search for free channel
     for (; i < EFFECT_CHANNELS; i++)
     {
-        if (!((sfx_bitmask >> i) & 1))
+        if ((sfx_bitmask & (1 << i)) == 0)
             break;
     }
 

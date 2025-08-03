@@ -12,6 +12,7 @@
 #include <mm_mas.h>
 #include <mm_msl.h>
 
+#include "core/effect.h"
 #include "core/mas.h"
 #include "core/mixer.h"
 #include "core/mas_structs.h"
@@ -23,89 +24,100 @@
 #include "ds/arm7/mixer.h"
 #endif
 
-#define channelCount    16
 #define releaseLevel    200
 
 static mm_word mm_sfx_mastervolume; // 0 to 1024
 
 // Struct that holds information about a sfx being played
 typedef struct {
-    mm_byte channel; // Value stored: channel index + 1 (0 means disabled)
+    mm_byte mix_channel; // mixer channel index + 1 (0 means disabled)
     mm_byte counter; // Taken from mm_sfx_counter
 } mm_sfx_channel_state;
 
-static mm_sfx_channel_state mm_sfx_channels[channelCount];
+static mm_sfx_channel_state mm_sfx_channels[EFFECT_CHANNELS];
 
 static mm_word mm_sfx_bitmask; // Channels in use
+
+#ifdef SYS_NDS7
+// The ARM9 has a variable called "sfx_bitmask" that keeps track of which
+// channels are playing sound effects. This is done so that the ARM9 can create
+// handles and allocate channels without the ARM7 being involved in it.
+//
+// In the ARM7, "mm_sfx_clearmask" is used to keep track of the channels that
+// were playing sound effects but have stopped playing them in the last update.
+// This variable is sent to the ARM9 every frame, and it is used to clear bits
+// in "sfx_bitmask".
 mm_word mm_sfx_clearmask;
+#endif
 
 // Counter that increments every time a new effect is played
 static mm_byte mm_sfx_counter;
 
 // Test handle and return mixing channel index
-static int mme_get_channel_index(mm_sfxhand handle)
+static int mme_get_mix_channel_index(mm_sfxhand handle)
 {
-    mm_byte channel = handle & 0xFF;
+    int sfx_channel = (handle & 0xFF) - 1;
+    mm_byte handle_counter = handle >> 8;
 
-    if (channel == 0)
+    if (sfx_channel < 0)
         return -1;
 
-    if (channel > channelCount)
+    if (sfx_channel >= EFFECT_CHANNELS)
         return -1;
 
-    // Check if instances match
+    mm_sfx_channel_state *state = &mm_sfx_channels[sfx_channel];
 
-    mm_sfx_channel_state *state = &mm_sfx_channels[channel - 1];
-
-    if (state->counter != (handle >> 8))
+    // Check if counters match
+    if (state->counter != handle_counter)
         return -1;
 
-    return state->channel - 1;
+    return state->mix_channel - 1;
 }
 
-// Clear channel entry and bitmask
-static void mme_clear_channel(int channel)
+// Clear sfx channel entry and bitmask
+static void mme_clear_sfx_channel(int sfx_channel)
 {
     // Clear channel effect
 
-    mm_sfx_channels[channel].counter = 0;
-    mm_sfx_channels[channel].channel = 0;
+    mm_sfx_channels[sfx_channel].counter = 0;
+    mm_sfx_channels[sfx_channel].mix_channel = 0;
 
     // Clear effect bitmask
 
-    mm_word bit_flag = 1U << channel;
+    mm_word bit_flag = 1U << sfx_channel;
 
+#ifdef SYS_NDS7
     mm_sfx_clearmask |= bit_flag;
+#endif
     mm_sfx_bitmask &= ~bit_flag;
 }
 
+// This is only meant to be used by Maxmod internally when initializing the
+// sound engine.
 void mmResetEffects(void)
 {
-    for (int i = 0; i < channelCount; i++)
+    for (int i = 0; i < EFFECT_CHANNELS; i++)
     {
         mm_sfx_channels[i].counter = 0;
-        mm_sfx_channels[i].channel = 0;
+        mm_sfx_channels[i].mix_channel = 0;
     }
 
     mm_sfx_bitmask = 0;
 }
 
-// Return index to free effect channel
-static mm_word mmGetFreeEffectChannel(void)
+// Return index to free effect channel. If no channels are free, it returns -1.
+static int mme_get_free_sfx_channel(void)
 {
-    mm_word bitmask = mm_sfx_bitmask;
-
     // Look for the first clear bit
-    for (mm_word i = 1; i < channelCount + 1; i++)
+    for (int i = 0; i < EFFECT_CHANNELS; i++)
     {
-        if ((bitmask & 1) == 0)
-            return i;
+        if (mm_sfx_bitmask & (1 << i))
+            continue;
 
-        bitmask >>= 1;
+        return i;
     }
 
-    // No handles available
-    return 0;
+    return -1;
 }
 
 // Play sound effect with default parameters
@@ -124,77 +136,68 @@ mm_sfxhand mmEffect(mm_word sample_ID)
 }
 
 // Play sound effect with specified parameters
-mm_sfxhand mmEffectEx(mm_sound_effect* sound)
+mm_sfxhand mmEffectEx(mm_sound_effect *sound)
 {
     if (sound->id >= mmGetSampleCount())
         return 0;
 
-    // Test if handle was given
+    int sfx_channel = -1;
+    int mix_channel = NO_CHANNEL_AVAILABLE;
+    mm_byte sfx_count;
 
-    mm_sfxhand handle = sound->handle;
+    // Reuse or create new SFX handle
+    // ------------------------------
 
-    if (handle == 255)
+    bool reused_handle = false;
+
+    if (sound->handle != 0)
     {
-        handle = 0;
-        goto got_handle;
+        // If there is a provided handle, check if it's valid
+        mix_channel = mme_get_mix_channel_index(sound->handle);
+        if (mix_channel >= 0)
+        {
+            // It's valid, reuse the old mixer channel, as well as the sfx
+            // channel and count.
+            sfx_channel = (sound->handle & 0xFF) - 1;
+            sfx_count = sound->handle >> 8;
+
+            reused_handle = true;
+        }
     }
 
-    // If there is a provided handle, reuse it
-    if (handle != 0)
+    if (!reused_handle)
     {
-        // Check if the channel is in use
-        mm_word ch_idx = (handle - 1) & 0xFF;
-        mm_byte channel = mm_sfx_channels[ch_idx].channel;
+        // No reused handle, generate a new one
 
-        // If no channel is assigned to this handle, we're done
-        if (channel == 0)
-            goto got_handle;
+        sfx_channel = mme_get_free_sfx_channel();
+        if (sfx_channel < 0)
+            return 0;
 
-        // If there is a channel assigned to it, attempt to stop it
-        if (mmEffectCancel(handle) == 0)
-            goto got_handle;
+        // Allocate new mixer channel
+        mix_channel = mmAllocChannel();
+        if (mix_channel == NO_CHANNEL_AVAILABLE)
+            return 0;
 
-        // If that fails, generate a new handle
+        sfx_count = mm_sfx_counter;
+
+        mm_sfx_counter++;
     }
 
-    // No provided handle, generate one
-    handle = mmGetFreeEffectChannel();
+    // Generate new handle and register SFX information
+    // ------------------------------------------------
 
-    // If no available channels, try to continue. mmAllocChannel() will
-    // deallocate a "released" channel if there is one available.
-    if (handle == 0)
-        goto got_handle;
+    mm_sfxhand handle = (sfx_count << 8) | (sfx_channel + 1);
 
-    mm_sfx_counter++; // counter = ((counter + 1) & 255)
-    handle |= ((mm_sfxhand)mm_sfx_counter) << 8;
+    mm_sfx_channels[sfx_channel].mix_channel = mix_channel + 1;
+    mm_sfx_channels[sfx_channel].counter = sfx_count;
 
-got_handle:
+    // Mark sfx channel as used
+    mm_sfx_bitmask |= 1U << sfx_channel;
 
-    // allocate new channel
-    mm_byte channel = mmAllocChannel();
+    // Setup active channel
+    // --------------------
 
-    if (channel == 255)
-        return 0; // Return error
-
-    if (handle != 0)
-    {
-        // Register data
-
-        mm_sfx_channel_state *channel_state;
-
-        int ch_idx = (handle - 1) & 0xFF;
-
-        channel_state = &mm_sfx_channels[ch_idx];
-
-        channel_state->channel = channel + 1;
-        channel_state->counter = handle >> 8;
-
-        // set bit
-        mm_sfx_bitmask |= 1U << ch_idx;
-    }
-
-    // setup channel
-    mm_active_channel *act_ch = &mm_achannels[channel];
+    mm_active_channel *act_ch = &mm_achannels[mix_channel];
 
     act_ch->fvol = releaseLevel;
 
@@ -205,11 +208,12 @@ got_handle:
 
     act_ch->flags = MCAF_EFFECT;
 
-    // Setup voice
+    // Setup mixer channel
+    // -------------------
 
 #if defined(SYS_GBA)
 
-    mm_mixer_channel *mix_ch = &mm_mixchannels[channel];
+    mm_mixer_channel *mix_ch = &mm_mixchannels[mix_channel];
 
     // Set sample data address
 
@@ -231,7 +235,7 @@ got_handle:
 
 #elif defined(SYS_NDS7)
 
-    mm_mixer_channel *mix_ch = &mm_mix_channels[channel];
+    mm_mixer_channel *mix_ch = &mm_mix_channels[mix_channel];
 
     // Set sample data address
 
@@ -253,7 +257,7 @@ got_handle:
             return 0;
         }
 
-        source += 8;
+        source += 8; // TODO: Remove magic number
         source += 0x2000000;
     }
 
@@ -292,31 +296,28 @@ void mmSetEffectsVolume(mm_word volume)
 // Set effect panning (0..255)
 void mmEffectPanning(mm_sfxhand handle, mm_byte panning)
 {
-    int channel = mme_get_channel_index(handle);
-
-    if (channel < 0)
+    int mix_channel = mme_get_mix_channel_index(handle);
+    if (mix_channel < 0)
         return;
 
-    mmMixerSetPan(channel, panning);
+    mmMixerSetPan(mix_channel, panning);
 }
 
 // Indicates if a sound effect is active or not
 mm_bool mmEffectActive(mm_sfxhand handle)
 {
-    int channel = mme_get_channel_index(handle);
+    int mix_channel = mme_get_mix_channel_index(handle);
+    if (mix_channel < 0)
+        return 0;
 
-    if (channel < 0)
-        return 0; // false
-
-    return 1; // true
+    return 1;
 }
 
 // Set effect volume (0..255)
 void mmEffectVolume(mm_sfxhand handle, mm_word volume)
 {
-    int channel = mme_get_channel_index(handle);
-
-    if (channel < 0)
+    int mix_channel = mme_get_mix_channel_index(handle);
+    if (mix_channel < 0)
         return;
 
 #if defined(SYS_GBA)
@@ -327,48 +328,46 @@ void mmEffectVolume(mm_sfxhand handle, mm_word volume)
 
     volume = (volume * mm_sfx_mastervolume) >> shift;
 
-    mmMixerSetVolume(channel, volume);
+    mmMixerSetVolume(mix_channel, volume);
 }
 
 // Set effect playback rate
 void mmEffectRate(mm_sfxhand handle, mm_word rate)
 {
-    int channel = mme_get_channel_index(handle);
-
-    if (channel < 0)
+    int mix_channel = mme_get_mix_channel_index(handle);
+    if (mix_channel < 0)
         return;
 
-    mmMixerSetFreq(channel, rate);
+    mmMixerSetFreq(mix_channel, rate);
 }
 
 // Scale sampling rate by 6.10 factor
 void mmEffectScaleRate(mm_sfxhand handle, mm_word factor)
 {
-    int channel = mme_get_channel_index(handle);
-
-    if (channel < 0)
+    int mix_channel = mme_get_mix_channel_index(handle);
+    if (mix_channel < 0)
         return;
 
-    mmMixerMulFreq(channel, factor);
+    mmMixerMulFreq(mix_channel, factor);
 }
 
 // Stop sound effect
 mm_word mmEffectCancel(mm_sfxhand handle)
 {
-    int channel = mme_get_channel_index(handle);
-
-    if (channel < 0)
+    int mix_channel = mme_get_mix_channel_index(handle);
+    if (mix_channel < 0)
         return 0;
 
     // Free achannel
-    mm_active_channel *act_ch = &mm_achannels[channel];
+    mm_active_channel *act_ch = &mm_achannels[mix_channel];
 
     act_ch->type = ACHN_BACKGROUND;
     act_ch->fvol = 0; // Clear volume for channel allocator
 
-    mme_clear_channel((handle & 0xFF) - 1);
+    mm_word sfx_channel = (handle & 0xFF) - 1;
+    mme_clear_sfx_channel(sfx_channel);
 
-    mmMixerSetVolume(channel, 0); // Zero voice volume
+    mmMixerSetVolume(mix_channel, 0); // Zero voice volume
 
     return 1;
 }
@@ -376,109 +375,100 @@ mm_word mmEffectCancel(mm_sfxhand handle)
 // Release sound effect (allow interruption)
 void mmEffectRelease(mm_sfxhand handle)
 {
-    int channel = mme_get_channel_index(handle);
-
-    if (channel < 0)
+    int mix_channel = mme_get_mix_channel_index(handle);
+    if (mix_channel < 0)
         return;
 
     // Release achannel
-    mm_active_channel *act_ch = &mm_achannels[channel];
+    mm_active_channel *act_ch = &mm_achannels[mix_channel];
 
     act_ch->type = ACHN_BACKGROUND;
 
-    mme_clear_channel((handle & 0xFF) - 1);
+    mm_word sfx_channel = (handle & 0xFF) - 1;
+    mme_clear_sfx_channel(sfx_channel);
 }
 
 // Stop all sound effects
 void mmEffectCancelAll(void)
 {
-    mm_word bitmask = mm_sfx_bitmask;
-
-    for (int i = 0; bitmask != 0; bitmask >>= 1, i++)
+    for (int i = 0; i < EFFECT_CHANNELS; i++)
     {
-        if ((bitmask & 1) == 0)
+        if ((mm_sfx_bitmask & (1 << i)) == 0)
             continue;
 
-        int channel = ((int)mm_sfx_channels[i].channel) - 1;
-
-        if (channel < 0)
+        int mix_channel = mm_sfx_channels[i].mix_channel - 1;
+        if (mix_channel < 0)
             continue;
 
-        mmMixerSetVolume(channel, 0);
+        mmMixerSetVolume(mix_channel, 0);
 
         // Free achannel
-        mm_active_channel *act_ch = &mm_achannels[channel];
+        mm_active_channel *act_ch = &mm_achannels[mix_channel];
 
         act_ch->type = ACHN_BACKGROUND;
         act_ch->fvol = 0;
     }
 
     mmResetEffects();
+#ifdef SYS_NDS7
+    mm_sfx_clearmask = ~0;
+#endif
 }
 
 // Update sound effects
 void mmUpdateEffects(void)
 {
-    mm_word bitmask = mm_sfx_bitmask;
+    // Keep track of the channels that are still active after the update
+    mm_word new_bitmask = 0;
 
-    for (int i = 0; bitmask != 0; bitmask >>= 1, i++)
+    for (int i = 0; i < EFFECT_CHANNELS; i++)
     {
-        if ((bitmask & 1) == 0)
+        if ((mm_sfx_bitmask & (1 << i)) == 0)
             continue;
 
         // Get channel index
 
-        int channel = ((int)mm_sfx_channels[i].channel) - 1;
-
-        if (channel < 0)
+        int mix_channel = mm_sfx_channels[i].mix_channel - 1;
+        if (mix_channel < 0)
             continue;
 
         // Test if channel is still active
 
 #if defined(SYS_GBA)
-        mm_mixer_channel *mix_ch = &mm_mixchannels[channel];
+        mm_mixer_channel *mix_ch = &mm_mixchannels[mix_channel];
 
         if ((mix_ch->src & (1U << 31)) == 0)
+        {
+            new_bitmask |= (1 << i);
             continue;
+        }
 #elif defined(SYS_NDS7)
-        mm_mixer_channel *mix_ch = &mm_mix_channels[channel];
+        mm_mixer_channel *mix_ch = &mm_mix_channels[mix_channel];
 
         if (mix_ch->samp)
+        {
+            new_bitmask |= (1 << i);
             continue;
+        }
 #endif
 
         // Free achanel if it isn't active
 
-        mm_active_channel *act_ch = &mm_achannels[channel];
+        mm_active_channel *act_ch = &mm_achannels[mix_channel];
 
         act_ch->type = 0;
         act_ch->flags = 0;
 
         mm_sfx_channels[i].counter = 0;
-        mm_sfx_channels[i].channel = 0;
+        mm_sfx_channels[i].mix_channel = 0;
     }
 
-    mm_word new_bitmask = 0;
-
-    mm_sfx_channel_state *channel_state = &mm_sfx_channels[0];
-
-    for (mm_word flag = 1u << (32 - channelCount); flag != 0; flag <<= 1)
-    {
-        if (channel_state->channel != 0)
-            new_bitmask |= flag;
-
-        channel_state++;
-    }
-
-    new_bitmask >>= 32 - channelCount;
-
-    // Bits that change from 1->0
-
+#ifdef SYS_NDS7
+    // Calculate bits that have just gone from 1 to 0 to send it to the ARM9
     mm_word one_to_zero = (mm_sfx_bitmask ^ new_bitmask) & mm_sfx_bitmask;
-
-    mm_sfx_bitmask = new_bitmask;
-
-    // Write 1->0 mask
-
     mm_sfx_clearmask |= one_to_zero;
+#endif
+
+    // Update the mask of active channels
+    mm_sfx_bitmask = new_bitmask;
 }
