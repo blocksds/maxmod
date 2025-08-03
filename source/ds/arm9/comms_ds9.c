@@ -139,7 +139,6 @@ void mmUnlockChannels(mm_word bitmask)
 // Start module playback
 void mmStart(mm_word module_ID, mm_pmode mode)
 {
-    mmActiveStatus |= (1 << 0);
     SendCommandHwordByteByte(MSG_START, module_ID, mode, MM_MAIN);
 }
 
@@ -164,7 +163,6 @@ void mmStop(void)
 // Start jingle
 void mmJingleStart(mm_word module_ID, mm_pmode mode)
 {
-    mmActiveStatus |= (1 << 1);
     SendCommandHwordByteByte(MSG_START, module_ID, mode, MM_JINGLE);
 }
 
