@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: ISC
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
-// Copyright (c) 2021, Antonio Niño Díaz (antonio_nd@outlook.com)
+// Copyright (c) 2025, Antonio Niño Díaz (antonio_nd@outlook.com)
 
 #if defined(SYS_GBA)
 #include <maxmod.h>
@@ -37,18 +37,6 @@ typedef struct {
 static mm_sfx_channel_state mm_sfx_channels[EFFECT_CHANNELS];
 
 static mm_word mm_sfx_bitmask; // Channels in use
-
-#ifdef SYS_NDS7
-// The ARM9 has a variable called "sfx_bitmask" that keeps track of which
-// channels are playing sound effects. This is done so that the ARM9 can create
-// handles and allocate channels without the ARM7 being involved in it.
-//
-// In the ARM7, "mm_sfx_clearmask" is used to keep track of the channels that
-// were playing sound effects but have stopped playing them in the last update.
-// This variable is sent to the ARM9 every frame, and it is used to clear bits
-// in "sfx_bitmask".
-mm_word mm_sfx_clearmask;
-#endif
 
 // Counter that increments every time a new effect is played
 static mm_byte mm_sfx_counter;
@@ -86,9 +74,6 @@ static void mme_clear_sfx_channel(int sfx_channel)
 
     mm_word bit_flag = 1U << sfx_channel;
 
-#ifdef SYS_NDS7
-    mm_sfx_clearmask |= bit_flag;
-#endif
     mm_sfx_bitmask &= ~bit_flag;
 }
 
@@ -410,9 +395,6 @@ void mmEffectCancelAll(void)
     }
 
     mmResetEffects();
-#ifdef SYS_NDS7
-    mm_sfx_clearmask = ~0;
-#endif
 }
 
 // Update sound effects
@@ -462,12 +444,6 @@ void mmUpdateEffects(void)
         mm_sfx_channels[i].counter = 0;
         mm_sfx_channels[i].mix_channel = 0;
     }
-
-#ifdef SYS_NDS7
-    // Calculate bits that have just gone from 1 to 0 to send it to the ARM9
-    mm_word one_to_zero = (mm_sfx_bitmask ^ new_bitmask) & mm_sfx_bitmask;
-    mm_sfx_clearmask |= one_to_zero;
-#endif
 
     // Update the mask of active channels
     mm_sfx_bitmask = new_bitmask;

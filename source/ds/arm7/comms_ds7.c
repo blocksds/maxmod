@@ -56,7 +56,7 @@ mm_byte mmFifo[FIFO_SIZE];
 volatile mm_byte mmFifoPositionRQ;
 volatile mm_byte mmFifoPositionWQ;
 
-mm_word mmFifoChannel;
+static mm_word mmFifoChannel;
 
 static void mmReceiveDatamsg(int, void*);
 static void ProcessNextMessage(void);
@@ -130,7 +130,7 @@ void mmSendUpdateToARM9(void)
     // Send second message
     //--------------------
 
-    value = mm_sfx_clearmask;
+    value = 0;
 
     // Tell the ARM9 if there is a module or a jingle playing
     if (mmLayerMain.isplaying)
@@ -138,9 +138,17 @@ void mmSendUpdateToARM9(void)
     if (mmLayerSub.isplaying)
         value |= 1 << 17;
 
-    mm_sfx_clearmask = 0;
-
     mmARM9msg(MSG_ARM7_UPDATE, value);
+}
+
+static void mmSendHandleToARM9(mm_sfxhand handle)
+{
+    // We use the address handler to send SFX handles because the Value32
+    // handler is already used (and it is used in interrupts).
+    //
+    // The address handler is unused and it's good enough to send a 16-bit
+    // value like a SFX hnadle.
+    fifoSendAddress(mmFifoChannel, (void *)(0x2000000 | handle));
 }
 
 // Process messages waiting in the fifo
@@ -280,13 +288,8 @@ static ARM_CODE void ProcessNextMessage(void)
             break;
         case MSG_EFFECT:
         {
-            mm_sound_effect sfx;
-            sfx.id = ReadNFifoBytes(2);
-            sfx.rate = 0x400;
-            sfx.handle = (mm_sfxhand)ReadNFifoBytes(2);
-            sfx.volume = 0xFF;
-            sfx.panning = 0x80;
-            mmEffectEx(&sfx);
+            mm_sfxhand handle = mmEffect(ReadNFifoBytes(2));
+            mmSendHandleToARM9(handle);
             break;
         }
         case MSG_EFFECTVOL:
@@ -338,7 +341,9 @@ static ARM_CODE void ProcessNextMessage(void)
             sfx.handle = (mm_sfxhand)ReadNFifoBytes(2);
             sfx.volume = ReadNFifoBytes(1);
             sfx.panning = ReadNFifoBytes(1);
-            mmEffectEx(&sfx);
+
+            mm_sfxhand handle = mmEffectEx(&sfx);
+            mmSendHandleToARM9(handle);
             break;
         }
         case MSG_REVERBENABLE:

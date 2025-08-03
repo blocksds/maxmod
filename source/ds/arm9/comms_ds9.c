@@ -42,11 +42,7 @@
 volatile mm_byte mm_stream_arm9_flag;
 
 // Fifo channel to use for communications
-mm_word mmFifoChannel;
-
-mm_word sfx_bitmask;
-
-mm_byte sfx_instances[EFFECT_CHANNELS];
+static mm_word mmFifoChannel;
 
 // Record of playing status of the main module and the jingle.
 static mm_byte mmActiveStatus; // Bit 0 = main layer. Bit 1 = sub layer (jingle)
@@ -257,62 +253,23 @@ void mmSelectMode(mm_mode_enum mode)
     SendCommandByte(MSG_SELECTMODE, mode);
 }
 
-// Return effect handle
-// NO_HANDLES_AVAILABLE = no channels available
-static mm_sfxhand mmCreateEffectHandle(void)
+static mm_sfxhand mmWaitForHandle(void)
 {
-    int i = 0;
+    // The address handler is (mis)used to send and receive SFX handlers without
+    // needing an additional FIFO channel.
+    fifoWaitAddressAsync(mmFifoChannel);
 
-    // Search for free channel
-    for (; i < EFFECT_CHANNELS; i++)
-    {
-        if ((sfx_bitmask & (1 << i)) == 0)
-            break;
-    }
+    mm_sfxhand handle = ((mm_word)fifoGetAddress(mmFifoChannel)) & 0xFFFF;
 
-    if (i >= EFFECT_CHANNELS)
-        return NO_HANDLES_AVAILABLE;
-
-    // Disable IRQ, prevent interruptions while updating the bitmask
-    int old_ime = enterCriticalSection();
-
-    sfx_bitmask |= 1 << i;
-
-    // Re-enable IRQ
-    leaveCriticalSection(old_ime);
-
-    sfx_instances[i] += 1;
-
-    return (sfx_instances[i] << 8) | (i + 1);
-}
-
-// Returns same handle, or a newer valid handle
-static mm_sfxhand mmValidateEffectHandle(mm_sfxhand handle)
-{
-    mm_byte instance_num = (handle & 0xFF) - 1;
-
-    if ((instance_num < EFFECT_CHANNELS) && (sfx_instances[instance_num] == ((handle >> 8) & 0xFF)))
-        return handle;
-
-    return mmCreateEffectHandle();
+    return handle;
 }
 
 // Play sound effect, default parameters
 mm_sfxhand mmEffect(mm_word sample_ID)
 {
-    mm_word buffer[MAX_PARAM_WORDS];
+    SendCommandHword(MSG_EFFECT, sample_ID);
 
-    mm_sfxhand handle = mmCreateEffectHandle();
-
-    if (handle != NO_HANDLES_AVAILABLE)
-    {
-        buffer[0] = (sample_ID << 16) | (MSG_EFFECT << 8) | (5);
-        buffer[1] = handle;
-
-        SendString(buffer, 2);
-    }
-
-    return handle;
+    return mmWaitForHandle();
 }
 
 // Set effect volume
@@ -376,23 +333,14 @@ void mmEffectCancel(mm_sfxhand handle)
 mm_sfxhand mmEffectEx(mm_sound_effect *sound)
 {
     mm_word buffer[MAX_PARAM_WORDS];
-    mm_sfxhand handle = sound->handle;
-
-    if (handle == NO_HANDLES_AVAILABLE)
-        handle = mmCreateEffectHandle();
-    else
-        handle = mmValidateEffectHandle(handle);
-
-    if (handle == NO_HANDLES_AVAILABLE)
-        return handle;
 
     buffer[0] = (((mm_word)sound->sample) << 16) | (MSG_EFFECTEX << 8) | (11);
     buffer[1] = (sound->rate << 16) | (((mm_word)sound->sample) >> 16);
-    buffer[2] = (sound->panning << 24) | (sound->volume << 16) | (handle & 0xFFFF);
+    buffer[2] = (sound->panning << 24) | (sound->volume << 16) | (sound->handle & 0xFFFF);
 
     SendString(buffer, 3);
 
-    return handle;
+    return mmWaitForHandle();
 }
 
 // Enable reverb system
@@ -502,7 +450,7 @@ mm_word mmGetPosition(void)
 }
 
 // Default maxmod message receiving code
-static void mmReceiveMessage(uint32_t value32, void *userdata)
+static void mmReceiveMessageValue32(uint32_t value32, void *userdata)
 {
     (void)userdata;
 
@@ -519,7 +467,6 @@ static void mmReceiveMessage(uint32_t value32, void *userdata)
     }
     else if (cmd == MSG_ARM7_UPDATE)
     {
-        sfx_bitmask &= ~(value32 & 0xFFFF);
         mmActiveStatus = (value32 >> 16) & 3;
     }
     else if (cmd == MSG_ARM7_SET_POSITION)
@@ -532,5 +479,5 @@ static void mmReceiveMessage(uint32_t value32, void *userdata)
 void mmSetupComms(mm_word channel)
 {
     mmFifoChannel = channel;
-    fifoSetValue32Handler(channel, mmReceiveMessage, 0);
+    fifoSetValue32Handler(channel, mmReceiveMessageValue32, 0);
 }

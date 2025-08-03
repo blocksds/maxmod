@@ -13,8 +13,4 @@
 void mmResetEffects(void);
 void mmUpdateEffects(void);
 
-#ifdef SYS_NDS
-extern mm_word mm_sfx_clearmask;
-#endif
-
 #endif // MM_CORE_EFFECT_H__
