@@ -1515,12 +1515,13 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
     return period;
 }
 
-static void mpph_FastForward(mpl_layer_information *layer, int rows_to_skip)
+static void mpph_FastForward(mpl_layer_information *layer, mm_word rows_to_skip)
 {
     if (rows_to_skip == 0)
         return;
 
-    if (rows_to_skip >= (layer->nrows + 1))
+    // layer->nrows has the number of rows in the current pattern minus one
+    if (rows_to_skip > layer->nrows)
         return;
 
     layer->row = rows_to_skip;
