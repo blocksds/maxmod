@@ -53,7 +53,6 @@ enum mm_arm7_msg_ids
     MSG_ARM7_UPDATE = 0,
     MSG_ARM7_SONG_EVENT = 1,
     MSG_ARM7_STREAM_READY = 2,
-    MSG_ARM7_SET_POSITION = 3,
 };
 
 #endif // MM_DS_COMMON_COMM_MESSAGES_H__

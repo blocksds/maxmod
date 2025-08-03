@@ -113,24 +113,12 @@ mm_bool mmARM9msg(mm_byte cmd, mm_word value)
 // Give ARM9 some data
 void mmSendUpdateToARM9(void)
 {
-    uint32_t value;
+    uint32_t value = 0;
 
-    // Send first message
-    //-------------------
-
-    // Send the position before the "is playing" state to prevent race
-    // conditions in which the "is playing" status is read, then the position is
-    // checked, but the position hasn't been updated.
-
-    // It doesn't make sense to send the tick
-    value = (mmGetPositionRow() << 8) | mmGetPosition();
-
-    mmARM9msg(MSG_ARM7_SET_POSITION, value);
-
-    // Send second message
-    //--------------------
-
-    value = 0;
+    // Send pattern and row, but not the tick. The tick changes too fast,
+    // sometimes more than once in one frame. Rows and patterns don't usually
+    // behave like that, only in some extreme situations.
+    value |= (mmGetPositionRow() << 8) | mmGetPosition();
 
     // Tell the ARM9 if there is a module or a jingle playing
     if (mmLayerMain.isplaying)

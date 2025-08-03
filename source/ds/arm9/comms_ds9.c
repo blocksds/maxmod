@@ -467,11 +467,8 @@ static void mmReceiveMessageValue32(uint32_t value32, void *userdata)
     }
     else if (cmd == MSG_ARM7_UPDATE)
     {
-        mmActiveStatus = (value32 >> 16) & 3;
-    }
-    else if (cmd == MSG_ARM7_SET_POSITION)
-    {
         mmLayerMainPosition = value32 & 0xFFFF;
+        mmActiveStatus = (value32 >> 16) & 3;
     }
 }
 
