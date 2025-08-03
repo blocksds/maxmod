@@ -3,6 +3,8 @@
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
 // Copyright (c) 2025, Antonio Niño Díaz (antonio_nd@outlook.com)
 
+#include <string.h>
+
 #if defined(SYS_GBA)
 #include <maxmod.h>
 #elif defined(SYS_NDS7)
@@ -376,25 +378,42 @@ void mmEffectRelease(mm_sfxhand handle)
 // Stop all sound effects
 void mmEffectCancelAll(void)
 {
-    for (int i = 0; i < EFFECT_CHANNELS; i++)
-    {
-        if ((mm_sfx_bitmask & (1 << i)) == 0)
-            continue;
-
-        int mix_channel = mm_sfx_channels[i].mix_channel - 1;
-        if (mix_channel < 0)
-            continue;
-
-        mmMixerStopChannel(mix_channel);
-
-        // Free achannel
-        mm_active_channel *act_ch = &mm_achannels[mix_channel];
-
-        act_ch->type = ACHN_BACKGROUND;
-        act_ch->fvol = 0;
-    }
+    // Clear SFX channel state
 
     mmResetEffects();
+
+    // Look for all active channels that are playing an effect (flag
+    // MCAF_EFFECT) and stop them.
+
+#ifdef SYS_NDS
+    mm_mixer_channel *mix_ch = &mm_mix_channels[0];
+#endif
+#ifdef SYS_GBA
+    mm_mixer_channel *mix_ch = &mm_mixchannels[0];
+#endif
+
+    mm_active_channel *act_ch = &mm_achannels[0];
+
+    for (mm_word i = 0; i < mm_num_ach; i++, act_ch++, mix_ch++)
+    {
+        // Skip channels that aren't playing an effect
+        if ((act_ch->flags & MCAF_EFFECT) == 0)
+            continue;
+
+        // Clear achannel data to zero
+        memset(act_ch, 0, sizeof(mm_active_channel));
+
+        // Disabled mixer channel. Disabled status differs between systems.
+#ifdef SYS_NDS
+        mix_ch->key_on = 0;
+        mix_ch->samp = 0;
+        mix_ch->tpan = 0; // TODO: This isn't really needed, but it may help the
+                          // compiler optimize the writes to the three fields?
+#endif
+#ifdef SYS_GBA
+        mix_ch->src = 1 << 31;
+#endif
+    }
 }
 
 // Update sound effects

@@ -389,6 +389,9 @@ void mmEffectScaleRate(mm_sfxhand handle, mm_word factor);
 
 /// Stops a sound effect. The handle will be invalidated.
 ///
+/// @note
+///     It can't stop released effects because their handles are invalid.
+///
 /// @param handle
 ///     Sound effect handle received from mmEffect() or mmEffectEx().
 ///
@@ -403,9 +406,7 @@ mm_word mmEffectCancel(mm_sfxhand handle);
 ///
 /// @warning
 ///     A released effect can't be stopped with mmEffectCancel() because the
-///     handle is invalid. It can't be cancelled with mmEffectCancelAll()
-///     either because the sound effect handling engine has lost track of the
-///     effect! Make sure this effect ends by itself.
+///     handle is invalid. It can be cancelled with mmEffectCancelAll().
 ///
 /// @param handle
 ///     Sound effect handle received from mmEffect() or mmEffectEx().
@@ -418,6 +419,8 @@ void mmEffectRelease(mm_sfxhand handle);
 void mmSetEffectsVolume(mm_word volume);
 
 /// Stop all sound effects and reset the effect system.
+///
+/// It stops even released effects.
 void mmEffectCancelAll(void);
 
 // ***************************************************************************
