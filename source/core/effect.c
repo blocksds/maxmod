@@ -352,7 +352,7 @@ mm_word mmEffectCancel(mm_sfxhand handle)
     mm_word sfx_channel = (handle & 0xFF) - 1;
     mme_clear_sfx_channel(sfx_channel);
 
-    mmMixerSetVolume(mix_channel, 0); // Zero voice volume
+    mmMixerStopChannel(mix_channel);
 
     return 1;
 }
@@ -385,7 +385,7 @@ void mmEffectCancelAll(void)
         if (mix_channel < 0)
             continue;
 
-        mmMixerSetVolume(mix_channel, 0);
+        mmMixerStopChannel(mix_channel);
 
         // Free achannel
         mm_active_channel *act_ch = &mm_achannels[mix_channel];
