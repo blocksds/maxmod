@@ -554,7 +554,7 @@ void mmUpdateChannel_TN(mm_module_channel *module_channel, mpl_layer_information
     if (module_channel->flags & MF_HASFX)
         period = mpp_Process_Effect(mpp_layer, act_ch, module_channel, period);
 
-    if (!act_ch)
+    if (act_ch == NULL)
         return;
 
     int volume = (module_channel->volume * module_channel->cvolume) >> 5;

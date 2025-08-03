@@ -149,7 +149,7 @@ static void StopActiveChannel(mm_word index)
     {
         if (channels[i].alloc == index)
         {
-            channels[i].alloc = 255;
+            channels[i].alloc = NO_CHANNEL_AVAILABLE;
             return;
         }
     }
