@@ -55,16 +55,20 @@ static_assert(sizeof(mm_module_channel) == MM_SIZEOF_MODCH);
 #define MCH_BFLAGS_CUT_VOLUME   (1 << 10)   // Cut channel volume
 
 // BFLAGS
-// /////ctv nnppttvv
-// nn...............new note action (NNA)
-// pp...............panbrello waveform      // TODO: Unused
-// tt...............tremolo waveform        // TODO: Unused
-// vv...............vibrato waveform        // TODO: Unused
-// dd...............duplicate check type    // TODO: Unused (Not in bitfield!)
-// v................volume envelope enabled // TODO: Unused
-// t................tremor variable...
-// c................cut channel volume
-// //////...........reserved
+//
+// Bits  | Meaning
+// ------+------------------------------------
+// 0-1   | Vibrato waveform         // Unused
+// 2-3   | Tremolo waveform         // Unused
+// 4-5   | Panbrello waveform       // Unused
+// 6-7   | New note action (NNA)
+//
+// ??-?? | Duplicate check type     // Unused
+//
+// 8     | Volume envelope enabled  // Unused
+// 9     | Tremor variable
+// 10    | Cut channel volume
+// 11-15 | Unused
 
 // Active Channel
 // --------------
