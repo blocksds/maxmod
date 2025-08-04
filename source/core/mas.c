@@ -34,12 +34,6 @@
 #define MOD_FREQ_DIVIDER_PAL    56750314 // (mod)
 #define MOD_FREQ_DIVIDER_NTSC   57272724 // (---)
 
-// TODO: Make this static
-void mpp_setbpm(mpl_layer_information*, mm_word);
-void mpp_setposition(mpl_layer_information*, mm_word);
-
-static void mppe_ChannelVolumeSlide(mm_word param, mm_module_channel *channel,
-                                   mpl_layer_information *layer);
 static mm_word mppe_DoVibrato(mm_word period, mm_module_channel *channel,
                               mpl_layer_information *layer);
 
@@ -95,6 +89,57 @@ static mm_callback mmCallback;
 void mmSetEventHandler(mm_callback handler)
 {
     mmCallback = handler;
+}
+
+// Set BPM. bpm = 32..255
+// Input r5 = layer, r0 = bpm
+static void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
+{
+    layer_info->bpm = bpm;
+
+#if defined(SYS_GBA)
+
+    if (mpp_clayer == MM_MAIN)
+    {
+        // Multiply by master tempo
+        mm_word tempo = (mm_mastertempo * bpm) >> 10;
+
+        // Samples per tick ~= mixfreq / (bpm / 2.5) ~= mixfreq * 2.5 / bpm
+        mm_word rate = mm_bpmdv / tempo;
+
+        // Make it a multiple of two
+        rate &= ~1;
+
+        layer_info->tickrate = rate;
+    }
+    else
+    {
+        // SUB LAYER, time using vsync (rate = (bpm / 2.5) / 59.7)
+
+        layer_info->tickrate = (bpm << 15) / 149;
+    }
+
+#elif defined(SYS_NDS7)
+
+    // vsync = ~59.8261 HZ (says GBATEK)
+    // divider = hz * 2.5 * 64
+
+    if (mpp_clayer == MM_MAIN)
+    {
+        // Multiply by master tempo
+        bpm = bpm * mm_mastertempo;
+        bpm <<= 16 + 6 - 10;
+    }
+    else
+    {
+        bpm <<= 16 + 6;
+    }
+
+    // using 60hz vsync for timing
+    // Should this be better approximated?!
+    layer_info->tickrate = (bpm / mpp_resolution) >> 1;
+
+#endif
 }
 
 // Suspend main module and associated channels.
@@ -325,8 +370,7 @@ void mmJingleStop(void)
 }
 
 // Set sequence position.
-// Input r5 = layer, position = r0
-void mpp_setposition(mpl_layer_information *layer_info, mm_word position)
+static void mpp_setposition(mpl_layer_information *layer_info, mm_word position)
 {
     mm_mas_head *header = layer_info->songadr;
 
@@ -415,57 +459,6 @@ mm_word mmGetPositionRow(void)
 mm_word mmGetPosition(void)
 {
     return mmLayerMain.position;
-}
-
-// Set BPM. bpm = 32..255
-// Input r5 = layer, r0 = bpm
-void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
-{
-    layer_info->bpm = bpm;
-
-#if defined(SYS_GBA)
-
-    if (mpp_clayer == MM_MAIN)
-    {
-        // Multiply by master tempo
-        mm_word tempo = (mm_mastertempo * bpm) >> 10;
-
-        // Samples per tick ~= mixfreq / (bpm / 2.5) ~= mixfreq * 2.5 / bpm
-        mm_word rate = mm_bpmdv / tempo;
-
-        // Make it a multiple of two
-        rate &= ~1;
-
-        layer_info->tickrate = rate;
-    }
-    else
-    {
-        // SUB LAYER, time using vsync (rate = (bpm / 2.5) / 59.7)
-
-        layer_info->tickrate = (bpm << 15) / 149;
-    }
-
-#elif defined(SYS_NDS7)
-
-    // vsync = ~59.8261 HZ (says GBATEK)
-    // divider = hz * 2.5 * 64
-
-    if (mpp_clayer == MM_MAIN)
-    {
-        // Multiply by master tempo
-        bpm = bpm * mm_mastertempo;
-        bpm <<= 16 + 6 - 10;
-    }
-    else
-    {
-        bpm <<= 16 + 6;
-    }
-
-    // using 60hz vsync for timing
-    // Should this be better approximated?!
-    layer_info->tickrate = (bpm / mpp_resolution) >> 1;
-
-#endif
 }
 
 // Set master tempo
