@@ -182,6 +182,8 @@ void mmSetVBlankHandler(mm_voidfunc function);
 /// module processing. Avoid using any Maxmod related functions during your song
 /// event handler since they may cause problems in this situation.
 ///
+/// Check the song events tutorial in the documentation for more information.
+///
 /// @param handler
 ///     Function pointer to event handler.
 void mmSetEventHandler(mm_callback handler);

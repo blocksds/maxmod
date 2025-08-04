@@ -202,6 +202,8 @@ void mmUnlockChannels(mm_word bitmask);
 /// by SFx/EFx commands). The other occurs when a module finishes playback (in
 /// MM_PLAY_ONCE mode).
 ///
+/// Check the song events tutorial in the documentation for more information.
+///
 /// @param handler
 ///     Function pointer to event handler.
 void mmSetEventHandler(mm_callback handler);

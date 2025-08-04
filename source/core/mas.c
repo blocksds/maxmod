@@ -2567,7 +2567,7 @@ static void mppex_SongMessage(mm_word param, mpl_layer_information *layer)
         return;
 
     if (mmCallback != NULL)
-        mmCallback(MMCB_SONGMESSAGE, param & 0xF);
+        mmCallback(MMCB_SONGMESSAGE, (param & 0xF) | (mpp_clayer << 4));
 }
 
 // EFFECT Sxy: Extended Effects
