@@ -57,14 +57,6 @@ mm_word mpp_Update_ACHN_notest(mpl_layer_information *layer, mm_active_channel *
 
 void mpp_Channel_NewNote(mm_module_channel*, mpl_layer_information*);
 
-mm_word mpph_PitchSlide_Up(mm_word, mm_word, mpl_layer_information*);
-mm_word mpph_LinearPitchSlide_Up(mm_word period, mm_word slide_value, mpl_layer_information *layer);
-mm_word mpph_FinePitchSlide_Up(mm_word period, mm_word slide_value, mpl_layer_information *layer);
-
-mm_word mpph_PitchSlide_Down(mm_word, mm_word, mpl_layer_information*);
-mm_word mpph_LinearPitchSlide_Down(mm_word period, mm_word slide_value, mpl_layer_information *layer);
-mm_word mpph_FinePitchSlide_Down(mm_word period, mm_word slide_value, mpl_layer_information *layer);
-
 static inline __attribute__((always_inline))
 mm_mas_sample_info *mpp_SamplePointer(mpl_layer_information *layer, mm_word sampleN)
 {

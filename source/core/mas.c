@@ -934,6 +934,7 @@ static mm_word mpph_psd(mm_word period, mm_word slide_value)
 
 // Linear/Amiga slide up
 // The slide value is provided divided by 4
+static
 mm_word mpph_PitchSlide_Up(mm_word period, mm_word slide_value, mpl_layer_information *layer)
 {
     if (layer->flags & MAS_HEADER_FLAG_FREQ_MODE)
@@ -954,6 +955,7 @@ mm_word mpph_PitchSlide_Up(mm_word period, mm_word slide_value, mpl_layer_inform
 }
 
 // Linear slide up
+static
 mm_word mpph_LinearPitchSlide_Up(mm_word period, mm_word slide_value, mpl_layer_information *layer)
 {
     if (layer->flags & MAS_HEADER_FLAG_FREQ_MODE)
@@ -963,6 +965,7 @@ mm_word mpph_LinearPitchSlide_Up(mm_word period, mm_word slide_value, mpl_layer_
 }
 
 // Slide value in range of (0 - 15)
+static
 mm_word mpph_FinePitchSlide_Up(mm_word period, mm_word slide_value, mpl_layer_information *layer)
 {
     if (layer->flags & MAS_HEADER_FLAG_FREQ_MODE) // mpph_psu_fine
@@ -993,6 +996,7 @@ mm_word mpph_FinePitchSlide_Up(mm_word period, mm_word slide_value, mpl_layer_in
     }
 }
 
+static
 mm_word mpph_PitchSlide_Down(mm_word period, mm_word slide_value, mpl_layer_information *layer)
 {
     if (layer->flags & MAS_HEADER_FLAG_FREQ_MODE)
@@ -1014,7 +1018,9 @@ mm_word mpph_PitchSlide_Down(mm_word period, mm_word slide_value, mpl_layer_info
     }
 }
 
-mm_word mpph_LinearPitchSlide_Down(mm_word period, mm_word slide_value, mpl_layer_information *layer)
+static
+mm_word mpph_LinearPitchSlide_Down(mm_word period, mm_word slide_value,
+                                   mpl_layer_information *layer)
 {
     if (layer->flags & MAS_HEADER_FLAG_FREQ_MODE)
         return mpph_psd(period, slide_value);
@@ -1023,7 +1029,9 @@ mm_word mpph_LinearPitchSlide_Down(mm_word period, mm_word slide_value, mpl_laye
 }
 
 // Slide value in range of (0 - 15)
-mm_word mpph_FinePitchSlide_Down(mm_word period, mm_word slide_value, mpl_layer_information *layer)
+static
+mm_word mpph_FinePitchSlide_Down(mm_word period, mm_word slide_value,
+                                 mpl_layer_information *layer)
 {
     if (layer->flags & MAS_HEADER_FLAG_FREQ_MODE) // mpph_psd_fine
     {
