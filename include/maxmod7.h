@@ -351,8 +351,6 @@ mm_sfxhand mmEffectEx(mm_sound_effect* sound);
 
 /// Changes the volume of a sound effect.
 ///
-/// TODO: Is it from 0 to 65535?
-///
 /// @param handle
 ///     Sound effect handle received from mmEffect() or mmEffectEx().
 /// @param volume
