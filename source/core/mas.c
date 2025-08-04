@@ -423,7 +423,8 @@ void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
 {
     layer_info->bpm = bpm;
 
-#ifdef SYS_GBA
+#if defined(SYS_GBA)
+
     if (mpp_clayer == MM_MAIN)
     {
         // Multiply by master tempo
@@ -436,10 +437,6 @@ void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
         rate &= ~1;
 
         layer_info->tickrate = rate;
-
-        //layer_info->sampcount = 0; // TODO: Commented out in original code
-
-        return;
     }
     else
     {
@@ -447,9 +444,9 @@ void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
 
         layer_info->tickrate = (bpm << 15) / 149;
     }
-#endif
 
-#ifdef SYS_NDS
+#elif defined(SYS_NDS7)
+
     // vsync = ~59.8261 HZ (says GBATEK)
     // divider = hz * 2.5 * 64
 
@@ -467,6 +464,7 @@ void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
     // using 60hz vsync for timing
     // Should this be better approximated?!
     layer_info->tickrate = (bpm / mpp_resolution) >> 1;
+
 #endif
 }
 
