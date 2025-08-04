@@ -253,13 +253,6 @@ IWRAM_CODE ARM_CODE void mmReadPattern(mpl_layer_information *mpp_layer)
     mpp_layer->mch_update = update_bits;
 }
 
-static IWRAM_CODE ARM_CODE
-mm_mas_instrument *get_instrument(mpl_layer_information *mpp_layer, mm_byte instN)
-{
-    mm_byte *base = (mm_byte *)mpp_layer->songadr;
-    return (mm_mas_instrument*)(base + mpp_layer->insttable[instN - 1]);
-}
-
 IWRAM_CODE ARM_CODE
 mm_byte mmChannelStartACHN(mm_module_channel *module_channel, mm_active_channel *active_channel,
                            mpl_layer_information *mpp_layer, mm_byte channel_counter)
@@ -286,7 +279,7 @@ mm_byte mmChannelStartACHN(mm_module_channel *module_channel, mm_active_channel 
         return module_channel->bflags; // TODO: This is what the code does, is it a bug?
 
     // Get instrument pointer
-    mm_mas_instrument *instrument = get_instrument(mpp_layer, module_channel->inst);
+    mm_mas_instrument *instrument = mpp_InstrumentPointer(mpp_layer, module_channel->inst);
 
     // Check if note_map exists
     // If this is set, it doesn't!
@@ -331,13 +324,6 @@ mm_word mmGetPeriod(mpl_layer_information *mpp_layer, mm_word tuning, mm_byte no
         ret_val /= tuning;
 
     return ret_val;
-}
-
-static IWRAM_CODE ARM_CODE
-mm_mas_sample_info *get_sample(mpl_layer_information *mpp_layer, mm_byte sampleN)
-{
-    mm_byte *base = (mm_byte *)mpp_layer->songadr;
-    return (mm_mas_sample_info*)(base + mpp_layer->samptable[sampleN - 1]);
 }
 
 static IWRAM_CODE ARM_CODE
@@ -431,7 +417,7 @@ start_channel:
 
     if (act_ch->sample)
     {
-        mm_mas_sample_info *sample = get_sample(mpp_layer, act_ch->sample);
+        mm_mas_sample_info *sample = mpp_SamplePointer(mpp_layer, act_ch->sample);
         module_channel->period = mmGetPeriod(mpp_layer, sample->frequency << 2, note);
         act_ch->flags |= MCAF_START;
     }
@@ -454,7 +440,7 @@ channel_started:
         if (module_channel->inst)
         {
             // Get instrument pointer
-            mm_mas_instrument *instrument = get_instrument(mpp_layer, module_channel->inst);
+            mm_mas_instrument *instrument = mpp_InstrumentPointer(mpp_layer, module_channel->inst);
 
             // Clear old nna and set the new one
             module_channel->bflags &= ~MCH_BFLAGS_NNA_MASK;
@@ -473,7 +459,7 @@ channel_started:
         if (act_ch->sample)
         {
             // Get sample pointer
-            mm_mas_sample_info *sample = get_sample(mpp_layer, act_ch->sample);
+            mm_mas_sample_info *sample = mpp_SamplePointer(mpp_layer, act_ch->sample);
             module_channel->volume = sample->default_volume;
 
             // The MSB determines if we need to set a new panning value

@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: ISC
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
-// Copyright (c) 2021, Antonio Niño Díaz (antonio_nd@outlook.com)
+// Copyright (c) 2021-2025, Antonio Niño Díaz (antonio_nd@outlook.com)
 
 #ifndef MM_CORE_MAS_H__
 #define MM_CORE_MAS_H__
 
 #include <mm_types.h>
+#include <mm_mas.h>
 
 #include "core/mas_structs.h"
 
@@ -63,5 +64,26 @@ mm_word mpph_FinePitchSlide_Up(mm_word period, mm_word slide_value, mpl_layer_in
 mm_word mpph_PitchSlide_Down(mm_word, mm_word, mpl_layer_information*);
 mm_word mpph_LinearPitchSlide_Down(mm_word period, mm_word slide_value, mpl_layer_information *layer);
 mm_word mpph_FinePitchSlide_Down(mm_word period, mm_word slide_value, mpl_layer_information *layer);
+
+static inline __attribute__((always_inline))
+mm_mas_sample_info *mpp_SamplePointer(mpl_layer_information *layer, mm_word sampleN)
+{
+    mm_byte *base = (mm_byte *)layer->songadr;
+    return (mm_mas_sample_info *)(base + layer->samptable[sampleN - 1]);
+}
+
+static inline __attribute__((always_inline))
+mm_mas_instrument *mpp_InstrumentPointer(mpl_layer_information *layer, mm_word instN)
+{
+    mm_byte *base = (mm_byte *)layer->songadr;
+    return (mm_mas_instrument*)(base + layer->insttable[instN - 1]);
+}
+
+static inline __attribute__((always_inline))
+mm_mas_pattern *mpp_PatternPointer(mpl_layer_information *layer, mm_word entry)
+{
+    mm_byte *base = (mm_byte *)layer->songadr;
+    return (mm_mas_pattern *)(base + layer->patttable[entry]);
+}
 
 #endif // MM_CORE_MAS_H__

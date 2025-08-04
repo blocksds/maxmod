@@ -324,12 +324,6 @@ void mmJingleStop(void)
     mppStop();
 }
 
-static mm_mas_pattern *mpp_PatternPointer(mm_word entry, mpl_layer_information *layer)
-{
-    mm_byte *base = (mm_byte *)layer->songadr;
-    return (mm_mas_pattern *)(base + layer->patttable[entry]);
-}
-
 // Set sequence position.
 // Input r5 = layer, position = r0
 void mpp_setposition(mpl_layer_information *layer_info, mm_word position)
@@ -373,7 +367,7 @@ void mpp_setposition(mpl_layer_information *layer_info, mm_word position)
     }
 
     // Calculate pattern address
-    mm_mas_pattern *patt = mpp_PatternPointer(entry, layer_info);
+    mm_mas_pattern *patt = mpp_PatternPointer(layer_info, entry);
 
     // Save pattern size
     layer_info->nrows = patt->row_count;
@@ -684,12 +678,6 @@ static mm_active_channel *mpp_Channel_GetACHN(mm_module_channel *channel)
     return &mm_achannels[alloc];
 }
 
-static mm_mas_instrument *get_instrument(mpl_layer_information *mpp_layer, mm_byte instN)
-{
-    mm_byte *base = (mm_byte *)mpp_layer->songadr;
-    return (mm_mas_instrument*)(base + mpp_layer->insttable[instN - 1]);
-}
-
 // Process new note
 IWRAM_CODE void mpp_Channel_NewNote(mm_module_channel *module_channel, mpl_layer_information *layer)
 {
@@ -700,7 +688,7 @@ IWRAM_CODE void mpp_Channel_NewNote(mm_module_channel *module_channel, mpl_layer
     if (act_ch == NULL)
         goto mppt_alloc_channel;
 
-    mm_mas_instrument *instrument = get_instrument(layer, module_channel->inst);
+    mm_mas_instrument *instrument = mpp_InstrumentPointer(layer, module_channel->inst);
 
     if ((MCH_BFLAGS_NNA_GET(module_channel->bflags)) == IT_NNA_CUT)
         goto mppt_NNA_CUT; // Skip if zero
@@ -1583,12 +1571,6 @@ static mm_word mpp_Channel_ExchangeMemory(mm_byte effect, mm_byte param,
     }
 }
 
-static mm_mas_instrument *mpp_InstrumentPointer(mpl_layer_information *mpp_layer, mm_byte instN)
-{
-    mm_byte *base = (mm_byte *)mpp_layer->songadr;
-    return (mm_mas_instrument*)(base + mpp_layer->insttable[instN - 1]);
-}
-
 // Process module tick
 IWRAM_CODE void mppProcessTick(void)
 {
@@ -1963,22 +1945,13 @@ static mm_word mppe_Portamento(mm_word param, mm_word period,
     return period + delta;
 }
 
-// Calculate sample address.
-static mm_mas_sample_info *mpp_SamplePointer(int sampleN, mpl_layer_information *layer)
-{
-    // TODO: This is also in mm_mas_arm.c as get_sample(), we need to unify both
-    // functions when the two files are reorganized.
-    mm_byte *base = (mm_byte *)layer->songadr;
-    return (mm_mas_sample_info *)(base + layer->samptable[sampleN - 1]);
-}
-
 static mm_word mppe_glis_backdoor(mm_word param, mm_word period, mm_active_channel *act_ch,
                                   mm_module_channel *channel, mpl_layer_information *layer)
 {
     if (act_ch == NULL) // Exit if no active channel
         return period;
 
-    mm_mas_sample_info *sample = mpp_SamplePointer(act_ch->sample, layer); // Get target period
+    mm_mas_sample_info *sample = mpp_SamplePointer(layer, act_ch->sample); // Get target period
 
     mm_word target_period = mmGetPeriod(layer, sample->frequency * 4, channel->note);
 
@@ -3065,7 +3038,7 @@ mppt_has_volenv:
 static mm_word mpp_Update_ACHN_notest_auto_vibrato(mpl_layer_information *layer,
                                                    mm_active_channel *act_ch, mm_word period)
 {
-    mm_mas_sample_info *sample = mpp_SamplePointer(act_ch->sample, layer);
+    mm_mas_sample_info *sample = mpp_SamplePointer(layer, act_ch->sample);
 
     // Get av-rate, check if auto vibrato is enabled
     mm_hword av_rate = sample->av_rate;
@@ -3121,7 +3094,7 @@ static mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information
     if (act_ch->sample == 0)
         goto mppt_achn_nostart;
 
-    mm_mas_sample_info *sample = mpp_SamplePointer(act_ch->sample, layer);
+    mm_mas_sample_info *sample = mpp_SamplePointer(layer, act_ch->sample);
 
     if (sample->msl_id == 0xFFFF)
     {
@@ -3190,7 +3163,7 @@ static mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *la
         return 0;
     }
 
-    mm_mas_sample_info *sample = mpp_SamplePointer(act_ch->sample, layer);
+    mm_mas_sample_info *sample = mpp_SamplePointer(layer, act_ch->sample);
 
     if (layer->flags & MAS_HEADER_FLAG_FREQ_MODE)
     {
