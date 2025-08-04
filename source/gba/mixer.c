@@ -77,29 +77,6 @@ void mmMixerSetRead(int channel, mm_word value)
     mm_mixchannels[channel].read = value;
 }
 
-#if 0
-// Test if mixing channel is active
-mm_word mmMixerChannelActive(int channel)
-{
-    if (mm_mixchannels[channel].src & (1U << 31))
-        return 0; // zero = disabled
-
-    return 0xFFFFFFFF; // non-zero (-1) = enabled
-}
-
-// Set channel source
-void mmMixerSetSource(int channel, mm_word p_sample)
-{
-    mm_mas_gba_sample *sample = (mm_mas_gba_sample *)p_sample; // + sizeof(mm_mas_prefix) ?
-
-    // Set sample data address
-    mm_mixchannels[channel].src = (mm_word)(&(sample->data[0]));
-
-    // Reset read position
-    mm_mixchannels[channel].read = 0;
-}
-#endif
-
 // Set channel mixing rate
 void mmMixerSetFreq(int channel, mm_word rate)
 {

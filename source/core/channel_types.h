@@ -98,6 +98,7 @@ static_assert(sizeof(mm_active_channel) == MM_SIZEOF_ACTCH);
 
 #ifdef SYS_NDS
 
+// A DS mixer channel is active if "samp" isn't zero.
 typedef struct {
     mm_word     samp   : 24;    // 0:23  mainram address
     mm_word     tpan   : 7;     // 24:30 = target panning
@@ -130,6 +131,7 @@ TODO: The defines are unused, they refer to the tpan/key_on byte
 
 #ifdef SYS_GBA
 
+// A GBA mixer channel is active if "src & (1 << 31)" is zero.
 typedef struct {
     mm_word     src;
     mm_word     read;
