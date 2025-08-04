@@ -416,7 +416,7 @@ void mmEffectCancelAll(void)
                           // compiler optimize the writes to the three fields?
 #endif
 #ifdef SYS_GBA
-        mix_ch->src = 1 << 31;
+        mix_ch->src = MIXCH_GBA_SRC_STOPPED;
 #endif
     }
 }
@@ -443,7 +443,7 @@ void mmUpdateEffects(void)
 #if defined(SYS_GBA)
         mm_mixer_channel *mix_ch = &mm_mixchannels[mix_channel];
 
-        if ((mix_ch->src & (1U << 31)) == 0)
+        if ((mix_ch->src & MIXCH_GBA_SRC_STOPPED) == 0)
         {
             new_bitmask |= (1 << i);
             continue;

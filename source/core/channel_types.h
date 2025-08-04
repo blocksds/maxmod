@@ -131,6 +131,8 @@ TODO: The defines are unused, they refer to the tpan/key_on byte
 
 #ifdef SYS_GBA
 
+#define MIXCH_GBA_SRC_STOPPED (1u << 31)
+
 // A GBA mixer channel is active if "src & (1 << 31)" is zero.
 typedef struct {
     mm_word     src;

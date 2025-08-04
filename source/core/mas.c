@@ -281,7 +281,7 @@ static void mpp_resetchannels(mm_module_channel *channels,
                           // compiler optimize the writes to the three fields?
 #endif
 #ifdef SYS_GBA
-        mix_ch->src = 1 << 31;
+        mix_ch->src = MIXCH_GBA_SRC_STOPPED;
 #endif
     }
 }
@@ -3280,9 +3280,9 @@ mppt_achn_not_audible:
     // ------------
 
 #ifdef SYS_GBA
-    mix_ch->src = 1 << 31; // Stop mixer channel
+    mix_ch->src = MIXCH_GBA_SRC_STOPPED;
 #else
-    mix_ch->samp = 0; // Stop mixer channel
+    mix_ch->samp = 0;
     mix_ch->tpan = 0;
     mix_ch->key_on = 0;
 #endif
@@ -3302,7 +3302,7 @@ mppt_achn_audible:
 
     // Check if mixer channel has ended
 #ifdef SYS_GBA
-    if (mix_ch->src & (1 << 31))
+    if (mix_ch->src & MIXCH_GBA_SRC_STOPPED)
     {
 #else
     if (mix_ch->samp == 0)
@@ -3314,10 +3314,13 @@ mppt_achn_audible:
             mpp_channels[act_ch->parent].alloc = NO_CHANNEL_AVAILABLE;
         }
 
+        // TODO: This isn't required because we've just checked if the mixer
+        // channel is stopped
+        // Stop mixer channel
 #ifdef SYS_GBA
-        mix_ch->src = 1 << 31; // Stop mixer channel
+        mix_ch->src = MIXCH_GBA_SRC_STOPPED;
 #else
-        mix_ch->samp = 0; // Stop mixer channel
+        mix_ch->samp = 0;
         mix_ch->tpan = 0;
         mix_ch->key_on = 0;
 #endif

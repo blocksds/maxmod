@@ -67,7 +67,7 @@ void mmMixerMulFreq(int channel, mm_word factor)
 void mmMixerStopChannel(int channel)
 {
     // Set MSB (disable) of source
-    mm_mixchannels[channel].src = 1U << 31;
+    mm_mixchannels[channel].src = MIXCH_GBA_SRC_STOPPED;
 }
 
 // Set channel read position
@@ -184,7 +184,7 @@ void mmMixerInit(mm_gba_system *setup)
     mm_mixer_channel *mix_ch = &mm_mixchannels[0];
 
     for (mm_word i = 0; i < mm_mixch_count; i++)
-        mix_ch[i].src = 1U << 31;
+        mix_ch[i].src = MIXCH_GBA_SRC_STOPPED;
 
     // Enable VBL routine
     vblank_handler_enabled = true;
