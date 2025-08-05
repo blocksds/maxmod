@@ -23,9 +23,32 @@
 #define SWM_CHANNEL_1 6
 #define SWM_CHANNEL_2 7
 
+#define ROUND_CLOSEST(dividend, divisor) (((dividend) + (((divisor) + 1) >> 1)) / (divisor))
+
 #define MIX_TIMER_NUMBER 0
 
 #define SFRAC 10
+
+#define MIX_TIMER_256_HZ_FREQ 1024
+#define MIX_TIMER_256_HZ_DIV TIMER_DIV_1024
+#define MIX_TIMER_194_8125_HZ_FREQ 256
+#define MIX_TIMER_194_8125_HZ_DIV TIMER_DIV_256
+
+// Get the value closest to -((BUS_CLOCK / frequency) / hz), where hz can be a non-integer value
+#define MIX_TIMER_SET_VALUE(x, divisor, frequency) (-ROUND_CLOSEST(BUS_CLOCK, ROUND_CLOSEST((x) * (frequency), divisor)))
+#define MIX_TIMER_SET_256_HZ_VALUE(x, divisor) MIX_TIMER_SET_VALUE(x, divisor, MIX_TIMER_256_HZ_FREQ)
+#define MIX_TIMER_SET_194_8125_HZ_VALUE(x, divisor) MIX_TIMER_SET_VALUE(x, divisor, MIX_TIMER_194_8125_HZ_FREQ)
+
+// Get the sound timer value closest to the effective frequency of the previously calculated timer -((BUS_CLOCK / 2) / (real_freq * num_samples))
+// num_samples is the amount of samples per "regular timer" call.
+#define MIX_SOUND_TIMER_SET_VALUE(timer_value, frequency, num_samples) (-ROUND_CLOSEST(BUS_CLOCK, ROUND_CLOSEST(((int64_t)BUS_CLOCK) * 2 * (num_samples), (timer_value) * (frequency))))
+#define MIX_SOUND_TIMER_SET_256_HZ_VALUE(x, divisor, num_samples) MIX_SOUND_TIMER_SET_VALUE(-MIX_TIMER_SET_256_HZ_VALUE(x, divisor), MIX_TIMER_256_HZ_FREQ, num_samples)
+#define MIX_SOUND_TIMER_SET_194_8125_HZ_VALUE(x, divisor, num_samples) MIX_SOUND_TIMER_SET_VALUE(-MIX_TIMER_SET_194_8125_HZ_VALUE(x, divisor), MIX_TIMER_194_8125_HZ_FREQ, num_samples)
+
+// Get the resolution closest to the effective frequency of the previously calculated timer (BUS_CLOCK * 2.5 * 64) / real_freq
+#define RESOLUTION_VALUE(timer_value, frequency) (ROUND_CLOSEST(((int64_t)BUS_CLOCK) * 5 * (64 / 2), (timer_value) * (frequency)))
+#define RESOLUTION_256_HZ_VALUE(x, divisor) RESOLUTION_VALUE(-MIX_TIMER_SET_256_HZ_VALUE(x, divisor), MIX_TIMER_256_HZ_FREQ)
+#define RESOLUTION_194_8125_HZ_VALUE(x, divisor) RESOLUTION_VALUE(-MIX_TIMER_SET_194_8125_HZ_VALUE(x, divisor), MIX_TIMER_194_8125_HZ_FREQ)
 
 mm_mixer_channel mm_mix_channels[MM_nDSCHANNELS];
 
@@ -96,8 +119,7 @@ static void mmSetupModeB(void)
 {
     // Disable timer
     TIMER_CR(MIX_TIMER_NUMBER) = 0;
-
-    mmSetResolution(40960);
+    mmSetResolution(RESOLUTION_256_HZ_VALUE(256, 1));
 
     mm_word bitmask = mm_ch_mask;
     for (int i = 0; i < NUM_PHYS_CHANNELS; i++)
@@ -106,7 +128,7 @@ static void mmSetupModeB(void)
         {
             SCHANNEL_CR(i) = 0xA8000000;
             SCHANNEL_SOURCE(i) = (uintptr_t)mm_mix_data.mix_data_b.output[i];
-            SCHANNEL_TIMER(i) = 0xFE00;
+            SCHANNEL_TIMER(i) = MIX_SOUND_TIMER_SET_256_HZ_VALUE(256, 1, MM_MIX_B_NUM_SAMPLES);
             SCHANNEL_REPEAT_POINT(i) = 0;
             SCHANNEL_LENGTH(i) = MM_MIX_B_NUM_SAMPLES;
         }
@@ -119,8 +141,8 @@ static void mmSetupModeB(void)
 
     mm_startup_wait();
 
-    TIMER_DATA(MIX_TIMER_NUMBER) = 0xFF80;
-    TIMER_CR(MIX_TIMER_NUMBER) = 0x00C3;
+    timerStart(MIX_TIMER_NUMBER, MIX_TIMER_256_HZ_DIV, MIX_TIMER_SET_256_HZ_VALUE(256, 1), NULL);
+    TIMER_CR(MIX_TIMER_NUMBER) |= TIMER_IRQ_REQ;
 }
 
 static void SetupSWM(void)
@@ -141,8 +163,8 @@ static void SetupSWM(void)
     SCHANNEL_SOURCE(SWM_CHANNEL_2) = (uintptr_t)mm_mix_data.mix_data_c.mix_output[1];
 
     // Set sampling frequency
-    SCHANNEL_TIMER(SWM_CHANNEL_1) = -768;
-    SCHANNEL_TIMER(SWM_CHANNEL_2) = -768;
+    SCHANNEL_TIMER(SWM_CHANNEL_1) = MIX_SOUND_TIMER_SET_194_8125_HZ_VALUE(3117, 16, MM_SW_BUFFERLEN/2);
+    SCHANNEL_TIMER(SWM_CHANNEL_2) = MIX_SOUND_TIMER_SET_194_8125_HZ_VALUE(3117, 16, MM_SW_BUFFERLEN/2);
 
     // Set source length
     SCHANNEL_LENGTH(SWM_CHANNEL_1) = MM_SW_BUFFERLEN / 2;
@@ -154,10 +176,10 @@ static void SetupSWM(void)
 
     mm_startup_wait();
 
-    TIMER_DATA(MIX_TIMER_NUMBER) = 0xFD60;
-    TIMER_CR(MIX_TIMER_NUMBER) = 0x00C2;
+    timerStart(MIX_TIMER_NUMBER, MIX_TIMER_194_8125_HZ_DIV, MIX_TIMER_SET_194_8125_HZ_VALUE(3117, 16), NULL);
+    TIMER_CR(MIX_TIMER_NUMBER) |= TIMER_IRQ_REQ;
 
-    mmSetResolution(31170);
+    mmSetResolution(RESOLUTION_194_8125_HZ_VALUE(3117, 16));
 
     // Lock Stream channels
     mmLockChannelsQuick((1 << SWM_CHANNEL_1) | (1 << SWM_CHANNEL_2));
@@ -189,7 +211,7 @@ void mmMixerSetPan(int channel, mm_byte panning)
 void mmMixerSetFreq(int channel, mm_word rate)
 {
     mm_mas_ds_sample *sample = (mm_mas_ds_sample *)(mm_mix_channels[channel].samp + 0x2000000);
-    mm_word freq = (sample->default_frequency * rate) >> 10;
+    mm_word freq = ROUND_CLOSEST(sample->default_frequency * rate, 1024);
 
     if (freq >= 0x1FFF)
         freq = 0x1FFF;
@@ -200,7 +222,7 @@ void mmMixerSetFreq(int channel, mm_word rate)
 // Multiply channel frequency by a value
 void mmMixerMulFreq(int channel, mm_word factor)
 {
-    mm_word freq = ((mm_mix_channels[channel].freq * factor) + (255 * 2)) >> 10;
+    mm_word freq = ROUND_CLOSEST(mm_mix_channels[channel].freq * factor, 1024);
 
     if (freq >= 0x1FFF)
         freq = 0x1FFF;
@@ -242,10 +264,10 @@ void mmSelectMode(mm_mode_enum mode)
             DisableSWM();
             ClearAllChannels();
             // 256hz resolution
-            mmSetResolution(40960);
+            mmSetResolution(RESOLUTION_256_HZ_VALUE(256, 1));
 
-            TIMER_DATA(MIX_TIMER_NUMBER) = 0xFF80;
-            TIMER_CR(MIX_TIMER_NUMBER) = 0x00C3;
+            timerStart(MIX_TIMER_NUMBER, MIX_TIMER_256_HZ_DIV, MIX_TIMER_SET_256_HZ_VALUE(256, 1), NULL);
+            TIMER_CR(MIX_TIMER_NUMBER) |= TIMER_IRQ_REQ;
 
             EnableSound();
             break;
