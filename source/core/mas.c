@@ -1514,7 +1514,15 @@ static void mpph_FastForward(mpl_layer_information *layer, mm_word rows_to_skip)
 
     while (1)
     {
-        mmReadPattern(layer);
+        mm_bool ok = mmReadPattern(layer);
+
+        // If there was some error (the module uses too many channels, for
+        // example), stop it right away.
+        if (ok == 0)
+        {
+            mppStop();
+            break;
+        }
 
         rows_to_skip--;
         if (rows_to_skip == 0)
@@ -1583,7 +1591,15 @@ IWRAM_CODE void mppProcessTick(void)
 
     if ((layer->pattdelay == 0) && (layer->tick == 0))
     {
-        mmReadPattern(layer);
+        mm_bool ok = mmReadPattern(layer);
+
+        // If there was some error (the module uses too many channels, for
+        // example), stop it right away.
+        if (ok == 0)
+        {
+            mppStop();
+            return;
+        }
     }
 
     // Loop through module channels

@@ -46,7 +46,7 @@ mm_word mmAllocChannel(void);
 void mmUpdateChannel_T0(mm_module_channel*, mpl_layer_information*, mm_byte);
 void mmUpdateChannel_TN(mm_module_channel*, mpl_layer_information*);
 mm_word mmGetPeriod(mpl_layer_information*, mm_word, mm_byte);
-void mmReadPattern(mpl_layer_information*);
+mm_bool mmReadPattern(mpl_layer_information*);
 
 mm_word mpp_Process_VolumeCommand(mpl_layer_information*, mm_active_channel*, mm_module_channel*, mm_word);
 

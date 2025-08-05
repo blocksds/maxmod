@@ -159,7 +159,9 @@ IWRAM_CODE ARM_CODE mm_word mmAllocChannel(void)
     return best_channel;
 }
 
-IWRAM_CODE ARM_CODE void mmReadPattern(mpl_layer_information *mpp_layer)
+// It returns 0 on error (if the song tries to use more channels than available
+// to Maxmod. On success, it returns 1.
+IWRAM_CODE ARM_CODE mm_bool mmReadPattern(mpl_layer_information *mpp_layer)
 {
     // Prepare vars
     mm_word instr_count = mpp_layer->songadr->instr_count;
@@ -168,6 +170,13 @@ IWRAM_CODE ARM_CODE void mmReadPattern(mpl_layer_information *mpp_layer)
 
     mpp_vars.pattread_p = mpp_layer->pattread;
     mm_byte *pattern = mpp_vars.pattread_p;
+
+    mm_word max_channels;
+
+    if (mpp_clayer == MM_JINGLE)
+        max_channels = MP_SCHANNELS;
+    else
+        max_channels = mm_num_mch;
 
     mm_word update_bits = 0;
 
@@ -182,6 +191,10 @@ IWRAM_CODE ARM_CODE void mmReadPattern(mpl_layer_information *mpp_layer)
         mm_word pattern_flags = 0;
 
         mm_byte chan_num = (read_byte & 0x7F) - 1;
+
+        // Check that this channel index isn't outside of the limits of Maxmod
+        if (chan_num >= max_channels)
+            return 0;
 
         update_bits |= 1 << chan_num;
 
@@ -251,6 +264,8 @@ IWRAM_CODE ARM_CODE void mmReadPattern(mpl_layer_information *mpp_layer)
 
     mpp_layer->pattread = pattern;
     mpp_layer->mch_update = update_bits;
+
+    return 1;
 }
 
 IWRAM_CODE ARM_CODE
