@@ -268,7 +268,7 @@ IWRAM_CODE ARM_CODE mm_bool mmReadPattern(mpl_layer_information *mpp_layer)
     return 1;
 }
 
-IWRAM_CODE ARM_CODE
+static IWRAM_CODE ARM_CODE __attribute__((noinline))
 mm_byte mmChannelStartACHN(mm_module_channel *module_channel, mm_active_channel *active_channel,
                            mpl_layer_information *mpp_layer, mm_byte channel_counter)
 {
