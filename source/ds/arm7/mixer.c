@@ -43,7 +43,7 @@ static void mm_reset_channels(void)
     for (int i = 0; i < NUM_CHANNELS; i++)
         channels[i].alloc = NO_CHANNEL_AVAILABLE;
 
-    channels = &mm_schannels[0];
+    channels = mm_schannels;
 
     // Reset channel allocation
     for (int i = 0; i < MP_SCHANNELS; i++)

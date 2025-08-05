@@ -137,7 +137,7 @@ static void StopActiveChannel(mm_word index)
 
     if (prev_flags & MCAF_SUB)
     {
-        channels = &mm_schannels[0];
+        channels = mm_schannels;
         num_channels = MP_SCHANNELS;
     }
     else

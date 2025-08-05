@@ -338,10 +338,10 @@ static void mppStop(void)
     mm_module_channel *channels;
     mm_word num_ch;
 
-    if (mpp_clayer != MM_MAIN)
+    if (mpp_clayer == MM_JINGLE)
     {
         layer_info = &mmLayerSub;
-        channels = &mm_schannels[0];
+        channels = mm_schannels;
         num_ch = MP_SCHANNELS;
     }
     else
@@ -511,7 +511,7 @@ void mmPlayModule(mm_word address, mm_word mode, mm_word layer)
     else
     {
         layer_info = &mmLayerSub;
-        channels = &mm_schannels[0];
+        channels = mm_schannels;
         num_ch = MP_SCHANNELS;
     }
 
@@ -605,7 +605,7 @@ void mppUpdateSub(void)
     if (mmLayerSub.isplaying == 0)
         return;
 
-    mpp_channels = &mm_schannels[0];
+    mpp_channels = mm_schannels;
     mpp_nchannels = MP_SCHANNELS;
     mpp_clayer = MM_JINGLE;
     mpp_layerp = &mmLayerSub;
