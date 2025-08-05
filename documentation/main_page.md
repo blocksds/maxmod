@@ -21,6 +21,7 @@ Maxmod Programming Reference {#mainpage}
 ### Common
 
 - @ref maxmod_types
+- @ref maxmod_playback_events
 
 ### GBA
 
@@ -28,7 +29,6 @@ Maxmod Programming Reference {#mainpage}
 - @ref gba_module_playback
 - @ref gba_jingle_playback
 - @ref gba_sound_effects
-- @ref gba_playback_events
 - @ref gba_misc
 
 ### NDS (ARM9)
@@ -39,7 +39,6 @@ Maxmod Programming Reference {#mainpage}
 - @ref nds_arm9_sound_effects
 - @ref nds_arm9_streaming
 - @ref nds_arm9_reverb
-- @ref nds_arm9_playback_events
 
 ### NDS (ARM7)
 
@@ -49,5 +48,4 @@ Maxmod Programming Reference {#mainpage}
 - @ref nds_arm7_sound_effects
 - @ref nds_arm7_streaming
 - @ref nds_arm7_reverb
-- @ref nds_arm7_playback_events
 - @ref nds_arm7_misc

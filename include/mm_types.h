@@ -454,6 +454,36 @@ enum
 
 // ***************************************************************************
 /// @}
+/// @defgroup maxmod_playback_events Playback events
+/// @{
+// ***************************************************************************
+
+/// A special effect has been found in a song.
+///
+/// This event occurs when an SFx (S3M/IT) or EFx (MOD/XM) effect is parsed from
+/// the pattern data. If you have an event handler installed it will be
+/// forwarded to there.
+///
+/// Param contains 'x' from SFx/EFx in the 4 low bits, and the layer in the
+/// top 4 bits (MM_MAIN or MM_JINGLE).
+///
+/// For example, if the jingle is a S3M file with a SF2 effect, param will
+/// contain `((MM_JINGLE << 4) | 2)`.
+///
+/// The chosen effects aren't really used by most songs, it's your
+/// responsibility to add them to it to get events when you need them for your
+/// application.
+#define MMCB_SONGMESSAGE    0x2A
+
+/// A song has finished.
+///
+/// This event occurs when a module has finished playing the last pattern and
+/// has stopped active status. param is MM_MAIN if the main module has finished
+/// or MM_JINGLE if the jingle has finished.
+#define MMCB_SONGFINISHED   0x2B
+
+// ***************************************************************************
+/// @}
 // ***************************************************************************
 
 #ifdef __cplusplus

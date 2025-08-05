@@ -548,22 +548,6 @@ void mmReverbDisable(void);
 
 // ***************************************************************************
 /// @}
-/// @defgroup nds_arm7_playback_events NDS: ARM7 Playback events
-/// @{
-// ***************************************************************************
-
-/// This event occurs when an SFx (S3M/IT) or EFx (MOD/XM) effect is parsed from
-/// the pattern data. If you have an event handler installed it will be
-/// forwarded to there. param will contain 'x' from SFx/EFx.
-#define MMCB_SONGMESSAGE    0x2A
-
-/// This event occurs when a module has finished playing the last pattern and
-/// has stopped active status. param == 0 if main module, == 1 otherwise
-/// (jingle)
-#define MMCB_SONGFINISHED   0x2B
-
-// ***************************************************************************
-/// @}
 /// @defgroup nds_arm7_misc NDS: ARM7 Misc definitions / reference
 /// @{
 // ***************************************************************************
