@@ -26,7 +26,6 @@
 // 26k      304         640         26182.7984
 // 22k      256         768         21818.9987   <-------
 
-    .equ    MM_nDSCHANNELS,  32     // [channels]
     .equ    MM_SW_CHUNKLEN,  112    // [samples]
     .equ    MM_SW_BUFFERLEN, 224    // [samples], note: nothing
 

@@ -20,9 +20,6 @@
 static mm_word mmEventForwarder(mm_word, mm_word);
 static void StopActiveChannel(mm_word);
 
-#define NUM_CHANNELS 32
-#define NUM_PHYS_CHANNELS 16
-
 #define INITIALIZED_VALUE 42
 #define BASE_VOLUME 0x400
 #define BASE_TEMPO 0x400

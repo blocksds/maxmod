@@ -11,7 +11,8 @@
 #include "core/channel_types.h"
 #include "ds/arm7/mixer_types.h"
 
-#define MM_nDSCHANNELS 32
+#define NUM_CHANNELS        32
+#define NUM_PHYS_CHANNELS   16
 
 void mmMixerInit(void);
 void mmMixerMix(void);
@@ -23,6 +24,6 @@ extern const mm_byte mmVolumeDivTable[];
 extern const mm_byte mmVolumeShiftTable[];
 extern mm_mix_data_ds mm_mix_data;
 
-extern mm_mixer_channel mm_mix_channels[MM_nDSCHANNELS];
+extern mm_mixer_channel mm_mix_channels[NUM_CHANNELS];
 
 #endif // MM_DS_ARM7_MIXER_H__

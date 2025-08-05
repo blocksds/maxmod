@@ -27,7 +27,7 @@
 
 #define SFRAC 10
 
-mm_mixer_channel mm_mix_channels[MM_nDSCHANNELS];
+mm_mixer_channel mm_mix_channels[NUM_CHANNELS];
 
 mm_mode_enum mm_mixing_mode; // [0/1/2 = a/b/c] (MM_MODE_A/B/C)
 
@@ -340,7 +340,7 @@ static ARM_CODE void SlideMixingLevels(mm_word throttle)
 {
     mm_mixer_channel *mix_ch = &mm_mix_channels[0];
 
-    for (mm_word i = 0; i < MM_nDSCHANNELS; i++, mix_ch++)
+    for (mm_word i = 0; i < NUM_CHANNELS; i++, mix_ch++)
     {
         // Slide volume
 
