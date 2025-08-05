@@ -75,7 +75,7 @@ static mm_word mm_mastertempo;
 // Master pitch scaler.
 mm_word mm_masterpitch;
 
-// Number of channels in layer.
+// Number of channels allocated for current layer being processed
 mm_byte mpp_nchannels;
 
 // Current layer being processed: MM_MAIN or MM_JINGLE

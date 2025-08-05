@@ -171,13 +171,6 @@ IWRAM_CODE ARM_CODE mm_bool mmReadPattern(mpl_layer_information *mpp_layer)
     mpp_vars.pattread_p = mpp_layer->pattread;
     mm_byte *pattern = mpp_vars.pattread_p;
 
-    mm_word max_channels;
-
-    if (mpp_clayer == MM_JINGLE)
-        max_channels = MP_SCHANNELS;
-    else
-        max_channels = mm_num_mch;
-
     mm_word update_bits = 0;
 
     while (1)
@@ -192,8 +185,8 @@ IWRAM_CODE ARM_CODE mm_bool mmReadPattern(mpl_layer_information *mpp_layer)
 
         mm_byte chan_num = (read_byte & 0x7F) - 1;
 
-        // Check that this channel index isn't outside of the limits of Maxmod
-        if (chan_num >= max_channels)
+        // Check that this channel index is inside of the limits of this layer
+        if (chan_num >= mpp_nchannels)
             return 0;
 
         update_bits |= 1 << chan_num;
