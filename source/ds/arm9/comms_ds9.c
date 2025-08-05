@@ -72,6 +72,13 @@ static void SendCommandByte(mm_word id, mm_byte arg)
     SendString(&buffer, 1);
 }
 
+static void SendCommandByteByte(mm_word id, mm_byte arg1, mm_byte arg2)
+{
+    mm_word buffer = (arg2 << 24) | (arg1 << 16) | (id << 8) | 3;
+
+    SendString(&buffer, 1);
+}
+
 static void SendCommandHword(mm_word id, mm_hword arg)
 {
     mm_word buffer = (arg << 16) | (id << 8) | 3;
@@ -186,9 +193,9 @@ void mmJingleStop(void)
 }
 
 // Set playback position
-void mmSetPosition(mm_word position)
+void mmSetPositionEx(mm_word position, mm_word row)
 {
-    SendCommandByte(MSG_POSITION, position);
+    SendCommandByteByte(MSG_POSITION, position, row);
 }
 
 // Set module volume

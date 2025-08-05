@@ -265,11 +265,25 @@ mm_word mmGetPositionRow(void);
 ///     The current pattern.
 mm_word mmGetPosition(void);
 
+/// Set the current playback position.
+///
+/// It sets the sequence [aka order-list] position for the active module and the
+/// row inside the pattern.
+///
+/// @param position
+///     New position in module sequence.
+/// @param row
+///     New row in the destination pattern
+void mmSetPositionEx(mm_word position, mm_word row);
+
 /// Set the current sequence [aka order-list] position for the active module.
 ///
 /// @param position
 ///     New position in module sequence.
-void mmSetPosition(mm_word position);
+static inline void mmSetPosition(mm_word position)
+{
+    mmSetPositionEx(position, 0);
+}
 
 /// Set playback position.
 ///
@@ -281,7 +295,7 @@ void mmSetPosition(mm_word position);
 __attribute__((deprecated))
 static inline void mmPosition(mm_word position)
 {
-    mmSetPosition(position);
+    mmSetPositionEx(position, 0);
 }
 
 /// Used to determine if a module is playing.

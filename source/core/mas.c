@@ -431,18 +431,6 @@ static void mpp_setposition(mpl_layer_information *layer_info, mm_word position)
     layer_info->ploop_times = 0;
 }
 
-// Set playback position
-void mmSetPosition(mm_word position)
-{
-    // TODO: This was commented out in the original code. If it is uncommented,
-    // all channels will be reseted when setting the position. If not, the
-    // channels will keep playing and they will only be silenced when the notes
-    // end or when a new note overwrites it.
-    //mpp_resetchannels(mm_pchannels, mm_num_mch);
-
-    mpp_setposition(&mmLayerMain, position);
-}
-
 // Get current number of elapsed ticks in the row being played.
 mm_word mmGetPositionTick(void)
 {
@@ -1528,6 +1516,22 @@ static void mpph_FastForward(mpl_layer_information *layer, mm_word rows_to_skip)
         if (rows_to_skip == 0)
             break;
     }
+}
+
+void mmSetPositionEx(mm_word position, mm_word row)
+{
+    // TODO: This was commented out in the original code. If it is uncommented,
+    // all channels will be reseted when setting the position. If not, the
+    // channels will keep playing and they will only be silenced when the notes
+    // end or when a new note overwrites it.
+    //
+    //mpp_clayer = MM_MAIN;
+    //mpp_resetchannels(mm_pchannels, mm_num_mch);
+
+    mpp_setposition(&mmLayerMain, position);
+
+    if (row != 0)
+        mpph_FastForward(&mmLayerMain, row);
 }
 
 // An effect of 0 means custom behaviour, or disabled

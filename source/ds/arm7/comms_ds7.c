@@ -232,8 +232,13 @@ static ARM_CODE void ProcessNextMessage(void)
             break;
         }
         case MSG_POSITION:
-            mmSetPosition(ReadNFifoBytes(1));
+        {
+            mm_byte position = ReadNFifoBytes(1);
+            mm_byte row = ReadNFifoBytes(1);
+
+            mmSetPositionEx(position, row);
             break;
+        }
         case MSG_MASTERVOL:
         {
             mm_hword volume = ReadNFifoBytes(2);

@@ -17,7 +17,7 @@ enum mm_message_ids
     MSG_PAUSE           = 0x03, // Pause module
     MSG_RESUME          = 0x04, // Resume module
     MSG_STOP            = 0x05, // Stop module
-    MSG_POSITION        = 0x06, // Set playback position (only the pattern, not row or tick)
+    MSG_POSITION        = 0x06, // Set playback position (pattern and row, not tick)
     // 0x07 is reserved
     MSG_MASTERVOL       = 0x08, // Set master volume
     // 0x09 is reserved
