@@ -48,6 +48,10 @@ mm_active_channel *mm_achannels;
 mm_module_channel *mm_pchannels;
 mm_word mm_num_mch;
 mm_word mm_num_ach;
+
+// Module channels used for the jingle. The main module has a number of channels
+// defined by mmInit() in GBA and hardcoded to NUM_CHANNELS in NDS. However, the
+// jingle is hardcoded to MP_SCHANNELS in both platforms.
 mm_module_channel mm_schannels[MP_SCHANNELS];
 
 // Layer data for module playback.
@@ -74,7 +78,7 @@ mm_word mm_masterpitch;
 // Number of channels in layer.
 mm_byte mpp_nchannels;
 
-// Layer selection, 0 = main, 1 = sub
+// Current layer being processed: MM_MAIN or MM_JINGLE
 mm_layer_type mpp_clayer;
 
 #if defined(SYS_NDS7) || defined(SYS_NDS)
