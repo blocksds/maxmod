@@ -68,3 +68,18 @@ contain **MM_MAIN**. If the *sub* module (jingle) has ended, it will contain
 ```c
 mm_layer_type layer = (mm_layer_type)param;
 ```
+
+### MMCB\_SONGERROR
+
+It's possible that Maxmod detects a problem while playing a specific module. For
+example, it may be trying to play a module with too many channels, more than the
+ones allocated for the layer.
+
+Jingles always have 4 available channels. On DS, main modules have 32
+available channels. On GBA, the user decides how many channels are available
+when calling `mmInit()` or `mmInitDefault()`.
+
+The value of **param** is the layer that has had the error:
+```c
+mm_layer_type layer = (mm_layer_type)param;
+```

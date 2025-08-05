@@ -1513,6 +1513,10 @@ static void mpph_FastForward(mpl_layer_information *layer, mm_word rows_to_skip)
         if (ok == 0)
         {
             mppStop();
+
+            if (mmCallback != NULL)
+                mmCallback(MMCB_SONGERROR, mpp_clayer);
+
             break;
         }
 
@@ -1606,6 +1610,10 @@ IWRAM_CODE void mppProcessTick(void)
         if (ok == 0)
         {
             mppStop();
+
+            if (mmCallback != NULL)
+                mmCallback(MMCB_SONGERROR, mpp_clayer);
+
             return;
         }
     }

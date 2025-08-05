@@ -482,6 +482,18 @@ enum
 /// or MM_JINGLE if the jingle has finished.
 #define MMCB_SONGFINISHED   0x2B
 
+/// There has been an error while playing the song.
+///
+/// The value of param is MM_MAIN or MM_JINGLE, depending on the song that has
+/// had the error.
+///
+/// At the moment, the only way this event can be triggered is if Maxmod is
+/// asked to play a song with more channels than available for the layer.
+/// Jingles always have 4 available channels. On DS, main modules have 32
+/// available channels. On GBA, the user decides how many channels are available
+/// when calling `mmInit()` or `mmInitDefault()`.
+#define MMCB_SONGERROR      0x2C
+
 // ***************************************************************************
 /// @}
 // ***************************************************************************
