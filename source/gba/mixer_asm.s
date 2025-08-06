@@ -138,7 +138,7 @@ mmMixerMix: // params = { samples_count }
 // BEGIN MIXING ROUTINE
 //----------------------------------------------------------------------------------
 
-    ldr    r12, =mm_mixchannels
+    ldr    r12, =mm_mix_channels
     ldr    r12, [r12]
     mov    r11, #0              // volume addition
 

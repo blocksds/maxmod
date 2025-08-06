@@ -20,7 +20,7 @@ mm_byte mp_mix_seg; // Mixing segment select
 
 mm_addr mm_mixbuffer;
 
-mm_mixer_channel *mm_mixchannels;
+mm_mixer_channel *mm_mix_channels;
 
 mm_word mm_bpmdv;
 
@@ -44,43 +44,43 @@ static mm_voidfunc mm_vblank_function;
 // Set channel volume
 void mmMixerSetVolume(int channel, mm_word volume)
 {
-    mm_mixchannels[channel].vol = volume;
+    mm_mix_channels[channel].vol = volume;
 }
 
 // Set channel panning
 void mmMixerSetPan(int channel, mm_byte panning)
 {
-    mm_mixchannels[channel].pan = panning;
+    mm_mix_channels[channel].pan = panning;
 }
 
 // Scale mixing frequency
 void mmMixerMulFreq(int channel, mm_word factor)
 {
-    mm_word freq = mm_mixchannels[channel].freq;
+    mm_word freq = mm_mix_channels[channel].freq;
 
     freq = (freq * factor) >> 10;
 
-    mm_mixchannels[channel].freq = freq;
+    mm_mix_channels[channel].freq = freq;
 }
 
 // Stop mixing channel
 void mmMixerStopChannel(int channel)
 {
     // Set MSB (disable) of source
-    mm_mixchannels[channel].src = MIXCH_GBA_SRC_STOPPED;
+    mm_mix_channels[channel].src = MIXCH_GBA_SRC_STOPPED;
 }
 
 // Set channel read position
 void mmMixerSetRead(int channel, mm_word value)
 {
     // Store new offset
-    mm_mixchannels[channel].read = value;
+    mm_mix_channels[channel].read = value;
 }
 
 // Set channel mixing rate
 void mmMixerSetFreq(int channel, mm_word rate)
 {
-    mm_mixchannels[channel].freq = rate << 2;
+    mm_mix_channels[channel].freq = rate << 2;
 }
 
 static bool vblank_handler_enabled = false;
@@ -129,9 +129,9 @@ void mmMixerInit(mm_gba_system *setup)
 {
     mm_mixch_count = setup->mix_channel_count;
 
-    mm_mixchannels = setup->mixing_channels;
+    mm_mix_channels = setup->mixing_channels;
 
-    mm_mixch_end = (mm_addr)((mm_word)mm_mixchannels + mm_mixch_count * sizeof(mm_mixer_channel));
+    mm_mixch_end = (mm_addr)((mm_word)mm_mix_channels + mm_mixch_count * sizeof(mm_mixer_channel));
 
     mm_mixbuffer = setup->mixing_memory;
 
@@ -181,7 +181,7 @@ void mmMixerInit(mm_gba_system *setup)
 
     // Disable mixing channels
 
-    mm_mixer_channel *mix_ch = &mm_mixchannels[0];
+    mm_mixer_channel *mix_ch = &mm_mix_channels[0];
 
     for (mm_word i = 0; i < mm_mixch_count; i++)
         mix_ch[i].src = MIXCH_GBA_SRC_STOPPED;

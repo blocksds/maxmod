@@ -200,7 +200,7 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
 
 #if defined(__GBA__)
 
-    mm_mixer_channel *mix_ch = &mm_mixchannels[mix_channel];
+    mm_mixer_channel *mix_ch = &mm_mix_channels[mix_channel];
 
     // Set sample data address
 
@@ -390,13 +390,7 @@ void mmEffectCancelAll(void)
     // Look for all active channels that are playing an effect (flag
     // MCAF_EFFECT) and stop them.
 
-#ifdef __NDS__
     mm_mixer_channel *mix_ch = &mm_mix_channels[0];
-#endif
-#ifdef __GBA__
-    mm_mixer_channel *mix_ch = &mm_mixchannels[0];
-#endif
-
     mm_active_channel *act_ch = &mm_achannels[0];
 
     for (mm_word i = 0; i < mm_num_ach; i++, act_ch++, mix_ch++)
@@ -440,23 +434,16 @@ void mmUpdateEffects(void)
 
         // Test if channel is still active
 
-#if defined(__GBA__)
-        mm_mixer_channel *mix_ch = &mm_mixchannels[mix_channel];
-
-        if ((mix_ch->src & MIXCH_GBA_SRC_STOPPED) == 0)
-        {
-            new_bitmask |= (1 << i);
-            continue;
-        }
-#elif defined(__NDS__)
         mm_mixer_channel *mix_ch = &mm_mix_channels[mix_channel];
-
-        if (mix_ch->samp)
+#if defined(__GBA__)
+        if ((mix_ch->src & MIXCH_GBA_SRC_STOPPED) == 0)
+#elif defined(__NDS__)
+        if (mix_ch->samp != 0)
+#endif
         {
             new_bitmask |= (1 << i);
             continue;
         }
-#endif
 
         // Free achanel if it isn't active
 

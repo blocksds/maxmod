@@ -150,13 +150,7 @@ static void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
 static void mpp_suspend(mm_layer_type layer)
 {
     mm_active_channel *act_ch = &mm_achannels[0];
-
-#ifdef __NDS__
     mm_mixer_channel *mix_ch = &mm_mix_channels[0];
-#endif
-#ifdef __GBA__
-    mm_mixer_channel *mix_ch = &mm_mixchannels[0];
-#endif
 
     for (mm_word count = mm_num_ach; count != 0; count--, act_ch++, mix_ch++)
     {
@@ -303,13 +297,7 @@ static void mpp_resetchannels(mm_module_channel *channels,
 
     // Reset active channels linked to this layer.
 
-#ifdef __NDS__
     mm_mixer_channel *mix_ch = &mm_mix_channels[0];
-#endif
-#ifdef __GBA__
-    mm_mixer_channel *mix_ch = &mm_mixchannels[0];
-#endif
-
     mm_active_channel *act_ch = &mm_achannels[0];
 
     for (mm_word i = 0; i < mm_num_ach; i++, act_ch++, mix_ch++)
@@ -3106,11 +3094,7 @@ static mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information
                                                            mm_active_channel *act_ch,
                                                            mm_word channel)
 {
-#if defined(__GBA__)
-    mm_mixer_channel *mix_ch = &mm_mixchannels[channel];
-#else
     mm_mixer_channel *mix_ch = &mm_mix_channels[channel];
-#endif
 
     // Update mixing information
 
