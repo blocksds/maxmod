@@ -21,7 +21,7 @@ OPTFLAGS	:= -Os
 endif
 ifeq ($(SYSTEM),DS9)
 SOURCEDIRS	:= source/ds/common source/ds/arm9
-OPTFLAGS	:= -O2
+OPTFLAGS	:= -Os
 endif
 INCLUDEDIRS	:= include source
 
