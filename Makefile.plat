@@ -13,12 +13,15 @@ ARM_NONE_EABI_PATH	?= $(WONDERFUL_TOOLCHAIN)/toolchain/gcc-arm-none-eabi/bin/
 
 ifeq ($(SYSTEM),GBA)
 SOURCEDIRS	:= source/core source/gba
+OPTFLAGS	:= -O2
 endif
 ifeq ($(SYSTEM),DS7)
 SOURCEDIRS	:= source/core source/ds/common source/ds/arm7
+OPTFLAGS	:= -Os
 endif
 ifeq ($(SYSTEM),DS9)
 SOURCEDIRS	:= source/ds/common source/ds/arm9
+OPTFLAGS	:= -O2
 endif
 INCLUDEDIRS	:= include source
 
@@ -105,12 +108,12 @@ ASFLAGS		+= -g -x assembler-with-cpp $(DEFINES) $(ARCH) \
 		   -ffunction-sections -fdata-sections
 
 CFLAGS		+= -g -std=gnu11 $(WARNFLAGS) $(DEFINES) $(ARCH) \
-		   -mthumb -mthumb-interwork $(INCLUDEFLAGS) -O2 \
+		   -mthumb -mthumb-interwork $(INCLUDEFLAGS) $(OPTFLAGS) \
 		   -ffunction-sections -fdata-sections \
 		   -fomit-frame-pointer
 
 CXXFLAGS	+= -g -std=gnu++14 $(WARNFLAGS) $(DEFINES) $(ARCH) \
-		   -mthumb -mthumb-interwork $(INCLUDEFLAGS) -O2 \
+		   -mthumb -mthumb-interwork $(INCLUDEFLAGS) $(OPTFLAGS) \
 		   -ffunction-sections -fdata-sections \
 		   -fno-exceptions -fno-rtti \
 		   -fomit-frame-pointer
