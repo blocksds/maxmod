@@ -8,7 +8,7 @@
 
 #include <assert.h>
 
-#ifdef SYS_GBA
+#ifdef __GBA__
 #include <maxmod.h>
 #endif
 #include <mm_types.h>
@@ -41,7 +41,7 @@ typedef struct {
 } mm_module_channel;
 
 static_assert(sizeof(mm_module_channel) == 40);
-#ifdef SYS_GBA
+#ifdef __GBA__
 static_assert(sizeof(mm_module_channel) == MM_SIZEOF_MODCH);
 #endif
 
@@ -96,11 +96,11 @@ typedef struct {
 } mm_active_channel;
 
 static_assert(sizeof(mm_active_channel) == 28);
-#ifdef SYS_GBA
+#ifdef __GBA__
 static_assert(sizeof(mm_active_channel) == MM_SIZEOF_ACTCH);
 #endif
 
-#ifdef SYS_NDS
+#ifdef __NDS__
 
 // A DS mixer channel is active if "samp" isn't zero.
 typedef struct {
@@ -131,9 +131,9 @@ TODO: The defines are unused, they refer to the tpan/key_on byte
 #define MIXER_CF_REVERSE    16
 */
 
-#endif // SYS_NDS
+#endif // __NDS__
 
-#ifdef SYS_GBA
+#ifdef __GBA__
 
 #define MIXCH_GBA_SRC_STOPPED (1u << 31)
 
@@ -151,6 +151,6 @@ typedef struct {
 static_assert(sizeof(mm_mixer_channel) == 16);
 static_assert(sizeof(mm_mixer_channel) == MM_SIZEOF_MIXCH);
 
-#endif // SYS_GBA
+#endif // __GBA__
 
 #endif // MM_CORE_CHANNEL_TYPES_H__

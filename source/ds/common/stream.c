@@ -2,10 +2,11 @@
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
 // Copyright (c) 2023, Lorenzooone (lollo.lollo.rbiz@gmail.com)
+// Copyright (c) 2025, Antonio Niño Díaz (antonio_nd@outlook.com)
 
 #include <nds.h>
 
-#ifdef SYS_NDS9
+#ifdef ARM9
 #include <maxmod9.h>
 #else
 #include <maxmod7.h>
@@ -36,7 +37,7 @@
 
 #define NUM_TIMERS      4
 
-#ifdef SYS_NDS7
+#ifdef ARM7
 
 static uint32_t previous_irq_state;
 
@@ -54,7 +55,7 @@ static void mmRestoreIRQ_t(void)
     setCPSR(previous_irq_state | (getCPSR() & (~CPSR_FLAG_IRQ_DIS)));
 }
 
-#endif // SYS_NDS7
+#endif // ARM7
 
 static mm_hword mmsPreviousTimer;
 static mm_word StreamCounter;
@@ -110,7 +111,7 @@ static mm_byte get_shift_for_format(mm_stream_formats format)
     }
 }
 
-#ifdef SYS_NDS7
+#ifdef ARM7
 // Gets a format's value for cnt
 static mm_byte get_cnt_format(mm_stream_formats format)
 {
@@ -274,7 +275,7 @@ static void StreamExecuteUpdate(mm_word stream_position)
         }
     }
 
-#ifdef SYS_NDS9
+#ifdef ARM9
     DC_FlushRange(mmsData.wave_memory, mmsData.length_words * 4);
 #endif
 }
@@ -285,7 +286,7 @@ static void ForceStreamRequest(mm_word num_samples)
     StreamExecuteUpdate((num_samples >> 2) << 2);
 }
 
-#ifdef SYS_NDS7
+#ifdef ARM7
 void mmStreamOpen(mm_stream *stream, mm_addr wavebuffer, mm_addr workbuffer)
 {
 #else
@@ -296,7 +297,7 @@ void mmStreamOpen(mm_stream *stream)
     if (mmsData.is_active)
         return;
 
-#ifdef SYS_NDS7
+#ifdef ARM7
     // Save args if ARM7
     mmsData.wave_memory = wavebuffer;
     mmsData.work_memory = workbuffer;
@@ -354,7 +355,7 @@ void mmStreamOpen(mm_stream *stream)
     // Save real length (words)
     mmsData.length_words = length >> 2;
 
-#ifdef SYS_NDS9
+#ifdef ARM9
     // Allocate memory on the ARM9
     mmsData.wave_memory = calloc(length, 1);
     mmsData.work_memory = calloc(length, 1);
@@ -490,14 +491,14 @@ void mmStreamClose(void)
     mmsData.is_auto = 0;
     mmStreamEnd();
 
-#ifdef SYS_NDS9
+#ifdef ARM9
     // Free malloc'd memory
     free(mmsData.work_memory);
     free(mmsData.wave_memory);
 #endif
 }
 
-#ifdef SYS_NDS7
+#ifdef ARM7
 
 static void init_sound_channel(mm_byte channel, mm_byte panning, uintptr_t wave_memory)
 {

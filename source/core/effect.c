@@ -5,9 +5,9 @@
 
 #include <string.h>
 
-#if defined(SYS_GBA)
+#if defined(__GBA__)
 #include <maxmod.h>
-#elif defined(SYS_NDS7)
+#elif defined(__NDS__)
 #include <maxmod7.h>
 #endif
 
@@ -18,10 +18,10 @@
 #include "core/mas.h"
 #include "core/mixer.h"
 #include "core/mas_structs.h"
-#if defined(SYS_GBA)
+#if defined(__GBA__)
 #include "gba/main_gba.h"
 #include "gba/mixer.h"
-#elif defined(SYS_NDS7)
+#elif defined(__NDS__)
 #include "ds/arm7/main_ds7.h"
 #include "ds/arm7/mixer.h"
 #endif
@@ -198,7 +198,7 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
     // Setup mixer channel
     // -------------------
 
-#if defined(SYS_GBA)
+#if defined(__GBA__)
 
     mm_mixer_channel *mix_ch = &mm_mixchannels[mix_channel];
 
@@ -220,7 +220,7 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
     mix_ch->vol = (sound->volume * mm_sfx_mastervolume) >> 10;
     mix_ch->pan = sound->panning;
 
-#elif defined(SYS_NDS7)
+#elif defined(__NDS__)
 
     mm_mixer_channel *mix_ch = &mm_mix_channels[mix_channel];
 
@@ -312,9 +312,9 @@ void mmEffectVolume(mm_sfxhand handle, mm_word volume)
     if (mix_channel < 0)
         return;
 
-#if defined(SYS_GBA)
+#if defined(__GBA__)
     int shift = 10;
-#elif defined(SYS_NDS7)
+#elif defined(__NDS__)
     int shift = 2;
 #endif
 
@@ -390,10 +390,10 @@ void mmEffectCancelAll(void)
     // Look for all active channels that are playing an effect (flag
     // MCAF_EFFECT) and stop them.
 
-#ifdef SYS_NDS
+#ifdef __NDS__
     mm_mixer_channel *mix_ch = &mm_mix_channels[0];
 #endif
-#ifdef SYS_GBA
+#ifdef __GBA__
     mm_mixer_channel *mix_ch = &mm_mixchannels[0];
 #endif
 
@@ -409,13 +409,13 @@ void mmEffectCancelAll(void)
         memset(act_ch, 0, sizeof(mm_active_channel));
 
         // Disabled mixer channel. Disabled status differs between systems.
-#ifdef SYS_NDS
+#ifdef __NDS__
         mix_ch->key_on = 0;
         mix_ch->samp = 0;
         mix_ch->tpan = 0; // TODO: This isn't really needed, but it may help the
                           // compiler optimize the writes to the three fields?
 #endif
-#ifdef SYS_GBA
+#ifdef __GBA__
         mix_ch->src = MIXCH_GBA_SRC_STOPPED;
 #endif
     }
@@ -440,7 +440,7 @@ void mmUpdateEffects(void)
 
         // Test if channel is still active
 
-#if defined(SYS_GBA)
+#if defined(__GBA__)
         mm_mixer_channel *mix_ch = &mm_mixchannels[mix_channel];
 
         if ((mix_ch->src & MIXCH_GBA_SRC_STOPPED) == 0)
@@ -448,7 +448,7 @@ void mmUpdateEffects(void)
             new_bitmask |= (1 << i);
             continue;
         }
-#elif defined(SYS_NDS7)
+#elif defined(__NDS__)
         mm_mixer_channel *mix_ch = &mm_mix_channels[mix_channel];
 
         if (mix_ch->samp)

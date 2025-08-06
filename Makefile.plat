@@ -83,15 +83,15 @@ SOURCES_CPP	:= $(shell find -L $(SOURCEDIRS) -name "*.cpp")
 # -------------------------
 
 ifeq ($(SYSTEM),GBA)
-DEFINES		+= -D__GBA__ -DSYS_GBA
+DEFINES		+= -D__GBA__
 ARCH		:= -mcpu=arm7tdmi -mtune=arm7tdmi
 endif
 ifeq ($(SYSTEM),DS7)
-DEFINES		:= -D__NDS__ -DARM7 -DSYS_NDS -DSYS_NDS7
+DEFINES		:= -D__NDS__ -DARM7
 ARCH		:= -mcpu=arm7tdmi
 endif
 ifeq ($(SYSTEM),DS9)
-DEFINES		+= -D__NDS__ -DARM9 -DSYS_NDS -DSYS_NDS9
+DEFINES		+= -D__NDS__ -DARM9
 ARCH		:= -mcpu=arm946e-s+nofp
 endif
 

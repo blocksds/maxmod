@@ -14,11 +14,11 @@
 
 #define ARM_CODE   __attribute__((target("arm")))
 
-#ifdef SYS_NDS
+#ifdef __NDS__
 #define IWRAM_CODE
 #endif
 
-#ifdef SYS_GBA
+#ifdef __GBA__
 #define IWRAM_CODE __attribute__((section(".iwram"), long_call))
 #endif
 

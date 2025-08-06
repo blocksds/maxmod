@@ -14,19 +14,19 @@
 #include "core/mas.h"
 #include "core/mas_structs.h"
 
-#if defined(SYS_GBA)
+#if defined(__GBA__)
 #include "gba/main_gba.h"
 #include "gba/mixer.h"
-#elif defined(SYS_NDS)
+#elif defined(__NDS__)
 #include "ds/arm7/main_ds7.h"
 #include "ds/arm7/mixer.h"
 #endif
 
-#ifdef SYS_NDS
+#ifdef __NDS__
 #define IWRAM_CODE
 #endif
 
-#ifdef SYS_GBA
+#ifdef __GBA__
 #define IWRAM_CODE __attribute__((section(".iwram"), long_call))
 #endif
 
@@ -81,7 +81,7 @@ mm_byte mpp_nchannels;
 // Current layer being processed: MM_MAIN or MM_JINGLE
 mm_layer_type mpp_clayer;
 
-#if defined(SYS_NDS7) || defined(SYS_NDS)
+#if defined(__NDS__)
 // Speed divider for DS timing.
 static mm_word mpp_resolution;
 #endif
@@ -101,7 +101,7 @@ static void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
 {
     layer_info->bpm = bpm;
 
-#if defined(SYS_GBA)
+#if defined(__GBA__)
 
     if (mpp_clayer == MM_MAIN)
     {
@@ -123,7 +123,7 @@ static void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
         layer_info->tickrate = (bpm << 15) / 149;
     }
 
-#elif defined(SYS_NDS7)
+#elif defined(__NDS__)
 
     // vsync = ~59.8261 HZ (says GBATEK)
     // divider = hz * 2.5 * 64
@@ -151,10 +151,10 @@ static void mpp_suspend(mm_layer_type layer)
 {
     mm_active_channel *act_ch = &mm_achannels[0];
 
-#ifdef SYS_NDS
+#ifdef __NDS__
     mm_mixer_channel *mix_ch = &mm_mix_channels[0];
 #endif
-#ifdef SYS_GBA
+#ifdef __GBA__
     mm_mixer_channel *mix_ch = &mm_mixchannels[0];
 #endif
 
@@ -165,7 +165,7 @@ static void mpp_suspend(mm_layer_type layer)
         if ((act_ch->flags & (MCAF_SUB | MCAF_EFFECT)) != (layer << 6))
             continue;
 
-#ifdef SYS_GBA
+#ifdef __GBA__
         mix_ch->freq = 0;
 #else
         mix_ch->freq = 0;
@@ -250,7 +250,7 @@ void mmSetJingleVolume(mm_word volume)
 
 static void mpps_backdoor(mm_word id, mm_pmode mode, mm_layer_type layer)
 {
-#if defined(SYS_GBA)
+#if defined(__GBA__)
     // In the MSL format, the module table goes right after the sample table,
     // but the size of both isn't fixed. We need to calculate the start of the
     // module table by checking how big the sample table is.
@@ -263,7 +263,7 @@ static void mpps_backdoor(mm_word id, mm_pmode mode, mm_layer_type layer)
 
     // Play this module
     mmPlayModule(moduleAddress, mode, layer);
-#elif defined(SYS_NDS)
+#elif defined(__NDS__)
     mm_word address = (mm_word)mmModuleBank[id];
     if (address == 0)
         return;
@@ -303,10 +303,10 @@ static void mpp_resetchannels(mm_module_channel *channels,
 
     // Reset active channels linked to this layer.
 
-#ifdef SYS_NDS
+#ifdef __NDS__
     mm_mixer_channel *mix_ch = &mm_mix_channels[0];
 #endif
-#ifdef SYS_GBA
+#ifdef __GBA__
     mm_mixer_channel *mix_ch = &mm_mixchannels[0];
 #endif
 
@@ -323,13 +323,13 @@ static void mpp_resetchannels(mm_module_channel *channels,
         memset(act_ch, 0, sizeof(mm_active_channel));
 
         // Disabled mixer channel. Disabled status differs between systems.
-#ifdef SYS_NDS
+#ifdef __NDS__
         mix_ch->key_on = 0;
         mix_ch->samp = 0;
         mix_ch->tpan = 0; // TODO: This isn't really needed, but it may help the
                           // compiler optimize the writes to the three fields?
 #endif
-#ifdef SYS_GBA
+#ifdef __GBA__
         mix_ch->src = MIXCH_GBA_SRC_STOPPED;
 #endif
     }
@@ -571,7 +571,7 @@ void mmSetModulePitch(mm_word pitch)
     mm_masterpitch = pitch;
 }
 
-#ifdef SYS_NDS7
+#ifdef __NDS__
 
 // Set update resolution
 void mmSetResolution(mm_word divider)
@@ -589,7 +589,7 @@ void mmSetResolution(mm_word divider)
 
 #endif
 
-#ifdef SYS_GBA
+#ifdef __GBA__
 
 // Update sub-module/jingle, this is bad for some reason...
 void mppUpdateSub(void)
@@ -619,7 +619,7 @@ void mppUpdateSub(void)
 
 #endif
 
-#ifdef SYS_NDS
+#ifdef __NDS__
 
 // Update module layer
 static void mppUpdateLayer(mpl_layer_information *layer)
@@ -740,7 +740,7 @@ IWRAM_CODE void mpp_Channel_NewNote(mm_module_channel *module_channel, mpl_layer
 
 mppt_NNA_CUT:
 
-#ifdef SYS_NDS // NDS supports volume ramping
+#ifdef __NDS__ // NDS supports volume ramping
     if (act_ch->type == 0)
         return; // Use the same channel
 
@@ -774,7 +774,7 @@ mppt_alloc_channel:
     mm_word alloc = mmAllocChannel(); // Find new active channel
     module_channel->alloc = alloc; // Save it
 
-#ifdef SYS_NDS
+#ifdef __NDS__
     if (alloc == NO_CHANNEL_AVAILABLE)
         return;
 
@@ -3106,7 +3106,7 @@ static mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information
                                                            mm_active_channel *act_ch,
                                                            mm_word channel)
 {
-#if defined(SYS_GBA)
+#if defined(__GBA__)
     mm_mixer_channel *mix_ch = &mm_mixchannels[channel];
 #else
     mm_mixer_channel *mix_ch = &mm_mix_channels[channel];
@@ -3130,7 +3130,7 @@ static mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information
     if (sample->msl_id == 0xFFFF)
     {
         // The sample has been provided
-#ifdef SYS_GBA
+#ifdef __GBA__
         mm_mas_gba_sample *gba_sample = (mm_mas_gba_sample *)&(sample->data[0]);
 
         mix_ch->src = (mm_word)&(gba_sample->data[0]);
@@ -3145,7 +3145,7 @@ static mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information
     else
     {
         // Get sample from solution
-#ifdef SYS_GBA
+#ifdef __GBA__
         msl_head *head = mp_solution;
         mm_word sample_offset = (mm_word)head->sampleTable[sample->msl_id];
 
@@ -3169,7 +3169,7 @@ static mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information
 #endif
     }
 
-#ifdef SYS_GBA
+#ifdef __GBA__
     mix_ch->read = ((mm_word)mpp_vars.sampoff) << (MP_SAMPFRAC + 8);
 #else
     mix_ch->read = mpp_vars.sampoff;
@@ -3207,7 +3207,7 @@ static mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *la
         if (mpp_clayer == MM_MAIN)
             value = (value * mm_masterpitch) >> 10;
 
-#ifdef SYS_GBA
+#ifdef __GBA__
         const mm_word scale = (4096 * 65536) / 15768;
         mix_ch->freq = (scale * value) >> 16;
 #else
@@ -3225,7 +3225,7 @@ static mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *la
             if (mpp_clayer == MM_MAIN)
                 value = (value * mm_masterpitch) >> 10;
 
-#ifdef SYS_GBA
+#ifdef __GBA__
             const mm_word scale = (4096 * 65536) / 15768;
             mix_ch->freq = (scale * value) >> 16;
 #else
@@ -3261,7 +3261,7 @@ static mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *la
 
     vol *= layer->volume;
 
-#ifdef SYS_NDS
+#ifdef __NDS__
     vol = vol >> (19 - 3 - 5);  // (19 - 3) (new 16-bit levels!)
 
     if (vol > 65535) // Clip values over 65535 // 2047
@@ -3286,7 +3286,7 @@ static void mpp_Update_ACHN_notest_disable_and_panning(mm_word volume, mm_active
     if (volume != 0)
         goto mppt_achn_audible;
 
-#ifdef SYS_NDS // NDS has volume ramping!
+#ifdef __NDS__ // NDS has volume ramping!
     if (act_ch->type == ACHN_BACKGROUND)
     {
         if (act_ch->volume == 0)
@@ -3303,14 +3303,14 @@ static void mpp_Update_ACHN_notest_disable_and_panning(mm_word volume, mm_active
     if (act_ch->flags & MCAF_KEYON)
         goto mppt_achn_audible;
 
-#ifdef SYS_NDS
+#ifdef __NDS__
 mppt_achn_not_audible:
 #endif
 
     // Stop channel
     // ------------
 
-#ifdef SYS_GBA
+#ifdef __GBA__
     mix_ch->src = MIXCH_GBA_SRC_STOPPED;
 #else
     mix_ch->samp = 0;
@@ -3332,7 +3332,7 @@ mppt_achn_audible:
     mix_ch->vol = volume;
 
     // Check if mixer channel has ended
-#ifdef SYS_GBA
+#ifdef __GBA__
     if (mix_ch->src & MIXCH_GBA_SRC_STOPPED)
     {
 #else
@@ -3348,7 +3348,7 @@ mppt_achn_audible:
         // TODO: This isn't required because we've just checked if the mixer
         // channel is stopped
         // Stop mixer channel
-#ifdef SYS_GBA
+#ifdef __GBA__
         mix_ch->src = MIXCH_GBA_SRC_STOPPED;
 #else
         mix_ch->samp = 0;
@@ -3371,11 +3371,11 @@ mppt_achn_audible:
     else if (newpan > 255)
         newpan = 255;
 
-#ifdef SYS_NDS
+#ifdef __NDS__
     mix_ch->tpan = newpan >> 1;
 #endif
 
-#ifdef SYS_GBA
+#ifdef __GBA__
     mix_ch->pan = newpan;
 #endif
 
