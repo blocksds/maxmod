@@ -3017,8 +3017,8 @@ mppt_has_volenv:
         mm_mas_envelope *env = (mm_mas_envelope *)env_ptr;
         mpph_ProcessEnvelope(act_ch->envc_pan, act_ch->envn_pan, env, act_ch);
 
-        act_ch->envn_vol = mm_pe_ret.node;
-        act_ch->envc_vol = mm_pe_ret.count;
+        act_ch->envn_pan = mm_pe_ret.node;
+        act_ch->envc_pan = mm_pe_ret.count;
 
         mpp_vars.panplus += (mm_pe_ret.value_mul_64 >> 4) - 128;
     }
