@@ -62,9 +62,8 @@ static void mm_startup_wait(void)
 
 static void EnableSound(void)
 {
-    // Full volume | Enable
-    REG_SOUNDCNT |= (SOUND_ENABLE | SOUND_VOL(100)); // 100 out of 127
-    // TODO: Fix this, it doesn't clear the volume before setting it with OR
+    // Enable sound and set the maximum value
+    REG_SOUNDCNT |= SOUND_ENABLE | SOUND_VOL(127);
 }
 
 static void ClearAllChannels(void)
