@@ -375,32 +375,39 @@ static void mpp_setposition(mpl_layer_information *layer_info, mm_word position)
 
         // Get sequence entry
         entry = header->sequence[position];
+
+        // Value 254 is written by mmutil when an invalid pattern order is found
+        // (when it's outside of bounds). Skip pattern orders with 254.
         if (entry == 254)
         {
             position++;
             continue;
         }
-        else if (entry != 255) // TODO: Possible bug. Should it be "=="?
-        {
-            break;
-        }
 
-        if (layer_info->mode != MM_PLAY_LOOP)
+        // The last pattern order of the song is marked as 255. If we haven't
+        // finished the last pattern, keep playing the song.
+        if (entry != 255)
+            break;
+
+        // We have reached the end of the last pattern. If the song is looping,
+        // go to the loop starting point. If not, stop the playback.
+        if (layer_info->mode == MM_PLAY_ONCE)
         {
             // It's playing once
-
             mppStop();
 
             if (mmCallback != NULL)
                 mmCallback(MMCB_SONGFINISHED, mpp_clayer);
         }
+        else // if (layer_info->mode == MM_PLAY_LOOP)
+        {
+            // If the song has ended in the call to mppStop()
+            if (layer_info->isplaying == 0)
+                return;
 
-        // If the song has ended in the call to mppStop()
-        if (layer_info->isplaying == 0)
-            return;
-
-        // Set position to 'restart'
-        position = header->repeat_position;
+            // If looping, set position to the repeat position
+            position = header->repeat_position;
+        }
     }
 
     // Calculate pattern address
