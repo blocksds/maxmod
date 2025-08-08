@@ -122,15 +122,6 @@ static_assert(sizeof(mm_mixer_channel) == 16);
 // scale = 65536*1024*2 / mixrate
 #define MIXER_SCALE         4096 //6151
 
-/*
-TODO: The defines are unused, they refer to the tpan/key_on byte
-#define MIXER_CF_START      128
-#define MIXER_CF_SOFT       2
-#define MIXER_CF_SURROUND   4
-#define MIXER_CF_FILTER     8
-#define MIXER_CF_REVERSE    16
-*/
-
 #endif // __NDS__
 
 #ifdef __GBA__
