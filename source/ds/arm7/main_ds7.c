@@ -122,7 +122,7 @@ static void StopActiveChannel(mm_word index)
     // There are more channels than physical sound channels,
     // but there was no check for that in the asm... :/
     if (index < NUM_PHYS_CHANNELS)
-        SCHANNEL_CR(index) = 0;
+        REG_SOUNDXCNT(index) = 0;
 
     mm_active_channel *act_ch = &mm_achannels[index];
     mm_byte prev_flags = act_ch->flags;

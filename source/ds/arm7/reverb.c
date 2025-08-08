@@ -43,19 +43,14 @@ static mm_byte ReverbStarted;
 // Set the reverb channel back to the default
 static void SetReverbChannelToDefault(mm_byte channel)
 {
-#define DEFAULT_VOLUME 0x7F
-#define DEFAULT_PANNING 0x40
-#define DEFAULT_LOOP 1
-#define DEFAULT_FORMAT 1
+    REG_SOUNDXCNT(channel) = SOUNDXCNT_VOL_MUL(127) | // Max
+                             SOUNDXCNT_PAN(64) | // Center
+                             SOUNDXCNT_REPEAT | SOUNDXCNT_FORMAT_16BIT;
 
-#define DEFAULT_REVERB_TIMER 0xFE00
-
-    SCHANNEL_CR(channel) = (DEFAULT_VOLUME << 0) | (DEFAULT_PANNING << 16)
-                         | (DEFAULT_LOOP << 27) | (DEFAULT_FORMAT << 29);
-    SCHANNEL_SOURCE(channel) = 0;
-    SCHANNEL_TIMER(channel) = DEFAULT_REVERB_TIMER;
-    SCHANNEL_REPEAT_POINT(channel) = 0;
-    SCHANNEL_LENGTH(channel) = 0;
+    REG_SOUNDXSAD(channel) = 0;
+    REG_SOUNDXTMR(channel) = 0xFE00;
+    REG_SOUNDXPNT(channel) = 0;
+    REG_SOUNDXLEN(channel) = 0;
 }
 
 // Disables/Resets sound channels, resets capture and clears flags.
@@ -116,15 +111,15 @@ void SetupChannel(mm_reverb_cfg* config, mm_byte channel)
 {
     // Memory/SRC
     if (config->flags & MMRF_MEMORY)
-        SCHANNEL_SOURCE(channel) = (u32)(config->memory);
+        REG_SOUNDXSAD(channel) = (u32)(config->memory);
 
     // delay/LEN
     if (config->flags & MMRF_DELAY)
-        SCHANNEL_LENGTH(channel) = config->delay;
+        REG_SOUNDXLEN(channel) = config->delay;
 
     // rate/TMR
     if (config->flags & MMRF_RATE)
-        SCHANNEL_TIMER(channel) = -config->rate;
+        REG_SOUNDXTMR(channel) = -config->rate;
 
     // feedback/CNT:volume,shift
     if (config->flags & MMRF_FEEDBACK)
@@ -132,13 +127,13 @@ void SetupChannel(mm_reverb_cfg* config, mm_byte channel)
         mm_word vol = mmVolumeDivTable[(config->feedback >> 7) & 0xF];
         mm_word shift = mmVolumeShiftTable[(config->feedback >> 7) & 0xF];
 
-        SCHANNEL_CR(channel) &= 0xFFFF0000;
-        SCHANNEL_CR(channel) |= (vol << 8) | (config->feedback >> shift);
+        REG_SOUNDXCNT(channel) &= 0xFFFF0000;
+        REG_SOUNDXCNT(channel) |= (vol << 8) | (config->feedback >> shift);
     }
 
     // panning/CNT:panning
     if (config->flags & MMRF_PANNING)
-        SCHANNEL_PAN(channel) = config->panning;
+        REG_SOUNDXPAN(channel) = config->panning;
 }
 
 // Setup SOUNDCNT with dry settings
@@ -151,12 +146,12 @@ void CopyDrySettings(void)
     mm_hword mixer_info = REG_SOUNDCNT;
 
     // Clear source bits
-    mixer_info &= 0xFFFFF0FF;
+    mixer_info &= ~(SOUNDCNT_LEFT_OUTPUT_MASK | SOUNDCNT_RIGHT_OUTPUT_MASK);
 
     if (ReverbNoDryLeft)
-        mixer_info |= 1 << 8;
+        mixer_info |= SOUNDCNT_LEFT_OUTPUT_CH1; // Left output = channel 1
     if (ReverbNoDryRight)
-        mixer_info |= 2 << 10;
+        mixer_info |= SOUNDCNT_RIGHT_OUTPUT_CH3; // Right output = channel 3
 
     REG_SOUNDCNT = mixer_info;
 }
@@ -215,8 +210,8 @@ void mmReverbConfigure(mm_reverb_cfg* config)
     {
         REG_SNDCAP0CNT |= SNDCAPCNT_FORMAT_8BIT;
 
-        SCHANNEL_CR(REVERB_CHN_LEFT) &= 0x00FFFFFF;
-        SCHANNEL_CR(REVERB_CHN_LEFT) |= SOUND_FORMAT_8BIT | SOUND_REPEAT;
+        REG_SOUNDXCNT(REVERB_CHN_LEFT) &= 0x00FFFFFF;
+        REG_SOUNDXCNT(REVERB_CHN_LEFT) |= SOUNDXCNT_FORMAT_8BIT | SOUNDXCNT_REPEAT;
     }
 
     // Check/Set 16-bit left
@@ -224,8 +219,8 @@ void mmReverbConfigure(mm_reverb_cfg* config)
     {
         REG_SNDCAP0CNT &= ~SNDCAPCNT_FORMAT_8BIT;
 
-        SCHANNEL_CR(REVERB_CHN_LEFT) &= 0x00FFFFFF;
-        SCHANNEL_CR(REVERB_CHN_LEFT) |= SOUND_FORMAT_16BIT | SOUND_REPEAT;
+        REG_SOUNDXCNT(REVERB_CHN_LEFT) &= 0x00FFFFFF;
+        REG_SOUNDXCNT(REVERB_CHN_LEFT) |= SOUNDXCNT_FORMAT_16BIT | SOUNDXCNT_REPEAT;
     }
 
     // Check/Set 8-bit right
@@ -233,8 +228,8 @@ void mmReverbConfigure(mm_reverb_cfg* config)
     {
         REG_SNDCAP1CNT |= SNDCAPCNT_FORMAT_8BIT;
 
-        SCHANNEL_CR(REVERB_CHN_RIGHT) &= 0x00FFFFFF;
-        SCHANNEL_CR(REVERB_CHN_RIGHT) |= SOUND_FORMAT_8BIT | SOUND_REPEAT;
+        REG_SOUNDXCNT(REVERB_CHN_RIGHT) &= 0x00FFFFFF;
+        REG_SOUNDXCNT(REVERB_CHN_RIGHT) |= SOUNDXCNT_FORMAT_8BIT | SOUNDXCNT_REPEAT;
     }
 
     // Check/Set 16-bit right
@@ -242,8 +237,8 @@ void mmReverbConfigure(mm_reverb_cfg* config)
     {
         REG_SNDCAP1CNT &= ~SNDCAPCNT_FORMAT_8BIT;
 
-        SCHANNEL_CR(REVERB_CHN_RIGHT) &= 0x00FFFFFF;
-        SCHANNEL_CR(REVERB_CHN_RIGHT) |= SOUND_FORMAT_16BIT | SOUND_REPEAT;
+        REG_SOUNDXCNT(REVERB_CHN_RIGHT) &= 0x00FFFFFF;
+        REG_SOUNDXCNT(REVERB_CHN_RIGHT) |= SOUNDXCNT_FORMAT_16BIT | SOUNDXCNT_REPEAT;
     }
 
     mm_bool update_dry_settings = 0;
@@ -286,19 +281,19 @@ void mmReverbStart(mm_reverbch channels)
     if (channels & MMRC_LEFT)
     {
         // Enable capture
-        REG_SNDCAP0CNT |= 1 << 7;
+        REG_SNDCAP0CNT |= SNDCAPCNT_START_BUSY;
 
         // Starts the channel
-        SCHANNEL_CR(REVERB_CHN_LEFT) |= 1 << 31;
+        REG_SOUNDXCNT(REVERB_CHN_LEFT) |= SOUNDXCNT_ENABLE;
     }
 
     if (channels & MMRC_RIGHT)
     {
         // Enable capture
-        REG_SNDCAP1CNT |= 1 << 7;
+        REG_SNDCAP1CNT |= SNDCAPCNT_START_BUSY;
 
         // Starts the channel
-        SCHANNEL_CR(REVERB_CHN_RIGHT) |= 1 << 31;
+        REG_SOUNDXCNT(REVERB_CHN_RIGHT) |= SOUNDXCNT_ENABLE;
     }
 
     ReverbStarted = 1;
@@ -315,23 +310,25 @@ void mmReverbStop(mm_reverbch channels)
     if (channels & MMRC_LEFT)
     {
         // Disable capture
-        REG_SNDCAP0CNT &= ~(1 << 7);
+        REG_SNDCAP0CNT &= ~SNDCAPCNT_START_BUSY;
 
         // Stops the channel
-        SCHANNEL_CR(REVERB_CHN_LEFT) &= ~(1 << 31);
+        REG_SOUNDXCNT(REVERB_CHN_LEFT) &= ~SOUNDXCNT_ENABLE;
 
-        mixer_info &= ~(3 << 8);
+        mixer_info &= ~SOUNDCNT_LEFT_OUTPUT_MASK;
+        mixer_info |= SOUNDCNT_LEFT_OUTPUT_MIXER; // Left output = all channels
     }
 
     if (channels == MMRC_RIGHT)
     {
         // Disable capture
-        REG_SNDCAP1CNT &= ~(1 << 7);
+        REG_SNDCAP1CNT &= ~SNDCAPCNT_START_BUSY;
 
         // Stops the channel
-        SCHANNEL_CR(REVERB_CHN_RIGHT) &= ~(1 << 31);
+        REG_SOUNDXCNT(REVERB_CHN_RIGHT) &= ~SOUNDXCNT_ENABLE;
 
-        mixer_info &= ~(3 << 10);
+        mixer_info &= ~SOUNDCNT_RIGHT_OUTPUT_MASK;
+        mixer_info |= SOUNDCNT_RIGHT_OUTPUT_MIXER; // Right output = all channels
     }
 
     REG_SOUNDCNT = mixer_info;

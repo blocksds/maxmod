@@ -503,30 +503,30 @@ void mmStreamClose(void)
 static void init_sound_channel(mm_byte channel, mm_byte panning, uintptr_t wave_memory)
 {
     // Clear cnt, tmr and pnt
-    SCHANNEL_CR(channel) = 0;
-    SCHANNEL_TIMER(channel) = 0;
-    SCHANNEL_REPEAT_POINT(channel) = 0;
+    REG_SOUNDXCNT(channel) = 0;
+    REG_SOUNDXTMR(channel) = 0;
+    REG_SOUNDXPNT(channel) = 0;
 
     // Copy src and tmr
-    SCHANNEL_SOURCE(channel) = wave_memory;
-    SCHANNEL_TIMER(channel) = -mmsData.clocks;
+    REG_SOUNDXSAD(channel) = wave_memory;
+    REG_SOUNDXTMR(channel) = -mmsData.clocks;
 
     // Set length
-    SCHANNEL_LENGTH(channel) = mmsData.length_words;
+    REG_SOUNDXLEN(channel) = mmsData.length_words;
 
     // Set volume and panning
-    SCHANNEL_VOL(channel) = MAX_VOLUME;
-    SCHANNEL_PAN(channel) = panning;
+    REG_SOUNDXVOL(channel) = MAX_VOLUME;
+    REG_SOUNDXPAN(channel) = panning;
 }
 
 static void start_sound_channel(mm_byte channel)
 {
-    SCHANNEL_CR(channel) |= (START_CHANNEL_LOOP | (get_cnt_format(mmsData.format) << 5)) << 24;
+    REG_SOUNDXCNT(channel) |= (START_CHANNEL_LOOP | (get_cnt_format(mmsData.format) << 5)) << 24;
 }
 
 static void stop_sound_channel(mm_byte channel)
 {
-    SCHANNEL_CR(channel) = 0;
+    REG_SOUNDXCNT(channel) = 0;
 
     // Unlock channel
     mmUnlockChannels(1 << channel);

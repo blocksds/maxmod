@@ -63,7 +63,7 @@ static void mm_startup_wait(void)
 static void EnableSound(void)
 {
     // Enable sound and set the maximum value
-    REG_SOUNDCNT |= SOUND_ENABLE | SOUND_VOL(127);
+    REG_SOUNDCNT |= SOUNDCNT_ENABLE | SOUNDCNT_VOL(127);
 }
 
 static void ClearAllChannels(void)
@@ -74,11 +74,11 @@ static void ClearAllChannels(void)
     {
         if (bitmask & (1 << i))
         {
-            SCHANNEL_CR(i) = 0;
-            SCHANNEL_SOURCE(i) = 0;
-            SCHANNEL_TIMER(i) = 0;
-            SCHANNEL_REPEAT_POINT(i) = 0;
-            SCHANNEL_LENGTH(i) = 0;
+            REG_SOUNDXCNT(i) = 0;
+            REG_SOUNDXSAD(i) = 0;
+            REG_SOUNDXTMR(i) = 0;
+            REG_SOUNDXPNT(i) = 0;
+            REG_SOUNDXLEN(i) = 0;
         }
     }
 }
@@ -103,11 +103,11 @@ static void mmSetupModeB(void)
     {
         if (bitmask & (1 << i))
         {
-            SCHANNEL_CR(i) = 0xA8000000;
-            SCHANNEL_SOURCE(i) = (uintptr_t)mm_mix_data.mix_data_b.output[i];
-            SCHANNEL_TIMER(i) = 0xFE00;
-            SCHANNEL_REPEAT_POINT(i) = 0;
-            SCHANNEL_LENGTH(i) = MM_MIX_B_NUM_SAMPLES;
+            REG_SOUNDXCNT(i) = 0xA8000000;
+            REG_SOUNDXSAD(i) = (uintptr_t)mm_mix_data.mix_data_b.output[i];
+            REG_SOUNDXTMR(i) = 0xFE00;
+            REG_SOUNDXPNT(i) = 0;
+            REG_SOUNDXLEN(i) = MM_MIX_B_NUM_SAMPLES;
         }
     }
 
@@ -130,26 +130,30 @@ static void SetupSWM(void)
     TIMER_CR(MIX_TIMER_NUMBER) = 0;
 
     // Disable sound channel and clear loop points
-    SCHANNEL_CR(SWM_CHANNEL_1) = 0;
-    SCHANNEL_CR(SWM_CHANNEL_2) = 0;
-    SCHANNEL_REPEAT_POINT(SWM_CHANNEL_1) = 0;
-    SCHANNEL_REPEAT_POINT(SWM_CHANNEL_2) = 0;
+    REG_SOUNDXCNT(SWM_CHANNEL_1) = 0;
+    REG_SOUNDXCNT(SWM_CHANNEL_2) = 0;
+    REG_SOUNDXPNT(SWM_CHANNEL_1) = 0;
+    REG_SOUNDXPNT(SWM_CHANNEL_2) = 0;
 
     // Setup sources
-    SCHANNEL_SOURCE(SWM_CHANNEL_1) = (uintptr_t)mm_mix_data.mix_data_c.mix_output[0];
-    SCHANNEL_SOURCE(SWM_CHANNEL_2) = (uintptr_t)mm_mix_data.mix_data_c.mix_output[1];
+    REG_SOUNDXSAD(SWM_CHANNEL_1) = (uintptr_t)mm_mix_data.mix_data_c.mix_output[0];
+    REG_SOUNDXSAD(SWM_CHANNEL_2) = (uintptr_t)mm_mix_data.mix_data_c.mix_output[1];
 
     // Set sampling frequency
-    SCHANNEL_TIMER(SWM_CHANNEL_1) = -768;
-    SCHANNEL_TIMER(SWM_CHANNEL_2) = -768;
+    REG_SOUNDXTMR(SWM_CHANNEL_1) = -768;
+    REG_SOUNDXTMR(SWM_CHANNEL_2) = -768;
 
     // Set source length
-    SCHANNEL_LENGTH(SWM_CHANNEL_1) = MM_SW_BUFFERLEN / 2;
-    SCHANNEL_LENGTH(SWM_CHANNEL_2) = MM_SW_BUFFERLEN / 2;
+    REG_SOUNDXLEN(SWM_CHANNEL_1) = MM_SW_BUFFERLEN / 2;
+    REG_SOUNDXLEN(SWM_CHANNEL_2) = MM_SW_BUFFERLEN / 2;
 
     // Setup control
-    SCHANNEL_CR(SWM_CHANNEL_1) = SOUND_VOL(0x7F) | SOUND_PAN(0) | SOUND_REPEAT | SOUND_FORMAT_16BIT | SCHANNEL_ENABLE;
-    SCHANNEL_CR(SWM_CHANNEL_2) = SOUND_VOL(0x7F) | SOUND_PAN(0x7F) | SOUND_REPEAT | SOUND_FORMAT_16BIT | SCHANNEL_ENABLE;
+    REG_SOUNDXCNT(SWM_CHANNEL_1) = SOUNDXCNT_VOL_MUL(0x7F) | SOUNDXCNT_PAN(0) |
+                                   SOUNDXCNT_REPEAT | SOUNDXCNT_FORMAT_16BIT |
+                                   SOUNDXCNT_ENABLE;
+    REG_SOUNDXCNT(SWM_CHANNEL_2) = SOUNDXCNT_VOL_MUL(0x7F) | SOUNDXCNT_PAN(0x7F) |
+                                   SOUNDXCNT_REPEAT | SOUNDXCNT_FORMAT_16BIT |
+                                   SOUNDXCNT_ENABLE;
 
     mm_startup_wait();
 
@@ -229,7 +233,7 @@ void mmSelectMode(mm_mode_enum mode)
     mm_reset_channels();
 
     // Clear volume and enable bit
-    REG_SOUNDCNT &= ~(SOUND_ENABLE | SOUND_VOL(0xFF));
+    REG_SOUNDCNT &= ~(SOUNDCNT_ENABLE | SOUNDCNT_VOL(0xFF));
 
     memset(&mm_mix_data, 0, sizeof(mm_mix_data_ds));
 
@@ -288,7 +292,8 @@ void mmMixerPre(void)
             {
                 // Read shadow SOUNDCNT
                 mm_word shadow = *(mm_word *)&(mm_mix_data.mix_data_b.shadow[i]);
-                SCHANNEL_CR(i) = shadow | SOUND_REPEAT | SOUND_FORMAT_16BIT | SCHANNEL_ENABLE;
+                REG_SOUNDXCNT(i) = SOUNDXCNT_ENABLE | shadow |
+                                   SOUNDXCNT_REPEAT | SOUNDXCNT_FORMAT_16BIT;
             }
 
             channels >>= 1;
@@ -310,21 +315,21 @@ void mmMixerPre(void)
 
                 if (shadow[i].src != 0)
                 {
-                    SCHANNEL_CR(i) = 0;
+                    REG_SOUNDXCNT(i) = 0;
 
-                    SCHANNEL_SOURCE(i) = shadow[i].src;
-                    SCHANNEL_REPEAT_POINT(i) = shadow[i].pnt;
-                    SCHANNEL_LENGTH(i) = shadow[i].len;
+                    REG_SOUNDXSAD(i) = shadow[i].src;
+                    REG_SOUNDXPNT(i) = shadow[i].pnt;
+                    REG_SOUNDXLEN(i) = shadow[i].len;
 
-                    SCHANNEL_CR(i) = shadow[i].cnt;
+                    REG_SOUNDXCNT(i) = shadow[i].cnt;
 
                     shadow[i].src = 0;
                 }
 
-                SCHANNEL_TIMER(i) = shadow[i].tmr;
+                REG_SOUNDXTMR(i) = shadow[i].tmr;
 
-                //SCHANNEL_PAN(i) = shadow[i].cnt >> 16;
-                SCHANNEL_CR(i) = shadow[i].cnt;
+                //REG_SOUNDXPAN(i) = shadow[i].cnt >> 16;
+                REG_SOUNDXCNT(i) = shadow[i].cnt;
             }
 
             channels >>= 1;
@@ -431,7 +436,7 @@ static ARM_CODE void mmMixA(void)
 
         if (mix_ch->samp == 0) // 0 = channel is disabled
         {
-            SCHANNEL_CR(channel) = 0; // Clear channel and skip to next
+            REG_SOUNDXCNT(channel) = 0; // Clear channel and skip to next
             continue;
         }
 
@@ -480,11 +485,11 @@ static ARM_CODE void mmMixA(void)
                 }
 
                 // write CNT=0,SAD=SAD,TMR=0,PNT=PNT,LEN=LEN
-                SCHANNEL_CR(channel) = 0;
-                SCHANNEL_SOURCE(channel) = (mm_word)sampledata;
-                SCHANNEL_TIMER(channel) = 0;
-                SCHANNEL_REPEAT_POINT(channel) = lstart;
-                SCHANNEL_LENGTH(channel) = sample->loop_length;
+                REG_SOUNDXCNT(channel) = 0;
+                REG_SOUNDXSAD(channel) = (mm_word)sampledata;
+                REG_SOUNDXTMR(channel) = 0;
+                REG_SOUNDXPNT(channel) = lstart;
+                REG_SOUNDXLEN(channel) = sample->loop_length;
             }
             else // mma_notlooping
             {
@@ -499,11 +504,11 @@ static ARM_CODE void mmMixA(void)
                 }
 
                 // write CNT=0,SAD=SAD,TMR=0,PNT=0,LEN=LEN
-                SCHANNEL_CR(channel) = 0;
-                SCHANNEL_SOURCE(channel) = (mm_word)sampledata;
-                SCHANNEL_TIMER(channel) = 0;
-                SCHANNEL_REPEAT_POINT(channel) = 0;
-                SCHANNEL_LENGTH(channel) = remaining_len;
+                REG_SOUNDXCNT(channel) = 0;
+                REG_SOUNDXSAD(channel) = (mm_word)sampledata;
+                REG_SOUNDXTMR(channel) = 0;
+                REG_SOUNDXPNT(channel) = 0;
+                REG_SOUNDXLEN(channel) = remaining_len;
             }
 
             // mma_copy_levels
@@ -512,7 +517,7 @@ static ARM_CODE void mmMixA(void)
             mix_ch->cvol = mix_ch->vol;
             mix_ch->cpan = mix_ch->tpan << 9;
 
-            SCHANNEL_CR(channel) = SCHANNEL_ENABLE |
+            REG_SOUNDXCNT(channel) = SOUNDXCNT_ENABLE |
                 (sample->repeat_mode | (sample->format << 2)) << 27;
         }
         else
@@ -521,7 +526,7 @@ static ARM_CODE void mmMixA(void)
             // ----------------
 
             // Check if sound has ended
-            if ((SCHANNEL_CR(channel) & SCHANNEL_ENABLE) == 0)
+            if ((REG_SOUNDXCNT(channel) & SOUNDXCNT_ENABLE) == 0)
             {
                 mix_ch->samp = 0;
                 // TODO: The original code clears panning as well (32 bits at
@@ -537,15 +542,15 @@ static ARM_CODE void mmMixA(void)
 
         // Set timer
         if (mix_ch->freq == 0)
-            SCHANNEL_TIMER(channel) = 0;
+            REG_SOUNDXTMR(channel) = 0;
         else
-            SCHANNEL_TIMER(channel) = -(CLK_DIV / mix_ch->freq);
+            REG_SOUNDXTMR(channel) = -(CLK_DIV / mix_ch->freq);
 
         // Set volume levels
-        *(mm_hword*)&SCHANNEL_CR(channel) = translateVolume(mix_ch->cvol);
+        *(mm_hword*)&REG_SOUNDXCNT(channel) = translateVolume(mix_ch->cvol);
 
         // Set panning levels. Use top 7 bits.
-        SCHANNEL_PAN(channel) = mix_ch->cpan >> 9;
+        REG_SOUNDXPAN(channel) = mix_ch->cpan >> 9;
     }
 }
 
@@ -734,8 +739,8 @@ static ARM_CODE void mmMixC(void)
 
             // Combine and add start bit
             shadow->cnt &= 0x00FFFFFF;
-            shadow->cnt |= (sample->repeat_mode << 27) | (sample->format << 29)
-                         | SCHANNEL_ENABLE;
+            shadow->cnt |= (sample->repeat_mode << 27) | (sample->format << 29) |
+                           SOUNDXCNT_ENABLE;
         }
         else
         {
@@ -744,7 +749,7 @@ static ARM_CODE void mmMixC(void)
             if (channel >= 16)
                 continue;
 
-            if ((SCHANNEL_CR(channel) & SCHANNEL_ENABLE) == 0)
+            if ((REG_SOUNDXCNT(channel) & SOUNDXCNT_ENABLE) == 0)
             {
                 // Silence channel if it's a hardware channel
                 if (channel < 16)
