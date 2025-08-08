@@ -314,8 +314,9 @@ static void mpp_resetchannels(mm_module_channel *channels,
 #ifdef __NDS__
         mix_ch->key_on = 0;
         mix_ch->samp = 0;
-        mix_ch->tpan = 0; // TODO: This isn't really needed, but it may help the
-                          // compiler optimize the writes to the three fields?
+        // Setting the panning isn't really needed, but it helps the compiler
+        // optimize all 3 accesses into one single 32-bit write.
+        mix_ch->tpan = 0;
 #endif
 #ifdef __GBA__
         mix_ch->src = MIXCH_GBA_SRC_STOPPED;
