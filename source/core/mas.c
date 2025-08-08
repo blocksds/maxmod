@@ -2977,12 +2977,9 @@ static mm_word mpp_Update_ACHN_notest_envelopes(mpl_layer_information *layer,
             if (mm_pe_ret.exit_value == 1)
             {
                 // XM doesn't fade out at envelope end.
-
-                // TODO: The original code wanted to do this, but the check was
-                // incorrect, so only the second assignment was used.
-                //if (layer->flags & MAS_HEADER_FLAG_XM_MODE)
-                //    act_ch->flags |= MCAF_ENVEND;
-                //else
+                if (layer->flags & MAS_HEADER_FLAG_XM_MODE)
+                    act_ch->flags |= MCAF_ENVEND;
+                else
                     act_ch->flags |= MCAF_ENVEND | MCAF_FADE;
             }
 
