@@ -2868,24 +2868,28 @@ mm_word mpp_Process_Effect(mpl_layer_information *layer, mm_active_channel *act_
 struct {
     mm_word count;
     mm_word node;
-    mm_word exit_value;
-    mm_word value_mul_64;
+    mm_word exit_value;   // exit code
+    mm_word value_mul_64; // value * 64
 } mm_pe_ret;
 
 // Processes the envelope at <address>
+// It doesn't return values in a normal way, it saves them in the "mm_pe_ret" struct.
 void mpph_ProcessEnvelope(mm_word count, mm_word node, mm_mas_envelope *address,
                           mm_active_channel *act_ch)
 {
-    // Returns:
-    //   r0 = count
-    //   r1 = node
-    //   r2 = exit_code
-    //   r3 = value * 64
+    // Node entry format saved by mmutil
+    typedef struct
+    {
+        mm_shword   delta;
+        mm_hword    base : 7;  // node_y. (0->64 for vol, -32->+32 for panning or pitch)
+        mm_hword    range : 9; // 1 to 511
+    }
+    node_entry;
 
     // Get node and base
-    mm_byte *base = &(address->env_nodes[node << 2]);
+    node_entry *node_info = (node_entry *)&(address->env_nodes[node << 2]);
 
-    mm_pe_ret.value_mul_64 = (((mm_hword *)base)[1] & 0x7F) * 64;
+    mm_pe_ret.value_mul_64 = node_info->base * 64;
 
     if (count == 0) // New
     {
@@ -2928,7 +2932,7 @@ void mpph_ProcessEnvelope(mm_word count, mm_word node, mm_mas_envelope *address,
         // formula : y = base * 2^6 + -------------
         //                                 2^3
 
-        mm_sword delta = ((mm_shword *)base)[0];
+        mm_sword delta = node_info->delta;
 
         mm_pe_ret.value_mul_64 += ((mm_sword)(delta * count)) >> 3;
     }
@@ -2937,7 +2941,7 @@ void mpph_ProcessEnvelope(mm_word count, mm_word node, mm_mas_envelope *address,
 
     count++;
 
-    if (count == (((mm_hword *)base)[1] >> 7))
+    if (count == node_info->range)
     {
         // Increment node and reset counter
         count = 0;
