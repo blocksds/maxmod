@@ -1648,10 +1648,8 @@ IWRAM_CODE void mppProcessTick(void)
             // (and check that it isn't a sound effect).
             if (mpp_clayer == ((act_ch->flags & (MCAF_SUB | MCAF_EFFECT)) >> 6))
             {
-                mpv_active_information *info = &mpp_vars;
-
-                info->afvol = act_ch->volume;
-                info->panplus = 0;
+                mpp_vars.afvol = act_ch->volume;
+                mpp_vars.panplus = 0;
 
                 mpp_Update_ACHN(layer, act_ch, act_ch->period, ch);
             }
