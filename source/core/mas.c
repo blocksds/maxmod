@@ -2868,20 +2868,11 @@ static
 mm_word mpph_ProcessEnvelope(mm_hword *count_, mm_byte *node_, mm_mas_envelope *address,
                              mm_active_channel *act_ch, mm_word *value_mul_64)
 {
-    // Node entry format saved by mmutil
-    typedef struct
-    {
-        mm_shword   delta;
-        mm_hword    base : 7;  // node_y. (0->64 for vol, -32->+32 for panning or pitch)
-        mm_hword    range : 9; // 1 to 511
-    }
-    node_entry;
-
     mm_hword count = *count_;
     mm_byte node = *node_;
 
     // Get node and base
-    node_entry *node_info = (node_entry *)&(address->env_nodes[node * sizeof(node_entry)]);
+    mm_mas_envelope_node *node_info = &(address->env_nodes[node]);
 
     *value_mul_64 = node_info->base * 64;
 
