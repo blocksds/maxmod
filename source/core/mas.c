@@ -2919,7 +2919,7 @@ mm_word mpph_ProcessEnvelope(mm_hword *count_, mm_byte *node_, mm_mas_envelope *
         if (node == (((mm_hword)address->node_count) - 1))
         {
             *count_ = count;
-            *node_ = node; // TODO: This wasn't explicitly set in the ASM code
+            *node_ = node;
             return 2;
         }
     }
