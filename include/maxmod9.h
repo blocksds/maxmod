@@ -229,8 +229,18 @@ void mmSoundBankInMemory(mm_addr address);
 
 /// Install a custom routine to interface with the soundbank data.
 ///
-/// The routine will be responsible for handling requests from Maxmod to access
-/// data in the soundbank.
+/// The callback will be responsible for handling requests from Maxmod to access
+/// data in the soundbank. It will receive the following values in the "msg"
+/// value:
+///
+/// - MMCB_SONGREQUEST and MMCB_SAMPREQUEST: "param" contains a song/sample ID
+///   that you need to load to RAM. The callback needs to return a pointer to
+///   the address of the data in RAM. The callback can return zero if it failed
+///   to load the data.
+///
+/// - MMCB_DELETESONG and MMCB_DELETESAMPLE: "param" contains the address to
+///   the data in RAM, and the callback is expected to free it if required. The
+///   callback needs to return zero.
 ///
 /// @param p_loader
 ///     Function pointer to soundbank request handler.
@@ -251,6 +261,15 @@ mm_word mmGetModuleCount(void);
 /// @return
 ///     The number of samples.
 mm_word mmGetSampleCount(void);
+
+/// Command ID to load a song. See mmSetCustomSoundBankHandler().
+#define MMCB_SONGREQUEST    0x1A
+/// Command ID to load a sample. See mmSetCustomSoundBankHandler().
+#define MMCB_SAMPREQUEST    0x1B
+/// Command ID to free a song. See mmSetCustomSoundBankHandler().
+#define MMCB_DELETESONG     0x1C
+/// Command ID to free a sample. See mmSetCustomSoundBankHandler().
+#define MMCB_DELETESAMPLE   0x1D
 
 // ***************************************************************************
 /// @}
@@ -663,16 +682,6 @@ static inline mm_word mmReverbBufferSize(mm_word bit_depth, mm_word sampling_rat
 /// Note: In the interpolated audio mode, the channels cannot be restored by
 /// this function and the mixer must be reset instead.
 void mmReverbDisable(void);
-
-// ***************************************************************************
-/// @}
-// ***************************************************************************
-
-// NDS: ARM9 Soundbank interface messages
-#define MMCB_SONGREQUEST    0x1A
-#define MMCB_SAMPREQUEST    0x1B
-#define MMCB_DELETESONG     0x1C
-#define MMCB_DELETESAMPLE   0x1D
 
 // ***************************************************************************
 /// @}
