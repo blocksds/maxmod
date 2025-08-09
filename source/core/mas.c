@@ -2889,7 +2889,7 @@ mm_word mpph_ProcessEnvelope(mm_hword *count_, mm_byte *node_, mm_mas_envelope *
 
         // Process envelope sustain loop
 
-        if (act_ch->flags & MCAF_KEYON) // Locked
+        if (act_ch->flags & MCAF_KEYON)
         {
             if (node == address->sus_end)
             {
