@@ -2865,15 +2865,14 @@ mm_word mpp_Process_Effect(mpl_layer_information *layer, mm_active_channel *act_
 
 // Struct that holds the values returned by mpph_ProcessEnvelope()
 struct {
-    mm_word count;
-    mm_word node;
     mm_word exit_value;   // exit code
     mm_word value_mul_64; // value * 64
 } mm_pe_ret;
 
 // Processes the envelope at <address>
 // It doesn't return values in a normal way, it saves them in the "mm_pe_ret" struct.
-void mpph_ProcessEnvelope(mm_word count, mm_word node, mm_mas_envelope *address,
+static
+void mpph_ProcessEnvelope(mm_hword *count_, mm_byte *node_, mm_mas_envelope *address,
                           mm_active_channel *act_ch)
 {
     // Node entry format saved by mmutil
@@ -2885,8 +2884,11 @@ void mpph_ProcessEnvelope(mm_word count, mm_word node, mm_mas_envelope *address,
     }
     node_entry;
 
+    mm_hword count = *count_;
+    mm_byte node = *node_;
+
     // Get node and base
-    node_entry *node_info = (node_entry *)&(address->env_nodes[node << 2]);
+    node_entry *node_info = (node_entry *)&(address->env_nodes[node * sizeof(node_entry)]);
 
     mm_pe_ret.value_mul_64 = node_info->base * 64;
 
@@ -2896,8 +2898,8 @@ void mpph_ProcessEnvelope(mm_word count, mm_word node, mm_mas_envelope *address,
 
         if (node == address->loop_end)
         {
-            mm_pe_ret.count = count;
-            mm_pe_ret.node = address->loop_start;
+            *count_ = count;
+            *node_ = address->loop_start;
             mm_pe_ret.exit_value = 2;
             return;
         }
@@ -2908,8 +2910,8 @@ void mpph_ProcessEnvelope(mm_word count, mm_word node, mm_mas_envelope *address,
         {
             if (node == address->sus_end)
             {
-                mm_pe_ret.count = count;
-                mm_pe_ret.node = address->sus_start;
+                *count_ = count;
+                *node_ = address->sus_start;
                 mm_pe_ret.exit_value = 0;
                 return;
             }
@@ -2917,10 +2919,10 @@ void mpph_ProcessEnvelope(mm_word count, mm_word node, mm_mas_envelope *address,
 
         // Check for end
 
-        if (node == (((mm_word)address->node_count) - 1))
+        if (node == (((mm_hword)address->node_count) - 1))
         {
-            mm_pe_ret.count = count;
-            mm_pe_ret.node = node; // TODO: This wasn't explicitly set in the ASM code
+            *count_ = count;
+            *node_ = node; // TODO: This wasn't explicitly set in the ASM code
             mm_pe_ret.exit_value = 2;
             return;
         }
@@ -2947,8 +2949,8 @@ void mpph_ProcessEnvelope(mm_word count, mm_word node, mm_mas_envelope *address,
         node = node + 1;
     }
 
-    mm_pe_ret.count = count;
-    mm_pe_ret.node = node;
+    *count_ = count;
+    *node_ = node;
     mm_pe_ret.exit_value = (mm_word)address; // TODO: This was undefined in the ASM version!
 }
 
@@ -2972,13 +2974,13 @@ static mm_word mpp_Update_ACHN_notest_envelopes(mpl_layer_information *layer,
         {
             // Volume envelope enabled
             mm_mas_envelope *env = (mm_mas_envelope *)env_ptr;
-            mpph_ProcessEnvelope(act_ch->envc_vol, act_ch->envn_vol, env, act_ch);
 
-            act_ch->envn_vol = mm_pe_ret.node;
-            act_ch->envc_vol = mm_pe_ret.count;
+            mpph_ProcessEnvelope(&act_ch->envc_vol, &act_ch->envn_vol, env, act_ch);
 
             if (mm_pe_ret.exit_value == 1)
             {
+                // TODO: It looks like this condition is never met
+
                 // XM doesn't fade out at envelope end.
                 if (layer->flags & MAS_HEADER_FLAG_XM_MODE)
                     act_ch->flags |= MCAF_ENVEND;
@@ -3018,10 +3020,8 @@ mppt_has_volenv:
     if (instrument->env_flags & MAS_INSTR_FLAG_PAN_ENV_EXISTS)
     {
         mm_mas_envelope *env = (mm_mas_envelope *)env_ptr;
-        mpph_ProcessEnvelope(act_ch->envc_pan, act_ch->envn_pan, env, act_ch);
 
-        act_ch->envn_pan = mm_pe_ret.node;
-        act_ch->envc_pan = mm_pe_ret.count;
+        mpph_ProcessEnvelope(&act_ch->envc_pan, &act_ch->envn_pan, env, act_ch);
 
         mpp_vars.panplus += (mm_pe_ret.value_mul_64 >> 4) - 128;
     }
@@ -3032,10 +3032,7 @@ mppt_has_volenv:
 
         if (env->is_filter == 0)
         {
-            mpph_ProcessEnvelope(act_ch->envc_pic, act_ch->envn_pic, env, act_ch);
-
-            act_ch->envn_pic = mm_pe_ret.node;
-            act_ch->envc_pic = mm_pe_ret.count;
+            mpph_ProcessEnvelope(&act_ch->envc_pic, &act_ch->envn_pic, env, act_ch);
 
             mm_sword value = (mm_pe_ret.value_mul_64 >> 3) - 256;
 
