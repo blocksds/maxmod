@@ -9,6 +9,7 @@
 #include <mm_types.h>
 #include <mm_mas.h>
 
+#include "core/channel_types.h"
 #include "core/mas_structs.h"
 
 // This is the number of channels for the sub layer (used for jingles)

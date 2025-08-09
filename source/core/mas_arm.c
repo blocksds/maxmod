@@ -9,6 +9,7 @@
 #include <maxmod.h>
 #include <mm_mas.h>
 
+#include "core/channel_types.h"
 #include "core/mas.h"
 #include "core/mas_structs.h"
 

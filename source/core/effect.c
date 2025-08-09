@@ -14,10 +14,10 @@
 #include <mm_mas.h>
 #include <mm_msl.h>
 
+#include "core/channel_types.h"
 #include "core/effect.h"
 #include "core/mas.h"
 #include "core/mixer.h"
-#include "core/mas_structs.h"
 #if defined(__GBA__)
 #include "gba/main_gba.h"
 #include "gba/mixer.h"

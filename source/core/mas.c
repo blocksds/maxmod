@@ -11,6 +11,7 @@
 #include <mm_mas.h>
 #include <mm_msl.h>
 
+#include "core/channel_types.h"
 #include "core/mas.h"
 #include "core/mas_structs.h"
 

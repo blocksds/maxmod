@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: ISC
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
+// Copyright (c) 2021-2025, Antonio Niño Díaz (antonio_nd@outlook.com)
 // Copyright (c) 2023, Lorenzooone (lollo.lollo.rbiz@gmail.com)
 
 #ifndef MM_CORE_CHANNEL_TYPES_H__
@@ -13,7 +14,7 @@
 #endif
 #include <mm_types.h>
 
-// Module Channel
+// Module channel
 // --------------
 
 typedef struct {
@@ -45,6 +46,19 @@ static_assert(sizeof(mm_module_channel) == 40);
 static_assert(sizeof(mm_module_channel) == MM_SIZEOF_MODCH);
 #endif
 
+// Module Channel flags
+
+#define MF_START        1
+#define MF_DVOL         2
+#define MF_HASVCMD      4
+#define MF_HASFX        8
+#define MF_NEWINSTR     16  // New instrument
+#define MF_UNKNOWN      32  // TODO: This is set by mmutil but not used
+#define MF_NOTEOFF      64  // LOCKED
+#define MF_NOTECUT      128 // LOCKED
+
+// Module channel bflags
+
 // New note action (NNA)
 #define MCH_BFLAGS_NNA_SHIFT    6
 #define MCH_BFLAGS_NNA_MASK     (3 << MCH_BFLAGS_NNA_SHIFT)
@@ -70,7 +84,18 @@ static_assert(sizeof(mm_module_channel) == MM_SIZEOF_MODCH);
 // 10    | Cut channel volume
 // 11-15 | Unused
 
-// Active Channel
+// Other Definitions
+
+#define IT_NNA_CUT      0 // New note actions
+#define IT_NNA_CONT     1
+#define IT_NNA_OFF      2
+#define IT_NNA_FADE     3
+
+#define IT_DCA_CUT      0 // Duplicate check actions
+#define IT_DCA_OFF      1
+#define IT_DCA_FADE     2
+
+// Active channel
 // --------------
 
 typedef struct {
@@ -99,6 +124,30 @@ static_assert(sizeof(mm_active_channel) == 28);
 #ifdef __GBA__
 static_assert(sizeof(mm_active_channel) == MM_SIZEOF_ACTCH);
 #endif
+
+// Active channel flags
+
+#define MCAF_KEYON      (1 << 0) // Key is on
+#define MCAF_FADE       (1 << 1) // Note-fade is activated
+#define MCAF_START      (1 << 2) // [re]start sample
+#define MCAF_UPDATED    (1 << 3) // Already updated by pchannel routine
+#define MCAF_ENVEND     (1 << 4) // End of envelope
+#define MCAF_VOLENV     (1 << 5) // Volume envelope enabled
+#define MCAF_SUB        (1 << 6) // 1 = Channel used for jingle. 0 = Used for main module
+#define MCAF_EFFECT     (1 << 7) // 1 = Channel is used for an effect, not module or jingle
+// Note: Don't move MCAF_SUB or MCAF_EFFECT from their current places. Some
+// functions read both of them in one go.
+
+// Active channel types
+
+#define ACHN_DISABLED   0 // LOCKED (multiple routines)
+#define ACHN_RESERVED   1 // (can't be used [alloc channel])
+#define ACHN_BACKGROUND 2 // LOCKED (alloc channel)
+#define ACHN_FOREGROUND 3
+#define ACHN_CUSTOM     4
+
+// Mixer channel
+// -------------
 
 #ifdef __NDS__
 
