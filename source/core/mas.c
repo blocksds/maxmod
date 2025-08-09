@@ -2865,14 +2865,13 @@ mm_word mpp_Process_Effect(mpl_layer_information *layer, mm_active_channel *act_
 
 // Struct that holds the values returned by mpph_ProcessEnvelope()
 struct {
-    mm_word exit_value;   // exit code
     mm_word value_mul_64; // value * 64
 } mm_pe_ret;
 
 // Processes the envelope at <address>
 // It doesn't return values in a normal way, it saves them in the "mm_pe_ret" struct.
 static
-void mpph_ProcessEnvelope(mm_hword *count_, mm_byte *node_, mm_mas_envelope *address,
+mm_word mpph_ProcessEnvelope(mm_hword *count_, mm_byte *node_, mm_mas_envelope *address,
                           mm_active_channel *act_ch)
 {
     // Node entry format saved by mmutil
@@ -2900,8 +2899,7 @@ void mpph_ProcessEnvelope(mm_hword *count_, mm_byte *node_, mm_mas_envelope *add
         {
             *count_ = count;
             *node_ = address->loop_start;
-            mm_pe_ret.exit_value = 2;
-            return;
+            return 2;
         }
 
         // Process envelope sustain loop
@@ -2912,8 +2910,7 @@ void mpph_ProcessEnvelope(mm_hword *count_, mm_byte *node_, mm_mas_envelope *add
             {
                 *count_ = count;
                 *node_ = address->sus_start;
-                mm_pe_ret.exit_value = 0;
-                return;
+                return 0;
             }
         }
 
@@ -2923,8 +2920,7 @@ void mpph_ProcessEnvelope(mm_hword *count_, mm_byte *node_, mm_mas_envelope *add
         {
             *count_ = count;
             *node_ = node; // TODO: This wasn't explicitly set in the ASM code
-            mm_pe_ret.exit_value = 2;
-            return;
+            return 2;
         }
     }
     else // Between
@@ -2951,7 +2947,7 @@ void mpph_ProcessEnvelope(mm_hword *count_, mm_byte *node_, mm_mas_envelope *add
 
     *count_ = count;
     *node_ = node;
-    mm_pe_ret.exit_value = (mm_word)address; // TODO: This was undefined in the ASM version!
+    return (mm_word)address; // TODO: This was undefined in the ASM version!
 }
 
 static mm_word mpp_Update_ACHN_notest_envelopes(mpl_layer_information *layer,
@@ -2975,9 +2971,10 @@ static mm_word mpp_Update_ACHN_notest_envelopes(mpl_layer_information *layer,
             // Volume envelope enabled
             mm_mas_envelope *env = (mm_mas_envelope *)env_ptr;
 
-            mpph_ProcessEnvelope(&act_ch->envc_vol, &act_ch->envn_vol, env, act_ch);
+            mm_word exit_value = mpph_ProcessEnvelope(&act_ch->envc_vol, &act_ch->envn_vol,
+                                                      env, act_ch);
 
-            if (mm_pe_ret.exit_value == 1)
+            if (exit_value == 1)
             {
                 // TODO: It looks like this condition is never met
 
@@ -2987,8 +2984,7 @@ static mm_word mpp_Update_ACHN_notest_envelopes(mpl_layer_information *layer,
                 else
                     act_ch->flags |= MCAF_ENVEND | MCAF_FADE;
             }
-
-            if (mm_pe_ret.exit_value >= 1)
+            else if (exit_value >= 1)
             {
                 // Check keyon and turn on fade...
                 if ((act_ch->flags & MCAF_KEYON) == 0)
