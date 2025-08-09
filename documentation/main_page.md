@@ -29,7 +29,6 @@ Maxmod Programming Reference {#mainpage}
 - @ref gba_module_playback
 - @ref gba_jingle_playback
 - @ref gba_sound_effects
-- @ref gba_misc
 
 ### NDS (ARM9)
 

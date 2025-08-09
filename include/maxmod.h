@@ -553,15 +553,6 @@ void mmEffectCancelAll(void);
 
 // ***************************************************************************
 /// @}
-/// @defgroup gba_misc GBA: Misc definitions / reference
-/// @{
-// ***************************************************************************
-
-extern mm_byte mp_mix_seg;      // current mixing segment
-extern mm_word mp_writepos;     // mixer's write position
-
-// ***************************************************************************
-/// @}
 // ***************************************************************************
 
 #ifdef __cplusplus
