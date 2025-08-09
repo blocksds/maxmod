@@ -41,7 +41,6 @@ typedef struct {
     mm_byte     padding[2];
 } mm_module_channel;
 
-static_assert(sizeof(mm_module_channel) == 40);
 #ifdef __GBA__
 static_assert(sizeof(mm_module_channel) == MM_SIZEOF_MODCH);
 #endif
@@ -120,7 +119,6 @@ typedef struct {
     mm_byte     sfx;        // can store this anywhere
 } mm_active_channel;
 
-static_assert(sizeof(mm_active_channel) == 28);
 #ifdef __GBA__
 static_assert(sizeof(mm_active_channel) == MM_SIZEOF_ACTCH);
 #endif
@@ -164,6 +162,7 @@ typedef struct {
     mm_hword    cpan;           // current panning 0..65535
 } mm_mixer_channel;
 
+// Make sure that the size matches the assembly code
 static_assert(sizeof(mm_mixer_channel) == 16);
 
 #define C_READ_FRAC 10
@@ -188,6 +187,7 @@ typedef struct {
     mm_word     freq;
 } mm_mixer_channel;
 
+// Make sure that the size matches the assembly code
 static_assert(sizeof(mm_mixer_channel) == 16);
 static_assert(sizeof(mm_mixer_channel) == MM_SIZEOF_MIXCH);
 

@@ -6,8 +6,6 @@
 #ifndef MM_CORE_MAS_STRUCTS_H__
 #define MM_CORE_MAS_STRUCTS_H__
 
-#include <assert.h>
-
 #include <mm_types.h>
 
 typedef struct {
@@ -50,8 +48,6 @@ typedef struct {
     mm_hword    reserved3;
 } mpl_layer_information;
 
-static_assert(sizeof(mpl_layer_information) == 56);
-
 // Active Information
 // ------------------
 
@@ -65,7 +61,5 @@ typedef struct {
     mm_hword    panplus;
     mm_hword    reserved2;
 } mpv_active_information;
-
-static_assert(sizeof(mpv_active_information) == 16);
 
 #endif // MM_CORE_MAS_STRUCTS_H__
