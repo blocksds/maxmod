@@ -48,4 +48,3 @@ Maxmod Programming Reference {#mainpage}
 - @ref nds_arm7_sound_effects
 - @ref nds_arm7_streaming
 - @ref nds_arm7_reverb
-- @ref nds_arm7_misc

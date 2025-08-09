@@ -548,18 +548,6 @@ void mmReverbDisable(void);
 
 // ***************************************************************************
 /// @}
-/// @defgroup nds_arm7_misc NDS: ARM7 Misc definitions / reference
-/// @{
-// ***************************************************************************
-
-// main/sub layer attributes
-//extern mm_modlayer mmLayerMain;
-//extern mm_modlayer mmLayerSub;
-//extern mpl_layer_information mmLayerMain;
-//extern mpl_layer_information mmLayerSub;
-
-// ***************************************************************************
-/// @}
 // ***************************************************************************
 
 #ifdef __cplusplus
