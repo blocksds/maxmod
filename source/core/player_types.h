@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: ISC
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
-// Copyright (c) 2021, Antonio Niño Díaz (antonio_nd@outlook.com)
+// Copyright (c) 2021-2025, Antonio Niño Díaz (antonio_nd@outlook.com)
 
-#ifndef MM_CORE_MAS_STRUCTS_H__
-#define MM_CORE_MAS_STRUCTS_H__
+#ifndef MM_CORE_PLAYER_TYPES_H__
+#define MM_CORE_PLAYER_TYPES_H__
 
 #include <mm_types.h>
 
@@ -62,4 +62,4 @@ typedef struct {
     mm_hword    reserved2;
 } mpv_active_information;
 
-#endif // MM_CORE_MAS_STRUCTS_H__
+#endif // MM_CORE_PLAYER_TYPES_H__

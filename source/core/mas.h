@@ -10,7 +10,7 @@
 #include <mm_mas.h>
 
 #include "core/channel_types.h"
-#include "core/mas_structs.h"
+#include "core/player_types.h"
 
 // This is the number of channels for the sub layer (used for jingles)
 #define MP_SCHANNELS    4

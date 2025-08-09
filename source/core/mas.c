@@ -13,7 +13,7 @@
 
 #include "core/channel_types.h"
 #include "core/mas.h"
-#include "core/mas_structs.h"
+#include "core/player_types.h"
 
 #if defined(__GBA__)
 #include "gba/main_gba.h"

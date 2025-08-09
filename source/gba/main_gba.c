@@ -14,7 +14,7 @@
 #include "core/effect.h"
 #include "core/mas.h"
 #include "core/mixer.h"
-#include "core/mas_structs.h"
+#include "core/player_types.h"
 #include "gba/mixer.h"
 
 // Buffer that holds the mixed data

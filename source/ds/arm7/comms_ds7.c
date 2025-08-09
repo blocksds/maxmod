@@ -14,7 +14,7 @@
 
 #include "core/effect.h"
 #include "core/mas.h"
-#include "core/mas_structs.h"
+#include "core/player_types.h"
 #include "ds/arm7/comms_ds7.h"
 #include "ds/arm7/main_ds7.h"
 #include "ds/common/comm_messages.h"

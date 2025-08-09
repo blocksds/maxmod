@@ -11,7 +11,7 @@
 
 #include "core/channel_types.h"
 #include "core/mas.h"
-#include "core/mas_structs.h"
+#include "core/player_types.h"
 
 #define ARM_CODE   __attribute__((target("arm")))
 
