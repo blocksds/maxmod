@@ -2863,16 +2863,10 @@ mm_word mpp_Process_Effect(mpl_layer_information *layer, mm_active_channel *act_
 // =============================================================================
 // =============================================================================
 
-// Struct that holds the values returned by mpph_ProcessEnvelope()
-struct {
-    mm_word value_mul_64; // value * 64
-} mm_pe_ret;
-
 // Processes the envelope at <address>
-// It doesn't return values in a normal way, it saves them in the "mm_pe_ret" struct.
 static
 mm_word mpph_ProcessEnvelope(mm_hword *count_, mm_byte *node_, mm_mas_envelope *address,
-                          mm_active_channel *act_ch)
+                             mm_active_channel *act_ch, mm_word *value_mul_64)
 {
     // Node entry format saved by mmutil
     typedef struct
@@ -2889,7 +2883,7 @@ mm_word mpph_ProcessEnvelope(mm_hword *count_, mm_byte *node_, mm_mas_envelope *
     // Get node and base
     node_entry *node_info = (node_entry *)&(address->env_nodes[node * sizeof(node_entry)]);
 
-    mm_pe_ret.value_mul_64 = node_info->base * 64;
+    *value_mul_64 = node_info->base * 64;
 
     if (count == 0) // New
     {
@@ -2931,7 +2925,7 @@ mm_word mpph_ProcessEnvelope(mm_hword *count_, mm_byte *node_, mm_mas_envelope *
 
         mm_sword delta = node_info->delta;
 
-        mm_pe_ret.value_mul_64 += ((mm_sword)(delta * count)) >> 3;
+        *value_mul_64 += ((mm_sword)(delta * count)) >> 3;
     }
 
     // Increment count and check if == read count
@@ -2969,10 +2963,11 @@ static mm_word mpp_Update_ACHN_notest_envelopes(mpl_layer_information *layer,
         else
         {
             // Volume envelope enabled
+            mm_word value_mul_64;
             mm_mas_envelope *env = (mm_mas_envelope *)env_ptr;
 
             mm_word exit_value = mpph_ProcessEnvelope(&act_ch->envc_vol, &act_ch->envn_vol,
-                                                      env, act_ch);
+                                                      env, act_ch, &value_mul_64);
 
             if (exit_value == 1)
             {
@@ -2992,7 +2987,7 @@ static mm_word mpp_Update_ACHN_notest_envelopes(mpl_layer_information *layer,
             }
 
             mm_sword afvol = mpp_vars.afvol;
-            mpp_vars.afvol = (afvol * mm_pe_ret.value_mul_64) >> (6 + 6);
+            mpp_vars.afvol = (afvol * value_mul_64) >> (6 + 6);
 
             env_ptr += env_ptr[0];
 
@@ -3015,22 +3010,24 @@ mppt_has_volenv:
 
     if (instrument->env_flags & MAS_INSTR_FLAG_PAN_ENV_EXISTS)
     {
+        mm_word value_mul_64;
         mm_mas_envelope *env = (mm_mas_envelope *)env_ptr;
 
-        mpph_ProcessEnvelope(&act_ch->envc_pan, &act_ch->envn_pan, env, act_ch);
+        mpph_ProcessEnvelope(&act_ch->envc_pan, &act_ch->envn_pan, env, act_ch, &value_mul_64);
 
-        mpp_vars.panplus += (mm_pe_ret.value_mul_64 >> 4) - 128;
+        mpp_vars.panplus += (value_mul_64 >> 4) - 128;
     }
 
     if (instrument->env_flags & MAS_INSTR_FLAG_PITCH_ENV_EXISTS)
     {
+        mm_word value_mul_64;
         mm_mas_envelope *env = (mm_mas_envelope *)env_ptr;
 
         if (env->is_filter == 0)
         {
-            mpph_ProcessEnvelope(&act_ch->envc_pic, &act_ch->envn_pic, env, act_ch);
+            mpph_ProcessEnvelope(&act_ch->envc_pic, &act_ch->envn_pic, env, act_ch, &value_mul_64);
 
-            mm_sword value = (mm_pe_ret.value_mul_64 >> 3) - 256;
+            mm_sword value = (value_mul_64 >> 3) - 256;
 
             if (value < 0)
                 period = mpph_LinearPitchSlide_Down(period, -value, layer);
