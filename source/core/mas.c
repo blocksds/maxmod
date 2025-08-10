@@ -399,13 +399,11 @@ static void mpp_setposition(mpl_layer_information *layer_info, mm_word position)
 
             if (mmCallback != NULL)
                 mmCallback(MMCB_SONGFINISHED, mpp_clayer);
+
+            return;
         }
         else // if (layer_info->mode == MM_PLAY_LOOP)
         {
-            // If the song has ended in the call to mppStop()
-            if (layer_info->isplaying == 0)
-                return;
-
             // If looping, set position to the repeat position
             position = header->repeat_position;
         }
