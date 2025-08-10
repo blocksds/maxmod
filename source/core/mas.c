@@ -2876,7 +2876,7 @@ mm_word mpph_ProcessEnvelope(mm_hword *count_, mm_byte *node_, mm_mas_envelope *
 
     *value_mul_64 = node_info->base * 64;
 
-    if (count == 0) // New
+    if (count == 0) // Process a node that has just been reached
     {
         // Process envelope loop
 
@@ -2901,18 +2901,19 @@ mm_word mpph_ProcessEnvelope(mm_hword *count_, mm_byte *node_, mm_mas_envelope *
 
         // Check for end
 
-        if (node == (((mm_hword)address->node_count) - 1))
+        mm_hword last_node = (mm_hword)address->node_count - 1;
+        if (node == last_node)
         {
             *count_ = count;
             *node_ = node;
             return 2;
         }
     }
-    else // Between
+    else // If we're between nodes, interpolate the value of the two nodes
     {
-        //                            delta * count
-        // formula : y = base * 2^6 + -------------
-        //                                 2^3
+        //                           delta * count
+        // formula : y = base * 64 + -------------
+        //                                8
 
         mm_sword delta = node_info->delta;
 
