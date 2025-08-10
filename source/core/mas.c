@@ -2861,16 +2861,22 @@ mm_word mpp_Process_Effect(mpl_layer_information *layer, mm_active_channel *act_
 // =============================================================================
 // =============================================================================
 
-// Processes the envelope at <address>
+// TODO: What do the defines actually mean?
+#define PE_FADE_ALLOWED         2
+#define PE_1                    1
+#define PE_FADE_NOT_ALLOWED     0
+
+// Processes the provided envelope. It updates the values pointed by "count_",
+// "node_" and "value_mul_64".
 static
-mm_word mpph_ProcessEnvelope(mm_hword *count_, mm_byte *node_, mm_mas_envelope *address,
+mm_word mpph_ProcessEnvelope(mm_hword *count_, mm_byte *node_, mm_mas_envelope *envelope,
                              mm_active_channel *act_ch, mm_word *value_mul_64)
 {
     mm_hword count = *count_;
     mm_byte node = *node_;
 
     // Get node and base
-    mm_mas_envelope_node *node_info = &(address->env_nodes[node]);
+    mm_mas_envelope_node *node_info = &(envelope->env_nodes[node]);
 
     *value_mul_64 = node_info->base * 64;
 
@@ -2878,33 +2884,33 @@ mm_word mpph_ProcessEnvelope(mm_hword *count_, mm_byte *node_, mm_mas_envelope *
     {
         // Process envelope loop
 
-        if (node == address->loop_end)
+        if (node == envelope->loop_end)
         {
             *count_ = count;
-            *node_ = address->loop_start;
-            return 2;
+            *node_ = envelope->loop_start;
+            return PE_FADE_ALLOWED;
         }
 
         // Process envelope sustain loop
 
         if (act_ch->flags & MCAF_KEYON)
         {
-            if (node == address->sus_end)
+            if (node == envelope->sus_end)
             {
                 *count_ = count;
-                *node_ = address->sus_start;
-                return 0;
+                *node_ = envelope->sus_start;
+                return PE_FADE_NOT_ALLOWED;
             }
         }
 
         // Check for end
 
-        mm_hword last_node = (mm_hword)address->node_count - 1;
+        mm_hword last_node = (mm_hword)envelope->node_count - 1;
         if (node == last_node)
         {
             *count_ = count;
             *node_ = node;
-            return 2;
+            return PE_FADE_ALLOWED;
         }
     }
     else // If we're between nodes, interpolate the value of the two nodes
@@ -2931,7 +2937,7 @@ mm_word mpph_ProcessEnvelope(mm_hword *count_, mm_byte *node_, mm_mas_envelope *
 
     *count_ = count;
     *node_ = node;
-    return (mm_word)address; // TODO: This was undefined in the ASM version!
+    return PE_FADE_ALLOWED; // TODO: This was undefined in the ASM version!
 }
 
 static mm_word mpp_Update_ACHN_notest_envelopes(mpl_layer_information *layer,
@@ -2959,17 +2965,17 @@ static mm_word mpp_Update_ACHN_notest_envelopes(mpl_layer_information *layer,
             mm_word exit_value = mpph_ProcessEnvelope(&act_ch->envc_vol, &act_ch->envn_vol,
                                                       env, act_ch, &value_mul_64);
 
-            if (exit_value == 1)
+            if (exit_value == PE_1)
             {
                 // TODO: It looks like this condition is never met
 
-                // XM doesn't fade out at envelope end.
+                // XM doesn't fade out at envelope end, IT does.
                 if (layer->flags & MAS_HEADER_FLAG_XM_MODE)
                     act_ch->flags |= MCAF_ENVEND;
                 else
                     act_ch->flags |= MCAF_ENVEND | MCAF_FADE;
             }
-            else if (exit_value >= 1)
+            else if (exit_value == PE_FADE_ALLOWED)
             {
                 // Check keyon and turn on fade...
                 if ((act_ch->flags & MCAF_KEYON) == 0)
