@@ -47,14 +47,19 @@ static_assert(sizeof(mm_module_channel) == MM_SIZEOF_MODCH);
 
 // Module Channel flags
 
+// The flags MF_START, MF_DVOL, MF_HASVCMD, and MF_HASFX are provided by mmutil.
+// They are saved in the top 4 bits of mm_module_channel.cflags. Then, they are
+// saved to the bottom 4 bits of mm_active_channel.flags when reading the
+// pattern data. The flags MF_NEWINSTR, MF_NOTEOFF and MF_NOTECUT are set by
+// Maxmod while reading the pattern data.
 #define MF_START        1
 #define MF_DVOL         2
 #define MF_HASVCMD      4
 #define MF_HASFX        8
 #define MF_NEWINSTR     16  // New instrument
-#define MF_UNKNOWN      32  // TODO: This is set by mmutil but not used
-#define MF_NOTEOFF      64  // LOCKED
-#define MF_NOTECUT      128 // LOCKED
+// 32 is unused
+#define MF_NOTEOFF      64
+#define MF_NOTECUT      128
 
 // Module channel bflags
 

@@ -253,6 +253,8 @@ IWRAM_CODE ARM_CODE mm_bool mmReadPattern(mpl_layer_information *mpp_layer)
             module_channel->param = *pattern++;
         }
 
+        // The bottom 4 bits of the MF_ flags is stored in the top 4 bits of
+        // cflags by mmutil.
         module_channel->flags = pattern_flags | (compr_flags >> 4);
     }
 
