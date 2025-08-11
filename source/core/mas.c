@@ -1542,111 +1542,109 @@ static mm_word mpp_Channel_ExchangeMemory(mm_byte effect, mm_byte param,
                                           mm_module_channel *channel,
                                           mpl_layer_information *layer)
 {
-    mm_byte table_entry;
+    mm_sbyte table_entry;
 
     // Check flags for XM mode
-    if (layer->flags & MAS_HEADER_FLAG_XM_MODE)
+    if (layer->flags & MAS_HEADER_FLAG_XM_MODE) // XM Effects
     {
         // mmutil converts XM effect indices into IT effect indices (and it adds
         // effects '0' to '3').
         //
         // https://wiki.openmpt.org/Manual:_Effect_Reference#MOD_/_XM_Formats
-        const mm_byte mpp_effect_memmap_xm[] = {
+        const mm_sbyte mpp_effect_memmap_xm[] = {
             // Legend | IT effect number (XM effect number): Description
             //
             // For effects not available in the IT format this array has been
             // extended. The last 4 values don't correspond to IT effects. The
             // index between [] is the value used in mmutil.
 
-            0,  // No effect
-            0,  // A (F): Set speed
-            0,  // B (B): Position jump
-            0,  // C (D): Pattern break
-            2,  // D (A): Volume slide
-            3,  // E (2, E, X): Porta down
-            4,  // F (1, E, X): Porta up
-            0,  // G (3): Porta to note
-            0,  // H (4): Vibrato
-            5,  // I: Not available in XM // TODO: Why does it have a value?
-            0,  // J (0): Arpeggio
-            6,  // K (6): Volume slide + Vibrato
-            7,  // L (5): Volume slide + Glissando
-            0,  // M: Not available in XM
-            0,  // N: Not available in XM
-            8,  // O (9): Set offset
-            9,  // P (P): Panning slide
-            10, // Q (R): Retrigger note
-            11, // R (7): Tremolo
-            0,  // S (E): Extended effects
-            0,  // T (F): Set tempo
-            0,  // U: Not available in XM
-            0,  // V (G): Set global volume
-            12, // W (H): Global volume slide
-            0,  // X (8, E): Set panning
-            0,  // Y: Not available in XM
-            0,  // Z: Not available in XM
-            0,  // 0 [27] (C): Set volume
-            0,  // 1 [28] (K): Key off
-            0,  // 2 [29] (L): Set envelope position
-            13, // 3 [30] (T): Tremor
+            -1, // No effect
+            -1, // A (F): Set speed
+            -1, // B (B): Position jump
+            -1, // C (D): Pattern break
+             1, // D (A): Volume slide
+             2, // E (2, E, X): Porta down
+             3, // F (1, E, X): Porta up
+            -1, // G (3): Porta to note
+            -1, // H (4): Vibrato
+             4, // I: Not available in XM // TODO: Why does it have a value?
+            -1, // J (0): Arpeggio
+             5, // K (6): Volume slide + Vibrato
+             6, // L (5): Volume slide + Glissando
+            -1, // M: Not available in XM
+            -1, // N: Not available in XM
+             7, // O (9): Set offset
+             8, // P (P): Panning slide
+             9, // Q (R): Retrigger note
+            10, // R (7): Tremolo
+            -1, // S (E): Extended effects
+            -1, // T (F): Set tempo
+            -1, // U: Not available in XM
+            -1, // V (G): Set global volume
+            11, // W (H): Global volume slide
+            -1, // X (8, E): Set panning
+            -1, // Y: Not available in XM
+            -1, // Z: Not available in XM
+            -1, // 0 [27] (C): Set volume
+            -1, // 1 [28] (K): Key off
+            -1, // 2 [29] (L): Set envelope position
+            12, // 3 [30] (T): Tremor
 
             // Unused XM effects: I, J, M, N, O, Q, S, U, V, Y, Z
         };
 
-        // XM effects
         table_entry = mpp_effect_memmap_xm[effect];
     }
-    else
+    else // IT Effects
     {
         // https://wiki.openmpt.org/Manual:_Effect_Reference#IT_Effect_Commands
-        const mm_byte mpp_effect_memmap_it[] = {
-            0,  // No effect
-            0,  // A: Set Speed
-            0,  // B: Jump to order
-            0,  // C: Break to row
-            2,  // D: Volume slide
-            3,  // E: Pitch slide down
-            3,  // F: Pitch slide up
-            0,  // G: Portamento to note
-            0,  // H: Vibrato
-            4,  // I: Tremor
-            5,  // J: Arpeggio
-            2,  // K: Dual command: Vibrato + Volume slide (H + D)
-            2,  // L: Dual Command: Portamento to note and Volume slide (G + D)
-            0,  // M: Set channel volume
-            6,  // N: Channel volume slide
-            7,  // O: Set sample offset
-            8,  // P: Pan slide
-            9,  // Q: Retriggers a note
-            10, // R: Tremolo
-            11, // S: Extended effects
-            12, // T: Tempo
-            0,  // U: Fine vibrato
-            0,  // V: Set Global volume
-            13, // W: Global volume slide
-            0,  // X: Set panning
-            14, // Y: Panbrello
-            0,  // Z: Midi macro
+        const mm_sbyte mpp_effect_memmap_it[] = {
+            -1, // No effect
+            -1, // A: Set Speed
+            -1, // B: Jump to order
+            -1, // C: Break to row
+             1, // D: Volume slide
+             2, // E: Pitch slide down
+             2, // F: Pitch slide up
+            -1, // G: Portamento to note
+            -1, // H: Vibrato
+             3, // I: Tremor
+             4, // J: Arpeggio
+             1, // K: Dual command: Vibrato + Volume slide (H + D)
+             1, // L: Dual Command: Portamento to note and Volume slide (G + D)
+            -1, // M: Set channel volume
+             5, // N: Channel volume slide
+             6, // O: Set sample offset
+             7, // P: Pan slide
+             8, // Q: Retriggers a note
+             9, // R: Tremolo
+            10, // S: Extended effects
+            11, // T: Tempo
+            -1, // U: Fine vibrato
+            -1, // V: Set Global volume
+            12, // W: Global volume slide
+            -1, // X: Set panning
+            13, // Y: Panbrello
+            -1, // Z: Midi macro
         };
 
-        // IT effects
         table_entry = mpp_effect_memmap_it[effect];
     }
 
     // If the effect doesn't use the memory table there's nothing left to do
-    if (table_entry == 0)
+    if (table_entry == -1)
         return param;
 
     if (param == 0)
     {
         // If the parameter is empty, load it from memory
-        channel->param = channel->memory[table_entry - 1];
+        channel->param = channel->memory[table_entry];
         return channel->param;
     }
     else
     {
         // If the parameter isn't empty, save it to memory
-        channel->memory[table_entry - 1] = param;
+        channel->memory[table_entry] = param;
         return param;
     }
 }
