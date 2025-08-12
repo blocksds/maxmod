@@ -1054,6 +1054,8 @@ mm_word mpph_FinePitchSlide_Down(mm_word period, mm_word slide_value,
 //                                EFFECT MEMORY
 // =============================================================================
 
+// There are 15 entries in the channel memory
+
 #define MPP_XM_VFX_MEM_VS       12  // Value = 0xUD : Up, Down
 #define MPP_XM_VFX_MEM_FVS      13  // Value = 0xUD : Up, Down
 #define MPP_XM_VFX_MEM_GLIS     14  // Value = 0x0X : Zero, Value
@@ -1563,9 +1565,9 @@ static mm_word mpp_Channel_ExchangeMemory(mm_byte effect, mm_byte param,
             -1, // B (B): Position jump
             -1, // C (D): Pattern break
              1, // D (A): Volume slide
-             2, // E (2, E, X): Porta down
-             3, // F (1, E, X): Porta up
-            -1, // G (3): Porta to note
+             2, // E (2, E, X): Portamento down / Pitch slide down
+             3, // F (1, E, X): Portamento up / Pitch slide up
+            -1, // G (3): Portamento to note / Glissando
             -1, // H (4): Vibrato
              4, // I: Not available in XM // TODO: Why does it have a value?
             -1, // J (0): Arpeggio
@@ -1604,9 +1606,9 @@ static mm_word mpp_Channel_ExchangeMemory(mm_byte effect, mm_byte param,
             -1, // B: Jump to order
             -1, // C: Break to row
              1, // D: Volume slide
-             2, // E: Pitch slide down
-             2, // F: Pitch slide up
-            -1, // G: Portamento to note
+            MPP_IT_PORTAMEM, // E: Portamento down / Pitch slide down
+            MPP_IT_PORTAMEM, // F: Portamento up / Pitch slide up
+            -1, // G: Portamento to note / Glissando
             -1, // H: Vibrato
              3, // I: Tremor
              4, // J: Arpeggio
@@ -2723,7 +2725,7 @@ static void mppe_Extended(mm_word param, mm_active_channel *act_ch,
 }
 
 // =============================================================================
-//                                      OLD EFFECTS
+//                      XM EFFECTS (NOT AVAILABLE IN IT)
 // =============================================================================
 
 // EFFECT 0xx: Set Volume
@@ -2766,7 +2768,6 @@ static void mppe_EnvelopePos(mm_word param, mm_active_channel *act_ch,
 #endif
 
 // EFFECT 3xy: Old Tremor
-// TODO: Is this used?
 static void mppe_OldTremor(mm_word param, mm_module_channel *channel,
                            mpl_layer_information *layer)
 {
@@ -2796,7 +2797,12 @@ static void mppe_OldTremor(mm_word param, mm_module_channel *channel,
 mm_word mpp_Process_Effect(mpl_layer_information *layer, mm_active_channel *act_ch,
                            mm_module_channel *channel, mm_word period)
 {
+    // First, update effect. If "channel->param" is zero, the function will
+    // return the last parameter provided for the effect specified in
+    // "channel->effect". Only some effects have memory. If the effect doesn't
+    // have memory this function will return "channel->param" right away.
     mm_word param = mpp_Channel_ExchangeMemory(channel->effect, channel->param, channel, layer);
+
     mm_word effect = channel->effect;
 
     switch (effect)
