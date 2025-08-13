@@ -573,9 +573,6 @@ void mmStreamBegin(mm_addr wave_memory, mm_hword clks, mm_hword len, mm_stream_f
         start_sound_channel(CHANNEL_CENTER);
     }
 
-    // Send "start" signal
-    ((mm_byte*)mmsData.wave_memory)[(mmsData.length_words * 4) - 1] = 0;
-
     mmRestoreIRQ_t();
 }
 
@@ -594,9 +591,6 @@ void mmStreamEnd(void)
     {
         stop_sound_channel(CHANNEL_CENTER);
     }
-
-    // Send "stop" signal
-    *((mm_byte*)mmsData.wave_memory) += 1;
 
     mmRestoreIRQ_t();
 }
