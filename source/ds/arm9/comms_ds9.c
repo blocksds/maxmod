@@ -119,8 +119,6 @@ void mmSendBank(mm_word num_songs, mm_word num_samples, mm_addr bank_addr)
 }
 
 // Lock channels to prevent use by maxmod
-// TODO: Make this work for all channels, not just the PHYS ones.
-// Requires changing the receiving end in arm7 to use 5 bytes.
 void mmLockChannels(mm_word bitmask)
 {
     mm_word buffer[MAX_PARAM_WORDS];
@@ -132,8 +130,6 @@ void mmLockChannels(mm_word bitmask)
 }
 
 // Unlock channels to allow use by maxmod
-// TODO: Make this work for all channels, not just the PHYS ones.
-// Requires changing the receiving end in arm7 to use 5 bytes.
 void mmUnlockChannels(mm_word bitmask)
 {
     mm_word buffer[MAX_PARAM_WORDS];
