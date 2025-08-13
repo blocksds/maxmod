@@ -28,7 +28,7 @@ mm_word mm_mixlen;
 
 mm_word mm_ratescale;
 
-mm_word mp_writepos; // wavebuffer write position
+mm_addr mp_writepos; // wavebuffer write position
 
 static mm_addr mm_wavebuffer;
 
@@ -109,7 +109,7 @@ IWRAM_CODE ARM_CODE void mmVBlank(void)
         else
         {
             // Restart write position
-            mp_writepos = (mm_word)mm_wavebuffer;
+            mp_writepos = mm_wavebuffer;
         }
     }
 
@@ -137,7 +137,7 @@ void mmMixerInit(mm_gba_system *setup)
 
     mm_wavebuffer = setup->wave_memory;
 
-    mp_writepos = (mm_word)mm_wavebuffer;
+    mp_writepos = mm_wavebuffer;
 
     mm_word mode = setup->mixing_mode;
 
