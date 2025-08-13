@@ -77,46 +77,47 @@ bool mmInitDefault(mm_addr soundbank, mm_word number_of_channels);
 /// Example:
 ///
 /// ```c
-/// // Mixing buffer (globals should go in IWRAM)
-/// // Mixing buffer SHOULD be in IWRAM, otherwise the CPU load will
-/// // _drastially_ increase.
-/// u8 myMixingBuffer[MM_MIXLEN_16KHZ] __attribute((aligned(4)));
+/// // Mixing buffer (globals are usually placed in IWRAM by your toolchain).
+/// // If it isn't placed in IWRAM the CPU load will _drastially_ increase due
+/// // to the slower memory accesses.
+/// u8 myMixingBuffer[MM_MIXLEN_16KHZ] __attribute__((aligned(4)));
 ///
 /// void maxmodInit(void)
 /// {
+///     irqInit();
 ///     irqSet(IRQ_VBLANK, mmVBlank);
+///     irqEnable(IRQ_VBLANK);
 ///
-///     u8 *myData;
-///     mm_gba_system mySystem;
+///     // Allocate data for channel buffers & wave buffer (memory returned by
+///     // malloc is in EWRAM). Use the SIZEOF definitions to calculate how many
+///     // bytes to reserve
+///     u8 *myData = malloc((8 * (MM_SIZEOF_MODCH + MM_SIZEOF_ACTCH + MM_SIZEOF_MIXCH))
+///                         + MM_MIXLEN_16KHZ);
 ///
-///     // Allocate data for channel buffers & wave buffer (malloc'd data goes
-///     // to EWRAM).
-///     // Use the SIZEOF definitions to calculate how many bytes to reserve
-///     myData = (u8*)malloc(8 * (MM_SIZEOF_MODCH + MM_SIZEOF_ACTCH + MM_SIZEOF_MIXCH)
-///                          + MM_MIXLEN_16KHZ);
+///     // Setup system information
+///     mm_gba_system mySystem =
+///     {
+///         // 16 KHz software mixing rate, select from the mm_mixmode enum
+///         .mixing_mode       = MM_MIX_16KHZ;
 ///
-///     // setup system info
-///     // 16KHz software mixing rate, select from mm_mixmode
-///     mySystem.mixing_mode       = MM_MIX_16KHZ;
+///         // Number of module/mixing channels. Higher numbers offer better
+///         // polyphony at the expense of more memory and/or CPU usage.
+///         // The maximum number of channels supported is 32.
+///         .mod_channel_count = 8; // Max number of channels for modules only
+///         .mix_channel_count = 8; // Max number of channels for modules and effects
 ///
-///     // Number of module/mixing channels.
-///     // Higher numbers offer better polyphony at the expense of more memory
-///     // and/or CPU usage.
-///     // The maximum number of channels supported is 32.
-///     mySystem.mod_channel_count = 8; // Max number of channels for modules
-///     mySystem.mix_channel_count = 8; // Max number for modules and effects
+///         // Assign memory blocks to pointers
+///         .module_channels = (mm_addr)(myData + 0);
+///         .active_channels = (mm_addr)(myData + (8 * MM_SIZEOF_MODCH));
+///         .mixing_channels = (mm_addr)(myData + (8 * (MM_SIZEOF_MODCH + MM_SIZEOF_ACTCH)));
 ///
-///     // Assign memory blocks to pointers
-///     mySystem.module_channels   = (mm_addr)(myData + 0);
-///     mySystem.active_channels   = (mm_addr)(myData + (8 * MM_SIZEOF_MODCH));
-///     mySystem.mixing_channels   = (mm_addr)(myData + (8 * (MM_SIZEOF_MODCH
-///                                                         + MM_SIZEOF_ACTCH)));
-///     mySystem.mixing_memory     = (mm_addr)myMixingBuffer;
-///     mySystem.wave_memory       = (mm_addr)(myData + (8 * (MM_SIZEOF_MODCH
-///                                                         + MM_SIZEOF_ACTCH
-///                                                         + MM_SIZEOF_MIXCH)));
-///     // Pass soundbank address
-///     mySystem.soundbank         = (mm_addr)soundbank;
+///         .mixing_memory   = (mm_addr)myMixingBuffer;
+///         .wave_memory     = (mm_addr)(myData + (8 * (MM_SIZEOF_MODCH + MM_SIZEOF_ACTCH
+///                                                     + MM_SIZEOF_MIXCH)));
+///
+///         // Soundbank address in ROM/RAM
+///         .soundbank         = (mm_addr)soundbank;
+///     };
 ///
 ///     // Initialize Maxmod
 ///     mmInit(&mySystem);
