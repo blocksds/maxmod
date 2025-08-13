@@ -37,7 +37,7 @@ static mm_addr mm_init_default_buffer = NULL;
 static bool mm_initialized = false;
 
 // Initialize maxmod
-bool mmInit(mm_gba_system* setup)
+bool mmInit(mm_gba_system *setup)
 {
     mp_solution = setup->soundbank;
 
@@ -48,6 +48,9 @@ bool mmInit(mm_gba_system* setup)
     mm_pchannels = setup->module_channels;
     mm_num_mch = setup->mod_channel_count;
     mm_num_ach = setup->mix_channel_count;
+
+    if ((mm_num_mch > 32) || (mm_num_ach > 32))
+        return false;
 
     mmMixerInit(setup); // Initialize software/hardware mixer
 
@@ -70,6 +73,9 @@ bool mmInit(mm_gba_system* setup)
 
 bool mmInitDefault(mm_addr soundbank, mm_word number_of_channels)
 {
+    if (number_of_channels > 32)
+        return false;
+
     // Allocate buffer
     size_t size_of_channel = sizeof(mm_module_channel) + sizeof(mm_active_channel) + sizeof(mm_mixer_channel);
     size_t size_of_buffer = mixlen + (number_of_channels * size_of_channel);

@@ -62,7 +62,7 @@ typedef enum
 ///     with the Maxmod Utility.
 /// @param number_of_channels
 ///     Number of module/mixing channels to allocate. Must be greater or equal
-///     to the channel count in your modules.
+///     to the channel count in your modules. The maximum value allowed is 32.
 ///
 /// @return
 ///     It returns true on success, false on error.
@@ -99,11 +99,12 @@ bool mmInitDefault(mm_addr soundbank, mm_word number_of_channels);
 ///     // 16KHz software mixing rate, select from mm_mixmode
 ///     mySystem.mixing_mode       = MM_MIX_16KHZ;
 ///
-///     // number of module/mixing channels
-///     // higher numbers offer better polyphony at the expense
-///     // of more memory and/or CPU usage.
-///     mySystem.mod_channel_count = 8;
-///     mySystem.mix_channel_count = 8;
+///     // Number of module/mixing channels.
+///     // Higher numbers offer better polyphony at the expense of more memory
+///     // and/or CPU usage.
+///     // The maximum number of channels supported is 32.
+///     mySystem.mod_channel_count = 8; // Max number of channels for modules
+///     mySystem.mix_channel_count = 8; // Max number for modules and effects
 ///
 ///     // Assign memory blocks to pointers
 ///     mySystem.module_channels   = (mm_addr)(myData + 0);
