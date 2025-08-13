@@ -1056,26 +1056,70 @@ mm_word mpph_FinePitchSlide_Down(mm_word period, mm_word slide_value,
 
 // There are 15 entries in the channel memory
 
-#define MPP_XM_VFX_MEM_VS       12  // Value = 0xUD : Up, Down
-#define MPP_XM_VFX_MEM_FVS      13  // Value = 0xUD : Up, Down
-#define MPP_XM_VFX_MEM_GLIS     14  // Value = 0x0X : Zero, Value
-#define MPP_XM_VFX_MEM_PANSL    7   // Value = 0xLR : Left, Right
+// XM effects memory
+// -----------------
 
-// IT: VCMD: Porta to note/glissando
-// IT: FX:   Porta to note/glissando
-#define MPP_GLIS_MEM            0
-// Not used by mpp_Channel_ExchangeMemory(). Used by mpp_Process_VolumeCommand(),
-// mppe_PortaVolume() and mppe_Glissando().
+// 0 is a common memory entry
+#define MPP_XM_VOLSLIDE         1 // FX: [A] Volume slide
+#define MPP_XM_PORTA_DOWN       2 // FX: [2, E, X] Portamento down
+#define MPP_XM_PORTA_UP         3 // FX: [1, E, X] Portamento up
+#define MPP_XM_UNKNOWN          4 // FX: [I] Not available in XM // TODO: Why does it have a value?
+#define MPP_XM_VOLSLIDE_VIBR    5 // FX: [6] Volume slide + Vibrato
+#define MPP_XM_VOLSLIDE_GLIS    6 // FX: [5] Volume slide + Glissando/Porta to note
+#define MPP_XM_SAMP_OFFSET      7 // FX: [9] Set offset
+#define MPP_XM_PANSLIDE         8 // FX: [P] Panning slide
+#define MPP_XM_RETRIG_NOTE      9 // FX: [R] Retrigger note
+#define MPP_XM_TREMOLO          10 // FX: [7] Tremolo
+#define MPP_XM_GL_VOLSLIDE      11 // FX: [H] Global volume slide
+#define MPP_XM_TREMOR           12 // FX: [T] Tremor
+
+// The entries used for VCMD overlap the ones used for regular effects
+#define MPP_XM_VCMD_MEM_PANSL   7   // VCMD: Panning slide  || Value = 0xLR : Left, Right
+#define MPP_XM_VCMD_MEM_VS      12  // VCMD: Volume slide   || Value = 0xUD : Up, Down
+#define MPP_XM_VCMD_MEM_FVS     13  // VCMD: Fine vol slide || Value = 0xUD : Up, Down
+#define MPP_XM_VCMD_MEM_GLIS    14  // VCMD: Glissando      || Value = 0x0X : Zero, Value
 
 // IT effects memory
 // -----------------
 
-// VCMD: Porta up/down. Porta to note/glissando,
-// FX:   Porta up/down. Porta to note/glissando.
-#define MPP_IT_PORTAMEM         2
+// Note: MPP_IT_VOLSLIDE and MPP_IT_VCMD_MEM are different memory entries
+// because the VCMD volume slide commands don't share memory with the regular
+// volume slide effects (Dxx).
 
-// VCMD: Fine volume slide. Volume slide
-#define MPP_IT_VCMD_MEM         14
+// 0 is a common memory entry
+#define MPP_IT_VOLSLIDE         1 // FX: [D] Volume slide
+
+#define MPP_IT_PORTA            2 // VCMD: Porta up/down. Porta to note/glissando,
+                                  // FX: [E, F] Porta up/down. [G] Porta to note/glissando.
+
+#define MPP_IT_TREMOR           3 // FX: [I] Tremor
+#define MPP_IT_ARPEGGIO         4 // FX: [J] Arpeggio
+#define MPP_IT_CH_VOLSLIDE      5 // FX: [N] Channel volume slide
+#define MPP_IT_SAMP_OFFSET      6 // FX: [O] Set sample offset
+#define MPP_IT_PANSLIDE         7 // FX: [P] Pan slide
+#define MPP_IT_RETRIG_NOTE      8 // FX: [Q] Retriggers a note
+#define MPP_IT_TREMOLO          9 // FX: [R] Tremolo
+#define MPP_IT_EXTENDED_FX      10 // FX: [S] Extended effects
+#define MPP_IT_TEMPO            11 // FX: [T] Tempo
+#define MPP_IT_GL_VOLSLIDE      12 // FX: [W] Global volume slide
+#define MPP_IT_PANBRELLO        13 // FX: [Y] Panbrello
+#define MPP_IT_VCMD_MEM         14 // VCMD: Fine volume slide. Volume slide
+
+// Common effect memory
+// --------------------
+
+// The command below is handled from mpp_Process_VolumeCommand() so it needs
+// to be shared between all module types. It isn't handled as part of
+// mpp_Channel_ExchangeMemory(), which can decide different memory layouts
+// depending on the format of the module.
+
+// IT: VCMD [193-202]:   Porta to note/glissando
+// IT: FX:  [L]:         Porta to note/glissando + Volume slide
+// XM: VCMD [0xF0-0xFF]: Porta to note/glissando
+// XM: FX:  [5]:         Porta to note/glissando + Volume slide
+// Not used by mpp_Channel_ExchangeMemory(). Used by mpp_Process_VolumeCommand(),
+// mppe_PortaVolume() and mppe_Glissando().
+#define MPP_XM_IT_GLIS          0
 
 mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
                                   mm_active_channel *act_ch,
@@ -1104,7 +1148,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
                 return period;
 
             int volume = channel->volume;
-            mm_byte mem = channel->memory[MPP_XM_VFX_MEM_VS];
+            mm_byte mem = channel->memory[MPP_XM_VCMD_MEM_VS];
 
             if (volcmd < 0x70) // mppuv_xm_volslide_down
             {
@@ -1119,7 +1163,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
                 else
                 {
                     delta = volcmd;
-                    channel->memory[MPP_XM_VFX_MEM_VS] = (mem & ~0xF) | volcmd;
+                    channel->memory[MPP_XM_VCMD_MEM_VS] = (mem & ~0xF) | volcmd;
                 }
 
                 // mppuv_voldownA
@@ -1143,7 +1187,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
                 else
                 {
                     delta = volcmd;
-                    channel->memory[MPP_XM_VFX_MEM_VS] = (volcmd << 4) | (mem & 0xF);
+                    channel->memory[MPP_XM_VCMD_MEM_VS] = (volcmd << 4) | (mem & 0xF);
                 }
 
                 volume += delta;
@@ -1159,7 +1203,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
                 return period;
 
             int volume = channel->volume;
-            mm_byte mem = channel->memory[MPP_XM_VFX_MEM_FVS];
+            mm_byte mem = channel->memory[MPP_XM_VCMD_MEM_FVS];
 
             if (volcmd < 0x90) // mppuv_xm_volslide_down
             {
@@ -1174,7 +1218,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
                 else
                 {
                     delta = volcmd;
-                    channel->memory[MPP_XM_VFX_MEM_FVS] = (mem & ~0xF) | volcmd;
+                    channel->memory[MPP_XM_VCMD_MEM_FVS] = (mem & ~0xF) | volcmd;
                 }
 
                 // mppuv_voldownA
@@ -1198,7 +1242,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
                 else
                 {
                     delta = volcmd;
-                    channel->memory[MPP_XM_VFX_MEM_FVS] = (volcmd << 4) | (mem & 0xF);
+                    channel->memory[MPP_XM_VCMD_MEM_FVS] = (volcmd << 4) | (mem & 0xF);
                 }
 
                 volume += delta;
@@ -1249,7 +1293,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
                 return period;
 
             int panning = channel->panning;
-            mm_byte mem = channel->memory[MPP_XM_VFX_MEM_PANSL];
+            mm_byte mem = channel->memory[MPP_XM_VCMD_MEM_PANSL];
 
             if (volcmd < 0xE0) // mppuv_xm_panslide_left
             {
@@ -1263,7 +1307,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
                 }
                 else
                 {
-                    channel->memory[MPP_XM_VFX_MEM_PANSL] = (mem & 0xF) | (volcmd << 4);
+                    channel->memory[MPP_XM_VCMD_MEM_PANSL] = (mem & 0xF) | (volcmd << 4);
                     delta = volcmd & 0xF;
                 }
 
@@ -1288,7 +1332,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
                 else
                 {
                     delta = volcmd;
-                    channel->memory[MPP_XM_VFX_MEM_VS] = volcmd | (mem & 0xF); // BUG?
+                    channel->memory[MPP_XM_VCMD_MEM_VS] = volcmd | (mem & 0xF); // TODO: BUG?
                 }
 
                 delta <<= 2;
@@ -1309,9 +1353,9 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
             volcmd = (volcmd - 0xF0) << 4;
 
             if (volcmd != 0)
-                channel->memory[MPP_XM_VFX_MEM_GLIS] = volcmd;
+                channel->memory[MPP_XM_VCMD_MEM_GLIS] = volcmd;
 
-            volcmd = channel->memory[MPP_XM_VFX_MEM_GLIS];
+            volcmd = channel->memory[MPP_XM_VCMD_MEM_GLIS];
 
             return mppe_glis_backdoor(volcmd, period, act_ch, channel, layer);
         }
@@ -1407,9 +1451,9 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
                 volcmd = (volcmd - 115) << 2;
 
                 if (volcmd == 0)
-                    volcmd = channel->memory[MPP_IT_PORTAMEM];
+                    volcmd = channel->memory[MPP_IT_PORTA];
 
-                channel->memory[MPP_IT_PORTAMEM] = volcmd;
+                channel->memory[MPP_IT_PORTA] = volcmd;
 
                 r0 = mpph_PitchSlide_Up(channel->period, volcmd, layer);
             }
@@ -1418,9 +1462,9 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
                 volcmd = (volcmd - 105) << 2;
 
                 if (volcmd == 0)
-                    volcmd = channel->memory[MPP_IT_PORTAMEM];
+                    volcmd = channel->memory[MPP_IT_PORTA];
 
-                channel->memory[MPP_IT_PORTAMEM] = volcmd;
+                channel->memory[MPP_IT_PORTA] = volcmd;
 
                 r0 = mpph_PitchSlide_Down(channel->period, volcmd, layer);
             }
@@ -1457,29 +1501,31 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
 
             mm_word glis = vcmd_glissando_table[volcmd];
 
-            if (layer->flags & MAS_HEADER_FLAG_LINK_GXX) // Shared Gxx
+            if (layer->flags & MAS_HEADER_FLAG_LINK_GXX)
             {
+                // Gxx is shared, IT MODE ONLY!!
+
                 // When this flag is enabled, link effect G's memory with the
                 // memory used by effects E/F
 
                 if (glis == 0)
-                    glis = channel->memory[MPP_IT_PORTAMEM];
+                    glis = channel->memory[MPP_IT_PORTA];
 
-                channel->memory[MPP_IT_PORTAMEM] = glis; // E/F memory
-                channel->memory[MPP_GLIS_MEM] = glis;
+                channel->memory[MPP_IT_PORTA] = glis; // E/F memory
+                channel->memory[MPP_XM_IT_GLIS] = glis;
 
-                mm_byte mem = channel->memory[MPP_GLIS_MEM];
+                mm_byte mem = channel->memory[MPP_XM_IT_GLIS];
 
                 return mppe_glis_backdoor(mem, period, act_ch, channel, layer);
             }
             else // Single Gxx
             {
                 if (glis == 0)
-                    glis = channel->memory[MPP_GLIS_MEM];
+                    glis = channel->memory[MPP_XM_IT_GLIS];
 
-                channel->memory[MPP_GLIS_MEM] = glis;
+                channel->memory[MPP_XM_IT_GLIS] = glis;
 
-                mm_byte mem = channel->memory[MPP_GLIS_MEM];
+                mm_byte mem = channel->memory[MPP_XM_IT_GLIS];
 
                 return mppe_glis_backdoor(mem, period, act_ch, channel, layer);
             }
@@ -1572,44 +1618,46 @@ static mm_word mpp_Channel_ExchangeMemory(mm_byte effect, mm_byte param,
         // https://wiki.openmpt.org/Manual:_Effect_Reference#MOD_/_XM_Formats
         const mm_sbyte mpp_effect_memmap_xm[] = {
             // Legend | IT effect number (XM effect number): Description
-            //
+
+            -1,                 // No effect
+            -1,                 // A (F): Set speed
+            -1,                 // B (B): Position jump
+            -1,                 // C (D): Pattern break
+            MPP_XM_VOLSLIDE,    // D (A): Volume slide
+            MPP_XM_PORTA_DOWN,  // E (2, E, X): Portamento down / Pitch slide down
+            MPP_XM_PORTA_UP,    // F (1, E, X): Portamento up / Pitch slide up
+            -1,                 // G (3): Portamento to note / Glissando
+            -1,                 // H (4): Vibrato
+            MPP_XM_UNKNOWN,     // I: Not available in XM // TODO: Why does it have a value?
+            -1,                 // J (0): Arpeggio
+            MPP_XM_VOLSLIDE_VIBR, // K (6): Volume slide + Vibrato
+            MPP_XM_VOLSLIDE_GLIS, // L (5): Volume slide + Glissando
+            -1,                 // M: Not available in XM
+            -1,                 // N: Not available in XM
+            MPP_XM_SAMP_OFFSET, // O (9): Set offset
+            MPP_XM_PANSLIDE,    // P (P): Panning slide
+            MPP_XM_RETRIG_NOTE, // Q (R): Retrigger note
+            MPP_XM_TREMOLO,     // R (7): Tremolo
+            -1,                 // S (E): Extended effects
+            -1,                 // T (F): Set tempo
+            -1,                 // U: Not available in XM
+            -1,                 // V (G): Set global volume
+            MPP_XM_GL_VOLSLIDE, // W (H): Global volume slide
+            -1,                 // X (8, E): Set panning
+            -1,                 // Y: Not available in XM
+            -1,                 // Z: Not available in XM
+
             // For effects not available in the IT format this array has been
             // extended. The last 4 values don't correspond to IT effects. The
             // index between [] is the value used in mmutil.
 
-            -1, // No effect
-            -1, // A (F): Set speed
-            -1, // B (B): Position jump
-            -1, // C (D): Pattern break
-             1, // D (A): Volume slide
-             2, // E (2, E, X): Portamento down / Pitch slide down
-             3, // F (1, E, X): Portamento up / Pitch slide up
-            -1, // G (3): Portamento to note / Glissando
-            -1, // H (4): Vibrato
-             4, // I: Not available in XM // TODO: Why does it have a value?
-            -1, // J (0): Arpeggio
-             5, // K (6): Volume slide + Vibrato
-             6, // L (5): Volume slide + Glissando
-            -1, // M: Not available in XM
-            -1, // N: Not available in XM
-             7, // O (9): Set offset
-             8, // P (P): Panning slide
-             9, // Q (R): Retrigger note
-            10, // R (7): Tremolo
-            -1, // S (E): Extended effects
-            -1, // T (F): Set tempo
-            -1, // U: Not available in XM
-            -1, // V (G): Set global volume
-            11, // W (H): Global volume slide
-            -1, // X (8, E): Set panning
-            -1, // Y: Not available in XM
-            -1, // Z: Not available in XM
-            -1, // 0 [27] (C): Set volume
-            -1, // 1 [28] (K): Key off
-            -1, // 2 [29] (L): Set envelope position
-            12, // 3 [30] (T): Tremor
+            -1,                 // 0 [27] (C): Set volume
+            -1,                 // 1 [28] (K): Key off
+            -1,                 // 2 [29] (L): Set envelope position
+            MPP_XM_TREMOR,      // 3 [30] (T): Tremor
 
-            // Unused XM effects: I, J, M, N, O, Q, S, U, V, Y, Z
+            // Unused XM effects: I, M, N, V. They aren't generated by mmutil
+            // when converting from XM to IT.
         };
 
         table_entry = mpp_effect_memmap_xm[effect];
@@ -1618,38 +1666,41 @@ static mm_word mpp_Channel_ExchangeMemory(mm_byte effect, mm_byte param,
     {
         // https://wiki.openmpt.org/Manual:_Effect_Reference#IT_Effect_Commands
         const mm_sbyte mpp_effect_memmap_it[] = {
-            -1, // No effect
-            -1, // A: Set Speed
-            -1, // B: Jump to order
-            -1, // C: Break to row
+            -1,                 // No effect
+            -1,                 // A: Set Speed
+            -1,                 // B: Jump to order
+            -1,                 // C: Break to row
 
             // This doesn't share memory with VCMD volume slides
-            1, // D: Volume slide
+            MPP_IT_VOLSLIDE,    // D: Volume slide
 
             // E/F/G: These commands ALL share the same memory.
-            MPP_IT_PORTAMEM, // E: Portamento down / Pitch slide down
-            MPP_IT_PORTAMEM, // F: Portamento up / Pitch slide up
-            -1, // G: Portamento to note / Glissando
+            MPP_IT_PORTA,       // E: Portamento down / Pitch slide down
+            MPP_IT_PORTA,       // F: Portamento up / Pitch slide up
+            -1,                 // G: Portamento to note / Glissando
 
-            -1, // H: Vibrato
-            3,  // I: Tremor
-            4,  // J: Arpeggio
-            1,  // K: Dual command: Vibrato + Volume slide (H + D)
-            1,  // L: Dual Command: Portamento to note and Volume slide (G + D)
-            -1, // M: Set channel volume
-            5,  // N: Channel volume slide
-            6,  // O: Set sample offset
-            7,  // P: Pan slide
-            8,  // Q: Retriggers a note
-            9,  // R: Tremolo
-            10, // S: Extended effects
-            11, // T: Tempo
-            -1, // U: Fine vibrato
-            -1, // V: Set Global volume
-            12, // W: Global volume slide
-            -1, // X: Set panning
-            13, // Y: Panbrello
-            -1, // Z: Midi macro
+            -1,                 // H: Vibrato
+            MPP_IT_TREMOR,      // I: Tremor
+            MPP_IT_ARPEGGIO,    // J: Arpeggio
+
+            // The parameter of the two dual commands is the volume slide parameter
+            MPP_IT_VOLSLIDE,    // K: Dual command: Vibrato + Volume slide (H + D)
+            MPP_IT_VOLSLIDE,    // L: Dual Command: Portamento to note and Volume slide (G + D)
+
+            -1,                 // M: Set channel volume
+            MPP_IT_CH_VOLSLIDE, // N: Channel volume slide
+            MPP_IT_SAMP_OFFSET, // O: Set sample offset
+            MPP_IT_PANSLIDE,    // P: Pan slide
+            MPP_IT_RETRIG_NOTE, // Q: Retriggers a note
+            MPP_IT_TREMOLO,     // R: Tremolo
+            MPP_IT_EXTENDED_FX, // S: Extended effects
+            MPP_IT_TEMPO,       // T: Tempo
+            -1,                 // U: Fine vibrato
+            -1,                 // V: Set Global volume
+            MPP_IT_GL_VOLSLIDE, // W: Global volume slide
+            -1,                 // X: Set panning
+            MPP_IT_PANBRELLO,   // Y: Panbrello
+            -1,                 // Z: Midi macro
         };
 
         table_entry = mpp_effect_memmap_it[effect];
@@ -2137,29 +2188,29 @@ static mm_word mppe_Glissando(mm_word param, mm_word period, mm_active_channel *
 
             if (param == 0)
             {
-                param = channel->memory[MPP_IT_PORTAMEM];
+                param = channel->memory[MPP_IT_PORTA];
                 channel->param = param;
             }
 
-            channel->memory[MPP_IT_PORTAMEM] = param;
-            channel->memory[MPP_GLIS_MEM] = param; // For simplification later
+            channel->memory[MPP_IT_PORTA] = param;
+            channel->memory[MPP_XM_IT_GLIS] = param; // For simplification later
         }
         else
         {
             // Gxx is separate
             if (param == 0)
             {
-                param = channel->memory[MPP_GLIS_MEM];
+                param = channel->memory[MPP_XM_IT_GLIS];
                 channel->param = param;
             }
 
-            channel->memory[MPP_GLIS_MEM] = param;
+            channel->memory[MPP_XM_IT_GLIS] = param;
 
             return period;
         }
     }
 
-    param = channel->memory[MPP_GLIS_MEM];
+    param = channel->memory[MPP_XM_IT_GLIS];
 
     period = mppe_glis_backdoor(param, period, act_ch, channel, layer);
 
@@ -2252,7 +2303,7 @@ static mm_word mppe_VibratoVolume(mm_word param, mm_word period, mm_module_chann
 static mm_word mppe_PortaVolume(mm_word param, mm_word period, mm_active_channel *act_ch,
                                 mm_module_channel *channel, mpl_layer_information *layer)
 {
-    mm_word mem = channel->memory[MPP_GLIS_MEM];
+    mm_word mem = channel->memory[MPP_XM_IT_GLIS];
 
     period = mppe_Glissando(mem, period, act_ch, channel, layer);
 
