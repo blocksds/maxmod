@@ -34,8 +34,6 @@
 #define GLISSANDO_MX_VOLCMD_START   0xF0
 #define GLISSANDO_MX_VOLCMD_END     0xFF
 
-#define MAX_VOL_ACH     0x80
-
 #define NOTE_CUT        254
 #define NOTE_OFF        255
 
@@ -560,8 +558,8 @@ void mmUpdateChannel_TN(mm_module_channel *module_channel, mpl_layer_information
     // Clamp volume
     if (volume < 0)
         volume = 0;
-    if (volume > MAX_VOL_ACH) // TODO: Is this right?! Isn't the limit 0x7F?!
-        volume = MAX_VOL_ACH;
+    if (volume > 128)
+        volume = 128;
 
     mpp_vars.afvol = volume;
 
