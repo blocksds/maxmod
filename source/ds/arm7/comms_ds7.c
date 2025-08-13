@@ -349,21 +349,11 @@ static ARM_CODE void ProcessNextMessage(void)
         {
             mm_reverb_cfg cfg;
             cfg.flags = ReadNFifoBytes(2);
-
-            if (cfg.flags & MMRF_MEMORY)
-                cfg.memory = (mm_addr)ReadNFifoBytes(4);
-
-            if (cfg.flags & MMRF_DELAY)
-                cfg.delay = ReadNFifoBytes(2);
-
-            if (cfg.flags & MMRF_RATE)
-                cfg.rate = ReadNFifoBytes(2);
-
-            if (cfg.flags & MMRF_FEEDBACK)
-                cfg.feedback = ReadNFifoBytes(2);
-
-            if (cfg.flags & MMRF_PANNING)
-                cfg.panning = ReadNFifoBytes(1);
+            cfg.memory = (mm_addr)ReadNFifoBytes(4);
+            cfg.delay = ReadNFifoBytes(2);
+            cfg.rate = ReadNFifoBytes(2);
+            cfg.feedback = ReadNFifoBytes(2);
+            cfg.panning = ReadNFifoBytes(1);
 
             mmReverbConfigure(&cfg);
             break;

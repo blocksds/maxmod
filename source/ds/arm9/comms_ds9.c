@@ -363,52 +363,16 @@ void mmReverbDisable(void)
 }
 
 // Configure reverb system
-// TODO: Maybe migrate to a more easy-to-mantain config?
 void mmReverbConfigure(mm_reverb_cfg* config)
 {
     mm_word buffer[MAX_PARAM_WORDS];
-    mm_byte* buffer_byte = (mm_byte*)buffer;
 
-    size_t bytes = 4;
+    buffer[0] = (config->flags << 16) | (MSG_REVERBCFG << 8) | (14);
+    buffer[1] = (mm_word)config->memory;
+    buffer[2] = config->delay | (config->rate << 16);
+    buffer[3] = config->feedback | (config->panning << 16);
 
-    if (config->flags & MMRF_MEMORY)
-    {
-        for (size_t i = 0; i < sizeof(config->memory); i++)
-            buffer_byte[bytes + i] = (((mm_word)config->memory) >> (8 * i)) & 0xFF;
-        bytes += sizeof(config->memory);
-    }
-
-    if (config->flags & MMRF_DELAY)
-    {
-        for (size_t i = 0; i < sizeof(config->delay); i++)
-            buffer_byte[bytes + i] = (config->delay >> (8 * i)) & 0xFF;
-        bytes += sizeof(config->delay);
-    }
-
-    if (config->flags & MMRF_RATE)
-    {
-        for (size_t i = 0; i < sizeof(config->rate); i++)
-            buffer_byte[bytes + i] = (config->rate >> (8 * i)) & 0xFF;
-        bytes += sizeof(config->rate);
-    }
-
-    if (config->flags & MMRF_FEEDBACK)
-    {
-        for (size_t i = 0; i < sizeof(config->feedback); i++)
-            buffer_byte[bytes + i] = (config->feedback >> (8 * i)) & 0xFF;
-        bytes += sizeof(config->feedback);
-    }
-
-    if (config->flags & MMRF_PANNING)
-    {
-        for (size_t i = 0; i < sizeof(config->panning); i++)
-            buffer_byte[bytes + i] = (config->panning >> (8 * i)) & 0xFF;
-        bytes += sizeof(config->panning);
-    }
-
-    buffer[0] = (config->flags << 16) | (MSG_REVERBCFG << 8) | (bytes - 1);
-
-    SendString(buffer, (bytes + 3) >> 2);
+    SendString(buffer, 4);
 }
 
 // Enable reverb output
