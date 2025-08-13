@@ -85,10 +85,7 @@ mmMixerMix: // params = { samples_count }
 // it will malfunction.
 
     cmp     r0, #0
-    bne     .mp_zerocheck
-    bx      lr
-
-.mp_zerocheck:
+    bxeq    lr
 
 // preserve registers
 
