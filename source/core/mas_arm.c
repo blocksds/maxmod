@@ -540,7 +540,7 @@ void mmUpdateChannel_TN(mm_module_channel *module_channel, mpl_layer_information
     mpp_vars.notedelay = 0;
     mpp_vars.panplus = 0;
 
-    // Update volume commands
+    // Update volume commands. Used by S3M, XM and IT. Not used by MOD.
     if (module_channel->flags & MF_HASVCMD)
         period = mpp_Process_VolumeCommand(mpp_layer, act_ch, module_channel, period);
 
