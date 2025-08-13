@@ -48,7 +48,7 @@ typedef enum
 // measurements of channel types (bytes)
 #define MM_SIZEOF_MODCH     40
 #define MM_SIZEOF_ACTCH     28
-#define MM_SIZEOF_MIXCH     16
+#define MM_SIZEOF_MIXCH     (12 + sizeof(uintptr_t))
 
 /// Initialize Maxmod with default settings.
 ///
@@ -358,7 +358,7 @@ void mmSetModulePitch(mm_word pitch);
 ///     Playback mode: MM_PLAY_ONCE or MM_PLAY_LOOP.
 /// @param layer
 ///     MM_MAIN (main module layer) or MM_JINGLE (sub/jingle layer).
-void mmPlayModule(mm_word address, mm_word mode, mm_word layer);
+void mmPlayModule(uintptr_t address, mm_word mode, mm_word layer);
 
 // ***************************************************************************
 /// @}

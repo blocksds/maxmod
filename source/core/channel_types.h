@@ -179,11 +179,9 @@ static_assert(sizeof(mm_mixer_channel) == 16);
 
 #ifdef __GBA__
 
-#define MIXCH_GBA_SRC_STOPPED (1u << 31)
-
 // A GBA mixer channel is active if "src & (1 << 31)" is zero.
 typedef struct {
-    mm_word     src;
+    uintptr_t   src;
     mm_word     read;
     mm_byte     vol;
     mm_byte     pan;
@@ -191,6 +189,8 @@ typedef struct {
     mm_byte     unused_1;
     mm_word     freq;
 } mm_mixer_channel;
+
+#define MIXCH_GBA_SRC_STOPPED (1u << ((sizeof(uintptr_t) * 8) - 1))
 
 // Make sure that the size matches the assembly code
 static_assert(sizeof(mm_mixer_channel) == 16);

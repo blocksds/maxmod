@@ -254,7 +254,7 @@ static void mpps_backdoor(mm_word id, mm_pmode mode, mm_layer_type layer)
 
     // Calculate the address of the module now that we have the module table. It
     // represents offsets inside the soundbank.
-    mm_word moduleAddress = (mm_word)mp_solution + sizeof(mm_mas_prefix) + moduleTable[id];
+    uintptr_t moduleAddress = (uintptr_t)mp_solution + sizeof(mm_mas_prefix) + moduleTable[id];
 
     // Play this module
     mmPlayModule(moduleAddress, mode, layer);
@@ -479,7 +479,7 @@ static void mpp_resetvars(mpl_layer_information *layer_info)
 }
 
 // Start playing module.
-void mmPlayModule(mm_word address, mm_word mode, mm_word layer)
+void mmPlayModule(uintptr_t address, mm_word mode, mm_word layer)
 {
     mm_mas_head *header = (mm_mas_head *)address;
 
@@ -3256,7 +3256,7 @@ static mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information
 #ifdef __GBA__
         mm_mas_gba_sample *gba_sample = (mm_mas_gba_sample *)&(sample->data[0]);
 
-        mix_ch->src = (mm_word)&(gba_sample->data[0]);
+        mix_ch->src = (uintptr_t)&(gba_sample->data[0]);
 #else
         mm_mas_ds_sample *ds_sample = (mm_mas_ds_sample *)&(sample->data[0]);
 
@@ -3275,7 +3275,7 @@ static mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information
         mm_byte *sample_addr = ((mm_byte *)mp_solution) + sample_offset;
         mm_mas_gba_sample *gba_sample = (mm_mas_gba_sample *)(sample_addr + sizeof(mm_mas_prefix));
 
-        mix_ch->src = (mm_word)(&(gba_sample->data[0]));
+        mix_ch->src = (uintptr_t)(&(gba_sample->data[0]));
 #else
         mm_word source = mmSampleBank[sample->msl_id];
         source &= 0xFFFFFF; // Mask out counter value

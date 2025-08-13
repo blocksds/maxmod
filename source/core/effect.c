@@ -205,11 +205,11 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
     // Set sample data address
 
     msl_head *head = mp_solution;
-    mm_word sample_offset = (mm_word)head->sampleTable[sound->id & 0xFFFF];
+    uintptr_t sample_offset = (uintptr_t)head->sampleTable[sound->id & 0xFFFF];
     mm_byte *sample_addr = ((mm_byte *)mp_solution) + sample_offset;
     mm_mas_gba_sample *sample = (mm_mas_gba_sample *)(sample_addr + sizeof(mm_mas_prefix));
 
-    mix_ch->src = (mm_word)(&(sample->data[0]));
+    mix_ch->src = (uintptr_t)(&(sample->data[0]));
 
     // set pitch to original * pitch
     mix_ch->freq = (sound->rate * sample->default_frequency) >> (10 - 2);
