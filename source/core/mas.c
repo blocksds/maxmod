@@ -1332,7 +1332,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
                 else
                 {
                     delta = volcmd;
-                    channel->memory[MPP_XM_VCMD_MEM_VS] = volcmd | (mem & 0xF); // TODO: BUG?
+                    channel->memory[MPP_XM_VCMD_MEM_PANSL] = volcmd | (mem & 0xF);
                 }
 
                 delta <<= 2;
