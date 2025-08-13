@@ -365,6 +365,10 @@ void mmStreamOpen(mm_stream *stream)
     if ((mmsData.wave_memory == NULL) || (mmsData.work_memory == NULL))
     {
         mmsData.is_active = 0;
+#ifdef ARM9
+        free(mmsData.wave_memory);
+        free(mmsData.work_memory);
+#endif
         return;
     }
 
