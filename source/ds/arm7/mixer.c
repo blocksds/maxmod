@@ -52,14 +52,6 @@ static void mm_reset_channels(void)
     mmResetEffects();
 }
 
-static void mm_startup_wait(void)
-{
-    // Delay 12 samples (pcm startup time + extra)
-    volatile int val = 1024 * (16 / 4);
-    while (val--);
-    // TODO: Replace this by a swiDelay()
-}
-
 static void EnableSound(void)
 {
     // Enable sound and set the maximum value
@@ -116,8 +108,6 @@ static void mmSetupModeB(void)
 
     EnableSound();
 
-    mm_startup_wait();
-
     TIMER_DATA(MIX_TIMER_NUMBER) = 0xFF80;
     TIMER_CR(MIX_TIMER_NUMBER) = 0x00C3;
 }
@@ -154,8 +144,6 @@ static void SetupSWM(void)
     REG_SOUNDXCNT(SWM_CHANNEL_2) = SOUNDXCNT_VOL_MUL(0x7F) | SOUNDXCNT_PAN(0x7F) |
                                    SOUNDXCNT_REPEAT | SOUNDXCNT_FORMAT_16BIT |
                                    SOUNDXCNT_ENABLE;
-
-    mm_startup_wait();
 
     TIMER_DATA(MIX_TIMER_NUMBER) = 0xFD60;
     TIMER_CR(MIX_TIMER_NUMBER) = 0x00C2;
