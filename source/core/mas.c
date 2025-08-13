@@ -455,11 +455,11 @@ void mmSetModuleTempo(mm_word tempo)
 {
     // Clamp value: 512->2048
 
-    mm_word max = 1 << 11;
+    mm_word max = 2048;
     if (tempo > max)
         tempo = max;
 
-    mm_word min = 1 << 9;
+    mm_word min = 512;
     if (tempo < min)
         tempo = min;
 
@@ -555,11 +555,11 @@ void mmSetModulePitch(mm_word pitch)
 {
     // Clamp value: 512->2048
 
-    mm_word max = 1 << 11;
+    mm_word max = 2048;
     if (pitch > max)
         pitch = max;
 
-    mm_word min = 1 << 9;
+    mm_word min = 512;
     if (pitch < min)
         pitch = min;
 

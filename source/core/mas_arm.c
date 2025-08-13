@@ -484,7 +484,7 @@ channel_started:
         if (((mpp_layer->flags & MAS_HEADER_FLAG_XM_MODE) == 0) || (module_channel->flags & MF_DVOL))
         {
             // Reset volume
-            act_ch->fade = 1 << 10;
+            act_ch->fade = 1024; // Max volume
             act_ch->envc_vol = 0;
             act_ch->envc_pan = 0;
             act_ch->envc_pic = 0;

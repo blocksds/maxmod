@@ -113,7 +113,7 @@ mm_sfxhand mmEffect(mm_word sample_ID)
     mm_sound_effect effect =
     {
         .id = sample_ID,
-        .rate = 1 << 10,
+        .rate = 1024,
         .handle = 0,
         .volume = 255,
         .panning = 128
@@ -279,8 +279,8 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
 // Set master volume scale, 0->1024
 void mmSetEffectsVolume(mm_word volume)
 {
-    if (volume > (1 << 10))
-        volume = 1 << 10;
+    if (volume > 1024)
+        volume = 1024;
 
     mm_sfx_mastervolume = volume;
 }
@@ -313,9 +313,9 @@ void mmEffectVolume(mm_sfxhand handle, mm_word volume)
         return;
 
 #if defined(__GBA__)
-    int shift = 10;
+    int shift = 10; // Divide by 1024
 #elif defined(__NDS__)
-    int shift = 2;
+    int shift = 2; // Divide by 4
 #endif
 
     volume = (volume * mm_sfx_mastervolume) >> shift;

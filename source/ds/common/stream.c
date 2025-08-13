@@ -250,7 +250,7 @@ static void StreamExecuteUpdate(mm_word stream_position)
         mm_word processing_samples = stream_position;
 
         // Cut to work buffer size
-        // This was only > in the asm, but it could cause issues...?
+        // TODO: This was only > in the asm, but it could cause issues...?
         if (processing_samples >= mmsData.length_cut)
             processing_samples = mmsData.length_cut - 1;
 

@@ -585,7 +585,7 @@ static void ARM_CODE mmMixB(void)
 
         if (mix_ch->samp == 0) // Check if channel is disabled
         {
-            *shadow = 64 << 16; // write pan=center, vol=silent
+            *shadow = SOUNDXCNT_PAN(64) | SOUNDXCNT_VOL_MUL(0); // pan=center, vol=silent
             mmbZerofillBuffer(mmb_getdest(i)); // zero wavebuffer
             continue;
         }
