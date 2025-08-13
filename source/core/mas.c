@@ -3039,7 +3039,7 @@ static mm_word mpp_Update_ACHN_notest_envelopes(mpl_layer_information *layer,
 
     // Get envelope flags
 
-    mm_byte *env_ptr = (mm_byte*)&(instrument->data[0]);
+    mm_byte *env_ptr = &(instrument->data[0]);
 
     if (instrument->env_flags & MAS_INSTR_FLAG_VOL_ENV_EXISTS)
     {
@@ -3053,6 +3053,8 @@ static mm_word mpp_Update_ACHN_notest_envelopes(mpl_layer_information *layer,
             // Volume envelope enabled
             mm_word value_mul_64;
             mm_mas_envelope *env = (mm_mas_envelope *)env_ptr;
+
+            env_ptr += env_ptr[0];
 
             mm_word exit_value = mpph_ProcessEnvelope(&act_ch->envc_vol, &act_ch->envn_vol,
                                                       env, act_ch, &value_mul_64);
@@ -3077,8 +3079,6 @@ static mm_word mpp_Update_ACHN_notest_envelopes(mpl_layer_information *layer,
             mm_sword afvol = mpp_vars.afvol;
             mpp_vars.afvol = (afvol * value_mul_64) >> (6 + 6);
 
-            env_ptr += env_ptr[0];
-
             goto mppt_has_volenv;
         }
     }
@@ -3100,6 +3100,8 @@ mppt_has_volenv:
     {
         mm_word value_mul_64;
         mm_mas_envelope *env = (mm_mas_envelope *)env_ptr;
+
+        env_ptr += env_ptr[0];
 
         mpph_ProcessEnvelope(&act_ch->envc_pan, &act_ch->envn_pan, env, act_ch, &value_mul_64);
 
