@@ -34,7 +34,7 @@ static mm_addr mm_wavebuffer;
 
 static mm_word mm_mixch_count;
 
-mm_addr mm_mixch_end;
+mm_mixer_channel *mm_mixch_end;
 
 static mm_word mm_timerfreq;
 
@@ -131,7 +131,7 @@ void mmMixerInit(mm_gba_system *setup)
 
     mm_mix_channels = setup->mixing_channels;
 
-    mm_mixch_end = (mm_addr)((uintptr_t)mm_mix_channels + mm_mixch_count * sizeof(mm_mixer_channel));
+    mm_mixch_end = &mm_mix_channels[mm_mixch_count];
 
     mm_mixbuffer = setup->mixing_memory;
 
