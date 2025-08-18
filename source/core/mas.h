@@ -58,21 +58,22 @@ mm_word mpp_Update_ACHN_notest(mpl_layer_information *layer, mm_active_channel *
 
 void mpp_Channel_NewNote(mm_module_channel*, mpl_layer_information*);
 
-static inline __attribute__((always_inline))
+
+static inline
 mm_mas_sample_info *mpp_SamplePointer(mpl_layer_information *layer, mm_word sampleN)
 {
     mm_byte *base = (mm_byte *)layer->songadr;
     return (mm_mas_sample_info *)(base + layer->samptable[sampleN - 1]);
 }
 
-static inline __attribute__((always_inline))
+static inline
 mm_mas_instrument *mpp_InstrumentPointer(mpl_layer_information *layer, mm_word instN)
 {
     mm_byte *base = (mm_byte *)layer->songadr;
     return (mm_mas_instrument*)(base + layer->insttable[instN - 1]);
 }
 
-static inline __attribute__((always_inline))
+static inline
 mm_mas_pattern *mpp_PatternPointer(mpl_layer_information *layer, mm_word entry)
 {
     mm_byte *base = (mm_byte *)layer->songadr;
