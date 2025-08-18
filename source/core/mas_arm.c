@@ -523,7 +523,6 @@ channel_started:
 
 // For ticks that are not the first one. Note that mpp_layer->ticks may be zero
 // when this function is called (if a channel is active and the row increases).
-IWRAM_CODE ARM_CODE
 void mmUpdateChannel_TN(mm_module_channel *module_channel, mpl_layer_information *mpp_layer)
 {
     // Get channel, if available
