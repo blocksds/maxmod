@@ -83,12 +83,12 @@ static mm_word mmLoadDataFromSoundBank(mm_word index, mm_word command)
     if (fseek(fp, sizeof(msl_head_data) + (index * sizeof(mm_addr)), SEEK_SET) != 0)
         goto error;
 
-    mm_addr offset = 0;
+    mm_word offset = 0;
 
-    if (fread(&offset, sizeof(mm_addr), 1, fp) == 0)
+    if (fread(&offset, sizeof(mm_word), 1, fp) == 0)
         goto error;
 
-    if (fseek(fp, (mm_word)offset, SEEK_SET) != 0)
+    if (fseek(fp, offset, SEEK_SET) != 0)
         goto error;
 
     mm_word size = 0;
@@ -103,7 +103,7 @@ static mm_word mmLoadDataFromSoundBank(mm_word index, mm_word command)
     if (data == NULL)
         goto error;
 
-    if (fseek(fp, (mm_word)offset, SEEK_SET) != 0)
+    if (fseek(fp, offset, SEEK_SET) != 0)
         goto error;
 
     if (fread(data, sizeof(mm_byte), size, fp) != size)
