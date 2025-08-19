@@ -88,6 +88,10 @@ SOURCES_CPP	:= $(shell find -L $(SOURCEDIRS) -name "*.cpp")
 ifeq ($(SYSTEM),GBA)
 DEFINES		+= -D__GBA__
 ARCH		:= -mcpu=arm7tdmi -mtune=arm7tdmi
+# Use debug symbols that no$gba can understand
+ASFLAGS		+= -gdwarf-4
+CFLAGS		+= -gdwarf-4
+CXXFLAGS	+= -gdwarf-4
 endif
 ifeq ($(SYSTEM),DS7)
 DEFINES		:= -D__NDS__ -DARM7
