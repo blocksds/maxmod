@@ -62,7 +62,7 @@ static void mmReceiveDatamsg(int, void*);
 static void ProcessNextMessage(void);
 
 // ARM7 Communication Setup
-ARM_CODE void mmSetupComms(mm_word channel)
+void mmSetupComms(mm_word channel)
 {
     mmFifoChannel = channel;
 
@@ -76,7 +76,7 @@ ARM_CODE void mmSetupComms(mm_word channel)
 }
 
 // Datamsg handler
-static ARM_CODE void mmReceiveDatamsg(int bytes, void *userdata)
+static void mmReceiveDatamsg(int bytes, void *userdata)
 {
     (void)userdata;
 
@@ -165,7 +165,7 @@ void mmProcessComms(void)
 }
 
 // Read X bytes from the FIFO
-static ARM_CODE mm_word ReadNFifoBytes(int n_bytes)
+static mm_word ReadNFifoBytes(int n_bytes)
 {
     mm_word value = 0;
 
@@ -183,7 +183,7 @@ static ARM_CODE mm_word ReadNFifoBytes(int n_bytes)
 }
 
 // Do the actual processing with a switch
-static ARM_CODE void ProcessNextMessage(void)
+static void ProcessNextMessage(void)
 {
     enum mm_message_ids msg_id = (enum mm_message_ids)ReadNFifoBytes(1);
 
