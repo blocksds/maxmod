@@ -94,11 +94,15 @@ static ARM_CODE void mmReceiveDatamsg(int bytes, void *userdata)
     if ((size > (MAX_DATAMSG_SIZE - 1)) || (size > (bytes - 1)))
         return;
 
+    int oldIME = enterCriticalSection();
+
     for (int i = 0; i < size; i++)
     {
         mmFifo[mmFifoPositionWQ++] = datamsg_stack[1 + i];
         mmFifoPositionWQ %= FIFO_SIZE;
     }
+
+    leaveCriticalSection(oldIME);
 
     // If Maxmod hasn't been fully initialized we need to handle received
     // messages to initialize it.
@@ -148,8 +152,16 @@ static void mmSendHandleToARM9(mm_sfxhand handle)
 // Process messages waiting in the fifo
 void mmProcessComms(void)
 {
-    while (mmFifoPositionRQ != mmFifoPositionWQ)
+    while (1)
+    {
+        int oldIME = enterCriticalSection();
+        bool messages_left = mmFifoPositionRQ != mmFifoPositionWQ;
+        leaveCriticalSection(oldIME);
+        if (!messages_left)
+            break;
+
         ProcessNextMessage();
+    }
 }
 
 // Read X bytes from the FIFO
@@ -157,11 +169,15 @@ static ARM_CODE mm_word ReadNFifoBytes(int n_bytes)
 {
     mm_word value = 0;
 
+    int oldIME = enterCriticalSection();
+
     for (int i = 0; i < n_bytes; i++)
     {
         value |= mmFifo[mmFifoPositionRQ++] << (8 * i);
         mmFifoPositionRQ %= FIFO_SIZE;
     }
+
+    leaveCriticalSection(oldIME);
 
     return value;
 }
