@@ -42,7 +42,7 @@
 volatile mm_byte mm_stream_arm9_flag;
 
 // Fifo channel to use for communications
-static mm_word mmFifoChannel;
+static mm_sword mmFifoChannel = -1;
 
 // Record of playing status of the main module and the jingle.
 static mm_byte mmActiveStatus; // Bit 0 = main layer. Bit 1 = sub layer (jingle)
@@ -55,6 +55,9 @@ static mm_hword mmLayerMainPosition;
 // Send data via Datamsg
 static void SendString(mm_word* values, int num_words)
 {
+    if (mmFifoChannel == -1)
+        libndsCrash("Maxmod not initialized");
+
     fifoSendDatamsg(mmFifoChannel, num_words * sizeof(mm_word), (unsigned char*)values);
 }
 

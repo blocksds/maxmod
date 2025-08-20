@@ -100,6 +100,12 @@ static ARM_CODE void mmReceiveDatamsg(int bytes, void *userdata)
         mmFifoPositionWQ %= FIFO_SIZE;
     }
 
+    // If Maxmod hasn't been fully initialized we need to handle received
+    // messages to initialize it.
+    //
+    // If it has been initialized we need to be careful to not handle any
+    // commands while Maxmod is working, so we can't handle them here, we handle
+    // them in mmFrame() instead.
     if (!mmIsInitialized())
         mmProcessComms();
 }
@@ -164,6 +170,14 @@ static ARM_CODE mm_word ReadNFifoBytes(int n_bytes)
 static ARM_CODE void ProcessNextMessage(void)
 {
     enum mm_message_ids msg_id = (enum mm_message_ids)ReadNFifoBytes(1);
+
+    // If Maxmod hasn't been initialized the only command allowed is MSG_BANK to
+    // initialize Maxmod.
+    if (!mmIsInitialized())
+    {
+        if (msg_id != MSG_BANK)
+            libndsCrash("Maxmod: Bad init command");
+    }
 
     switch (msg_id)
     {
