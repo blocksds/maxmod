@@ -397,6 +397,14 @@ static void ProcessNextMessage(void)
         case MSG_EFFECTCANCELALL:
             mmEffectCancelAll();
             break;
+        case MSG_PLAYMAS:
+        {
+            mm_byte layer = ReadNFifoBytes(1);
+            mm_byte mode = ReadNFifoBytes(1);
+            mm_word address = ReadNFifoBytes(4);
+            mmPlayMAS(address, mode, layer);
+            break;
+        }
         default:
             break;
     }

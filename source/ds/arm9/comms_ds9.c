@@ -221,6 +221,16 @@ void mmSetModulePitch(mm_word pitch)
     SendCommandHword(MSG_MASTERPITCH, pitch);
 }
 
+void mmPlayMAS(uintptr_t address, mm_word mode, mm_word layer)
+{
+    mm_word buffer[MAX_PARAM_WORDS];
+
+    buffer[0] = (mode << 24) | (layer << 16) | (MSG_PLAYMAS << 8) | 7;
+    buffer[1] = (mm_word)address;
+
+    SendString(buffer, 2);
+}
+
 // Set master effect volume
 void mmSetEffectsVolume(mm_word vol)
 {

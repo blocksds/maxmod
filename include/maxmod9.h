@@ -404,6 +404,27 @@ mm_word mmGetPositionRow(void);
 ///     The current pattern.
 mm_word mmGetPosition(void);
 
+/// Play individual MAS file from RAM.
+///
+/// A soundbank is a MSL file that contains one or more MAS files. Each MAS file
+/// can contain a sample or a module. This function allows you to play samples
+/// or modules without the need for a soundbank.
+///
+/// Normally, Maxmod plays MAS files from the sound bank provided to mmInit().
+/// This function lets you play MAS files outside of that soundbank.
+///
+/// @warning
+///     You need to initialize Maxmod with a valid soundbank, or with
+///     mmInitNoSoundbank() if you don't plan on using any soundbank at all.
+///
+/// @param address
+///     Address of the MAS file.
+/// @param mode
+///     Playback mode: MM_PLAY_ONCE or MM_PLAY_LOOP.
+/// @param layer
+///     MM_MAIN (main module layer) or MM_JINGLE (sub/jingle layer).
+void mmPlayMAS(uintptr_t address, mm_word mode, mm_word layer);
+
 // ***************************************************************************
 /// @}
 /// @defgroup nds_arm9_jingle_playback NDS: ARM9 Jingle Playback
