@@ -16,8 +16,6 @@
 
 #define FIFO_MAXMOD 3
 
-mm_bool mmTryToInitializeDefault(mm_word);
-
 // Function pointer to soundbank operation callback
 mm_callback mmcbMemory;
 
@@ -83,7 +81,7 @@ bool mmInit(mm_ds_system *system)
 }
 
 // Shared initialization code for default setup
-mm_bool mmTryToInitializeDefault(mm_word first_word)
+static mm_bool mmTryToInitializeDefault(mm_word first_word)
 {
     mm_ds_system system = { 0 };
 
@@ -143,6 +141,14 @@ bool mmInitDefaultMem(mm_addr soundbank)
         return false;
 
     mmSoundBankInMemory(soundbank);
+    return true;
+}
+
+bool mmInitNoSoundbank(void)
+{
+    if (!mmTryToInitializeDefault(0))
+        return false;
+
     return true;
 }
 

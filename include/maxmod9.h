@@ -63,6 +63,15 @@ bool mmInitDefault(const char* soundbank_file);
 ///     It returns true on success, false on error.
 bool mmInitDefaultMem(mm_addr soundbank);
 
+/// Initializes Maxmod without a soundbank
+///
+/// This can be useful if you're going to use mmPlayModule() only, or if you
+/// just want to use the streaming functions of Maxmod.
+///
+/// @return
+///     It returns true on success, false on error.
+bool mmInitNoSoundbank(void);
+
 /// Initializes Maxmod with the settings specified.
 ///
 /// Initialize system. Call once at startup.
@@ -588,10 +597,15 @@ void mmEffectCancelAll(void);
 ///
 /// See the tutorials for more information.
 ///
-/// Caution: If you have some heavy interrupt-routines that are enabled while
-/// calling this function, you may corrupt the stream. The function cannot
-/// disable interrupts internally because it requires the communications to be
-/// active.
+/// @note
+///     You need to initialize Maxmod even if you don't plan on using any
+///     soundbank. If that's your situation, use mmInitNoSoundbank().
+///
+/// @warning
+///     If you have some heavy interrupt-routines that are enabled while calling
+///     this function, you may corrupt the stream. The function cannot disable
+///     interrupts internally because it requires the communications to be
+///     active.
 ///
 /// @param stream
 ///     Pointer to a structure containing information about how the stream will
