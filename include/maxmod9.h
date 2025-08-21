@@ -65,8 +65,8 @@ bool mmInitDefaultMem(mm_addr soundbank);
 
 /// Initializes Maxmod without a soundbank
 ///
-/// This can be useful if you're going to use mmPlayModule() only, or if you
-/// just want to use the streaming functions of Maxmod.
+/// This can be useful if you're going to use mmPlayMAS() only, or if you just
+/// want to use the streaming functions of Maxmod.
 ///
 /// @return
 ///     It returns true on success, false on error.

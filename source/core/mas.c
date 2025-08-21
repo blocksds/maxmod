@@ -254,18 +254,17 @@ static void mpps_backdoor(mm_word id, mm_pmode mode, mm_layer_type layer)
 
     // Calculate the address of the module now that we have the module table. It
     // represents offsets inside the soundbank.
-    uintptr_t moduleAddress = (uintptr_t)mp_solution + sizeof(mm_mas_prefix) + moduleTable[id];
+    uintptr_t moduleAddress = (uintptr_t)mp_solution + moduleTable[id];
 
     // Play this module
-    mmPlayModule(moduleAddress, mode, layer);
+    mmPlayMAS(moduleAddress, mode, layer);
 #elif defined(__NDS__)
     mm_word address = (mm_word)mmModuleBank[id];
     if (address == 0)
         return;
 
     // This address is a pointer to a MAS file that contains the module data.
-    // Pass it to mmPlayModule skipping the file prefix.
-    mmPlayModule(address + sizeof(mm_mas_prefix), mode, layer);
+    mmPlayMAS(address, mode, layer);
 #endif
 }
 
@@ -479,9 +478,10 @@ static void mpp_resetvars(mpl_layer_information *layer_info)
 }
 
 // Start playing module.
-void mmPlayModule(uintptr_t address, mm_word mode, mm_word layer)
+void mmPlayMAS(uintptr_t address, mm_word mode, mm_word layer)
 {
-    mm_mas_head *header = (mm_mas_head *)address;
+    // Skip the MAS prefix
+    mm_mas_head *header = (mm_mas_head *)(address + sizeof(mm_mas_prefix));
 
     mpp_clayer = layer;
 
@@ -546,6 +546,14 @@ void mmPlayModule(uintptr_t address, mm_word mode, mm_word layer)
     // Setup channel pannings
     for (mm_word i = 0; i < num_ch; i++)
         channels[i].panning = header->channel_panning[i];
+}
+
+// Function kept here for backwards compatibility only
+void mmPlayModule(uintptr_t address, mm_word mode, mm_word layer)
+{
+    // mmPlayModule() expects the user to skip the MAS file prefix, but that
+    // isn't very intuitive. mmPlayMAS() skips the prefix internally.
+    mmPlayMAS(address - sizeof(mm_mas_prefix), mode, layer);
 }
 
 // Set master pitch
