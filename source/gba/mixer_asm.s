@@ -211,8 +211,8 @@ mmMixerMix: // params = { samples_count }
     cmp     rfreq, #FETCH_THRESHOLD
     bge     1f
 
-    cmp     r1, #FETCH_SIZE << 12       // check if its > fetch size
-    movhi   r1, #FETCH_SIZE << 12       // if so: clamp to fetch size and set flag
+    cmp     r1, #FETCH_SIZE << SAMPFRAC // check if its > fetch size
+    movhi   r1, #FETCH_SIZE << SAMPFRAC // if so: clamp to fetch size and set flag
     movhi   r2, #1
 
 1:
@@ -300,54 +300,54 @@ mmMixerMix: // params = { samples_count }
     push    {r3-r12}
     // r10 is SRC!
     ldr     r0,=mm_fetch                        // destination
-    add     r10, r10, rread, lsr #12            // add read offset to source
+    add     r10, r10, rread, lsr #SAMPFRAC      // add read offset to source
     bic     r10, #0b11                          // align to 32 bits
-    add     r1, #4 << 12                        // add safety threshold
-    subs    r1, #40 << 12                       // subtract 36
+    add     r1, #4 << SAMPFRAC                  // add safety threshold
+    subs    r1, #40 << SAMPFRAC                 // subtract 36
 
     bcc     .exit_fetch                         // skip large fetch if negative
 .fetch:     ldmia    r10!, {r2-r9, r11, r14}    // read 40 samples      [44 cycles]
     stmia   r0!, {r2-r9,r11,r14}                // write 40 samples     [11 cycles]
-    subs    r1, #40 << 12                       // count                [1  cycle ]
+    subs    r1, #40 << SAMPFRAC                 // count                [1  cycle ]
     bcc     .exit_fetch                         // exit if done         [1  cycle ]
     ldmia   r10!, {r2-r9, r11, r14}             // read 40 samples      [44 cycles]
     stmia   r0!, {r2-r9, r11, r14}              // write 40 samples     [11 cycles]
-    subs    r1, #40 << 12                       // count                [1  cycle ]
+    subs    r1, #40 << SAMPFRAC                 // count                [1  cycle ]
     bcc     .exit_fetch                         // exit if done         [1  cycle ]
     ldmia   r10!, {r2-r9, r11, r14}             // read 40 samples      [44 cycles]
     stmia   r0!, {r2-r9, r11, r14}              // write 40 samples     [11 cycles]
-    subs    r1, #40 << 12                       // count                [1  cycle ]
+    subs    r1, #40 << SAMPFRAC                 // count                [1  cycle ]
     bcs     .fetch                              // loop if remaining    [3  cycles]
                                                 //                      [173 cycles/120 samples]
 .exit_fetch:
 
-    adds    r1, #(40 << 12) - (24 << 12)
+    adds    r1, #(40 << SAMPFRAC) - (24 << SAMPFRAC)
     bmi     .end_medfetch
 .medfetch:
     ldmia   r10!, {r2-r7}                       // read 24 samples      [26]
     stmia   r0!, {r2-r7}                        // write 24 samples     [7 ]
-    subs    r1, #24 << 12                       // count                [1 ]
+    subs    r1, #24 << SAMPFRAC                 // count                [1 ]
     bcc     .end_medfetch                       // exit if done         [1 ]
     ldmia   r10!, {r2-r7}                       // read 24 samples      [26]
     stmia   r0!, {r2-r7}                        // write 24 samples     [7 ]
-    subs    r1, #24 << 12                       // count                [1 ]
+    subs    r1, #24 << SAMPFRAC                 // count                [1 ]
     bcc     .end_medfetch                       // exit if done         [1 ]
     ldmia   r10!, {r2-r7}                       // read 24 samples      [26]
     stmia   r0!, {r2-r7}                        // write 24 samples     [7 ]
-    subs    r1, #24 << 12                       // count                [1 ]
+    subs    r1, #24 << SAMPFRAC                 // count                [1 ]
     bcs     .medfetch                           // loop                 [3 ]
 .end_medfetch:                                  //                      [107]
 
-    adds    r1, #24 << 12                       // add 24 back
+    adds    r1, #24 << SAMPFRAC                 // add 24 back
     bmi     .end_fetch                          // exit if <= 0
 .fetchsmall:
     ldr     r2, [r10], #4                       // read 4 samples       [8]
     str     r2, [r0], #4                        // write 4 samples      [2]
-    subs    r1, #4 << 12                        // count                [1]
+    subs    r1, #4 << SAMPFRAC                  // count                [1]
     ble     .end_fetch                          // exit maybe           [1]
     ldr     r2, [r10], #4                       // read 4 samples       [8]
     str     r2, [r0], #4                        // write 4 samples      [2]
-    subs    r1, #4 << 12                        // count                [1]
+    subs    r1, #4 << SAMPFRAC                  // count                [1]
     bgt    .fetchsmall                          // exit maybe           [3]
 .end_fetch:
 
@@ -355,9 +355,9 @@ mmMixerMix: // params = { samples_count }
 
 fooo:
 
-    mov     r0, rread, lsr #12                  // get read integer
+    mov     r0, rread, lsr #SAMPFRAC            // get read integer
     push    {r0, rsrc}                          // preserve regs
-    bic     rread, rread, r0, lsl #12           // clear integer
+    bic     rread, rread, r0, lsl #SAMPFRAC     // clear integer
     and     r0, #0b11                           // mask low bits
     ldr     rsrc, =mm_fetch                     //
     add     rsrc, rsrc, r0                      // offset source (fetch is word aligned!)
@@ -410,7 +410,7 @@ fooo:
 
     cmp     rfreq, #FETCH_THRESHOLD
     poplt   {r0, rsrc}                          // restore regs
-    addlt   rread, rread, r0, lsl #12           // add old integer to read
+    addlt   rread, rread, r0, lsl #SAMPFRAC     // add old integer to read
     ldmfd   sp!, {rmixc,rvolA,rchan}            // restore more regs
 
     ldr     r1, [rsrc, #-C_SAMPLE_DATA + C_SAMPLE_LEN]

@@ -8,7 +8,7 @@
 
 #include "core/channel_types.h"
 
-#define MP_SAMPFRAC     12
+#define SAMPFRAC        12
 
 #define REG_SOUNDCNT_L  *(volatile uint16_t *)0x4000080
 #define REG_SOUNDCNT_H  *(volatile uint16_t *)0x4000082
