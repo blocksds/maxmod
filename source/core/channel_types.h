@@ -183,7 +183,7 @@ static_assert(sizeof(mm_mixer_channel) == 16);
 // A GBA mixer channel is active if "src & (1 << 31)" is zero.
 typedef struct {
     uintptr_t   src;
-    mm_word     read; // Fixed point 22.12. See MP_SAMPFRAC
+    mm_word     read; // Fixed point 20.12. See MP_SAMPFRAC
     mm_byte     vol;
     mm_byte     pan;
     mm_byte     unused_0;
