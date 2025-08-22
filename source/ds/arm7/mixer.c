@@ -438,8 +438,15 @@ static ARM_CODE void mmMixA(void)
 
             mix_ch->key_on = 0; // Clear start bit
 
-            // TODO: The original only reads one byte instead of 32, is that a bug?
-            mm_word offset = (mm_byte)mix_ch->read; // Read sample offset
+            // When the note starts "mix_ch->read" contains the sample offset
+            // obtained from "mpp_vars.sampoff", which comes from the effects in
+            // the module. The module player doesn't know how many bytes to skip
+            // because the DS supports 8-bit and 16-bit samples, so we need to
+            // calculate it here when the note starts.
+            //
+            // Note: Only the least significant byte of "mix_ch->read" contains
+            // the offset, and the value read must be multiplied by 256 samples.
+            mm_word offset = (mm_byte)mix_ch->read;
 
             if (offset != 0)
             {
@@ -662,8 +669,16 @@ static ARM_CODE void mmMixC(void)
         {
             // shift sample offset (for swm only): offset / 256
 
-            // TODO: The original only reads one byte instead of 32, is that a bug?
-            mm_word sample_offset = (mm_byte)mix_ch->read & 0xFF;
+            // When the note starts "mix_ch->read" contains the sample offset
+            // obtained from "mpp_vars.sampoff", which comes from the effects in
+            // the module. The module player doesn't know how many bytes to skip
+            // because the DS supports 8-bit and 16-bit samples, so we need to
+            // calculate it here when the note starts.
+            //
+            // Note: Only the least significant byte of "mix_ch->read" contains
+            // the offset, and the value read must be multiplied by 256 samples.
+            mm_word sample_offset = (mm_byte)mix_ch->read;
+
             mix_ch->read = sample_offset << (C_READ_FRAC + 8);
 
             // set direct volume levels on key-on
