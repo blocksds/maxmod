@@ -3310,7 +3310,7 @@ static mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information
     // here. The DS supports 8 and 16-bit samples, so we need to do the final
     // calculation in mmMix() when the note starts.
 #ifdef __GBA__
-    mix_ch->read = ((mm_word)mpp_vars.sampoff) << (SAMPFRAC + 8);
+    mix_ch->read = ((mm_word)mpp_vars.sampoff) << (MP_SAMPFRAC + 8);
 #else
     mix_ch->read = mpp_vars.sampoff;
 #endif

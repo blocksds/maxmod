@@ -25,8 +25,6 @@
 
 #define MIX_TIMER_NUMBER 0
 
-#define SFRAC 10
-
 mm_mixer_channel mm_mix_channels[NUM_CHANNELS];
 
 mm_mode_enum mm_mixing_mode; // [0/1/2 = a/b/c] (MM_MODE_A/B/C)
@@ -610,7 +608,7 @@ static void ARM_CODE mmMixB(void)
             //
             // TODO: Mode B doesn't support 16-bit samples, is that a bug?
             mm_word offset = (mm_byte)mix_ch->read;
-            mix_ch->read = offset << (8 + SFRAC);
+            mix_ch->read = offset << (8 + MP_SAMPFRAC);
 
             do_zero_padding = 1; // add zero padding
         }
@@ -689,7 +687,7 @@ static ARM_CODE void mmMixC(void)
             // the offset, and the value read must be multiplied by 256 samples.
             mm_word sample_offset = (mm_byte)mix_ch->read;
 
-            mix_ch->read = sample_offset << (C_READ_FRAC + 8);
+            mix_ch->read = sample_offset << (MP_SAMPFRAC + 8);
 
             // set direct volume levels on key-on
             mix_ch->cvol = mix_ch->vol;

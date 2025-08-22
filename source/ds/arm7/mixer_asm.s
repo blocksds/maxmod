@@ -29,8 +29,6 @@
     .equ    MM_SW_CHUNKLEN,  112    // [samples]
     .equ    MM_SW_BUFFERLEN, 224    // [samples], note: nothing
 
-    .equ    SFRAC, 10
-
     .equ    REG_DMA,     0x40000BC
     .equ    DMA_ENABLE,  (1 << 31)
     .equ    DMA_32BIT,   (1 << 26)
@@ -38,6 +36,9 @@
 //----------------------------------------------------------------------
 // channel structure
 //----------------------------------------------------------------------
+
+    // Number of bits used in fractional part of sample reading (C_READ)
+    .equ    MP_SAMPFRAC, 10
 
     // Sample structure : mm_mas_ds_sample
 
@@ -185,11 +186,11 @@ mmbResampleData:
     add     r1, r1, r2, lsr #10 + (2 - \shift)
     str     r1, [r0, #8]
 
-    bl      \routine                            // resample data
+    bl      \routine                                    // resample data
 
-    ldmia   src, {r0, r1}                       // read PNT+LEN
-    add     r3, r0, r1                          // add for LENGTH
-    cmp     pos, r3, lsl #SFRAC + (2 - \shift)  // check position against length
+    ldmia   src, {r0, r1}                               // read PNT+LEN
+    add     r3, r0, r1                                  // add for LENGTH
+    cmp     pos, r3, lsl #MP_SAMPFRAC + (2 - \shift)    // check position against length
     bcc     1f
 
     ldrb    r0, [src, #C_SAMPLEN_REP]           // branch according to loop type
@@ -210,13 +211,13 @@ mmbResampleData:
 
 2: // forward loop
 //-----------------------------------------------------------------
-    sub     pos, pos, r1, lsl #SFRAC + (2 - \shift) // subtract loop length from position
+    sub     pos, pos, r1, lsl #MP_SAMPFRAC + (2 - \shift) // subtract loop length from position
 
-1:  pop     {count}                                 // check if theres more samples to mix
+1:  pop     {count}                                     // check if theres more samples to mix
     cmp     count, #0
-    bne     \restart                                // (then loop)
+    bne     \restart                                    // (then loop)
 
-    str     pos, [r12, #C_READ]                     // save position & return
+    str     pos, [r12, #C_READ]                         // save position & return
 4:  pop     {r4-r12, pc}
 
 .endm
@@ -281,8 +282,8 @@ mmb_8bit:
 .macro resample_data rout, exit, mode, dsize
 //--------------------------------------------------------------------------------
 
-.if \mode == 1                                  // mode1: increment before load
-    subs    pos, pos, rate, lsl #32 - SFRAC
+.if \mode == 1 // mode1: increment before load
+    subs    pos, pos, rate, lsl #32 - MP_SAMPFRAC
     subcc   src, #\dsize
     movcc   next,curr
 .endif
@@ -317,13 +318,13 @@ mmb_resamp_16bit:
 
     push    {src, r12, lr}
     ldr     src, =mm_mix_data + MB_FETCH
-    mov     m1, pos, lsr #SFRAC             // save position integer
-    bic     pos, pos, m1, lsl #SFRAC
+    mov     m1, pos, lsr #MP_SAMPFRAC       // save position integer
+    bic     pos, pos, m1, lsl #MP_SAMPFRAC
     and     m2, m1, #0b1                    // mask bit 0
     add     src, src, m2, lsl #1            // add offset to fetch
     push    {m1, src}
 
-    cmp     rate, #1 << SFRAC               // use nearest resampling for rates > 32khz
+    cmp     rate, #1 << MP_SAMPFRAC         // use nearest resampling for rates > 32khz
     blt     mmb_resamp_16bit_linear
 //******************************************************************
 mmb_resamp_16bit_nearest:
@@ -332,14 +333,14 @@ mmb_resamp_16bit_nearest:
 //----------------------------------------------------
 .macro mb_buildw16n target, double
 //----------------------------------------------------
-    and     curr, ta, pos, lsr #SFRAC - 1   // shift position & mask out low bit
-    ldrh    \target, [src, curr]            // read sample
-    add     pos, rate                       // increment pos
+    and     curr, ta, pos, lsr #MP_SAMPFRAC - 1 // shift position & mask out low bit
+    ldrh    \target, [src, curr]                // read sample
+    add     pos, rate                           // increment pos
 .if \double != 0
-    and     next, ta, pos, lsr #SFRAC - 1
-    ldrh    next, [src, next]               // read another sample
-    add     pos, rate                       // increment pos
-    orr     \target, \target, next, lsl #16 // combine
+    and     next, ta, pos, lsr #MP_SAMPFRAC - 1
+    ldrh    next, [src, next]                   // read another sample
+    add     pos, rate                           // increment pos
+    orr     \target, \target, next, lsl #16     // combine
 .endif
 .endm
 //----------------------------------------------------
@@ -350,7 +351,7 @@ mmb_resamp_16bit_nearest:
     tst     dest, #0b11                     // align destination
     beq     1f
 
-    bic     m1, ta, pos, lsr #SFRAC - 1
+    bic     m1, ta, pos, lsr #MP_SAMPFRAC - 1
     ldrh    m1, [src, m1]
     add     pos, rate
     strh    m1, [dest], #2
@@ -367,7 +368,7 @@ mmb_resamp_16bit_linear:
 //-------------------------------------------------------------------------------
 .macro mb_buildw16 target, double
 //-------------------------------------------------------------------------------
-    adds    pos, pos, rate, lsl #32 - SFRAC     // 1   add rate FRACTION to position FRACTION
+    adds    pos, pos, rate, lsl #32 - MP_SAMPFRAC // 1   add rate FRACTION to position FRACTION
     movcs   curr, next                          // 1   load new sample on overflow
     ldrshcs next, [src, #2]!                    // 1/3 ..
     sub     ta, next, curr                      // 1   calculate delta
@@ -377,7 +378,7 @@ mmb_resamp_16bit_linear:
 //    lsl     \target, #16
 //    lsr     \target, #16
 .if \double != 0
-    adds    pos, pos, rate, lsl #32 - SFRAC     // 1   add rate FRACTION to position FRACTION
+    adds    pos, pos, rate, lsl #32 - MP_SAMPFRAC // 1   add rate FRACTION to position FRACTION
     movcs   curr, next                          // 1   load new sample on overflow
     ldrshcs next, [src, #2]!                    // 1/3 ..
     sub     ta, next, curr                      // 1   calculate delta
@@ -390,7 +391,7 @@ mmb_resamp_16bit_linear:
 .endm
 //------------------------------------------------------------------------------------
 
-    mov     pos, pos, lsl #32 - SFRAC           // shift out integer bits
+    mov     pos, pos, lsl #32 - MP_SAMPFRAC     // shift out integer bits
 
     tst     dest, #0b11                         // align destination
     beq     1f                                  // ..
@@ -401,7 +402,7 @@ mmb_resamp_16bit_linear:
     mul     ta, tb, ta                          // ..
     add     m1, curr, ta, asr #8                // ..
     strh    m1, [dest], #2                      // ..
-    adds    pos, pos, rate, lsl #32 - SFRAC     // ..
+    adds    pos, pos, rate, lsl #32 - MP_SAMPFRAC // ..
     addcs   src, #2                             // ..
     subs    count, #1                           // ..
     beq     _mb16_exit2
@@ -417,16 +418,16 @@ _mb16_exit:
 //-----------------------------------------------------------------------------------
     sub     src, #2
 _mb16_exit2:
-    movs    pos, pos, lsr #32 - SFRAC
+    movs    pos, pos, lsr #32 - MP_SAMPFRAC
     add     pos, pos, rate
 //-----------------------------------------------------------------------------------
 _mb16n_exit:
 //-----------------------------------------------------------------------------------
-    pop     {m1, m2}                        // pop old position, starting src
-    sub     m2, src, m2                     // get difference
-    add     pos, pos, m1, lsl #SFRAC        // add old position
-    add     pos, pos, m2, lsl #SFRAC - 1    // add src difference
-    pop     {src, r12, pc}                  // return
+    pop     {m1, m2}                            // pop old position, starting src
+    sub     m2, src, m2                         // get difference
+    add     pos, pos, m1, lsl #MP_SAMPFRAC      // add old position
+    add     pos, pos, m2, lsl #MP_SAMPFRAC - 1  // add src difference
+    pop     {src, r12, pc}                      // return
 
 //****************************************************************************
 mmb_resamp_8bit:
@@ -435,13 +436,13 @@ mmb_resamp_8bit:
 
     push    {src, r12, lr}
     ldr     src, =mm_mix_data + MB_FETCH
-    mov     m1, pos, lsr #SFRAC             // save & clear position integer
-    bic     pos, pos, m1, lsl #SFRAC        //
-    and     m2, m1, #0b11                   // mask alignment bits
-    add     src, m2                         // add offset to fetch
+    mov     m1, pos, lsr #MP_SAMPFRAC           // save & clear position integer
+    bic     pos, pos, m1, lsl #MP_SAMPFRAC      //
+    and     m2, m1, #0b11                       // mask alignment bits
+    add     src, m2                             // add offset to fetch
     push    {m1, src}
 
-    cmp     rate, #1 << SFRAC               // use nearest resampling for rates >= 1.0
+    cmp     rate, #1 << MP_SAMPFRAC             // use nearest resampling for rates >= 1.0
     blt     mmb_resamp_8bit_linear
 
 //****************************************************************************
@@ -453,20 +454,20 @@ mmb_resamp_8bit_nearest:
 //---------------------------------------------------
 .macro mb_buildw8n target, double, alternate
 //---------------------------------------------------
-    ldrb    \target, [src, pos, lsr #SFRAC] // read sample
-    add     pos, rate                       // increment pos
+    ldrb    \target, [src, pos, lsr #MP_SAMPFRAC]   // read sample
+    add     pos, rate                               // increment pos
 .if \double != 0
-    ldrb    next, [src, pos, lsr #SFRAC]    // read another sample
-    add     pos, rate                       // increment pos
-    orr     \target, \target, next, lsl #16 // combine
+    ldrb    next, [src, pos, lsr #MP_SAMPFRAC]      // read another sample
+    add     pos, rate                               // increment pos
+    orr     \target, \target, next, lsl #16         // combine
 .endif
-    mov     \target, \target, lsl #8        // expand to 16 bits
+    mov     \target, \target, lsl #8                // expand to 16 bits
 .endm
 //---------------------------------------------------
 
-    tst     dest, #0b11                     // 32-bit align destination
+    tst     dest, #0b11                             // 32-bit align destination
     beq     1f
-    ldrb    m1, [src, pos, lsr #SFRAC]      // (output 1 sample if misaligned)
+    ldrb    m1, [src, pos, lsr #MP_SAMPFRAC]        // (output 1 sample if misaligned)
     add     pos, rate
     lsl     m1, #8
     strh    m1, [dest], #2
@@ -482,7 +483,7 @@ mmb_resamp_8bit_linear:
 // resample with linear interpolation
 // only works with sample rates <= 1.0
 
-    mov     pos, pos, lsl #32 - SFRAC       // shift out integer bits
+    mov     pos, pos, lsl #32 - MP_SAMPFRAC // shift out integer bits
 
     tst     dest, #0b11                     // align destination
     beq     1f                              // ..
@@ -494,7 +495,7 @@ mmb_resamp_8bit_linear:
     mul     ta, tb, ta                      // ..
     add     m1, ta, curr, lsl #8            // ..
     strh    m1, [dest], #2                  // ..
-    adds    pos, pos, rate, lsl #32 - SFRAC // ..
+    adds    pos, pos, rate, lsl #32 - MP_SAMPFRAC // ..
     addcs   src, #1                         // ..
     subs    count, #1                       // ..
 
@@ -509,7 +510,7 @@ mmb_resamp_8bit_linear:
 //-------------------------------------------------------------------------------
 .macro mb_buildw8 target, double
 //-------------------------------------------------------------------------------
-    adds    pos, pos, rate, lsl #32 - SFRAC // 1   add rate FRACTION to position FRACTION
+    adds    pos, pos, rate, lsl #32 - MP_SAMPFRAC // 1   add rate FRACTION to position FRACTION
     movcs   curr, next                      // 1   load new sample on overflow
     ldrsbcs next, [src, #1]!                // 1/3 ..
     sub     ta, next, curr                  // 1   calculate delta
@@ -518,7 +519,7 @@ mmb_resamp_8bit_linear:
     add     \target, ta, curr, lsl #8       // 1   add base sample to product (shifted to 16 bits)
 
 .if \double != 0
-    adds    pos, pos, rate, lsl #32 - SFRAC // 1   add rate FRACTION to position FRACTION
+    adds    pos, pos, rate, lsl #32 - MP_SAMPFRAC // 1   add rate FRACTION to position FRACTION
     movcs   curr, next                      // 1   load new sample on overflow
     ldrsbcs next, [src, #1]!                // 1/3 ..
     sub     ta, next, curr                  // 1   calculate delta
@@ -538,15 +539,15 @@ mb8_exit:
 
     sub     src, #1
 mb8_exit2:
-    movs    pos, pos, lsr #32 - SFRAC       // shift position back to normal
+    movs    pos, pos, lsr #32 - MP_SAMPFRAC // shift position back to normal
     add     pos, pos, rate
 mb8n_exit:
     pop     {m1, m2}                        // pop old position, starting src
 
     sub     m2, src, m2                     // get difference
 
-    add     pos, pos, m1, lsl #SFRAC        // add old position
-    add     pos, pos, m2, lsl #SFRAC        // add src difference
+    add     pos, pos, m1, lsl #MP_SAMPFRAC  // add old position
+    add     pos, pos, m2, lsl #MP_SAMPFRAC  // add src difference
 
     pop     {src, r12, pc}                  // return
 
