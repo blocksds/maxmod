@@ -1610,11 +1610,14 @@ void mmSetPositionEx(mm_word position, mm_word row)
         mpph_FastForward(&mmLayerMain, row);
 }
 
-// An effect of 0 means custom behaviour, or disabled
 static mm_word mpp_Channel_ExchangeMemory(mm_byte effect, mm_byte param,
                                           mm_module_channel *channel,
                                           mpl_layer_information *layer)
 {
+    // An effect of 0 means custom behaviour, or disabled
+    if (effect == 0)
+        return param;
+
     mm_sbyte table_entry;
 
     // Check flags for XM mode
@@ -1627,7 +1630,6 @@ static mm_word mpp_Channel_ExchangeMemory(mm_byte effect, mm_byte param,
         const mm_sbyte mpp_effect_memmap_xm[] = {
             // Legend | IT effect number (XM effect number): Description
 
-            -1,                 // No effect
             -1,                 // A (F): Set speed
             -1,                 // B (B): Position jump
             -1,                 // C (D): Pattern break
@@ -1668,13 +1670,13 @@ static mm_word mpp_Channel_ExchangeMemory(mm_byte effect, mm_byte param,
             // when converting from XM to IT.
         };
 
-        table_entry = mpp_effect_memmap_xm[effect];
+        table_entry = mpp_effect_memmap_xm[effect - 1];
     }
     else // IT Effects
     {
         // https://wiki.openmpt.org/Manual:_Effect_Reference#IT_Effect_Commands
         const mm_sbyte mpp_effect_memmap_it[] = {
-            -1,                 // No effect
+
             -1,                 // A: Set Speed
             -1,                 // B: Jump to order
             -1,                 // C: Break to row
@@ -1711,7 +1713,7 @@ static mm_word mpp_Channel_ExchangeMemory(mm_byte effect, mm_byte param,
             -1,                 // Z: Midi macro
         };
 
-        table_entry = mpp_effect_memmap_it[effect];
+        table_entry = mpp_effect_memmap_it[effect - 1];
     }
 
     // If the effect doesn't use the memory table there's nothing left to do
