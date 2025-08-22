@@ -599,8 +599,18 @@ static void ARM_CODE mmMixB(void)
 
             mix_ch->cvol = vol | (pan << (16 + 9));
 
-            // **todo: CLIP sample offset
-            mix_ch->read = mix_ch->read << (8 + SFRAC);
+            // When the note starts "mix_ch->read" contains the sample offset
+            // obtained from "mpp_vars.sampoff", which comes from the effects in
+            // the module. The module player doesn't know how many bytes to skip
+            // because the DS supports 8-bit and 16-bit samples, so we need to
+            // calculate it here when the note starts.
+            //
+            // Note: Only the least significant byte of "mix_ch->read" contains
+            // the offset, and the value read must be multiplied by 256 samples.
+            //
+            // TODO: Mode B doesn't support 16-bit samples, is that a bug?
+            mm_word offset = (mm_byte)mix_ch->read;
+            mix_ch->read = offset << (8 + SFRAC);
 
             do_zero_padding = 1; // add zero padding
         }
