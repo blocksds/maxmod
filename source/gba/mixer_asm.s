@@ -31,8 +31,6 @@
 
     // Mixer channel : mm_mixer_channel
 
-    .equ    CHN_SIZE, 24
-
     .equ    CHN_SRC,  0
     .equ    CHN_READ, 4
     .equ    CHN_VOL,  8
@@ -40,6 +38,7 @@
     // 10
     // 11
     .equ    CHN_FREQ, 12
+
     .equ    CHN_SIZE, 16
 
 //-------------------------------------
