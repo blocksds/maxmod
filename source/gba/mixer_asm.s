@@ -216,11 +216,10 @@ mmMixerMix: // params = { samples_count }
     movhi   r2, #1
 
 1:
-//    ldr     r0, [rchan, #CHN_LEN]     // now subtract length - read to get # samples remaining
+    // now subtract length - read to get # samples remaining
     ldr     r0, [rsrc, #-C_SAMPLE_DATA + C_SAMPLE_LEN]
-    rsb     r0, rread, r0, lsl #MP_SAMPFRAC
-//    sub    r0, r0, rread              // in the source
-    cmp     r1, r0                      // clamp mix count
+    rsb     r0, rread, r0, lsl #MP_SAMPFRAC // in the source
+    cmp     r1, r0                          // clamp mix count
     movhi   r1, r0
     bhi     .calc_mix
     cmp     r2, #0
@@ -415,8 +414,7 @@ fooo:
 
     ldr     r1, [rsrc, #-C_SAMPLE_DATA + C_SAMPLE_LEN]
     lsl     r1, #MP_SAMPFRAC
-    //ldr     r1, [rchan, #CHN_LEN]               // check length against position
-    cmp     r1, rread
+    cmp     r1, rread                           // check length against position
     bgt     .mpm_channelfinished
 
 //    ldr     r1, [rchan, #CHN_LOOP]              // read channel loop
@@ -807,18 +805,6 @@ mmMix_Remainder:
     orr     rvol, rvolL, rvolR, lsl #16
 
 .mix_remaining:
-/*
-    ldrb    rsampa, [rsrc, rread, lsr #MP_SAMPFRAC] // 3 load sample
-    add     rread, rread, rfreq                     // 1 add frequency
-    mul     rsampb, rsampa, rvolL                   // 2 multiply by volume
-    ldrh    rsamp1, [rmixb]                         // 3 load mix buffer entry
-    add     rsamp1, rsamp1, rsampb, lsr #5          // 1 add
-    strh    rsamp1, [rmixb], #2                     // 2 store
-    ldrh    rsamp1, [rmixb, #2]                     // 3
-    mul     rsampb, rsampa, rvolR                   // 2
-    add     rsamp1, rsamp1, rsampb, lsr #5          // 1
-    strh    rsamp1, [rmixb, #2]                     // 2
-*/
 
     ldrb    rsampa, [rsrc, rread, lsr #MP_SAMPFRAC] // 3 load sample
     add     rread, rread, rfreq                     // 1 add frequency
@@ -833,19 +819,6 @@ mmMix_Remainder:
 
     subs    rmixcc, rmixcc, #2                      // 2
     blt     .end_mix_remaining                      // 1 / exit
-
-/*
-    ldrb    rsampa, [rsrc, rread, lsr #MP_SAMPFRAC] // load sample
-    add     rread, rread, rfreq                     // add frequency
-    mul     rsampb, rsampa, rvolL                   // multiply by volume
-    ldrh    rsamp1, [rmixb]                         // load mix buffer entry
-    add     rsamp1, rsamp1, rsampb, lsr #5          // add
-    strh    rsamp1, [rmixb], #4                     // store
-    ldrh    rsamp1, [rmixb]
-    mul     rsampb, rsampa, rvolR
-    add     rsamp1, rsamp1, rsampb, lsr #5
-    strh    rsamp1, [rmixb], #2
-*/
 
     ldrb    rsampa, [rsrc, rread, lsr #MP_SAMPFRAC] // 3 load sample
     add     rread, rread, rfreq                     // 1 add frequency
