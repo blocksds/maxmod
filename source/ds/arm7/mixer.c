@@ -314,8 +314,8 @@ void mmMixerPre(void)
 
                 REG_SOUNDXTMR(i) = shadow[i].tmr;
 
-                //REG_SOUNDXPAN(i) = shadow[i].cnt >> 16;
-                REG_SOUNDXCNT(i) = shadow[i].cnt;
+                REG_SOUNDXPAN(i) = shadow[i].cnt >> 16;
+                REG_SOUNDXVOL(i) = shadow[i].cnt;
             }
 
             channels >>= 1;
