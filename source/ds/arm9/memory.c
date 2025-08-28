@@ -40,7 +40,7 @@ mm_word mmLoad(mm_word module_ID)
 
     mm_mas_head *header = (mm_mas_head *)(mmModuleBank[module_ID] + sizeof(mm_mas_prefix));
 
-    mm_word *sample_table = (mm_word *)&header->tables[header->instr_count];
+    mm_word *sample_table = &header->tables[header->instr_count];
 
     // Load samples
     for (mm_word i = 0; i < header->sampl_count; i++)
@@ -74,7 +74,7 @@ mm_word mmUnload(mm_word module_ID)
 
     mm_mas_head *header = (mm_mas_head *)(((mm_word)mmModuleBank[module_ID]) + sizeof(mm_mas_prefix));
 
-    mm_word *sample_table = (mm_word *)&header->tables[header->instr_count];
+    mm_word *sample_table = &header->tables[header->instr_count];
 
     // Free samples
     for (mm_word i = 0; i < header->sampl_count; i++)
