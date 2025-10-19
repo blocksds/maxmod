@@ -23,7 +23,7 @@
 #define SWM_CHANNEL_1 6
 #define SWM_CHANNEL_2 7
 
-#define MIX_TIMER_NUMBER 0
+#define MIX_TIMER_NUMBER LIBNDS_DEFAULT_TIMER_MUSIC
 
 mm_mixer_channel mm_mix_channels[NUM_CHANNELS];
 

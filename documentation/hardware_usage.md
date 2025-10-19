@@ -38,7 +38,8 @@ disable Maxmod from using them.
 
 ### Update timer (ARM7)
 
-Timer 0 on ARM7 is used by Maxmod to time update events.
+Timer `LIBNDS_DEFAULT_TIMER_MUSIC` on ARM7 is used by Maxmod to time update
+events.
 
 ### Streaming timer (ARM9)
 

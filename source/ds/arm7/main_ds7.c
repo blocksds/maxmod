@@ -164,8 +164,8 @@ void mmInstall(int fifo_channel)
 // Initialize system
 void mmInit7(void)
 {
-    irqSet(IRQ_TIMER0, mmFrame);
-    irqEnable(IRQ_TIMER0);
+    irqSet(IRQ_TIMER(LIBNDS_DEFAULT_TIMER_MUSIC), mmFrame);
+    irqEnable(IRQ_TIMER(LIBNDS_DEFAULT_TIMER_MUSIC));
 
     // Init volumes
     mmSetModuleVolume(BASE_VOLUME);
