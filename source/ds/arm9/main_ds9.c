@@ -93,9 +93,12 @@ static mm_bool mmTryToInitializeDefault(mm_word first_word)
     system.fifo_channel = FIFO_MAXMOD;
 
     size_t size = (system.mod_count * sizeof(mm_word)) + (system.samp_count * sizeof(mm_word));
-    system.mem_bank = calloc(size, 1);
-    if (system.mem_bank == NULL)
-        return false;
+    if (size > 0)
+    {
+        system.mem_bank = calloc(size, 1);
+        if (system.mem_bank == NULL)
+            return false;
+    }
 
     if (!mmInit(&system))
     {
