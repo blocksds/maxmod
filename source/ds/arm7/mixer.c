@@ -315,7 +315,9 @@ void mmMixerPre(void)
                 REG_SOUNDXTMR(i) = shadow[i].tmr;
 
                 REG_SOUNDXPAN(i) = shadow[i].cnt >> 16;
-                REG_SOUNDXVOL(i) = shadow[i].cnt;
+                // Use a mm_hword pointer so that we can update the volume
+                // multipler and divider fields.
+                *(mm_hword*)&(REG_SOUNDXVOL(i)) = shadow[i].cnt;
             }
 
             channels >>= 1;
