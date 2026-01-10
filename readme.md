@@ -5,4 +5,4 @@ and WAV files.
 
 - [Documentation](https://blocksds.skylyrac.net/maxmod/index.html)
 
-Please, report issues [here](https://github.com/blocksds/sdk/issues).
+Please, report issues [here](https://codeberg.org/blocksds/sdk/issues).
