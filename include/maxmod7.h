@@ -63,7 +63,7 @@ void mmLockChannels(mm_word bitmask);
 ///
 /// Note that in the "Interpolated Audio" mode, channels **can not** be
 /// unlocked. To unlock channels in the interpolated mode you must reset the
-/// audio system. To reset the audio system, use mmSelectMode.
+/// audio system. To reset the audio system, use mmSelectMode().
 ///
 /// @param bitmask
 ///     Selection of channels to unlock. Bit0 = Channel0, Bit1 = Channel1, Bit2
@@ -84,6 +84,8 @@ mm_bool mmIsInitialized(void);
 /// adding linear interpolation in software.
 ///
 /// Extended mixing increases the channel count to 30 with software mixing.
+///
+/// Maxmod starts in mode A (hardware mixing).
 ///
 /// @param mode
 ///     New audio mode. Pass MM_MODE_A for complete hardware mixing, MM_MODE_B

@@ -54,7 +54,7 @@ typedef void            *mm_reg;    ///< Hardware register (pointer)
 /// Audio modes for the DS system. Pass to mmSelectMode().
 typedef enum
 {
-    MM_MODE_A, ///< Selects the full-hardware audio mode.
+    MM_MODE_A, ///< Selects the full-hardware audio mode (default mode).
     MM_MODE_B, ///< Selects the interpolated audio mode.
     MM_MODE_C  ///< Selects the extended mixing audio mode.
 } mm_mode_enum;

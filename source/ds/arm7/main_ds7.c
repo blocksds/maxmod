@@ -25,8 +25,6 @@ static void StopActiveChannel(mm_word);
 #define BASE_TEMPO 0x400
 #define BASE_PITCH 0x400
 
-extern mm_mode_enum mm_mixing_mode;
-
 // Number of modules in sound bank
 mm_word mmModuleCount;
 

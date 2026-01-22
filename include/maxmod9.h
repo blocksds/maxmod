@@ -124,6 +124,8 @@ bool mmInit(mm_ds_system *system);
 ///
 /// Extended mixing increases the channel count to 30 with software mixing.
 ///
+/// Maxmod starts in mode A (hardware mixing).
+///
 /// @param mode
 ///     New audio mode. Pass MM_MODE_A for complete hardware mixing, MM_MODE_B
 ///     for interpolated mixing, or MM_MODE_C for extended mixing.

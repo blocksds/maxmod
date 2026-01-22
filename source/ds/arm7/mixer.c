@@ -27,7 +27,7 @@
 
 mm_mixer_channel mm_mix_channels[NUM_CHANNELS];
 
-mm_mode_enum mm_mixing_mode; // [0/1/2 = a/b/c] (MM_MODE_A/B/C)
+mm_mode_enum mm_mixing_mode = MM_MODE_A;
 
 // Reset all channels
 static void mm_reset_channels(void)
