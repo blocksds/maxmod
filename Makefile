@@ -40,12 +40,15 @@ ds: ds7 ds9
 
 gba:
 	@+$(MAKE) SYSTEM=GBA -f Makefile.plat --no-print-directory
+	@+$(MAKE) SYSTEM=GBA -f Makefile.plat --no-print-directory DEBUG=1
 
 ds7:
 	@+$(MAKE) SYSTEM=DS7 -f Makefile.plat --no-print-directory
+	@+$(MAKE) SYSTEM=DS7 -f Makefile.plat --no-print-directory DEBUG=1
 
 ds9:
 	@+$(MAKE) SYSTEM=DS9 -f Makefile.plat --no-print-directory
+	@+$(MAKE) SYSTEM=DS9 -f Makefile.plat --no-print-directory DEBUG=1
 
 ds: ds7 ds9
 

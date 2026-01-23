@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: CC0-1.0
 #
-# SPDX-FileContributor: Antonio Niño Díaz, 2023
+# SPDX-FileContributor: Antonio Niño Díaz, 2023-2026
 
 BLOCKSDS	?= /opt/blocksds/core
 BLOCKSDSEXT	?= /opt/blocksds/external
@@ -41,6 +41,13 @@ NAME		:= libmm9
 BUILDDIR	:= build/ds9
 endif
 
+ifeq ($(DEBUG),1)
+NAME		:= $(NAME)d
+BUILDDIR	:= $(BUILDDIR)/debug
+else
+BUILDDIR	:= $(BUILDDIR)/release
+endif
+
 ARCHIVE		:= lib/$(NAME).a
 
 # Tools
@@ -60,6 +67,13 @@ ifeq ($(VERBOSE),1)
 V		:=
 else
 V		:= @
+endif
+
+# Defines passed to all files
+# ---------------------------
+
+ifneq ($(DEBUG),1)
+DEFINES		:= -DNDEBUG
 endif
 
 # Libraries
