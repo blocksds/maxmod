@@ -568,7 +568,7 @@ static void ARM_CODE mmMixB(void)
     mm_word ch_mask = mm_ch_mask & 0xFFFF; // Clear top 16 bits (only 16 channels)
     mm_mixer_channel *mix_ch = &mm_mix_channels[0];
 
-    DMA1_DEST = (mm_word)&(mm_mix_data.mix_data_b.fetch[0]);
+    REG_DMA1_DEST = (mm_word)&(mm_mix_data.mix_data_b.fetch[0]);
 
     // Get mode B shadow data (word pointer, don't access individual fields)
     mm_word *shadow = (mm_word *)&(mm_mix_data.mix_data_b.shadow[0]);
@@ -788,7 +788,7 @@ static ARM_CODE void mmMixC(void)
     }
 
     // Setup DMA destination
-    DMA1_DEST = (mm_word)&(mm_mix_data.mix_data_c.fetch[0]);
+    REG_DMA1_DEST = (mm_word)&(mm_mix_data.mix_data_c.fetch[0]);
 
     // Software mix extended channels into the streams.
     mmcMixChunk();
