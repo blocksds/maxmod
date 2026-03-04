@@ -60,6 +60,9 @@ static void mmRestoreIRQ_t(void)
 static mm_hword mmsPreviousTimer;
 static mm_word StreamCounter;
 static mm_stream_data mmsData;
+#ifdef ARM7
+static mm_byte streamVolume = MAX_VOLUME;
+#endif
 
 // Checks if a format is stereo or not
 static mm_bool is_stereo_format(mm_stream_formats format)
@@ -519,7 +522,7 @@ static void init_sound_channel(mm_byte channel, mm_byte panning, uintptr_t wave_
     REG_SOUNDXLEN(channel) = mmsData.length_words;
 
     // Set volume and panning
-    REG_SOUNDXVOL(channel) = MAX_VOLUME;
+    REG_SOUNDXVOL(channel) = streamVolume;
     REG_SOUNDXPAN(channel) = panning;
 }
 
@@ -539,6 +542,7 @@ static void stop_sound_channel(mm_byte channel)
 // Begin audio stream
 void mmStreamBegin(mm_addr wave_memory, mm_hword clks, mm_hword len, mm_stream_formats format)
 {
+    mmsData.is_active = 1;
     mmsData.wave_memory = wave_memory;
     mmsData.format = format;
     mmsData.clocks = clks;
@@ -593,6 +597,29 @@ void mmStreamEnd(void)
     }
 
     mmRestoreIRQ_t();
+
+    mmsData.is_active = 0;
+}
+
+void mmStreamVolume(mm_byte volume)
+{
+    // Clamp volume
+    streamVolume = volume > MAX_VOLUME ? MAX_VOLUME : volume;
+
+    // Catch inactive stream
+    if (!mmsData.is_active)
+        return;
+
+    // Set channel volumes
+    if (is_stereo_format(mmsData.format))
+    {
+        REG_SOUNDXVOL(CHANNEL_LEFT) = streamVolume;
+        REG_SOUNDXVOL(CHANNEL_RIGHT) = streamVolume;
+    }
+    else
+    {
+        REG_SOUNDXVOL(CHANNEL_CENTER) = streamVolume;
+    }
 }
 
 #endif

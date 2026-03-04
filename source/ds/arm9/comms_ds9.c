@@ -263,6 +263,11 @@ void mmStreamEnd(void)
     while (mm_stream_arm9_flag == 0);
 }
 
+void mmStreamVolume(mm_byte volume)
+{
+    SendCommandByte(MSG_STREAMVOL, volume);
+}
+
 // Select audio mode
 void mmSelectMode(mm_mode_enum mode)
 {

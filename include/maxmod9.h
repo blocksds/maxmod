@@ -654,6 +654,12 @@ void mmStreamClose(void);
 ///     The nummber of samples.
 mm_word mmStreamGetPosition(void);
 
+/// Changes the volume of the audio stream.
+///
+/// @param volume
+///     New volume level. Ranges from 0 (silent) to 127 (normal).
+void mmStreamVolume(mm_byte volume);
+
 // ***************************************************************************
 /// @}
 /// @defgroup nds_arm9_reverb NDS: ARM9 Reverb

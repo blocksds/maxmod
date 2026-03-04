@@ -47,7 +47,9 @@ enum mm_message_ids
 
     MSG_PLAYMAS         = 0x1E, // Play MAS file from RAM
 
-    // 0x1F to 0x3F are reserved
+    MSG_STREAMVOL       = 0x1F, // Set stream volume
+
+    // 0x20 to 0x3F are reserved
 };
 
 enum mm_arm7_msg_ids

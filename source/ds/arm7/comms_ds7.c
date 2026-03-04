@@ -405,6 +405,12 @@ static void ProcessNextMessage(void)
             mmPlayMAS(address, mode, layer);
             break;
         }
+        case MSG_STREAMVOL:
+        {
+            mm_byte volume = ReadNFifoBytes(1);
+            mmStreamVolume(volume);
+            break;
+        }
         default:
             break;
     }
