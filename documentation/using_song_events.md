@@ -83,3 +83,10 @@ The value of **param** is the layer that has had the error:
 ```c
 mm_layer_type layer = (mm_layer_type)param;
 ```
+
+### MMCB\_SONGTICK
+
+This is an event that occurs after a tick of a song is processed. The low 8 bits
+of **param** contain the layer that has triggered the effect (**MM_MAIN** or
+**MM_JINGLE**), the next 8 bits contain the tick, the next 8 bits contain the row,
+and the top 8 bits contain the sequence position of the song.
