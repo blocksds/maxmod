@@ -220,6 +220,12 @@ void mmUnlockChannels(mm_word bitmask);
 ///     Function pointer to event handler.
 void mmSetEventHandler(mm_callback handler);
 
+/// Returns the event handler previously installed by the user.
+///
+/// @return
+///     Function pointer to the event handler currently installed.
+mm_callback mmGetEventHandler(void);
+
 /// Setup the standard interface for a soundbank that is loaded in the file
 /// system.
 ///

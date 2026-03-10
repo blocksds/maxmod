@@ -96,6 +96,12 @@ void mmSetEventHandler(mm_callback handler)
     mmCallback = handler;
 }
 
+// Get function for handling playback events
+mm_callback mmGetEventHandler(void)
+{
+    return mmCallback;
+}
+
 // Set BPM. bpm = 32..255
 // Input r5 = layer, r0 = bpm
 static void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
