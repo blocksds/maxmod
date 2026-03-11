@@ -1813,6 +1813,8 @@ IWRAM_CODE void mppProcessTick(void)
         act_ch++;
     }
 
+    mm_word songtick_callback_param = mpp_clayer | layer->tick << 8 | layer->row << 16 | layer->position << 24;
+
     // This is the inlined code of mppProcessTick_incframe()
 
     mm_word new_tick = layer->tick + 1;
@@ -1878,7 +1880,7 @@ IWRAM_CODE void mppProcessTick(void)
 mppt_POST_TICK:
 
     if (mmCallback != NULL)
-        mmCallback(MMCB_SONGTICK, mpp_clayer | layer->tick << 8 | layer->row << 16 | layer->position << 24);
+        mmCallback(MMCB_SONGTICK, songtick_callback_param);
 }
 
 // Note: This is also used for panning slide
