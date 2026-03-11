@@ -496,6 +496,13 @@ enum
 /// when calling `mmInit()` or `mmInitDefault()`.
 #define MMCB_SONGERROR      0x2C
 
+/// A tick has been processed by a song.
+///
+/// Param contains the layer in the bottom 8 bits, tick in the next 8 bits,
+/// row in the next 8 bits, and the sequence position in the top 8 bits
+/// (layer | tick << 8 | row << 16 | position << 24).
+#define MMCB_SONGTICK       0x2D
+
 // ***************************************************************************
 /// @}
 // ***************************************************************************
