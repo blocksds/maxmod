@@ -52,6 +52,12 @@ void mmSetEventHandler(mm_callback handler)
     mmCallback = handler;
 }
 
+// Get function for handling playback events
+mm_callback mmGetEventHandler(void)
+{
+    return mmCallback;
+}
+
 // Initialize Maxmod (manual settings)
 bool mmInit(mm_ds_system *system)
 {
