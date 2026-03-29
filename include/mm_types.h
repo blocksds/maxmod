@@ -486,7 +486,8 @@ enum
 
 /// There has been an error while playing the song.
 ///
-/// The value of param is MM_MAIN or MM_JINGLE, depending on the song that has
+/// The value of param is: `layer | tick << 8 | row << 16 | position << 24`
+/// The layer can be MM_MAIN or MM_JINGLE, depending on the song that has
 /// had the error.
 ///
 /// At the moment, the only way this event can be triggered is if Maxmod is

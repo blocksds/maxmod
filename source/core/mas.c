@@ -1589,7 +1589,11 @@ static void mpph_FastForward(mpl_layer_information *layer, mm_word rows_to_skip)
             mppStop();
 
             if (mmCallback != NULL)
-                mmCallback(MMCB_SONGERROR, mpp_clayer);
+            {
+                mm_word param = mpp_clayer | (layer->tick << 8) | (layer->row << 16) |
+                                (layer->position << 24);
+                mmCallback(MMCB_SONGERROR, param);
+            }
 
             break;
         }
@@ -1762,7 +1766,11 @@ IWRAM_CODE void mppProcessTick(void)
             mppStop();
 
             if (mmCallback != NULL)
-                mmCallback(MMCB_SONGERROR, mpp_clayer);
+            {
+                mm_word param = mpp_clayer | (layer->tick << 8) | (layer->row << 16) |
+                                (layer->position << 24);
+                mmCallback(MMCB_SONGERROR, param);
+            }
 
             return;
         }
@@ -1813,7 +1821,8 @@ IWRAM_CODE void mppProcessTick(void)
         act_ch++;
     }
 
-    mm_word songtick_callback_param = mpp_clayer | layer->tick << 8 | layer->row << 16 | layer->position << 24;
+    mm_word songtick_callback_param = mpp_clayer | (layer->tick << 8) |
+                                      (layer->row << 16) | (layer->position << 24);
 
     // This is the inlined code of mppProcessTick_incframe()
 
