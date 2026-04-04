@@ -8,6 +8,7 @@
 
 #include <mm_types.h>
 
+// This must be at most 254 to prevent overflows in SFX handles
 #define EFFECT_CHANNELS 16
 
 void mmResetEffects(void);

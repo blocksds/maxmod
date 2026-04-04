@@ -126,7 +126,7 @@ mm_sfxhand mmEffect(mm_word sample_ID)
 mm_sfxhand mmEffectEx(mm_sound_effect *sound)
 {
     if (sound->id >= mmGetSampleCount())
-        return 0;
+        return MM_SFXHAND_INVALID;
 
     int sfx_channel = -1;
     int mix_channel = NO_CHANNEL_AVAILABLE;
@@ -158,12 +158,12 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
 
         sfx_channel = mme_get_free_sfx_channel();
         if (sfx_channel < 0)
-            return 0;
+            return MM_SFXHAND_INVALID;
 
         // Allocate new mixer channel
         mix_channel = mmAllocChannel();
         if (mix_channel == NO_CHANNEL_AVAILABLE)
-            return 0;
+            return MM_SFXHAND_INVALID;
 
         sfx_count = mm_sfx_counter;
 
@@ -240,7 +240,7 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
             mix_ch->key_on = 0;
             mix_ch->samp = 0;
             mix_ch->tpan = 0;
-            return 0;
+            return MM_SFXHAND_INVALID;
         }
 
         // Turn this into a main RAM address from an offset

@@ -46,6 +46,9 @@ typedef signed char     mm_sbyte;   ///< Generic signed 8-bit value
 /// effect while it is playing.
 typedef unsigned short  mm_sfxhand;
 
+/// This value represents an invalid mm_sfxhand value.
+#define MM_SFXHAND_INVALID 0
+
 typedef unsigned char   mm_bool;    ///< Boolean. Non-zero = true, zero = false.
 
 typedef void            *mm_addr;   ///< Memory address (pointer)

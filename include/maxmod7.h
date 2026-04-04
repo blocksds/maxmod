@@ -371,8 +371,8 @@ void mmSetJingleVolume(mm_word volume);
 ///     header. (prefixed with "SFX_")
 ///
 /// @return
-///     Sound effect handle. This value can be used to modify parameters of the
-///     sound effect while it is playing.
+///     On success, sound effect handle that can be used to modify parameters of
+///     the sound effect while it is playing. On error, MM_SFXHAND_INVALID.
 mm_sfxhand mmEffect(mm_word sample_ID);
 
 /// Plays a sound effect with custom settings.
@@ -383,7 +383,8 @@ mm_sfxhand mmEffect(mm_word sample_ID);
 ///     Structure containing information about the sound to be played.
 ///
 /// @return
-///     Sound effect handle that may be used to modify the sound later.
+///     On success, sound effect handle that can be used to modify parameters of
+///     the sound effect while it is playing. On error, MM_SFXHAND_INVALID.
 mm_sfxhand mmEffectEx(mm_sound_effect* sound);
 
 /// Changes the volume of a sound effect.
