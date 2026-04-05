@@ -164,6 +164,11 @@ void mmMixerInit(void)
 // Set channel volume
 void mmMixerSetVolume(int channel, mm_word volume)
 {
+    // At the moment this function is only used by mmEffectVolume().
+
+    // Update both the target and current volumes so that SlideMixingLevels()
+    // doesn't change it later.
+    mm_mix_channels[channel].vol = volume;
     mm_mix_channels[channel].cvol = volume;
 }
 
