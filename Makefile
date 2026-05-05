@@ -28,7 +28,7 @@ endif
 # Targets
 # -------
 
-.PHONY: all clean docs ds7 ds9 gba install
+.PHONY: all clean docs ds ds7 ds9 gba install
 
 all: gba ds7 ds9 ds
 
