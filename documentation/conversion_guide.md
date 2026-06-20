@@ -1,9 +1,25 @@
 # Conversion Guide
 
-This article will explain how to use the Maxmod Utility.
+This article will explain how to use the Maxmod Utility to convert audio files
+into the format supported by Maxmod.
 
-Let's start with the *usage*. Run the program without any arguments to bring it
-up.
+## Notes about composing music
+
+When you play music with Maxmod, it may not sound the same way as when you were
+composing it. Maxmod doesn't do any interpolation on the output, but
+interpolation is usually enabled in module trackers used for composing music.
+If you want an output closer to what the GBA would actually sound like, you need
+to disable interpolation and filtering.
+
+For example, in OpenMPT you need to go to `View > Setup`. Select the `Mixer` tab
+and change the interpolation mode to "no interpolation", as well as set volume
+ramping to 0:
+
+![OpenMPT mixer settings](openmpt_mixer.png "Correct mixer settings for OpenMPT")
+
+## Introduction to mmutil
+
+Run `mmutil` without any arguments to bring it up.
 
 ```
 ************************
@@ -47,9 +63,9 @@ Usage:
  www.maxmod.org
 ```
 
-Let's pretend we have 4 music files named song1.mod, song2.s3m, song3.xm, and
-song4.it. Let's also throw in a couple sound effects too: sound1.wav and
-sound2.wav. Produce a soundbank file like this:
+Let's pretend we have 4 music files named `song1.mod`, `song2.s3m`, `song3.xm`,
+and `song4.it`. Let's also throw in a couple sound effects too: `sound1.wav` and
+`sound2.wav`. Produce a soundbank file like this:
 
 ```
 mmutil -osoundbank.bin -hsoundbank.h -d song1.mod song2.s3m song3.xm song4.it sound1.wav sound2.wav
