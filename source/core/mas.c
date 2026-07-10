@@ -71,7 +71,7 @@ mpl_layer_information *mpp_layerp;
 mm_module_channel *mpp_channels;
 
 // Master tempo scaler.
-static mm_word mm_mastertempo;
+static mm_word mm_mastertempo; // 512 to 2048
 
 // Master pitch scaler.
 mm_word mm_masterpitch;
@@ -135,20 +135,21 @@ static void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
     // vsync = ~59.8261 HZ (says GBATEK)
     // divider = hz * 2.5 * 64
 
+    uint64_t temp;
+
     if (mpp_clayer == MM_MAIN)
     {
         // Multiply by master tempo
-        bpm = bpm * mm_mastertempo;
-        bpm <<= 16 + 6 - 10;
+        temp = (bpm * mm_mastertempo) << (16 + 6 - 10);
     }
     else
     {
-        bpm <<= 16 + 6;
+        temp = bpm << (16 + 6);
     }
 
     // using 60hz vsync for timing
     // Should this be better approximated?!
-    layer_info->tickrate = (bpm / mpp_resolution) >> 1;
+    layer_info->tickrate = (temp / mpp_resolution) >> 1;
 
 #endif
 }
@@ -2513,6 +2514,9 @@ static void mppe_SetTempo(mm_word param, mpl_layer_information *layer)
 
         int bpm = layer->bpm + (param & 0xF);
 
+        // Slide up/down are only supported in IT, where the BPM are a 8-bit
+        // value. In IT the BPM is a 16-bit value but IT doesn't support the
+        // slide commands.
         if (bpm > 255)
             bpm = 255;
 

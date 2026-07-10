@@ -16,7 +16,7 @@ typedef struct {
     mm_byte     global_volume; // Global volume multiplier
     mm_byte     speed;      // Speed of module (ticks / row)
     mm_byte     isplaying;  // Module is active
-    mm_byte     bpm;        // Tempo of module
+    mm_hword    bpm;        // Tempo of module
     mm_word    *insttable;  // Table of offsets (from mm_mas_head base) to instrument data
     mm_word    *samptable;  // Table of offsets (from mm_mas_head base) to sample data
     mm_word    *patttable;  // Table of offsets (from mm_mas_head base) to pattern data
