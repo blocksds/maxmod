@@ -22,9 +22,9 @@ ramping to 0:
 Run `mmutil` without any arguments to bring it up.
 
 ```
-************************
-* Maxmod Utility 1.10.1 *
-************************
+******************
+* Maxmod Utility * v1.22.0
+******************
 
 Usage:
   mmutil [options] input files ...
@@ -39,9 +39,28 @@ Usage:
 | -m         | Output MAS file rather than soundbank.             |
 | -d         | Use for NDS projects.                              |
 | -b         | Create test ROM. (use -d for .nds, otherwise .gba) |
-| -i         | Ignore sample flags.                               |
+| -i         | Ignore sample name flags (NDS mode only).          |
 | -v         | Enable verbose output.                             |
 | -p         | Set initial panning separation for MOD/S3M.        |
+| -z         | Export raw WAV data (8-bit format)                 |
+| -V         | Print version string and exit.                     |
+`-----------------------------------------------------------------'
+
+.-----------------------------------------------------------------.
+| Sample flags                                                    |
+|-----------------------------------------------------------------|
+| Sample flags are strings added to a sample name to modify the   |
+| sample during conversion. The only work in NDS hardware mixing  |
+| mode.                                                           |
+|-----------------------------------------------------------------|
+| %o: Used to support the `9xx` command when using the DS         |
+|     hardware channels for playback. In MOD/XM (maybe others)    |
+|     you can use a sample offset command to start playing beyond |
+|     the loop start, and then when the sample hits the loop end  |
+|     it'll still correctly loop back to the start.               |
+|-----------------------------------------------------------------|
+| %c: Compress the sample using IMA-ADPCM. This only works on NDS |
+|     in hardware mixer mode.                                     |
 `-----------------------------------------------------------------'
 
 .-----------------------------------------------------------------.
@@ -58,9 +77,8 @@ Usage:
 |-----------------------------------------------------------------|
 | Create test NDS ROM from three inputs                           |
 |                                                                 |
-| mmutil -d -b input1.xm input2.s3m testsound.wav                 |
+| mmutil -d -b input1.xm input2.s3m testsound.wav -oTEST.nds      |
 `-----------------------------------------------------------------'
- www.maxmod.org
 ```
 
 Let's pretend we have 4 music files named `song1.mod`, `song2.s3m`, `song3.xm`,
