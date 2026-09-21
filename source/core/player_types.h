@@ -14,7 +14,7 @@ typedef struct {
     mm_byte     position;   // Module sequence position
     mm_byte     nrows;      // Number of rows in current pattern
     mm_byte     global_volume; // Global volume multiplier
-    mm_byte     speed;      // Speed of module (ticks / row)
+    mm_hword    speed;      // Speed of module (ticks / row)
     mm_byte     isplaying;  // Module is active
     mm_hword    bpm;        // Tempo of module
     mm_word    *insttable;  // Table of offsets (from mm_mas_head base) to instrument data

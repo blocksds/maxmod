@@ -41,16 +41,30 @@ typedef struct tmm_mas_prefix
 
 typedef struct tmm_mas_head
 {
+#ifdef MM_MMUTIL_DEVKITPRO_COMPAT
     mm_byte     order_count; // TODO: mmutil always exports 200. This is unused.
     mm_byte     instr_count;
     mm_byte     sampl_count;
     mm_byte     pattn_count;
+#else
+    mm_hword    order_count; // TODO: mmutil always exports 200. This is unused.
+    mm_hword    instr_count;
+    mm_hword    sampl_count;
+    mm_hword    pattn_count; // TODO: This is unused
+#endif
     mm_byte     flags;
     mm_byte     global_volume;
+#ifdef MM_MMUTIL_DEVKITPRO_COMPAT
     mm_byte     initial_speed;
     mm_byte     initial_tempo;
     mm_byte     repeat_position;
     mm_byte     reserved[3];
+#else
+    mm_hword    initial_speed;
+    mm_hword    initial_tempo;
+    mm_hword    repeat_position;
+    mm_byte     reserved[4];
+#endif
     mm_byte     channel_volume[32];
     mm_byte     channel_panning[32];
     mm_byte     sequence[200];
