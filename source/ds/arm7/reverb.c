@@ -104,7 +104,7 @@ void mmReverbDisable(void)
     ResetSoundAndCapture();
 
     // Unlock reverb channels
-    mmLockChannels(REVERB_CHN_MASK);
+    mmUnlockChannels(REVERB_CHN_MASK);
 }
 
 void SetupChannel(mm_reverb_cfg* config, mm_byte channel)
@@ -319,7 +319,7 @@ void mmReverbStop(mm_reverbch channels)
         mixer_info |= SOUNDCNT_LEFT_OUTPUT_MIXER; // Left output = all channels
     }
 
-    if (channels == MMRC_RIGHT)
+    if (channels & MMRC_RIGHT)
     {
         // Disable capture
         REG_SNDCAP1CNT &= ~SNDCAPCNT_START_BUSY;
