@@ -51,10 +51,10 @@ typedef struct tmslhead
     msl_head_data   head_data;
 
     // The table of samples is followed by the list of modules. They are both
-    // variable-length, so you need to check head_data.sampleCOunt to know where
+    // variable-length, so you need to check head_data.sampleCount to know where
     // the module table starts.
-    mm_addr         sampleTable[]; // [sampleCount]
-    //mm_addr         moduleTable[moduleCount];
+    mm_word         sampleTable[]; // [sampleCount]
+    //mm_word         moduleTable[moduleCount];
 }
 msl_head;
 
