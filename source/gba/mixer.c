@@ -16,7 +16,7 @@
 #define ARM_CODE   __attribute__((target("arm")))
 #define IWRAM_CODE __attribute__((section(".iwram"), long_call))
 
-mm_byte mp_mix_seg; // Mixing segment select
+static mm_byte mp_mix_seg; // Mixing segment select
 
 mm_addr mm_mixbuffer;
 
