@@ -33,12 +33,12 @@ extern "C" {
 /// @{
 // ***************************************************************************
 
-typedef unsigned int    mm_word;    ///< Generic unsigned 32-bit value
-typedef signed int      mm_sword;   ///< Generic signed 32-bit value
-typedef unsigned short  mm_hword;   ///< Generic unsigned 16-bit value
-typedef signed short    mm_shword;  ///< Generic signed 16-bit value
-typedef unsigned char   mm_byte;    ///< Generic unsigned 8-bit value
-typedef signed char     mm_sbyte;   ///< Generic signed 8-bit value
+typedef uint32_t mm_word;    ///< Generic unsigned 32-bit value
+typedef int32_t  mm_sword;   ///< Generic signed 32-bit value
+typedef uint16_t mm_hword;   ///< Generic unsigned 16-bit value
+typedef int16_t  mm_shword;  ///< Generic signed 16-bit value
+typedef uint8_t  mm_byte;    ///< Generic unsigned 8-bit value
+typedef int8_t   mm_sbyte;   ///< Generic signed 8-bit value
 
 /// Used to pack structs that must have the defined layout without padding
 #define MM_PACKED __attribute__((packed))
@@ -47,15 +47,15 @@ typedef signed char     mm_sbyte;   ///< Generic signed 8-bit value
 ///
 /// Returned by mmEffect() and mmEffectEx(). May be used to modify a sound
 /// effect while it is playing.
-typedef unsigned short  mm_sfxhand;
+typedef uint16_t mm_sfxhand;
 
 /// This value represents an invalid mm_sfxhand value.
 #define MM_SFXHAND_INVALID 0
 
-typedef unsigned char   mm_bool;    ///< Boolean. Non-zero = true, zero = false.
+typedef bool mm_bool;    ///< Boolean. Non-zero = true, zero = false.
 
-typedef void            *mm_addr;   ///< Memory address (pointer)
-typedef void            *mm_reg;    ///< Hardware register (pointer)
+typedef void *mm_addr;   ///< Memory address (pointer)
+typedef void *mm_reg;    ///< Hardware register (pointer)
 
 /// Audio modes for the DS system. Pass to mmSelectMode().
 typedef enum
