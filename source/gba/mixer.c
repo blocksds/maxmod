@@ -328,9 +328,12 @@ void mmMixerMix(mm_word samples_count)
             // Check if we've reached the end of the sample
             if (rread >= (sample->length << MP_SAMPFRAC))
             {
-                // The sample doesn't loop
+                // The sample doesn't loop, stop it
                 if (sample->loop_length == 0xFFFFFFFF)
+                {
+                    rchan->src = MIXCH_GBA_SRC_STOPPED;
                     break;
+                }
 
                 rread -= sample->loop_length << MP_SAMPFRAC;
             }
