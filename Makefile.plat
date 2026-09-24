@@ -31,6 +31,8 @@ INCLUDEDIRS	:= include source
 ifeq ($(SYSTEM),GBA)
 NAME		:= libmm
 BUILDDIR	:= build/gba
+# Uncomment this to switch to the C mixer (only for debugging!)
+#DEFINES	+= -DMM_GBA_MIXER_IN_C
 endif
 ifeq ($(SYSTEM),DS7)
 NAME		:= libmm7
@@ -73,7 +75,7 @@ endif
 # ---------------------------
 
 ifneq ($(DEBUG),1)
-DEFINES		:= -DNDEBUG
+DEFINES		+= -DNDEBUG
 endif
 
 # Libraries

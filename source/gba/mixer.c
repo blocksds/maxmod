@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: ISC
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
-// Copyright (c) 2021-2025, Antonio Niño Díaz (antonio_nd@outlook.com)
+// Copyright (c) 2021-2026, Antonio Niño Díaz (antonio_nd@outlook.com)
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -239,3 +239,140 @@ void mmMixerEnd(void)
     // Disable sampling timer
     REG_TM0CNT = 0;
 }
+
+#ifdef MM_GBA_MIXER_IN_C
+
+// This mixer is here for debugging purposes. It's much slower than the assembly
+// version, and there's some issue that causes noise to be heard during
+// playback. However, it's pretty hard to understand what the assembly version
+// does, and this is a very minimalistic mixer that shows how the system works.
+
+ARM_CODE IWRAM_CODE
+void mmMixerMix(mm_word samples_count)
+{
+    if (samples_count == 0)
+        return;
+
+    // Part 0. Initialization
+    // ----------------------
+
+    // Each sample is a mm_hword, and the output is stereo (two channels)
+    memset(mm_mixbuffer, 0, samples_count * sizeof(mm_hword) * 2);
+
+    // Begin mixing routine
+    // --------------------
+
+    for (mm_word ch = 0; ch < mm_mixch_count; ch++)
+    {
+        mm_mixer_channel *rchan = &mm_mix_channels[ch];
+
+        if (rchan->src & MIXCH_GBA_SRC_STOPPED)
+            continue;
+
+        // Part 1: Calculations
+        // --------------------
+
+        // Read frequency
+
+        mm_word rfreq = rchan->freq;
+        if (rfreq == 0)
+            continue;
+
+        rfreq = (rfreq * mm_ratescale) >> 14;
+
+        // Calculate volume of right and left speakers
+
+        mm_word rvol = rchan->vol; // volume = 0-255
+        if (rvol == 0)
+            continue;
+
+        // pan = 0-255
+
+        mm_sword rvolL = ((256 - rchan->pan) * rvol) >> 8; // right volume = (vol*pan)
+        mm_sword rvolR = (rchan->pan * rvol) >> 8; // left volume = (256-pan) * vol
+        // rvolL and rvolR go from 0 to 256
+
+        // Part 2: Mixing
+        // --------------
+
+        mm_mas_gba_sample *sample = (mm_mas_gba_sample *)(rchan->src - sizeof(mm_mas_gba_sample));
+
+        // Fetch samples from the waveform at the current playback frequency and
+        // add them to mm_mixbuffer
+
+        mm_word rread = rchan->read;
+
+        for (mm_word i = 0; i < samples_count; i++)
+        {
+            mm_shword val = sample->data[rread >> MP_SAMPFRAC];
+
+            // The waveform stored in the soundbank is unsigned, make it signed
+            // so that it's easier to operate on it. Also, the GBA expects
+            // signed values in the PCM channels, so we need to convert it at
+            // some point anyway.
+            val -= 128;
+
+            // We need to reduce the volume a bit. mm_mixbuffer only has space
+            // for one mm_hword per output sample, so we need to consider that
+            // many channels adding to the same sample can cause overflows.
+            // However, don't divide it by the max volume (256) yet to improve
+            // accuracy. Shift it by 5 now, it will be shifted by 3 later.
+            mm_shword left = ((mm_shword*)mm_mixbuffer)[i * 2 + 0] + ((val * rvolL) >> 5);
+            ((mm_shword*)mm_mixbuffer)[i * 2 + 0] = left;
+
+            mm_shword right = ((mm_shword*)mm_mixbuffer)[i * 2 + 1] + ((val * rvolR) >> 5);
+            ((mm_shword*)mm_mixbuffer)[i * 2 + 1] = right;
+
+            rread += rfreq;
+
+            // Check if we've reached the end of the sample
+            if (rread >= (sample->length << MP_SAMPFRAC))
+            {
+                // The sample doesn't loop
+                if (sample->loop_length == 0xFFFFFFFF)
+                    break;
+
+                rread -= sample->loop_length << MP_SAMPFRAC;
+            }
+        }
+
+        rchan->read = rread;
+    }
+
+    // Part 3. Post-processing
+    // -----------------------
+
+    // Copy mm_mixbuffer to mm_wavebuffer at the position pointed by mp_writepos
+    // Size of mm_wavebuffer: mm_mixlen * sizeof(mm_word)
+
+    // The first half is the left buffer, the second half is the right buffer
+    mm_sbyte *pwriteL = mp_writepos;
+    mm_sbyte *pwriteR = pwriteL + mm_mixlen * 2;
+
+    for (mm_word i = 0; i < samples_count; i++)
+    {
+        mm_sword sampleL = ((mm_shword*)mm_mixbuffer)[i * 2 + 0];
+        mm_sword sampleR = ((mm_shword*)mm_mixbuffer)[i * 2 + 1];
+
+        // Divide by the rest of the volume
+        sampleL >>= 3;
+        sampleR >>= 3;
+
+        if (sampleL > 127)
+            sampleL = 127;
+        if (sampleL < -128)
+            sampleL = -128;
+
+        if (sampleR > 127)
+            sampleR = 127;
+        if (sampleR < -128)
+            sampleR = -128;
+
+        *pwriteL++ = sampleL;
+        *pwriteR++ = sampleR;
+    }
+
+    mp_writepos = pwriteL;
+}
+
+#endif // MM_GBA_MIXER_IN_C
