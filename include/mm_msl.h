@@ -25,7 +25,7 @@ extern "C" {
 
 #include <mm_types.h>
 
-typedef struct tmslheaddata
+typedef struct MM_PACKED tmslheaddata
 {
     mm_hword    sampleCount;
     mm_hword    moduleCount;
@@ -46,7 +46,7 @@ msl_head_data;
 /// The MSL header contains the total number of samples and modules, as well as
 /// two tables with offsets to each MAS file with a sample and each MAS file
 /// with a module.
-typedef struct tmslhead
+typedef struct MM_PACKED tmslhead
 {
     msl_head_data   head_data;
 

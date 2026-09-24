@@ -40,6 +40,9 @@ typedef signed short    mm_shword;  ///< Generic signed 16-bit value
 typedef unsigned char   mm_byte;    ///< Generic unsigned 8-bit value
 typedef signed char     mm_sbyte;   ///< Generic signed 8-bit value
 
+/// Used to pack structs that must have the defined layout without padding
+#define MM_PACKED __attribute__((packed))
+
 /// Sound effect handle.
 ///
 /// Returned by mmEffect() and mmEffectEx(). May be used to modify a sound

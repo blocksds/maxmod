@@ -27,7 +27,7 @@ extern "C" {
 
 // prefix comes first
 
-typedef struct tmm_mas_prefix
+typedef struct MM_PACKED tmm_mas_prefix
 {
     mm_word     size;
     mm_byte     type; // MAS_TYPE_SONG, MAS_TYPE_SAMPLE_GBA or MAS_TYPE_SAMPLE_NDS
@@ -39,7 +39,7 @@ typedef struct tmm_mas_prefix
 #define MAS_TYPE_SAMPLE_GBA 1
 #define MAS_TYPE_SAMPLE_NDS 2
 
-typedef struct tmm_mas_head
+typedef struct MM_PACKED tmm_mas_head
 {
 #ifdef MM_MMUTIL_DEVKITPRO_COMPAT
     mm_byte     order_count; // TODO: mmutil always exports 200. This is unused.
@@ -83,7 +83,7 @@ typedef struct tmm_mas_head
 #define MAS_HEADER_FLAG_MSL_DEP     (1 << 4) // TODO: Unused flag
 #define MAS_HEADER_FLAG_OLD_MODE    (1 << 5) // 1 = MOD/S3M, 0 = Other
 
-typedef struct tmm_mas_instrument
+typedef struct MM_PACKED tmm_mas_instrument
 {
     mm_byte     global_volume;
     mm_byte     fadeout;
@@ -120,7 +120,7 @@ typedef struct tmm_mas_instrument
 // In XM, bits 0 and 3 are always set together. In IT, they can be set
 // independently. Other formats don't use them.
 
-typedef struct
+typedef struct MM_PACKED
 {
     mm_shword   delta;
     mm_hword    base : 7;  // node_y. (0->64 for vol, -32->+32 for panning or pitch)
@@ -128,7 +128,7 @@ typedef struct
 }
 mm_mas_envelope_node;
 
-typedef struct tmm_mas_envelope
+typedef struct MM_PACKED tmm_mas_envelope
 {
     mm_byte     size;
     mm_byte     loop_start;
@@ -144,7 +144,7 @@ typedef struct tmm_mas_envelope
     // ::envelope nodes
 } mm_mas_envelope;
 
-typedef struct tmm_mas_sample_info
+typedef struct MM_PACKED tmm_mas_sample_info
 {
     mm_byte     default_volume;
     mm_byte     panning;
@@ -163,7 +163,7 @@ typedef struct tmm_mas_sample_info
     // ::sample may follow
 } mm_mas_sample_info;
 
-typedef struct tmm_mas_pattern
+typedef struct MM_PACKED tmm_mas_pattern
 {
     mm_byte     row_count; // Number of rows of the pattern
 
@@ -172,7 +172,7 @@ typedef struct tmm_mas_pattern
     // ::pattern data
 } mm_mas_pattern;
 
-typedef struct tmm_mas_gba_sample
+typedef struct MM_PACKED tmm_mas_gba_sample
 {
     mm_word     length;
     mm_word     loop_length; // Loop lenght (0xFFFFFFFF if sample doesn't loop)
@@ -185,7 +185,7 @@ typedef struct tmm_mas_gba_sample
     // ::8-bit sample data
 } mm_mas_gba_sample;
 
-typedef struct tmm_mas_ds_sample
+typedef struct MM_PACKED tmm_mas_ds_sample
 {
     mm_word     loop_start;
     union
