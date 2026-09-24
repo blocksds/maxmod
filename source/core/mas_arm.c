@@ -303,7 +303,7 @@ mm_byte mmChannelStartACHN(mm_module_channel *module_channel, mm_active_channel 
     else
     {
         // Read notemap entry
-        mm_hword *note_map = (mm_hword*)(((mm_word)instrument) + instrument->note_map_offset);
+        mm_hword *note_map = (mm_hword*)(((uintptr_t)instrument) + instrument->note_map_offset);
         mm_hword notemap_entry = note_map[module_channel->pnoter];
 
         // Write note value

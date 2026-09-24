@@ -697,7 +697,7 @@ IWRAM_CODE void mpp_Channel_NewNote(mm_module_channel *module_channel, mpl_layer
     else if (dct == 1) // DCT Note
     {
         // Get pattern note and translate to real note with note/sample map
-        mm_hword *note_map = (mm_hword*)(((mm_word)instrument) + instrument->note_map_offset);
+        mm_hword *note_map = (mm_hword*)(((uintptr_t)instrument) + instrument->note_map_offset);
         mm_byte note = note_map[module_channel->note - 1] & 0xFF;
 
         // Compare it with the last note
@@ -707,7 +707,7 @@ IWRAM_CODE void mpp_Channel_NewNote(mm_module_channel *module_channel, mpl_layer
     else if (dct == 2) // DCT Sample
     {
         // Get pattern note and translate to real sample with note/sample map
-        mm_hword *note_map = (mm_hword*)(((mm_word)instrument) + instrument->note_map_offset);
+        mm_hword *note_map = (mm_hword*)(((uintptr_t)instrument) + instrument->note_map_offset);
         mm_byte sample = note_map[module_channel->note - 1] >> 8;
 
         // Compare it with achn's sample
@@ -3306,7 +3306,7 @@ static mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information
         // Get sample from solution
 #ifdef __GBA__
         msl_head *head = mp_solution;
-        mm_word sample_offset = (mm_word)head->sampleTable[sample->msl_id];
+        uintptr_t sample_offset = (uintptr_t)head->sampleTable[sample->msl_id];
 
         mm_byte *sample_addr = ((mm_byte *)mp_solution) + sample_offset;
         mm_mas_gba_sample *gba_sample = (mm_mas_gba_sample *)(sample_addr + sizeof(mm_mas_prefix));
