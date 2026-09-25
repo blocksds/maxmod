@@ -47,3 +47,10 @@ Maxmod Programming Reference {#mainpage}
 - @ref nds_arm7_sound_effects
 - @ref nds_arm7_streaming
 - @ref nds_arm7_reverb
+
+### Headless
+
+- @ref headless_init
+- @ref headless_module_playback
+- @ref headless_jingle_playback
+- @ref headless_sound_effects
