@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: ISC
 //
 // Copyright (c) 2023, Lorenzooone (lollo.lollo.rbiz@gmail.com)
-// Copyright (c) 2025, Antonio Niño Díaz (antonio_nd@outlook.com)
+// Copyright (c) 2025, Antonio Niño Díaz
 
 #ifndef MM_DS_ARM7_MIXER_H__
 #define MM_DS_ARM7_MIXER_H__
