@@ -1,15 +1,21 @@
 // SPDX-License-Identifier: ISC
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
-// Copyright (c) 2021-2025, Antonio Niño Díaz (antonio_nd@outlook.com)
+// Copyright (c) 2021-2026, Antonio Niño Díaz (antonio_nd@outlook.com)
 
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 
+#if defined(__GBA__)
 #include <maxmod.h>
-#include <mm_mas.h>
-#include <mm_msl.h>
+#elif defined(__NDS__)
+#include <maxmod7.h>
+#elif defined(__HEADLESS__)
+#include <maxmod_headless.h>
+#else
+#error "Unknown platform"
+#endif
 
 #include "core/channel_types.h"
 #include "core/mas.h"
@@ -21,14 +27,15 @@
 #elif defined(__NDS__)
 #include "ds/arm7/main_ds7.h"
 #include "ds/arm7/mixer.h"
-#endif
-
-#ifdef __NDS__
-#define IWRAM_CODE
+#elif defined(__HEADLESS__)
+#include "headless/main_headless.h"
+#include "headless/mixer.h"
 #endif
 
 #ifdef __GBA__
 #define IWRAM_CODE __attribute__((section(".iwram"), long_call))
+#else
+#define IWRAM_CODE
 #endif
 
 #define S3M_FREQ_DIVIDER        57268224 // (s3m,xm,it)
@@ -108,7 +115,7 @@ static void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
 {
     layer_info->bpm = bpm;
 
-#if defined(__GBA__)
+#if defined(__GBA__) || defined(__HEADLESS__)
 
     if (mpp_clayer == MM_MAIN)
     {
@@ -167,9 +174,9 @@ static void mpp_suspend(mm_layer_type layer)
         if ((act_ch->flags & (MCAF_SUB | MCAF_EFFECT)) != (layer << 6))
             continue;
 
-#ifdef __GBA__
+#if defined(__GBA__) || defined(__HEADLESS__)
         mix_ch->freq = 0;
-#else
+#elif defined(__NDS__)
         mix_ch->freq = 0;
         mix_ch->vol = 0;
 #endif
@@ -252,7 +259,7 @@ void mmSetJingleVolume(mm_word volume)
 
 static void mpps_backdoor(mm_word id, mm_pmode mode, mm_layer_type layer)
 {
-#if defined(__GBA__)
+#if defined(__GBA__) || defined(__HEADLESS__)
     // In the MSL format, the module table goes right after the sample table,
     // but the size of both isn't fixed. We need to calculate the start of the
     // module table by checking how big the sample table is.
@@ -318,15 +325,16 @@ static void mpp_resetchannels(mm_module_channel *channels,
         memset(act_ch, 0, sizeof(mm_active_channel));
 
         // Disabled mixer channel. Disabled status differs between systems.
-#ifdef __NDS__
+#if defined(__NDS__)
         mix_ch->key_on = 0;
         mix_ch->samp = 0;
         // Setting the panning isn't really needed, but it helps the compiler
         // optimize all 3 accesses into one single 32-bit write.
         mix_ch->tpan = 0;
-#endif
-#ifdef __GBA__
+#elif defined(__GBA__)
         mix_ch->src = MIXCH_GBA_SRC_STOPPED;
+#elif defined(__HEADLESS__)
+        mix_ch->src = MIXCH_HEADLESS_SRC_STOPPED;
 #endif
     }
 }
@@ -599,7 +607,7 @@ void mmSetResolution(mm_word divider)
 
 #endif
 
-#ifdef __GBA__
+#if defined(__GBA__) || defined(__HEADLESS__)
 
 // Update sub-module/jingle, this is bad for some reason...
 void mppUpdateSub(void)
@@ -3289,11 +3297,11 @@ static mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information
     if (sample->msl_id == 0xFFFF)
     {
         // The sample has been provided
-#ifdef __GBA__
+#if defined(__GBA__) || defined(__HEADLESS__)
         mm_mas_gba_sample *gba_sample = (mm_mas_gba_sample *)&(sample->data[0]);
 
         mix_ch->src = (uintptr_t)&(gba_sample->data[0]);
-#else
+#elif defined(__NDS__)
         mm_mas_ds_sample *ds_sample = (mm_mas_ds_sample *)&(sample->data[0]);
 
         mix_ch->samp = ((mm_word)ds_sample) - 0x2000000;
@@ -3304,7 +3312,7 @@ static mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information
     else
     {
         // Get sample from solution
-#ifdef __GBA__
+#if defined(__GBA__) || defined(__HEADLESS__)
         msl_head *head = mp_solution;
         uintptr_t sample_offset = (uintptr_t)head->sampleTable[sample->msl_id];
 
@@ -3312,7 +3320,7 @@ static mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information
         mm_mas_gba_sample *gba_sample = (mm_mas_gba_sample *)(sample_addr + sizeof(mm_mas_prefix));
 
         mix_ch->src = (uintptr_t)(&(gba_sample->data[0]));
-#else
+#elif defined(__NDS__)
         mm_word source = mmSampleBank[sample->msl_id];
         source &= 0xFFFFFF; // Mask out counter value
 
@@ -3335,9 +3343,9 @@ static mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information
     // The GBA only supports 8-bit samples, so we can do the final calculation
     // here. The DS supports 8 and 16-bit samples, so we need to do the final
     // calculation in mmMix() when the note starts.
-#ifdef __GBA__
+#if defined(__GBA__) || defined(__HEADLESS__)
     mix_ch->read = ((mm_word)mpp_vars.sampoff) << (MP_SAMPFRAC + 8);
-#else
+#elif defined(__NDS__)
     mix_ch->read = mpp_vars.sampoff;
 #endif
 
@@ -3373,10 +3381,10 @@ static mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *la
         if (mpp_clayer == MM_MAIN)
             value = (value * mm_masterpitch) >> 10;
 
-#ifdef __GBA__
+#if defined(__GBA__) || defined(__HEADLESS__)
         const mm_word scale = (4096 * 65536) / 15768;
         mix_ch->freq = (scale * value) >> 16;
-#else
+#elif defined(__NDS__)
         mix_ch->freq = (MIXER_SCALE * value) >> (16 + 1);
 #endif
     }
@@ -3391,10 +3399,10 @@ static mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *la
             if (mpp_clayer == MM_MAIN)
                 value = (value * mm_masterpitch) >> 10;
 
-#ifdef __GBA__
+#if defined(__GBA__) || defined(__HEADLESS__)
             const mm_word scale = (4096 * 65536) / 15768;
             mix_ch->freq = (scale * value) >> 16;
-#else
+#elif defined(__NDS__)
             mix_ch->freq = (MIXER_SCALE * value) >> (16 + 1);
 #endif
         }
@@ -3476,9 +3484,11 @@ mppt_achn_not_audible:
     // Stop channel
     // ------------
 
-#ifdef __GBA__
+#if defined(__GBA__)
     mix_ch->src = MIXCH_GBA_SRC_STOPPED;
-#else
+#elif defined(__HEADLESS__)
+    mix_ch->src = MIXCH_HEADLESS_SRC_STOPPED;
+#elif defined(__NDS__)
     mix_ch->samp = 0;
     mix_ch->tpan = 0;
     mix_ch->key_on = 0;
@@ -3498,10 +3508,13 @@ mppt_achn_audible:
     mix_ch->vol = volume;
 
     // Check if mixer channel has ended
-#ifdef __GBA__
+#if defined(__GBA__)
     if (mix_ch->src & MIXCH_GBA_SRC_STOPPED)
     {
-#else
+#elif defined(__HEADLESS__)
+    if (mix_ch->src & MIXCH_HEADLESS_SRC_STOPPED)
+    {
+#elif defined(__NDS__)
     if (mix_ch->samp == 0)
     {
 #endif
@@ -3514,9 +3527,11 @@ mppt_achn_audible:
         // TODO: This isn't required because we've just checked if the mixer
         // channel is stopped
         // Stop mixer channel
-#ifdef __GBA__
+#if defined(__GBA__)
         mix_ch->src = MIXCH_GBA_SRC_STOPPED;
-#else
+#elif defined(__HEADLESS__)
+        mix_ch->src = MIXCH_HEADLESS_SRC_STOPPED;
+#elif defined(__NDS__)
         mix_ch->samp = 0;
         mix_ch->tpan = 0;
         mix_ch->key_on = 0;
@@ -3537,12 +3552,10 @@ mppt_achn_audible:
     else if (newpan > 255)
         newpan = 255;
 
-#ifdef __NDS__
-    mix_ch->tpan = newpan >> 1;
-#endif
-
-#ifdef __GBA__
+#if defined(__GBA__) || defined(__HEADLESS__)
     mix_ch->pan = newpan;
+#elif defined(__NDS__)
+    mix_ch->tpan = newpan >> 1;
 #endif
 
     return;
