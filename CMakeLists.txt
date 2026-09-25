@@ -12,6 +12,16 @@ set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
+find_package(SDL3)
+
+if(SDL3_FOUND)
+    set(BUILD_SDL3_PLAYER TRUE)
+else()
+    set(BUILD_SDL3_PLAYER FALSE)
+endif()
+
+set(BUILD_WAV_RENDERER TRUE)
+
 # Macros
 # ------
 
@@ -21,10 +31,6 @@ macro(compiler_flags target)
         target_compile_options(${target} PRIVATE
             -fwrapv
             -Wall -Wextra
-        )
-    elseif(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
-        target_compile_options(${target}  PRIVATE
-            /MP
         )
     endif()
 endmacro()
@@ -61,16 +67,39 @@ target_sources(maxmod
         ${FILES_MAXMOD_SOURCE_HEADLESS}
 )
 
+# SDL3 player
+# -----------
+
+if(BUILD_SDL3_PLAYER)
+
+    add_executable(maxmod_sdl3_player)
+
+    search_source_files(tools/sdl3_player/source FILES_TOOLS_SDL3_PLAYER_SOURCE)
+
+    target_sources(maxmod_sdl3_player
+        PRIVATE
+            ${FILES_TOOLS_SDL3_PLAYER_SOURCE}
+    )
+
+    target_link_libraries(maxmod_sdl3_player PRIVATE maxmod SDL3::SDL3)
+
+endif()
+
+
 # WAV renderer
 # ------------
 
-add_executable(maxmod_wav_renderer)
+if (BUILD_WAV_RENDERER)
 
-search_source_files(tools/wav_renderer/source FILES_TOOLS_WAV_RENDERER_SOURCE)
+    add_executable(maxmod_wav_renderer)
 
-target_sources(maxmod_wav_renderer
-    PRIVATE
-        ${FILES_TOOLS_WAV_RENDERER_SOURCE}
-)
+    search_source_files(tools/wav_renderer/source FILES_TOOLS_WAV_RENDERER_SOURCE)
 
-target_link_libraries(maxmod_wav_renderer maxmod)
+    target_sources(maxmod_wav_renderer
+        PRIVATE
+            ${FILES_TOOLS_WAV_RENDERER_SOURCE}
+    )
+
+    target_link_libraries(maxmod_wav_renderer maxmod)
+
+endif()
