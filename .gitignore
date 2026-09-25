@@ -1,4 +1,6 @@
+3rdparty/
 docs/
 build/
 lib/
 warn.log
+*.tar.gz

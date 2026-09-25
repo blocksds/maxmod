@@ -26,14 +26,13 @@ static size_t soundbank_size;
 // This function runs once at startup.
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
-    if (argc != 2)
-    {
-        SDL_Log("Invalid number of arguments\n");
-        return SDL_APP_FAILURE;
-    }
+    const char *soundbank_path = "soundbank.bin";
+
+    if (argc == 2)
+        soundbank_path = argv[1];
 
     // Load file
-    file_load(argv[1], &soundbank_buffer, &soundbank_size);
+    file_load(soundbank_path, &soundbank_buffer, &soundbank_size);
     if (soundbank_size == 0)
         return SDL_APP_FAILURE;
 

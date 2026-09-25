@@ -9,10 +9,24 @@ project(maxmod)
 enable_language(C)
 
 set(CMAKE_C_STANDARD 23)
-set(CMAKE_C_EXTENSIONS OFF)
-set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS ON)
+set(CMAKE_C_STANDARD_REQUIRED OFF)
 
-find_package(SDL3)
+if(EMSCRIPTEN)
+    # On Web targets, we need CMake to generate a HTML file.
+    set(CMAKE_EXECUTABLE_SUFFIX ".html" CACHE INTERNAL "")
+
+    # Set the output directory for built objects.
+    # This makes sure that the dynamic library goes into the build directory automatically.
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
+
+    add_subdirectory(3rdparty/SDL3 EXCLUDE_FROM_ALL)
+
+    set(SDL3_FOUND TRUE)
+else()
+    find_package(SDL3)
+endif()
 
 if(SDL3_FOUND)
     set(BUILD_SDL3_PLAYER TRUE)
@@ -20,14 +34,20 @@ else()
     set(BUILD_SDL3_PLAYER FALSE)
 endif()
 
-set(BUILD_WAV_RENDERER TRUE)
+if(EMSCRIPTEN)
+    set(BUILD_WAV_RENDERER FALSE)
+else()
+    set(BUILD_WAV_RENDERER TRUE)
+endif()
 
 # Macros
 # ------
 
 # Compiler-specific options
 macro(compiler_flags target)
-    if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    if(EMSCRIPTEN)
+        # Nothing for now
+    elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
         target_compile_options(${target} PRIVATE
             -fwrapv
             -Wall -Wextra
@@ -81,7 +101,42 @@ if(BUILD_SDL3_PLAYER)
             ${FILES_TOOLS_SDL3_PLAYER_SOURCE}
     )
 
-    target_link_libraries(maxmod_sdl3_player PRIVATE maxmod SDL3::SDL3)
+    if (EMSCRIPTEN)
+        # Set output file suffix
+        set_target_properties(maxmod_sdl3_player PROPERTIES SUFFIX ".html")
+
+        # Set Emscripten linker flags
+        if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+            target_link_options(maxmod_sdl3_player PRIVATE
+                -sENVIRONMENT=web
+                -sALLOW_MEMORY_GROWTH=1
+                -sMALLOC=emmalloc
+                -sWASM=1
+                -sASSERTIONS=2
+                -sVERBOSE=1
+                -sEXCEPTION_DEBUG=1
+                -gsource-map
+                -g4
+
+                # TODO: Make this flexible
+                --embed-file ${CMAKE_SOURCE_DIR}/soundbank.bin@soundbank.bin
+            )
+        else()
+            target_link_options(maxmod_sdl3_player PRIVATE
+                -sENVIRONMENT=web
+                -sALLOW_MEMORY_GROWTH=1
+                -sMALLOC=emmalloc
+                -sWASM=1
+
+                # TODO: Make this flexible
+                --embed-file ${CMAKE_SOURCE_DIR}/soundbank.bin@soundbank.bin
+            )
+        endif()
+
+        target_link_libraries(maxmod_sdl3_player PRIVATE maxmod SDL3::SDL3-static)
+    else()
+        target_link_libraries(maxmod_sdl3_player PRIVATE maxmod SDL3::SDL3)
+    endif()
 
 endif()
 
