@@ -117,9 +117,6 @@ if(BUILD_SDL3_PLAYER)
                 -sEXCEPTION_DEBUG=1
                 -gsource-map
                 -g4
-
-                # TODO: Make this flexible
-                --embed-file ${CMAKE_SOURCE_DIR}/soundbank.bin@soundbank.bin
             )
         else()
             target_link_options(maxmod_sdl3_player PRIVATE
@@ -127,11 +124,15 @@ if(BUILD_SDL3_PLAYER)
                 -sALLOW_MEMORY_GROWTH=1
                 -sMALLOC=emmalloc
                 -sWASM=1
-
-                # TODO: Make this flexible
-                --embed-file ${CMAKE_SOURCE_DIR}/soundbank.bin@soundbank.bin
             )
         endif()
+
+        # The SHELL syntax is needed to allow for duplicated arguments
+        target_link_options(maxmod_sdl3_player PRIVATE
+            # TODO: Make this flexible for the soundbank
+            "SHELL:--embed-file ${CMAKE_SOURCE_DIR}/soundbank.bin@soundbank.bin"
+            "SHELL:--embed-file ${CMAKE_SOURCE_DIR}/tools/sdl3_player/graphics/default_font.png@default_font.png"
+        )
 
         target_link_libraries(maxmod_sdl3_player PRIVATE maxmod SDL3::SDL3-static)
     else()
