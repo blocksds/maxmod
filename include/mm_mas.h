@@ -35,6 +35,8 @@ typedef struct MM_PACKED tmm_mas_prefix
     mm_byte     reserved[2]; // Unused
 } mm_mas_prefix;
 
+MM_STATIC_ASSERT(mm_mas_prefix, 8)
+
 #define MAS_TYPE_SONG       0
 #define MAS_TYPE_SAMPLE_GBA 1
 #define MAS_TYPE_SAMPLE_NDS 2
@@ -76,6 +78,12 @@ typedef struct MM_PACKED tmm_mas_head
     // ::pattern table
 } mm_mas_head;
 
+#ifdef MM_MMUTIL_DEVKITPRO_COMPAT
+MM_STATIC_ASSERT(mm_mas_head, 276)
+#else
+MM_STATIC_ASSERT(mm_mas_head, 284)
+#endif
+
 #define MAS_HEADER_FLAG_LINK_GXX    (1 << 0) // Shared Gxx
 #define MAS_HEADER_FLAG_OLD_EFFECTS (1 << 1) // TODO: Unused flag
 #define MAS_HEADER_FLAG_FREQ_MODE   (1 << 2) // 1 = Linear freqs, 0 = Amiga freqs
@@ -113,6 +121,8 @@ typedef struct MM_PACKED tmm_mas_instrument
 
 } mm_mas_instrument;
 
+MM_STATIC_ASSERT(mm_mas_instrument, 12)
+
 #define MAS_INSTR_FLAG_VOL_ENV_EXISTS   (1 << 0) // Volume envelope exists
 #define MAS_INSTR_FLAG_PAN_ENV_EXISTS   (1 << 1) // Panning envelope exists
 #define MAS_INSTR_FLAG_PITCH_ENV_EXISTS (1 << 2) // Pitch envelope exists
@@ -127,6 +137,8 @@ typedef struct MM_PACKED
     mm_hword    range : 9; // 1 to 511
 }
 mm_mas_envelope_node;
+
+MM_STATIC_ASSERT(mm_mas_envelope_node, 4)
 
 typedef struct MM_PACKED tmm_mas_envelope
 {
@@ -143,6 +155,8 @@ typedef struct MM_PACKED tmm_mas_envelope
 
     // ::envelope nodes
 } mm_mas_envelope;
+
+MM_STATIC_ASSERT(mm_mas_envelope, 8)
 
 typedef struct MM_PACKED tmm_mas_sample_info
 {
@@ -163,6 +177,8 @@ typedef struct MM_PACKED tmm_mas_sample_info
     // ::sample may follow
 } mm_mas_sample_info;
 
+MM_STATIC_ASSERT(mm_mas_sample_info, 12)
+
 typedef struct MM_PACKED tmm_mas_pattern
 {
     mm_byte     row_count; // Number of rows of the pattern
@@ -171,6 +187,8 @@ typedef struct MM_PACKED tmm_mas_pattern
 
     // ::pattern data
 } mm_mas_pattern;
+
+MM_STATIC_ASSERT(mm_mas_pattern, 1)
 
 typedef struct MM_PACKED tmm_mas_gba_sample
 {
@@ -184,6 +202,8 @@ typedef struct MM_PACKED tmm_mas_gba_sample
 
     // ::8-bit sample data
 } mm_mas_gba_sample;
+
+MM_STATIC_ASSERT(mm_mas_gba_sample, 12)
 
 typedef struct MM_PACKED tmm_mas_ds_sample
 {
@@ -202,6 +222,8 @@ typedef struct MM_PACKED tmm_mas_ds_sample
 
     // ::sample data
 } mm_mas_ds_sample;
+
+MM_STATIC_ASSERT(mm_mas_ds_sample, 16)
 
 #define MM_SFORMAT_8BIT         0 // 8 bit
 #define MM_SFORMAT_16BIT        1 // 16 bit

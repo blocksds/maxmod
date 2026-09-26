@@ -33,6 +33,8 @@ typedef struct MM_PACKED tmslheaddata
 }
 msl_head_data;
 
+MM_STATIC_ASSERT(msl_head_data, 12)
+
 /// This structure represents a sound bank file.
 ///
 /// A sound bank file is just a MSL file. It's composed of a MSL header followed
@@ -57,6 +59,8 @@ typedef struct MM_PACKED tmslhead
     //mm_word         moduleTable[moduleCount];
 }
 msl_head;
+
+MM_STATIC_ASSERT(msl_head, 12)
 
 #ifdef __cplusplus
 }

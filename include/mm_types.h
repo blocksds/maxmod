@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: ISC
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
-// Copyright (c) 2025, Antonio Niño Díaz
+// Copyright (c) 2025-2026, Antonio Niño Díaz
 
 /****************************************************************************
  *                                                          __              *
@@ -25,6 +25,7 @@
 extern "C" {
 #endif
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -42,6 +43,14 @@ typedef int8_t   mm_sbyte;   ///< Generic signed 8-bit value
 
 /// Used to pack structs that must have the defined layout without padding
 #define MM_PACKED __attribute__((packed))
+
+/// Used to verify that the size of a type or variable is the expected one.
+/// This used to verify the sizes of MAS and MSL types.
+#if __STDC_VERSION__ >= 201112L // C11
+#define MM_STATIC_ASSERT(name, size) static_assert(sizeof(name) == (size));
+#else
+#define MM_STATIC_ASSERT(name, size)
+#endif
 
 /// Sound effect handle.
 ///
