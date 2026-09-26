@@ -26,6 +26,9 @@ static size_t soundbank_size;
 // This function runs once at startup.
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
+    // Load soundbank
+    // --------------
+
     const char *soundbank_path = "soundbank.bin";
 
     if (argc == 2)
@@ -36,17 +39,16 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     if (soundbank_size == 0)
         return SDL_APP_FAILURE;
 
-    // Play music until the song ends, while saving it to a WAV
-
     if (!mmInitDefault(soundbank_buffer, 20, SAMPLE_RATE))
     {
         printf("mmInitDefault() failed\n");
         return SDL_APP_FAILURE;
     }
 
-    SDL_AudioSpec spec;
+    // Setup window and renderer
+    // -------------------------
 
-    SDL_SetAppMetadata("Example Audio Simple Playback", "1.0", "com.example.audio-simple-playback");
+    SDL_SetAppMetadata("Maxmod SDL3 Player", "1.0", "com.blocksds.maxmod.sdl3_player");
 
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
     {
@@ -62,9 +64,15 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
     SDL_SetRenderLogicalPresentation(renderer, 640, 480, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
+    // Setup audio stream
+    // ------------------
+
+    SDL_AudioSpec spec;
+
     spec.channels = 2;
     spec.format = SDL_AUDIO_S8;
     spec.freq = SAMPLE_RATE;
+
     stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, NULL, NULL);
     if (!stream)
     {
@@ -95,6 +103,9 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 // This function runs once per frame, and is the heart of the program.
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
+    // Generate streamed audio samples
+    // -------------------------------
+
     // Minimum number of samples that we let the application have in the queue
     const int minimum_audio = (SAMPLE_RATE * sizeof(int8_t)) / 2;
 
@@ -111,7 +122,9 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         SDL_PutAudioStreamData(stream, samples, sizeof(samples));
     }
 
-    // We're not doing anything with the renderer, so just blank it out.
+    // Render screen
+    // -------------
+
     SDL_RenderClear(renderer);
     SDL_RenderPresent(renderer);
 
