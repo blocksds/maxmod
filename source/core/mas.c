@@ -3566,7 +3566,7 @@ mm_word mpp_Update_ACHN_notest(mpl_layer_information *layer, mm_active_channel *
 {
     // TODO: This variable was left uninitialized in the original assembly code,
     // so this was the actual result of that code.
-    mm_mixer_channel *mix_ch = (mm_mixer_channel *)ch;
+    mm_mixer_channel *mix_ch = (mm_mixer_channel *)(uintptr_t)ch;
 
     // ------------------------------------------------------------------------
     // Process Envelope

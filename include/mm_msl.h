@@ -48,7 +48,7 @@ MM_STATIC_ASSERT(msl_head_data, 12)
 /// The MSL header contains the total number of samples and modules, as well as
 /// two tables with offsets to each MAS file with a sample and each MAS file
 /// with a module.
-typedef struct MM_PACKED tmslhead
+typedef struct tmslhead
 {
     msl_head_data   head_data;
 
