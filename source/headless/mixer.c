@@ -143,6 +143,8 @@ void mmMixerMix(mm_addr wave_buffer, mm_word samples_count)
         // Fetch samples from the waveform at the current playback frequency and
         // add them to mm_mixbuffer
 
+        mm_sword *pwrite = mm_mixbuffer;
+
         mm_word rread = rchan->read;
 
         for (mm_word i = 0; i < samples_count; i++)
@@ -154,8 +156,11 @@ void mmMixerMix(mm_addr wave_buffer, mm_word samples_count)
             // so that it's easier to operate on it.
             val -= 128;
 
-            mm_mixbuffer[i * 2 + 0] += val * volL;
-            mm_mixbuffer[i * 2 + 1] += val * volR;
+            *pwrite += val * volL;
+            pwrite++;
+
+            *pwrite += val * volR;
+            pwrite++;
 
             // Check if we've reached the end of the sample
             if (rread >= (sample->length << MP_SAMPFRAC))
@@ -178,12 +183,13 @@ void mmMixerMix(mm_addr wave_buffer, mm_word samples_count)
     // -----------------------
 
     // Copy mm_mixbuffer to the output buffer interleaving left and right samples.
+    mm_sword *pread = mm_mixbuffer;
     mm_sbyte *pwrite = wave_buffer;
 
     for (mm_word i = 0; i < samples_count; i++)
     {
-        mm_sword sampleL = mm_mixbuffer[i * 2 + 0];
-        mm_sword sampleR = mm_mixbuffer[i * 2 + 1];
+        mm_sword sampleL = *pread++;
+        mm_sword sampleR = *pread++;
 
         // Divide by the max volume, max panning, and a bit extra because of having
         // multiple channels

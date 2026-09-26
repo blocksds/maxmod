@@ -301,6 +301,7 @@ void mmMixerMix(mm_word samples_count)
         // add them to mm_mixbuffer
 
         mm_word rread = rchan->read;
+        mm_shword *dest = (mm_shword*)mm_mixbuffer;
 
         for (mm_word i = 0; i < samples_count; i++)
         {
@@ -317,11 +318,11 @@ void mmMixerMix(mm_word samples_count)
             // many channels adding to the same sample can cause overflows.
             // However, don't divide it by the max volume (256) yet to improve
             // accuracy. Shift it by 5 now, it will be shifted by 3 later.
-            mm_shword left = ((mm_shword*)mm_mixbuffer)[i * 2 + 0] + ((val * rvolL) >> 5);
-            ((mm_shword*)mm_mixbuffer)[i * 2 + 0] = left;
+            mm_shword left = *dest + ((val * rvolL) >> 5);
+            *dest++ = left;
 
-            mm_shword right = ((mm_shword*)mm_mixbuffer)[i * 2 + 1] + ((val * rvolR) >> 5);
-            ((mm_shword*)mm_mixbuffer)[i * 2 + 1] = right;
+            mm_shword right = *dest + ((val * rvolR) >> 5);
+            *dest++ = right;
 
             rread += rfreq;
 
@@ -352,10 +353,12 @@ void mmMixerMix(mm_word samples_count)
     mm_sbyte *pwriteL = mp_writepos;
     mm_sbyte *pwriteR = pwriteL + mm_mixlen * 2;
 
+    mm_shword *source = (mm_shword*)mm_mixbuffer;
+
     for (mm_word i = 0; i < samples_count; i++)
     {
-        mm_sword sampleL = ((mm_shword*)mm_mixbuffer)[i * 2 + 0];
-        mm_sword sampleR = ((mm_shword*)mm_mixbuffer)[i * 2 + 1];
+        mm_sword sampleL = *source++;
+        mm_sword sampleR = *source++;
 
         // Divide by the rest of the volume
         sampleL >>= 3;
