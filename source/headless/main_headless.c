@@ -189,12 +189,11 @@ void mmFrame(mm_addr buffer, mm_word total_samples)
         }
 
         mmMixerMix(destination, samples_to_next_tick);
-        remaining_samples -=samples_to_next_tick;
+        remaining_samples -= samples_to_next_tick;
         destination += samples_to_next_tick * 2;
 
-        mpp_layerp->sampcount = 0;
-
         mppProcessTick();
+        mpp_layerp->sampcount = 0;
     }
 }
 
