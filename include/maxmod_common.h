@@ -28,6 +28,189 @@ extern "C" {
 #include <mm_types.h>
 
 // ***************************************************************************
+/// @defgroup maxmod_module_playback Module Playback
+/// @{
+// ***************************************************************************
+
+/// Begins playback of a module.
+///
+/// For DS, the module must be loaded into memory first (mmLoad).
+///
+/// @warning
+///     In DS, make sure the module is loaded with mmLoad() first.
+///
+/// @param module_ID
+///     Index of module to be played. Values are defined in the soundbank header
+///     output. (prefixed with "MOD_")
+/// @param mode
+///     Mode of playback. Can be MM_PLAY_LOOP (play and loop until stopped
+///     manually) or MM_PLAY_ONCE (play until end).
+void mmStart(mm_word module_ID, mm_pmode mode);
+
+/// Pauses playback of the active module.
+///
+/// Resume with mmResume().
+///
+/// @note
+///     For DS users: The DS hardware channels do not allow actual pausing. To
+///     implement pausing, Maxmod sets the channel frequencies to the minimal
+///     value (256Hz).  This may cause some problems with certain samples (such
+///     as drum-loops) drifting out of sync with the song temporarily. This is
+///     not an issue with the interpolated audio mode since the channels are fed
+///     by software.
+void mmPause(void);
+
+/// Resume module playback.
+///
+/// Pause with mmPause().
+void mmResume(void);
+
+/// Stops playback of the active module.
+///
+/// To start again (from the beginning) use mmStart().
+///
+/// Any channels used by the active module will be freed.
+void mmStop(void);
+
+#if !(defined(__NDS__) && defined(ARM9))
+/// Get current number of elapsed ticks in the row being played.
+///
+/// @warning
+///     This isn't supported on NDS in the ARM9.
+///
+/// @return
+///     Number of elapsed ticks.
+mm_word mmGetPositionTick(void);
+#endif
+
+/// Get current row being played.
+///
+/// @return
+///     The current row.
+mm_word mmGetPositionRow(void);
+
+/// Get current pattern order being played.
+///
+/// @return
+///     The current pattern.
+mm_word mmGetPosition(void);
+
+/// Set the current playback position.
+///
+/// It sets the sequence [aka order-list] position for the active module and the
+/// row inside the pattern.
+///
+/// @param position
+///     New position in module sequence.
+/// @param row
+///     New row in the destination pattern
+void mmSetPositionEx(mm_word position, mm_word row);
+
+/// Set the current sequence [aka order-list] position for the active module.
+///
+/// @param position
+///     New position in module sequence.
+static inline void mmSetPosition(mm_word position)
+{
+    mmSetPositionEx(position, 0);
+}
+
+/// Set playback position.
+///
+/// @deprecated
+///     Alias of mmSetPosition().
+///
+/// @param position
+///     New position in module sequence.
+__attribute__((deprecated))
+static inline void mmPosition(mm_word position)
+{
+    mmSetPositionEx(position, 0);
+}
+
+/// Used to determine if a module is playing.
+///
+/// @return
+///     Nonzero if a module is currently playing.
+mm_bool mmActive(void);
+
+/// Use this function to change the master volume scale for module playback.
+///
+/// @param volume
+///     New volume level. Ranges from 0 (silent) to 1024 (normal).
+void mmSetModuleVolume(mm_word volume);
+
+/// Change the master tempo for module playback.
+///
+/// Specifying 1024 will play the module at its normal speed. Minimum and
+/// maximum values are 50% (512) and 200% (2048). Note that increasing the tempo
+/// will also increase the module processing load.
+///
+/// It uses a fixed point (Q10) value representing tempo.
+///
+/// Range = 0x200 -> 0x800 = 0.5 -> 2.0
+///
+/// @param tempo
+///     New tempo value. Tempo = (speed_percentage * 1024) / 100.
+void mmSetModuleTempo(mm_word tempo);
+
+/// Change the master pitch scale for module playback.
+///
+/// Specifying 1024 will play the module at its normal pitch. Minimum/Maximum
+/// range of the pitch change is +-1 octave.
+///
+/// Range = 0x200 -> 0x800 = 0.5 -> 2.0
+///
+/// @param pitch
+///     New pitch scale. Value = 1024 * 2^(semitones/12)
+void mmSetModulePitch(mm_word pitch);
+
+#if !(defined(__NDS__) && defined(ARM9))
+/// Play individual MAS file from RAM.
+///
+/// @deprecated
+///     This function expects the user to pass a pointer to the MAS file
+///     skipping the MAS file prefix, which isn't very intuitive. Use
+///     mmPlayMAS() instead.
+///
+/// @warning
+///     You need to initialize Maxmod with mmInit() and provide it a valid
+///     soundbank even if you plan to use mmPlayModule() to play everything.
+///
+/// @param address
+///     Address of the MAS file, skipping the first few bytes of the prefix.
+///     Add `sizeof(mm_mas_prefix)` to the pointer to your MAS file.
+/// @param mode
+///     Playback mode: MM_PLAY_ONCE or MM_PLAY_LOOP.
+/// @param layer
+///     MM_MAIN (main module layer) or MM_JINGLE (sub/jingle layer).
+__attribute__((deprecated))
+void mmPlayModule(uintptr_t address, mm_word mode, mm_word layer);
+#endif
+
+/// Play individual MAS file from RAM.
+///
+/// A soundbank is a MSL file that contains one or more MAS files. Each MAS file
+/// can contain a sample or a module. This function allows you to play samples
+/// or modules without the need for a soundbank.
+///
+/// Normally, Maxmod plays MAS files from the sound bank provided to mmInit().
+/// This function lets you play MAS files outside of that soundbank.
+///
+/// @warning
+///     You need to initialize Maxmod with a valid soundbank, or with
+///     mmInitNoSoundbank() if you don't plan on using any soundbank at all.
+///
+/// @param address
+///     Address of the MAS file.
+/// @param mode
+///     Playback mode: MM_PLAY_ONCE or MM_PLAY_LOOP.
+/// @param layer
+///     MM_MAIN (main module layer) or MM_JINGLE (sub/jingle layer).
+void mmPlayMAS(uintptr_t address, mm_word mode, mm_word layer);
+
+// ***************************************************************************
+/// @}
 /// @defgroup maxmod_jingle_playback Jingle Playback
 /// @{
 // ***************************************************************************
