@@ -282,11 +282,25 @@ static void ProcessNextMessage(void)
             break;
         }
         case MSG_MASTERTEMPO:
-            mmSetModuleTempo(ReadNFifoBytes(2));
+        {
+            mm_hword tempo = ReadNFifoBytes(2);
+            mm_byte layer = ReadNFifoBytes(1);
+            if (layer == MM_MAIN)
+                mmSetModuleTempo(tempo);
+            else
+                mmSetJingleTempo(tempo);
             break;
+        }
         case MSG_MASTERPITCH:
-            mmSetModulePitch(ReadNFifoBytes(2));
+        {
+            mm_hword pitch = ReadNFifoBytes(2);
+            mm_byte layer = ReadNFifoBytes(1);
+            if (layer == MM_MAIN)
+                mmSetModulePitch(pitch);
+            else
+                mmSetJinglePitch(pitch);
             break;
+        }
         case MSG_MASTEREFFECTVOL:
             mmSetEffectsVolume(ReadNFifoBytes(2));
             break;

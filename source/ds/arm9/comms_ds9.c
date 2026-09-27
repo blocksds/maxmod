@@ -209,16 +209,24 @@ void mmSetJingleVolume(mm_word vol)
     SendCommandHwordByte(MSG_MASTERVOL, vol, MM_JINGLE);
 }
 
-// Set master tempo
 void mmSetModuleTempo(mm_word tempo)
 {
-    SendCommandHword(MSG_MASTERTEMPO, tempo);
+    SendCommandHwordByte(MSG_MASTERTEMPO, tempo, MM_MAIN);
 }
 
-// Set master pitch
+void mmSetJingleTempo(mm_word tempo)
+{
+    SendCommandHwordByte(MSG_MASTERTEMPO, tempo, MM_JINGLE);
+}
+
 void mmSetModulePitch(mm_word pitch)
 {
-    SendCommandHword(MSG_MASTERPITCH, pitch);
+    SendCommandHwordByte(MSG_MASTERPITCH, pitch, MM_MAIN);
+}
+
+void mmSetJinglePitch(mm_word pitch)
+{
+    SendCommandHwordByte(MSG_MASTERPITCH, pitch, MM_JINGLE);
 }
 
 void mmPlayMAS(uintptr_t address, mm_word mode, mm_word layer)
