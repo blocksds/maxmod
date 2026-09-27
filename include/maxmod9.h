@@ -620,17 +620,6 @@ void mmEffectCancel(mm_sfxhand handle);
 ///     Sound effect handle received from mmEffect() or mmEffectEx().
 void mmEffectRelease(mm_sfxhand handle);
 
-/// Play external sound.
-///
-/// @param sound
-///     Pointer to sound effect info.
-/// @param sample
-///     Pointer to external sample.
-///
-/// @return
-///     Sound effect handle that may be used to modify the sound later.
-mm_sfxhand mmEffectExt(mm_sound_effect *sound, mm_ds_sample *sample);
-
 /// Set master volume scale for effect playback.
 ///
 /// @param volume
