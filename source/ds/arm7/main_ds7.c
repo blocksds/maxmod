@@ -181,6 +181,9 @@ void mmInit7(void)
     mmSetModuleTempo(BASE_TEMPO);
     mmSetModulePitch(BASE_PITCH);
 
+    mmSetJingleTempo(BASE_TEMPO);
+    mmSetJinglePitch(BASE_PITCH);
+
     mmResetEffects();
 
     // Setup Mixer

@@ -350,6 +350,31 @@ static inline mm_bool mmActiveSub(void)
 ///     New volume level. Ranges from 0 (silent) to 1024 (normal).
 void mmSetJingleVolume(mm_word volume);
 
+/// Change the master tempo for jingle playback.
+///
+/// Specifying 1024 will play the jingle at its normal speed. Minimum and
+/// maximum values are 50% (512) and 200% (2048). Note that increasing the tempo
+/// will also increase the jingle processing load.
+///
+/// It uses a fixed point (Q10) value representing tempo.
+///
+/// Range = 0x200 -> 0x800 = 0.5 -> 2.0
+///
+/// @param tempo
+///     New tempo value. Tempo = (speed_percentage * 1024) / 100.
+void mmSetJingleTempo(mm_word tempo);
+
+/// Change the master pitch scale for jingle playback.
+///
+/// Specifying 1024 will play the jingle at its normal pitch. Minimum/Maximum
+/// range of the pitch change is +-1 octave.
+///
+/// Range = 0x200 -> 0x800 = 0.5 -> 2.0
+///
+/// @param pitch
+///     New pitch scale. Value = 1024 * 2^(semitones/12)
+void mmSetJinglePitch(mm_word pitch);
+
 // ***************************************************************************
 /// @}
 /// @defgroup nds_arm7_sound_effects NDS: ARM7 Sound Effects

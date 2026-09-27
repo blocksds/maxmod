@@ -57,9 +57,11 @@ static bool mmInit(mm_headless_system *setup)
     mmSetJingleVolume(0x400);
     mmSetEffectsVolume(0x400);
 
-    mmSetModuleTempo(0x400);
+    mmSetModuleTempo(1024);
+    mmSetModulePitch(1024);
 
-    mmSetModulePitch(0x400);
+    mmSetJingleTempo(1024);
+    mmSetJinglePitch(1024);
 
     mmResetEffects();
 

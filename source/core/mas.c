@@ -77,11 +77,13 @@ mpl_layer_information *mpp_layerp;
 // Pointer to channel array during processing.
 mm_module_channel *mpp_channels;
 
-// Master tempo scaler.
-static mm_word mm_master_module_tempo; // 512 to 2048
-
-// Master pitch scaler.
+// Master tempo and pitch scalers for the main module
+static mm_word mm_master_module_tempo; // 512 to 2048 (1024 = 100%)
 static mm_word mm_master_module_pitch;
+
+// Master tempo and pitch scalers for the jingle
+static mm_word mm_master_jingle_tempo; // 512 to 2048 (1024 = 100%)
+static mm_word mm_master_jingle_pitch;
 
 // Number of channels allocated for current layer being processed
 mm_byte mpp_nchannels;
@@ -115,10 +117,16 @@ static void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
 {
     layer_info->bpm = bpm;
 
+    mm_word scaler;
+    if (mpp_clayer == MM_MAIN)
+        scaler = mm_master_module_tempo;
+    else
+        scaler = mm_master_jingle_tempo;
+
 #if defined(__GBA__) || defined(__HEADLESS__)
 
     // Multiply by master tempo
-    mm_word tempo = (mm_master_module_tempo * bpm) >> 10;
+    mm_word tempo = (scaler * bpm) >> 10;
 
     // Samples per tick ~= mixfreq / (bpm / 2.5) ~= mixfreq * 2.5 / bpm
     mm_word rate = mm_bpmdv / tempo;
@@ -133,17 +141,8 @@ static void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
     // vsync = ~59.8261 HZ (says GBATEK)
     // divider = hz * 2.5 * 64
 
-    uint64_t temp;
-
-    if (mpp_clayer == MM_MAIN)
-    {
-        // Multiply by master tempo (it has a fractionary part of 10 bits)
-        temp = (bpm * mm_master_module_tempo) << (16 + 6 - 10);
-    }
-    else
-    {
-        temp = bpm << (16 + 6);
-    }
+    // Multiply by master tempo (it has a fractionary part of 10 bits)
+    uint64_t temp = (bpm * scaler) << (16 + 6 - 10);
 
     // using 60hz vsync for timing
     // Should this be better approximated?!
@@ -475,6 +474,25 @@ void mmSetModuleTempo(mm_word tempo)
        mpp_setbpm(&mmLayerMain, mmLayerMain.bpm);
 }
 
+void mmSetJingleTempo(mm_word tempo)
+{
+    // Clamp value: 512->2048
+
+    mm_word max = 2048;
+    if (tempo > max)
+        tempo = max;
+
+    mm_word min = 512;
+    if (tempo < min)
+        tempo = min;
+
+    mm_master_jingle_tempo = tempo;
+    mpp_clayer = MM_JINGLE;
+
+    if (mmLayerSub.bpm != 0)
+       mpp_setbpm(&mmLayerSub, mmLayerSub.bpm);
+}
+
 // Reset pattern variables
 // Input r5 = layer
 static void mpp_resetvars(mpl_layer_information *layer_info)
@@ -578,6 +596,21 @@ void mmSetModulePitch(mm_word pitch)
         pitch = min;
 
     mm_master_module_pitch = pitch;
+}
+
+void mmSetJinglePitch(mm_word pitch)
+{
+    // Clamp value: 512->2048
+
+    mm_word max = 2048;
+    if (pitch > max)
+        pitch = max;
+
+    mm_word min = 512;
+    if (pitch < min)
+        pitch = min;
+
+    mm_master_jingle_pitch = pitch;
 }
 
 #ifdef __NDS__
@@ -3357,6 +3390,8 @@ static mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *la
 
         if (mpp_clayer == MM_MAIN)
             value = (value * mm_master_module_pitch) >> 10;
+        else
+            value = (value * mm_master_jingle_pitch) >> 10;
 
 #if defined(__GBA__) || defined(__HEADLESS__)
         const mm_word scale = (4096 * 65536) / 15768;
@@ -3375,6 +3410,8 @@ static mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *la
 
             if (mpp_clayer == MM_MAIN)
                 value = (value * mm_master_module_pitch) >> 10;
+            else
+                value = (value * mm_master_jingle_pitch) >> 10;
 
 #if defined(__GBA__) || defined(__HEADLESS__)
             const mm_word scale = (4096 * 65536) / 15768;
