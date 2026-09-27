@@ -78,10 +78,10 @@ mpl_layer_information *mpp_layerp;
 mm_module_channel *mpp_channels;
 
 // Master tempo scaler.
-static mm_word mm_mastertempo; // 512 to 2048
+static mm_word mm_master_module_tempo; // 512 to 2048
 
 // Master pitch scaler.
-mm_word mm_masterpitch;
+static mm_word mm_master_module_pitch;
 
 // Number of channels allocated for current layer being processed
 mm_byte mpp_nchannels;
@@ -118,7 +118,7 @@ static void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
 #if defined(__GBA__) || defined(__HEADLESS__)
 
     // Multiply by master tempo
-    mm_word tempo = (mm_mastertempo * bpm) >> 10;
+    mm_word tempo = (mm_master_module_tempo * bpm) >> 10;
 
     // Samples per tick ~= mixfreq / (bpm / 2.5) ~= mixfreq * 2.5 / bpm
     mm_word rate = mm_bpmdv / tempo;
@@ -137,8 +137,8 @@ static void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
 
     if (mpp_clayer == MM_MAIN)
     {
-        // Multiply by master tempo
-        temp = (bpm * mm_mastertempo) << (16 + 6 - 10);
+        // Multiply by master tempo (it has a fractionary part of 10 bits)
+        temp = (bpm * mm_master_module_tempo) << (16 + 6 - 10);
     }
     else
     {
@@ -468,7 +468,7 @@ void mmSetModuleTempo(mm_word tempo)
     if (tempo < min)
         tempo = min;
 
-    mm_mastertempo = tempo;
+    mm_master_module_tempo = tempo;
     mpp_clayer = MM_MAIN;
 
     if (mmLayerMain.bpm != 0)
@@ -577,7 +577,7 @@ void mmSetModulePitch(mm_word pitch)
     if (pitch < min)
         pitch = min;
 
-    mm_masterpitch = pitch;
+    mm_master_module_pitch = pitch;
 }
 
 #ifdef __NDS__
@@ -3356,7 +3356,7 @@ static mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *la
         mm_word value = ((period >> 8) * (speed << 2)) >> 8;
 
         if (mpp_clayer == MM_MAIN)
-            value = (value * mm_masterpitch) >> 10;
+            value = (value * mm_master_module_pitch) >> 10;
 
 #if defined(__GBA__) || defined(__HEADLESS__)
         const mm_word scale = (4096 * 65536) / 15768;
@@ -3374,7 +3374,7 @@ static mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *la
             mm_word value = MOD_FREQ_DIVIDER_PAL / period;
 
             if (mpp_clayer == MM_MAIN)
-                value = (value * mm_masterpitch) >> 10;
+                value = (value * mm_master_module_pitch) >> 10;
 
 #if defined(__GBA__) || defined(__HEADLESS__)
             const mm_word scale = (4096 * 65536) / 15768;
