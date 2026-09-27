@@ -117,25 +117,16 @@ static void mpp_setbpm(mpl_layer_information *layer_info, mm_word bpm)
 
 #if defined(__GBA__) || defined(__HEADLESS__)
 
-    if (mpp_clayer == MM_MAIN)
-    {
-        // Multiply by master tempo
-        mm_word tempo = (mm_mastertempo * bpm) >> 10;
+    // Multiply by master tempo
+    mm_word tempo = (mm_mastertempo * bpm) >> 10;
 
-        // Samples per tick ~= mixfreq / (bpm / 2.5) ~= mixfreq * 2.5 / bpm
-        mm_word rate = mm_bpmdv / tempo;
+    // Samples per tick ~= mixfreq / (bpm / 2.5) ~= mixfreq * 2.5 / bpm
+    mm_word rate = mm_bpmdv / tempo;
 
-        // Make it a multiple of two
-        rate &= ~1;
+    // Make it a multiple of two
+    rate &= ~1;
 
-        layer_info->tickrate = rate;
-    }
-    else
-    {
-        // SUB LAYER, time using vsync (rate = (bpm / 2.5) / 59.7)
-
-        layer_info->tickrate = (bpm << 15) / 149;
-    }
+    layer_info->samples_per_tick = rate;
 
 #elif defined(__NDS__)
 
@@ -604,40 +595,6 @@ void mmSetResolution(mm_word divider)
     if (mmLayerSub.bpm != 0)
        mpp_setbpm(&mmLayerSub, mmLayerSub.bpm);
 }
-
-#endif
-
-#if defined(__GBA__) || defined(__HEADLESS__)
-
-// Update sub-module/jingle, this is bad for some reason...
-void mppUpdateSub(void)
-{
-    if (mmLayerSub.isplaying == 0)
-        return;
-
-    mpp_channels = mm_schannels;
-    mpp_nchannels = MP_SCHANNELS;
-    mpp_clayer = MM_JINGLE;
-    mpp_layerp = &mmLayerSub;
-
-    mm_word tickrate = mmLayerSub.tickrate;
-    mm_word tickfrac = mmLayerSub.tickfrac;
-
-    tickfrac = tickfrac + (tickrate << 1);
-    mmLayerSub.tickfrac = tickfrac;
-
-    tickfrac >>= 16;
-
-    while (tickfrac > 0)
-    {
-        mppProcessTick();
-        tickfrac--;
-    }
-}
-
-#endif
-
-#ifdef __NDS__
 
 // Update module layer
 static void mppUpdateLayer(mpl_layer_information *layer)
@@ -1899,6 +1856,26 @@ mppt_POST_TICK:
 
     if (mmCallback != NULL)
         mmCallback(MMCB_SONGTICK, songtick_callback_param);
+}
+
+void mppProcessTickMain(void)
+{
+    mpp_channels = mm_pchannels; // Copy channels pointer
+    mpp_nchannels = mm_num_mch; // Copy #channels
+    mpp_clayer = MM_MAIN;
+    mpp_layerp = &mmLayerMain; // Copy layer pointer
+
+    mppProcessTick();
+}
+
+void mppProcessTickSub(void)
+{
+    mpp_channels = mm_schannels;
+    mpp_nchannels = MP_SCHANNELS;
+    mpp_clayer = MM_JINGLE;
+    mpp_layerp = &mmLayerSub;
+
+    mppProcessTick();
 }
 
 // Note: This is also used for panning slide

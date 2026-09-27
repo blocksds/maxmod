@@ -35,10 +35,13 @@ typedef struct {
     mm_byte     ploop_jump;
     mm_byte     valid;
 
-    mm_hword    tickrate;  // 1.15 fixed point OR sample count
     union {
-        mm_hword    sampcount; // sample timing
-        mm_hword    tickfrac;  // vsync  timing 0.16 fixed point
+        mm_hword    tickrate;         // sample count (NDS)
+        mm_hword    samples_per_tick; // sample count between ticks (GBA, headless)
+    };
+    union {
+        mm_hword    tickfrac;         // vsync timing 0.16 fixed point (NDS)
+        mm_hword    samples_elapsed;  // samples processed since the last tick (GBA, headless)
     };
 
     mm_byte     mode;

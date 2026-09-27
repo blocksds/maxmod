@@ -42,7 +42,10 @@ mm_callback mmGetEventHandler(void);
 void mmSetResolution(mm_word);
 void mmPulse(void);
 void mppUpdateSub(void);
+
 void mppProcessTick(void);
+void mppProcessTickMain(void);
+void mppProcessTickSub(void);
 
 mm_word mmAllocChannel(void);
 void mmUpdateChannel_T0(mm_module_channel*, mpl_layer_information*, mm_byte);
