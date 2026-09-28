@@ -67,6 +67,7 @@ endmacro()
 add_library(maxmod)
 
 search_source_files(source/core FILES_MAXMOD_SOURCE_CORE)
+search_source_files(source/common FILES_MAXMOD_SOURCE_COMMON)
 search_source_files(source/headless FILES_MAXMOD_SOURCE_HEADLESS)
 
 target_compile_definitions(maxmod
@@ -84,6 +85,7 @@ target_include_directories(maxmod
 target_sources(maxmod
     PRIVATE
         ${FILES_MAXMOD_SOURCE_CORE}
+        ${FILES_MAXMOD_SOURCE_COMMON}
         ${FILES_MAXMOD_SOURCE_HEADLESS}
 )
 

@@ -28,6 +28,95 @@ extern "C" {
 #include <mm_types.h>
 
 // ***************************************************************************
+/// @defgroup maxmod_soundbank_helpers Soundbank-related functions.
+/// @{
+// ***************************************************************************
+
+#if !defined(__NDS__)
+/// Get the ID of the sample with the provided name.
+///
+/// The name can be the name of one of the WAV files used to create the
+/// soundbank, or the name of a sample of a module that starts with `#` (but the
+/// `#` needs to be excluded from the name provided).
+///
+/// @note
+///     The soundbank must include a name dictionary for this function to work.
+///     Use option `-D` of `mmutil` to add a dictionary to the end file.
+///
+/// @warning
+///     This isn't implemented in DS yet.
+///
+/// @param name
+///     Name of the sample to search.
+///
+/// @return
+///     Sample ID, or 0xFFFFFF if it isn't found.
+mm_word mmGetSampleIdByName(const char *name);
+
+/// Get the ID of the module with the provided name.
+///
+/// The name has to be the name of one of the module files used to create the
+/// soundbank.
+///
+/// @note
+///     The soundbank must include a name dictionary for this function to work.
+///     Use option `-D` of `mmutil` to add a dictionary to the end file.
+///
+/// @warning
+///     This isn't implemented in DS yet.
+///
+/// @param name
+///     Name of the module to search.
+///
+/// @return
+///     Module ID, or 0xFFFFFF if it isn't found.
+mm_word mmGetModuleIdByName(const char *name);
+
+/// Get the name of the sample with the provided ID.
+///
+/// The name can be the name of one of the WAV files used to create the
+/// soundbank, or the name of a sample of a module that starts with `#` (without
+/// the `#`).
+///
+/// The soundbank saves each individual sample of a module as a different
+/// sample, but only the ones with a `#` at the beginning of the name are saved.
+/// All other samples are saved without a name.
+///
+/// @note
+///     The soundbank must include a name dictionary for this function to work.
+///     Use option `-D` of `mmutil` to add a dictionary to the end file.
+///
+/// @warning
+///     This isn't implemented in DS yet.
+///
+/// @param id
+///     Sample ID.
+///
+/// @return
+///     Sample name, or NULL it isn't found or there is no defined name.
+const char *mmGetSampleNameById(mm_word id);
+
+/// Get the name of the module with the provided ID.
+///
+/// The name is one of the module files used to create the soundbank.
+///
+/// @note
+///     The soundbank must include a name dictionary for this function to work.
+///     Use option `-D` of `mmutil` to add a dictionary to the end file.
+///
+/// @warning
+///     This isn't implemented in DS yet.
+///
+/// @param id
+///     Module ID.
+///
+/// @return
+///     Module name, or NULL it isn't found or there is no defined name.
+const char *mmGetModuleNameById(mm_word id);
+#endif // __NDS__
+
+// ***************************************************************************
+/// @}
 /// @defgroup maxmod_module_playback Module Playback
 /// @{
 // ***************************************************************************

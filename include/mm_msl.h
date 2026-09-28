@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: ISC
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
-// Copyright (c) 2025, Antonio Niño Díaz
+// Copyright (c) 2025-2026, Antonio Niño Díaz
 
 /****************************************************************************
  *                                                          __              *
@@ -35,6 +35,16 @@ msl_head_data;
 
 MM_STATIC_ASSERT(msl_head_data, 12)
 
+typedef struct
+{
+    mm_word    samplesDictSize; // In bytes
+    mm_word    modulesDictSize; // In bytes
+    mm_byte    dict[];
+}
+msl_names_dictionary;
+
+MM_STATIC_ASSERT(msl_names_dictionary, 8)
+
 /// This structure represents a sound bank file.
 ///
 /// A sound bank file is just a MSL file. It's composed of a MSL header followed
@@ -57,6 +67,7 @@ typedef struct tmslhead
     // the module table starts.
     mm_word         sampleTable[]; // [sampleCount]
     //mm_word         moduleTable[moduleCount];
+    //mm_word         namesDictionaryOffset; // 0xFFFFFFFF = Not present
 }
 msl_head;
 

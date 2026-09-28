@@ -18,4 +18,7 @@ extern mm_word *mmSampleBank;
 extern mm_callback mmcbMemory;
 extern mm_callback mmCallback;
 
+mm_word *mppGetSampleNameList(void);
+mm_word *mppGetModuleNameList(void);
+
 #endif // MM_DS_ARM9_MAIN9_H__

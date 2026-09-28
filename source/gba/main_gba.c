@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: ISC
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
-// Copyright (c) 2021-2025, Antonio Niño Díaz
+// Copyright (c) 2021-2026, Antonio Niño Díaz
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -206,4 +206,34 @@ mm_word mmGetModuleCount(void)
 mm_word mmGetSampleCount(void)
 {
     return mmSampleCount;
+}
+
+// -----------------------------------------------------------------------------
+
+mm_word *mppGetSampleNameList(void)
+{
+    mm_word *offset = (mm_word *)&(mp_solution->sampleTable[mmSampleCount + mmModuleCount]);
+
+    mm_word dictOffset = *offset;
+    if (dictOffset == 0xFFFFFFFF)
+        return NULL;
+
+    msl_names_dictionary *dict = (void *)(dictOffset + (uintptr_t)mp_solution);
+    uintptr_t address = (uintptr_t)dict + sizeof(msl_names_dictionary);
+
+    return (mm_word *)address;
+}
+
+mm_word *mppGetModuleNameList(void)
+{
+    mm_word *offset = (mm_word *)&(mp_solution->sampleTable[mmSampleCount + mmModuleCount]);
+
+    mm_word dictOffset = *offset;
+    if (dictOffset == 0xFFFFFFFF)
+        return NULL;
+
+    msl_names_dictionary *dict = (void *)(dictOffset + (uintptr_t)mp_solution);
+    uintptr_t address = (uintptr_t)dict + sizeof(msl_names_dictionary) + dict->samplesDictSize;
+
+    return (mm_word *)address;
 }

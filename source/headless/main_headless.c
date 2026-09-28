@@ -201,3 +201,33 @@ mm_word mmGetSampleCount(void)
 {
     return mmSampleCount;
 }
+
+// -----------------------------------------------------------------------------
+
+mm_word *mppGetSampleNameList(void)
+{
+    mm_word *offset = (mm_word *)&(mp_solution->sampleTable[mmSampleCount + mmModuleCount]);
+
+    mm_word dictOffset = *offset;
+    if (dictOffset == 0xFFFFFFFF)
+        return NULL;
+
+    msl_names_dictionary *dict = (void *)(dictOffset + (uintptr_t)mp_solution);
+    uintptr_t address = (uintptr_t)dict + sizeof(msl_names_dictionary);
+
+    return (mm_word *)address;
+}
+
+mm_word *mppGetModuleNameList(void)
+{
+    mm_word *offset = (mm_word *)&(mp_solution->sampleTable[mmSampleCount + mmModuleCount]);
+
+    mm_word dictOffset = *offset;
+    if (dictOffset == 0xFFFFFFFF)
+        return NULL;
+
+    msl_names_dictionary *dict = (void *)(dictOffset + (uintptr_t)mp_solution);
+    uintptr_t address = (uintptr_t)dict + sizeof(msl_names_dictionary) + dict->samplesDictSize;
+
+    return (mm_word *)address;
+}

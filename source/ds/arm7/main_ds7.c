@@ -241,3 +241,15 @@ mm_word mmGetSampleCount(void)
 {
     return mmSampleCount;
 }
+
+mm_word *mppGetSampleNameList(void)
+{
+    // TODO
+    return NULL;
+}
+
+mm_word *mppGetModuleNameList(void)
+{
+    // TODO
+    return NULL;
+}

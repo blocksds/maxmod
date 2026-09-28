@@ -11,4 +11,7 @@
 // Address of soundbank in memory/rom
 extern msl_head *mp_solution;
 
+mm_word *mppGetSampleNameList(void);
+mm_word *mppGetModuleNameList(void);
+
 #endif // MM_GBA_MAIN_H

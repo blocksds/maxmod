@@ -16,6 +16,9 @@ void mmLockChannelsQuick(mm_word);
 void mmUnlockChannelsQuick(mm_word);
 void mmGetMemoryBank(mm_word n_songs, mm_word n_samples, mm_addr bank);
 
+mm_word *mppGetSampleNameList(void);
+mm_word *mppGetModuleNameList(void);
+
 #define NUM_CHANNELS 32
 #define NUM_PHYS_CHANNELS 16
 #define ALL_PHYS_CHANNELS_MASK ((1 << NUM_PHYS_CHANNELS) - 1)

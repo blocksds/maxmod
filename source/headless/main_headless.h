@@ -48,4 +48,7 @@ typedef struct t_mmheadlesssystem
 // Address of soundbank in memory/rom
 extern msl_head *mp_solution;
 
+mm_word *mppGetSampleNameList(void);
+mm_word *mppGetModuleNameList(void);
+
 #endif // MM_HEADLESS_MAIN_H

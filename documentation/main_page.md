@@ -21,6 +21,7 @@ Maxmod Programming Reference {#mainpage}
 ### Common
 
 - @ref maxmod_types
+- @ref maxmod_soundbank_helpers
 - @ref maxmod_module_playback
 - @ref maxmod_jingle_playback
 - @ref maxmod_playback_events

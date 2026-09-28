@@ -12,15 +12,15 @@ ARM_NONE_EABI_PATH	?= $(WONDERFUL_TOOLCHAIN)/toolchain/gcc-arm-none-eabi/bin/
 # -----------------
 
 ifeq ($(SYSTEM),GBA)
-SOURCEDIRS	:= source/core source/gba
+SOURCEDIRS	:= source/core source/common source/gba
 OPTFLAGS	:= -O2
 endif
 ifeq ($(SYSTEM),DS7)
-SOURCEDIRS	:= source/core source/ds/common source/ds/arm7
+SOURCEDIRS	:= source/core source/common source/ds/common source/ds/arm7
 OPTFLAGS	:= -Os
 endif
 ifeq ($(SYSTEM),DS9)
-SOURCEDIRS	:= source/ds/common source/ds/arm9
+SOURCEDIRS	:= source/common source/ds/common source/ds/arm9
 OPTFLAGS	:= -Os
 endif
 INCLUDEDIRS	:= include source
