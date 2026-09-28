@@ -15,7 +15,7 @@
 #include "file.h"
 
 #define WINDOW_WIDTH    256
-#define WINDOW_HEIGHT   240
+#define WINDOW_HEIGHT   256
 
 #define SAMPLE_RATE (32 * 1024)
 
@@ -558,7 +558,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     print_format("Sample count: %u\n", sample_count);
     print_format("Module count: %u\n", module_count);
     print_format("\n");
-    print_format("\n");
 
 #define SEL_OPTION(x) (menu_option == (x) ? '>' : ' ')
 
@@ -569,6 +568,8 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     print_format("     %c Volume:    %u\n", SEL_OPTION(MENU_SFX_VOLUME), selected_sfx_volume);
     print_format("     %c Panning:   %u\n", SEL_OPTION(MENU_SFX_PANNING), selected_sfx_panning);
     print_format("\n");
+    print_format("Name: %s\n", mmGetSampleNameById(selected_sfx_id));
+    print_format("\n");
     print_format("            [Module]\n");
     print_format("\n");
     print_format("     %c Module ID: %u\n", SEL_OPTION(MENU_MOD_ID), selected_module_id);
@@ -576,6 +577,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     print_format("     %c Pitch:     %u\n", SEL_OPTION(MENU_MOD_PITCH), selected_module_pitch);
     print_format("     %c Volume:    %u\n", SEL_OPTION(MENU_MOD_VOLUME), selected_module_volume);
     print_format("\n");
+    print_format("Name: %s\n", mmGetModuleNameById(selected_module_id));
     print_format("\n");
 
     if ((menu_option == MENU_SFX_ID) || (menu_option == MENU_SFX_RATE) ||
