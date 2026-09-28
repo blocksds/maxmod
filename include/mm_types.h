@@ -46,7 +46,7 @@ typedef int8_t   mm_sbyte;   ///< Generic signed 8-bit value
 
 /// Used to verify that the size of a type or variable is the expected one.
 /// This used to verify the sizes of MAS and MSL types.
-#if __STDC_VERSION__ >= 201112L // C11
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L // C11
 #define MM_STATIC_ASSERT(name, size) static_assert(sizeof(name) == (size));
 #else
 #define MM_STATIC_ASSERT(name, size)
