@@ -123,6 +123,9 @@ bool mmEnd(void)
 
     mmMixerEnd();
 
+    mmModuleCount = 0;
+    mmSampleCount = 0;
+
     if (mm_init_default_buffer)
     {
         free(mm_init_default_buffer);
