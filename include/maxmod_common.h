@@ -93,7 +93,8 @@ mm_word mmGetModuleIdByName(const char *name);
 ///     Sample ID.
 ///
 /// @return
-///     Sample name, or NULL it isn't found or there is no defined name.
+///     Sample name, or NULL it isn't found or there is no defined name. Don't
+///     try to free it with `free()`.
 const char *mmGetSampleNameById(mm_word id);
 
 /// Get the name of the module with the provided ID.
@@ -111,7 +112,8 @@ const char *mmGetSampleNameById(mm_word id);
 ///     Module ID.
 ///
 /// @return
-///     Module name, or NULL it isn't found or there is no defined name.
+///     Module name, or NULL it isn't found or there is no defined name. Don't
+///     try to free it with `free()`.
 const char *mmGetModuleNameById(mm_word id);
 #endif // !(defined(__NDS__) && defined(ARM7))
 
