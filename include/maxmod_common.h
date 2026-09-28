@@ -32,7 +32,7 @@ extern "C" {
 /// @{
 // ***************************************************************************
 
-#if !defined(__NDS__)
+#if !(defined(__NDS__) && defined(ARM7))
 /// Get the ID of the sample with the provided name.
 ///
 /// The name can be the name of one of the WAV files used to create the
@@ -44,7 +44,7 @@ extern "C" {
 ///     Use option `-D` of `mmutil` to add a dictionary to the end file.
 ///
 /// @warning
-///     This isn't implemented in DS yet.
+///     This isn't implemented in DS in the ARM7.
 ///
 /// @param name
 ///     Name of the sample to search.
@@ -63,7 +63,7 @@ mm_word mmGetSampleIdByName(const char *name);
 ///     Use option `-D` of `mmutil` to add a dictionary to the end file.
 ///
 /// @warning
-///     This isn't implemented in DS yet.
+///     This isn't implemented in DS in the ARM7.
 ///
 /// @param name
 ///     Name of the module to search.
@@ -87,7 +87,7 @@ mm_word mmGetModuleIdByName(const char *name);
 ///     Use option `-D` of `mmutil` to add a dictionary to the end file.
 ///
 /// @warning
-///     This isn't implemented in DS yet.
+///     This isn't implemented in DS in the ARM7.
 ///
 /// @param id
 ///     Sample ID.
@@ -105,7 +105,7 @@ const char *mmGetSampleNameById(mm_word id);
 ///     Use option `-D` of `mmutil` to add a dictionary to the end file.
 ///
 /// @warning
-///     This isn't implemented in DS yet.
+///     This isn't implemented in DS in the ARM7.
 ///
 /// @param id
 ///     Module ID.
@@ -113,7 +113,7 @@ const char *mmGetSampleNameById(mm_word id);
 /// @return
 ///     Module name, or NULL it isn't found or there is no defined name.
 const char *mmGetModuleNameById(mm_word id);
-#endif // __NDS__
+#endif // !(defined(__NDS__) && defined(ARM7))
 
 // ***************************************************************************
 /// @}

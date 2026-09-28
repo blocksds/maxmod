@@ -2,7 +2,7 @@
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
 // Copyright (c) 2023, Lorenzooone (lollo.lollo.rbiz@gmail.com)
-// Copyright (c) 2025, Antonio Niño Díaz
+// Copyright (c) 2025-2026, Antonio Niño Díaz
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -10,6 +10,7 @@
 
 #include <maxmod9.h>
 #include <mm_types.h>
+#include <mm_msl.h>
 
 #include "ds/arm9/comms_ds9.h"
 #include "ds/arm9/main_ds9.h"
@@ -45,6 +46,11 @@ mm_word *mmSampleBank;
 
 // Pointer to event handler
 mm_callback mmCallback;
+
+// Pointers to the sample and module dictionaries
+mm_word *mmSampleNameList = NULL;
+mm_word *mmModuleNameList = NULL;
+mm_bool mmNameListsAllocated = false; // Set to true if allocated with malloc()
 
 // Set function for handling playback events
 void mmSetEventHandler(mm_callback handler)
@@ -115,6 +121,72 @@ static mm_bool mmTryToInitializeDefault(mm_word first_word)
     return true;
 }
 
+static void mmLoadDictionaryFromFile(const char *soundbank_file)
+{
+    mmSampleNameList = NULL;
+    mmModuleNameList = NULL;
+
+    FILE *f = fopen(soundbank_file, "rb");
+    if (f == NULL)
+        return;
+
+    msl_head_data header;
+
+    if (fread(&header, sizeof(header), 1, f) != 1)
+        goto error;
+
+    mm_word parapointer_offset = sizeof(msl_head)
+                + sizeof(mm_word) * (header.sampleCount + header.moduleCount);
+
+    if (fseek(f, parapointer_offset, SEEK_SET) != 0)
+        goto error;
+
+    mm_word parapointer;
+
+    if (fread(&parapointer, sizeof(parapointer), 1, f) != 1)
+        goto error;
+
+    // Exit if no parapointer
+    if (parapointer == 0xFFFFFFFF)
+        goto error;
+
+    if (fseek(f, parapointer, SEEK_SET) != 0)
+        goto error;
+
+    msl_names_dictionary dict_header;
+
+    if (fread(&dict_header, sizeof(dict_header), 1, f) != 1)
+        goto error;
+
+    mmSampleNameList = malloc(dict_header.samplesDictSize);
+    if (mmSampleNameList == NULL)
+        goto error;
+
+    mmModuleNameList = malloc(dict_header.modulesDictSize);
+    if (mmModuleNameList == NULL)
+        goto error;
+
+    if (fread(mmSampleNameList, dict_header.samplesDictSize, 1, f) != 1)
+        goto error;
+
+    if (fread(mmModuleNameList, dict_header.modulesDictSize, 1, f) != 1)
+        goto error;
+
+    if (fclose(f) != 0)
+        return;
+
+    mmNameListsAllocated = true;
+    return;
+
+error:
+    free(mmSampleNameList);
+    free(mmModuleNameList);
+    mmSampleNameList = NULL;
+    mmModuleNameList = NULL;
+
+    fclose(f);
+}
+
 // Initialize Maxmod with default setup
 bool mmInitDefault(const char *soundbank_file)
 {
@@ -137,7 +209,33 @@ bool mmInitDefault(const char *soundbank_file)
         return false;
 
     mmSoundBankInFiles(soundbank_file);
+    mmLoadDictionaryFromFile(soundbank_file);
+
     return true;
+}
+
+static void mmLoadDictionaryFromMemory(mm_addr soundbank)
+{
+    mmSampleNameList = NULL;
+    mmModuleNameList = NULL;
+
+    msl_head *mp_solution = soundbank;
+    mm_word *offset = (mm_word *)&(mp_solution->sampleTable[mmSampleCount + mmModuleCount]);
+
+    mm_word dictOffset = *offset;
+
+    // Exit if there is no dictionary
+    if (dictOffset == 0xFFFFFFFF)
+        return;
+
+    msl_names_dictionary *dict = (void *)(dictOffset + (uintptr_t)mp_solution);
+
+    uintptr_t samples_address = (uintptr_t)dict + sizeof(msl_names_dictionary);
+    uintptr_t modules_address = samples_address + dict->samplesDictSize;
+
+    mmSampleNameList = (mm_word *)samples_address;
+    mmModuleNameList = (mm_word *)modules_address;
+    mmNameListsAllocated = false;
 }
 
 // Initialize Maxmod with default setup
@@ -150,6 +248,7 @@ bool mmInitDefaultMem(mm_addr soundbank)
         return false;
 
     mmSoundBankInMemory(soundbank);
+    mmLoadDictionaryFromMemory(soundbank);
     return true;
 }
 
@@ -173,12 +272,10 @@ mm_word mmGetSampleCount(void)
 
 mm_word *mppGetSampleNameList(void)
 {
-    // TODO
-    return NULL;
+    return mmSampleNameList;
 }
 
 mm_word *mppGetModuleNameList(void)
 {
-    // TODO
-    return NULL;
+    return mmModuleNameList;
 }

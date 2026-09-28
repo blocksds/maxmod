@@ -244,12 +244,12 @@ mm_word mmGetSampleCount(void)
 
 mm_word *mppGetSampleNameList(void)
 {
-    // TODO
+    // The ARM7 doesn't have access to the dictionary
     return NULL;
 }
 
 mm_word *mppGetModuleNameList(void)
 {
-    // TODO
+    // The ARM7 doesn't have access to the dictionary
     return NULL;
 }
