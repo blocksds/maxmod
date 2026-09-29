@@ -570,7 +570,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     print_format("\n");
     print_format("Name: %s\n", mmGetSampleNameById(selected_sfx_id));
     print_format("\n");
-    print_format("            [Module]\n");
+    print_format("            [Module] %s\n", mmActive() ? "Playing" : "");
     print_format("\n");
     print_format("     %c Module ID: %u\n", SEL_OPTION(MENU_MOD_ID), selected_module_id);
     print_format("     %c Tempo:     %u\n", SEL_OPTION(MENU_MOD_TEMPO), selected_module_tempo);
