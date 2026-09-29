@@ -106,7 +106,7 @@ mm_callback mmGetEventHandler(void);
 /// @param total_samples
 ///     The number of samples to save to the buffer. In total, it saves
 ///     `total_samples * 2` because the output is 8-bit stereo.
-void mmFrame(mm_addr buffer, mm_word total_samples);
+void mmMix(mm_addr buffer, mm_word total_samples);
 
 /// Returns the number of modules available in the soundbank.
 ///

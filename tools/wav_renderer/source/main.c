@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 #define SAMPLES (SAMPLE_RATE / 60)
         int8_t buffer[SAMPLES * 2];
 
-        mmFrame(buffer, SAMPLES);
+        mmMix(buffer, SAMPLES);
 
         WAV_FileStream(buffer, sizeof(buffer));
 

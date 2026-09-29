@@ -134,7 +134,7 @@ bool mmEnd(void)
 }
 
 // This updates the player and writes "total_samples" to "buffer" (stereo)
-void mmFrame(mm_addr buffer, mm_word total_samples)
+void mmMix(mm_addr buffer, mm_word total_samples)
 {
     if (!mm_initialized)
         return;

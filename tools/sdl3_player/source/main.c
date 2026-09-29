@@ -500,7 +500,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         static int8_t samples[NUM_SAMPLES * 2] = { 0 };
 
         // This generates signed samples
-        mmFrame(samples, NUM_SAMPLES);
+        mmMix(samples, NUM_SAMPLES);
 
         // Feed the new data to the stream. It will queue at the end.
         SDL_PutAudioStreamData(stream, samples, sizeof(samples));
