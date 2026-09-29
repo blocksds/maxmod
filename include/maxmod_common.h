@@ -50,8 +50,8 @@ extern "C" {
 ///     Name of the sample to search.
 ///
 /// @return
-///     Sample ID, or 0xFFFFFF if it isn't found.
-mm_word mmGetSampleIdByName(const char *name);
+///     Sample ID, or -1 if it isn't found.
+mm_sword mmGetSampleIdByName(const char *name);
 
 /// Get the ID of the module with the provided name.
 ///
@@ -69,8 +69,8 @@ mm_word mmGetSampleIdByName(const char *name);
 ///     Name of the module to search.
 ///
 /// @return
-///     Module ID, or 0xFFFFFF if it isn't found.
-mm_word mmGetModuleIdByName(const char *name);
+///     Module ID, or -1 if it isn't found.
+mm_sword mmGetModuleIdByName(const char *name);
 
 /// Get the name of the sample with the provided ID.
 ///
@@ -95,7 +95,7 @@ mm_word mmGetModuleIdByName(const char *name);
 /// @return
 ///     Sample name, or NULL it isn't found or there is no defined name. Don't
 ///     try to free it with `free()`.
-const char *mmGetSampleNameById(mm_word id);
+const char *mmGetSampleNameById(mm_sword id);
 
 /// Get the name of the module with the provided ID.
 ///
@@ -114,7 +114,7 @@ const char *mmGetSampleNameById(mm_word id);
 /// @return
 ///     Module name, or NULL it isn't found or there is no defined name. Don't
 ///     try to free it with `free()`.
-const char *mmGetModuleNameById(mm_word id);
+const char *mmGetModuleNameById(mm_sword id);
 #endif // !(defined(__NDS__) && defined(ARM7))
 
 // ***************************************************************************

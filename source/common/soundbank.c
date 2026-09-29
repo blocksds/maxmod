@@ -13,7 +13,7 @@
 #include "headless/main_headless.h"
 #endif
 
-static mm_word mppGetIdByName(mm_word *ptr, const char *name)
+static mm_sword mppGetIdByName(mm_word *ptr, const char *name)
 {
     while (1)
     {
@@ -33,7 +33,7 @@ static mm_word mppGetIdByName(mm_word *ptr, const char *name)
     }
 }
 
-static const char *mppGetNameById(mm_word *ptr, mm_word reference_id)
+static const char *mppGetNameById(mm_word *ptr, mm_sword reference_id)
 {
     while (1)
     {
@@ -53,7 +53,7 @@ static const char *mppGetNameById(mm_word *ptr, mm_word reference_id)
     }
 }
 
-mm_word mmGetSampleIdByName(const char *name)
+mm_sword mmGetSampleIdByName(const char *name)
 {
     mm_word *ptr = mppGetSampleNameList();
     if (ptr == NULL)
@@ -62,7 +62,7 @@ mm_word mmGetSampleIdByName(const char *name)
     return mppGetIdByName(ptr, name);
 }
 
-mm_word mmGetModuleIdByName(const char *name)
+mm_sword mmGetModuleIdByName(const char *name)
 {
     mm_word *ptr = mppGetModuleNameList();
     if (ptr == NULL)
@@ -71,7 +71,7 @@ mm_word mmGetModuleIdByName(const char *name)
     return mppGetIdByName(ptr, name);
 }
 
-const char *mmGetSampleNameById(mm_word id)
+const char *mmGetSampleNameById(mm_sword id)
 {
     mm_word *ptr = mppGetSampleNameList();
     if (ptr == NULL)
@@ -80,7 +80,7 @@ const char *mmGetSampleNameById(mm_word id)
     return mppGetNameById(ptr, id);
 }
 
-const char *mmGetModuleNameById(mm_word id)
+const char *mmGetModuleNameById(mm_sword id)
 {
     mm_word *ptr = mppGetModuleNameList();
     if (ptr == NULL)
