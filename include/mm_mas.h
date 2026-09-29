@@ -193,7 +193,7 @@ MM_STATIC_ASSERT(mm_mas_pattern, 1)
 typedef struct tmm_mas_gba_sample
 {
     mm_word     length;
-    mm_word     loop_length; // Loop lenght (0xFFFFFFFF if sample doesn't loop)
+    mm_word     loop_length; // Loop length (0xFFFFFFFF if sample doesn't loop)
     mm_byte     format;
     mm_byte     reserved;
     mm_hword    default_frequency;
