@@ -6,6 +6,7 @@
 #ifndef MM_HEADLESS_MAIN_H
 #define MM_HEADLESS_MAIN_H
 
+#include <maxmod_headless.h>
 #include <mm_msl.h>
 
 // Headless setup information, passed to mmInit().
@@ -18,6 +19,9 @@ typedef struct t_mmheadlesssystem
     // Software mixing rate. Higher values offer better quality at expense of a
     // larger CPU and memory load.
     mm_word     sample_rate;
+
+    // Output format
+    mm_headless_output_format output_format;
 
     // This is the amount of module channels there will be. It must be greater
     // or equal to the largest channel number used by your modules (notice: NOT

@@ -32,11 +32,14 @@ static mm_addr mm_init_default_buffer = NULL;
 // This is set to true when Maxmod is initialized
 static bool mm_initialized = false;
 
+static mm_headless_output_format mp_output_format;
+
 // Initialize maxmod
 // TODO: Make this public
 static bool mmInit(mm_headless_system *setup)
 {
     mp_solution = setup->soundbank;
+    mp_output_format = setup->output_format;
 
     mmSampleCount = mp_solution->head_data.sampleCount;
     mmModuleCount = mp_solution->head_data.moduleCount;
@@ -70,7 +73,8 @@ static bool mmInit(mm_headless_system *setup)
     return true;
 }
 
-bool mmInitDefault(mm_addr soundbank, mm_word number_of_channels, mm_word sample_rate)
+bool mmInitDefault(mm_addr soundbank, mm_word number_of_channels,
+                   mm_word sample_rate, mm_headless_output_format output_format)
 {
     if (number_of_channels > 256)
         return false;
@@ -93,6 +97,7 @@ bool mmInitDefault(mm_addr soundbank, mm_word number_of_channels, mm_word sample
     mm_headless_system setup =
     {
         .sample_rate = sample_rate,
+        .output_format = output_format,
         .mod_channel_count = number_of_channels,
         .mix_channel_count = number_of_channels,
         .module_channels = module_channels,
@@ -183,10 +188,9 @@ void mmFrame(mm_addr buffer, mm_word total_samples)
         if (samples_to_next_event > remaining_samples)
             samples_to_next_event = remaining_samples;
 
-        mmMixerMix(destination, samples_to_next_event);
+        destination = mmMixerMix(destination, samples_to_next_event, mp_output_format);
         mmLayerMain.samples_elapsed += samples_to_next_event;
         mmLayerSub.samples_elapsed += samples_to_next_event;
-        destination += samples_to_next_event * 2;
 
         remaining_samples -= samples_to_next_event;
 

@@ -88,10 +88,11 @@ void mmMixerEnd(void)
     // Nothing to do
 }
 
-void mmMixerMix(mm_addr wave_buffer, mm_word samples_count)
+mm_addr mmMixerMix(mm_addr wave_buffer, mm_word samples_count,
+                   mm_headless_output_format output_format)
 {
     if (samples_count == 0)
-        return;
+        return wave_buffer;
 
     // Part 0. Initialization
     // ----------------------
@@ -99,7 +100,7 @@ void mmMixerMix(mm_addr wave_buffer, mm_word samples_count)
     // Allocate left and right samples for stereo
     mm_sword *mm_mixbuffer = calloc(samples_count, sizeof(mm_sword) * 2);
     if (mm_mixbuffer == NULL)
-        return;
+        return wave_buffer;
 
     // Begin mixing routine
     // --------------------
@@ -195,19 +196,41 @@ void mmMixerMix(mm_addr wave_buffer, mm_word samples_count)
         sampleL /= 256 * 256 * 4;
         sampleR /= 256 * 256 * 4;
 
-        if (sampleL > 127)
-            sampleL = 127;
-        if (sampleL < -128)
-            sampleL = -128;
+        if (output_format == MM_OUTFMT_STEREO_U8)
+        {
+            sampleL += 128;
 
-        if (sampleR > 127)
-            sampleR = 127;
-        if (sampleR < -128)
-            sampleR = -128;
+            if (sampleL > 255)
+                sampleL = 255;
+            if (sampleL < 0)
+                sampleL = 0;
+
+            sampleR += 128;
+
+            if (sampleR > 255)
+                sampleR = 255;
+            if (sampleR < 0)
+                sampleR = 0;
+        }
+        else if (output_format == MM_OUTFMT_STEREO_S8)
+        {
+            if (sampleL > 127)
+                sampleL = 127;
+            if (sampleL < -128)
+                sampleL = -128;
+
+            if (sampleR > 127)
+                sampleR = 127;
+            if (sampleR < -128)
+                sampleR = -128;
+        }
 
         *pwrite++ = sampleL;
         *pwrite++ = sampleR;
     }
 
     free(mm_mixbuffer);
+
+    // Return a pointer to the next sample to be written
+    return pwrite;
 }

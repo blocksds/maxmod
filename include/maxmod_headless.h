@@ -33,6 +33,12 @@ extern "C" {
 /// @{
 // ***************************************************************************
 
+/// Output formats supported by Maxmod.
+typedef enum {
+    MM_OUTFMT_STEREO_U8 = 0, ///< Unsigned 8-bit stereo output
+    MM_OUTFMT_STEREO_S8 = 1, ///< Signed 8-bit stereo output
+} mm_headless_output_format;
+
 /// Initialize Maxmod with default settings.
 ///
 /// @param soundbank
@@ -43,10 +49,13 @@ extern "C" {
 ///     to the channel count in your modules. The maximum value allowed is 256.
 /// @param sample_rate
 ///     The sample rate to be used by Maxmod. Any value is allowed.
+/// @param output_mode
+///     Format of the output of Maxmod.
 ///
 /// @return
 ///     It returns true on success, false on error.
-bool mmInitDefault(mm_addr soundbank, mm_word number_of_channels, mm_word sample_rate);
+bool mmInitDefault(mm_addr soundbank, mm_word number_of_channels,
+                   mm_word sample_rate, mm_headless_output_format output_format);
 
 /// Deinitializes Maxmod.
 ///
@@ -96,7 +105,7 @@ mm_callback mmGetEventHandler(void);
 ///     Destination buffer. The size must be `total_samples * 2`.
 /// @param total_samples
 ///     The number of samples to save to the buffer. In total, it saves
-///     `total_samples * 2` because the output is stereo.
+///     `total_samples * 2` because the output is 8-bit stereo.
 void mmFrame(mm_addr buffer, mm_word total_samples);
 
 /// Returns the number of modules available in the soundbank.

@@ -35,7 +35,8 @@ int main(int argc, char *argv[])
 
     // Play music until the song ends, while saving it to a WAV
 
-    if (!mmInitDefault(soundbank_buffer, 20, SAMPLE_RATE))
+    if (!mmInitDefault(soundbank_buffer, 20, SAMPLE_RATE,
+                       MM_OUTFMT_STEREO_U8)) // WAV expects unsigned 8-bit
     {
         printf("mmInitDefault() failed\n");
         goto cleanup;
@@ -62,9 +63,6 @@ int main(int argc, char *argv[])
         int8_t buffer[SAMPLES * 2];
 
         mmFrame(buffer, SAMPLES);
-
-        for (int i = 0; i < SAMPLES * 2; i++)
-            buffer[i] += 128; // Make it unsigned
 
         WAV_FileStream(buffer, sizeof(buffer));
 

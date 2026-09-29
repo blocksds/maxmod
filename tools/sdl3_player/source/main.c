@@ -50,7 +50,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     if (soundbank_size == 0)
         return SDL_APP_FAILURE;
 
-    if (!mmInitDefault(soundbank_buffer, 20, SAMPLE_RATE))
+    if (!mmInitDefault(soundbank_buffer, 20, SAMPLE_RATE, MM_OUTFMT_STEREO_S8))
     {
         printf("mmInitDefault() failed\n");
         return SDL_APP_FAILURE;
