@@ -14,9 +14,13 @@
 
 int main(int argc, char *argv[])
 {
-    if (argc != 3)
+    if (argc != 4)
     {
-        printf("Invalid number of arguments\n");
+        printf("Invalid number of arguments:\n");
+        printf("\n");
+        printf("Usage:\n");
+        printf("\n");
+        printf("    wav_renderer soundbank.bin song_name.mod output.wav\n");
         return -1;
     }
 
@@ -37,9 +41,16 @@ int main(int argc, char *argv[])
         goto cleanup;
     }
 
-    mmStart(0, MM_PLAY_ONCE);
+    mm_word module_id = mmGetModuleIdByName(argv[2]);
+    if (module_id == -1)
+    {
+        printf("mmGetModuleIdByName() failed\n");
+        goto cleanup;
+    }
 
-    WAV_FileStart(argv[2], SAMPLE_RATE);
+    mmStart(module_id, MM_PLAY_ONCE);
+
+    WAV_FileStart(argv[3], SAMPLE_RATE);
     if (!WAV_FileIsOpen())
         goto cleanup;
 
