@@ -46,8 +46,7 @@ void mmMixerMulFreq(int channel, mm_word factor)
 // Stop mixing channel
 void mmMixerStopChannel(int channel)
 {
-    // Set MSB (disable) of source
-    mm_mix_channels[channel].src = MIXCH_HEADLESS_SRC_STOPPED;
+    mm_mix_channels[channel].active = false;
 }
 
 // Set channel read position
@@ -81,7 +80,7 @@ void mmMixerInit(mm_headless_system *setup)
     mm_mixer_channel *mix_ch = &mm_mix_channels[0];
 
     for (mm_word i = 0; i < mm_mixch_count; i++)
-        mix_ch[i].src = MIXCH_HEADLESS_SRC_STOPPED;
+        mix_ch[i].active = false;
 }
 
 void mmMixerEnd(void)
@@ -109,7 +108,7 @@ void mmMixerMix(mm_addr wave_buffer, mm_word samples_count)
     {
         mm_mixer_channel *rchan = &mm_mix_channels[ch];
 
-        if (rchan->src & MIXCH_HEADLESS_SRC_STOPPED)
+        if (!rchan->active)
             continue;
 
         // Part 1: Calculations
@@ -168,7 +167,7 @@ void mmMixerMix(mm_addr wave_buffer, mm_word samples_count)
                 // The sample doesn't loop, stop it
                 if (sample->loop_length == 0xFFFFFFFF)
                 {
-                    rchan->src = MIXCH_HEADLESS_SRC_STOPPED;
+                    rchan->active = false;
                     break;
                 }
 

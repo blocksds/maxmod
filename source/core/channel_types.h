@@ -204,19 +204,17 @@ static_assert(sizeof(mm_mixer_channel) == MM_SIZEOF_MIXCH);
 
 #ifdef __HEADLESS__
 
-// A mixer channel is active if "src & MIXCH_HEADLESS_SRC_STOPPED" is zero
 typedef struct {
     uintptr_t   src;
     mm_word     read; // Fixed point 20.12. See MP_SAMPFRAC
     mm_byte     vol;
     mm_byte     pan;
     mm_word     freq;
+    mm_bool     active; // true if the channel is active, false if not
 } mm_mixer_channel;
 
 // Fractionary part of the sample read offset
 #define MP_SAMPFRAC             12
-
-#define MIXCH_HEADLESS_SRC_STOPPED   (1ull << ((sizeof(uintptr_t) * 8) - 1))
 
 #endif // __GBA__
 

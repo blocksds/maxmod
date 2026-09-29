@@ -324,7 +324,7 @@ static void mpp_resetchannels(mm_module_channel *channels,
 #elif defined(__GBA__)
         mix_ch->src = MIXCH_GBA_SRC_STOPPED;
 #elif defined(__HEADLESS__)
-        mix_ch->src = MIXCH_HEADLESS_SRC_STOPPED;
+        mix_ch->active = false;
 #endif
     }
 }
@@ -3307,10 +3307,15 @@ static mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information
     if (sample->msl_id == 0xFFFF)
     {
         // The sample has been provided
-#if defined(__GBA__) || defined(__HEADLESS__)
+#if defined(__GBA__)
         mm_mas_gba_sample *gba_sample = (mm_mas_gba_sample *)&(sample->data[0]);
 
         mix_ch->src = (uintptr_t)&(gba_sample->data[0]);
+#elif defined(__HEADLESS__)
+        mm_mas_gba_sample *gba_sample = (mm_mas_gba_sample *)&(sample->data[0]);
+
+        mix_ch->src = (uintptr_t)&(gba_sample->data[0]);
+        mix_ch->active = true;
 #elif defined(__NDS__)
         mm_mas_ds_sample *ds_sample = (mm_mas_ds_sample *)&(sample->data[0]);
 
@@ -3322,7 +3327,7 @@ static mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information
     else
     {
         // Get sample from solution
-#if defined(__GBA__) || defined(__HEADLESS__)
+#if defined(__GBA__)
         msl_head *head = mp_solution;
         uintptr_t sample_offset = (uintptr_t)head->sampleTable[sample->msl_id];
 
@@ -3330,6 +3335,15 @@ static mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information
         mm_mas_gba_sample *gba_sample = (mm_mas_gba_sample *)(sample_addr + sizeof(mm_mas_prefix));
 
         mix_ch->src = (uintptr_t)(&(gba_sample->data[0]));
+#elif defined(__HEADLESS__)
+        msl_head *head = mp_solution;
+        uintptr_t sample_offset = (uintptr_t)head->sampleTable[sample->msl_id];
+
+        mm_byte *sample_addr = ((mm_byte *)mp_solution) + sample_offset;
+        mm_mas_gba_sample *gba_sample = (mm_mas_gba_sample *)(sample_addr + sizeof(mm_mas_prefix));
+
+        mix_ch->src = (uintptr_t)(&(gba_sample->data[0]));
+        mix_ch->active = true;
 #elif defined(__NDS__)
         mm_word source = mmSampleBank[sample->msl_id];
         source &= 0xFFFFFF; // Mask out counter value
@@ -3501,7 +3515,7 @@ mppt_achn_not_audible:
 #if defined(__GBA__)
     mix_ch->src = MIXCH_GBA_SRC_STOPPED;
 #elif defined(__HEADLESS__)
-    mix_ch->src = MIXCH_HEADLESS_SRC_STOPPED;
+    mix_ch->active = false;
 #elif defined(__NDS__)
     mix_ch->samp = 0;
     mix_ch->tpan = 0;
@@ -3526,7 +3540,7 @@ mppt_achn_audible:
     if (mix_ch->src & MIXCH_GBA_SRC_STOPPED)
     {
 #elif defined(__HEADLESS__)
-    if (mix_ch->src & MIXCH_HEADLESS_SRC_STOPPED)
+    if (!mix_ch->active)
     {
 #elif defined(__NDS__)
     if (mix_ch->samp == 0)
@@ -3544,7 +3558,7 @@ mppt_achn_audible:
 #if defined(__GBA__)
         mix_ch->src = MIXCH_GBA_SRC_STOPPED;
 #elif defined(__HEADLESS__)
-        mix_ch->src = MIXCH_HEADLESS_SRC_STOPPED;
+        mix_ch->active = false;
 #elif defined(__NDS__)
         mix_ch->samp = 0;
         mix_ch->tpan = 0;

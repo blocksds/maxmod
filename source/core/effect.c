@@ -215,6 +215,9 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
     mm_mas_gba_sample *sample = (mm_mas_gba_sample *)(sample_addr + sizeof(mm_mas_prefix));
 
     mix_ch->src = (uintptr_t)(&(sample->data[0]));
+#if defined(__HEADLESS__)
+    mix_ch->active = true;
+#endif
 
     // set pitch to original * pitch
     mix_ch->freq = (sound->rate * sample->default_frequency) >> (10 - 2);
@@ -411,7 +414,7 @@ void mmEffectCancelAll(void)
 #if defined(__GBA__)
         mix_ch->src = MIXCH_GBA_SRC_STOPPED;
 #elif defined(__HEADLESS__)
-        mix_ch->src = MIXCH_HEADLESS_SRC_STOPPED;
+        mix_ch->active = false;
 #elif defined(__NDS__)
         mix_ch->key_on = 0;
         mix_ch->samp = 0;
@@ -445,7 +448,7 @@ void mmUpdateEffects(void)
 #if defined(__GBA__)
         if ((mix_ch->src & MIXCH_GBA_SRC_STOPPED) == 0)
 #elif defined(__HEADLESS__)
-        if ((mix_ch->src & MIXCH_HEADLESS_SRC_STOPPED) == 0)
+        if (mix_ch->active)
 #elif defined(__NDS__)
         if (mix_ch->samp != 0)
 #endif
