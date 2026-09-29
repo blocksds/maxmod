@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
 
     while (mmActive())
     {
-#define SAMPLES (SAMPLE_RATE / 60)
+#define SAMPLES (SAMPLE_RATE / 100)
         int8_t buffer[SAMPLES * 2];
 
         mmMix(buffer, SAMPLES);
@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 
         frames++;
 
-        if (frames > 60 * 60 * 10) // 10 minutes limit
+        if (frames > 100 * 60 * 10) // 10 minutes limit
             break;
     }
 
