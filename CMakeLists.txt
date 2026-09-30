@@ -8,6 +8,8 @@ cmake_minimum_required(VERSION 4.0)
 project(maxmod)
 enable_language(C)
 
+enable_testing()
+
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_EXTENSIONS ON)
 set(CMAKE_C_STANDARD_REQUIRED OFF)
@@ -89,7 +91,8 @@ target_sources(maxmod
         ${FILES_MAXMOD_SOURCE_HEADLESS}
 )
 
-# Tools directory
-# ---------------
+# Subdirectories
+# --------------
 
+add_subdirectory(tests)
 add_subdirectory(tools)
