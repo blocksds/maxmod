@@ -554,7 +554,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
 #define SEL_OPTION(x) (menu_option == (x) ? '>' : ' ')
 
-    print_format("              [SFX]\n");
+    print_format("              [SFX] %s\n", mmEffectActive(active_sfx_handle) ? "Playing" : "");
     print_format("\n");
     print_format("     %c Sample ID: %u\n", SEL_OPTION(MENU_SFX_ID), selected_sfx_id);
     print_format("     %c Rate:      %u\n", SEL_OPTION(MENU_SFX_RATE), selected_sfx_rate);
