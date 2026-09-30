@@ -39,7 +39,7 @@ typedef enum {
     MM_OUTFMT_STEREO_S8 = 1, ///< Signed 8-bit stereo output
 } mm_headless_output_format;
 
-/// Initialize Maxmod with default settings.
+/// Initialize Maxmod with default settings with a soundbank stored in RAM.
 ///
 /// @param soundbank
 ///     Memory address of soundbank (in ROM). A soundbank file can be created
@@ -54,7 +54,26 @@ typedef enum {
 ///
 /// @return
 ///     It returns true on success, false on error.
-bool mmInitDefault(mm_addr soundbank, mm_word number_of_channels,
+bool mmInitDefaultMem(mm_addr soundbank, mm_word number_of_channels,
+                      mm_word sample_rate, mm_headless_output_format output_format);
+
+/// Initialize Maxmod with default settings with a soundbank stored in the
+/// filesystem.
+///
+/// @param soundbank_path
+///     Path to the soundbank file. A soundbank file can be created with the
+///     Maxmod Utility.
+/// @param number_of_channels
+///     Number of module/mixing channels to allocate. Must be greater or equal
+///     to the channel count in your modules. The maximum value allowed is 256.
+/// @param sample_rate
+///     The sample rate to be used by Maxmod. Any value is allowed.
+/// @param output_mode
+///     Format of the output of Maxmod.
+///
+/// @return
+///     It returns true on success, false on error.
+bool mmInitDefault(const char *soundbank_path, mm_word number_of_channels,
                    mm_word sample_rate, mm_headless_output_format output_format);
 
 /// Deinitializes Maxmod.

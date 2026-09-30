@@ -5,6 +5,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include <maxmod_headless.h>
@@ -19,6 +20,7 @@
 
 // Address of soundbank in memory/rom
 msl_head *mp_solution;
+static bool mp_solution_allocated_by_maxmod = false;
 
 // Number of modules in sound bank
 mm_word mmModuleCount;
@@ -73,8 +75,8 @@ static bool mmInit(mm_headless_system *setup)
     return true;
 }
 
-bool mmInitDefault(mm_addr soundbank, mm_word number_of_channels,
-                   mm_word sample_rate, mm_headless_output_format output_format)
+bool mmInitDefaultMem(mm_addr soundbank, mm_word number_of_channels,
+                      mm_word sample_rate, mm_headless_output_format output_format)
 {
     if (number_of_channels > 256)
         return false;
@@ -115,6 +117,54 @@ bool mmInitDefault(mm_addr soundbank, mm_word number_of_channels,
     return true;
 }
 
+bool mmInitDefault(const char *soundbank_path, mm_word number_of_channels,
+                   mm_word sample_rate, mm_headless_output_format output_format)
+{
+    FILE *f = fopen(soundbank_path, "rb");
+    if (f == NULL)
+        return false;
+
+    fseek(f, 0, SEEK_END);
+    size_t size = ftell(f);
+    if (size == 0)
+    {
+        fclose(f);
+        return false;
+    }
+
+    rewind(f);
+
+    void *buffer = malloc(size);
+    if (buffer == NULL)
+    {
+        fclose(f);
+        return false;
+    }
+
+    if (fread(buffer, size, 1, f) != 1)
+    {
+        fclose(f);
+        free(buffer);
+        return false;
+    }
+
+    if (fclose(f) != 0)
+    {
+        free(buffer);
+        return false;
+    }
+
+    if (!mmInitDefaultMem(buffer, number_of_channels, sample_rate, output_format))
+    {
+        free(buffer);
+        return false;
+    }
+
+    mp_solution_allocated_by_maxmod = true;
+
+    return true;
+}
+
 bool mmEnd(void)
 {
     mm_initialized = false;
@@ -128,6 +178,12 @@ bool mmEnd(void)
     {
         free(mm_init_default_buffer);
         mm_init_default_buffer = NULL;
+    }
+
+    if (mp_solution_allocated_by_maxmod)
+    {
+        free(mp_solution);
+        mp_solution_allocated_by_maxmod = false;
     }
 
     return true;

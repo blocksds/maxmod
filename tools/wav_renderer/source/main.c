@@ -7,7 +7,6 @@
 
 #include <maxmod_headless.h>
 
-#include "file.h"
 #include "wav_utils.h"
 
 #define SAMPLE_RATE (32 * 1024)
@@ -24,36 +23,34 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    // Load file
+    // Initialize Maxmod
 
-    void *soundbank_buffer = NULL;
-    size_t soundbank_size;
-
-    file_load(argv[1], &soundbank_buffer, &soundbank_size);
-    if (soundbank_size == 0)
-        goto cleanup;
-
-    // Play music until the song ends, while saving it to a WAV
-
-    if (!mmInitDefault(soundbank_buffer, 20, SAMPLE_RATE,
+    if (!mmInitDefault(argv[1], 20, SAMPLE_RATE,
                        MM_OUTFMT_STEREO_U8)) // WAV expects unsigned 8-bit
     {
         printf("mmInitDefault() failed\n");
-        goto cleanup;
+        return -1;
     }
+
+    // Play the requested song until the end (or a timeout)
 
     mm_word module_id = mmGetModuleIdByName(argv[2]);
     if (module_id == -1)
     {
         printf("mmGetModuleIdByName() failed\n");
-        goto cleanup;
+        mmEnd();
+        return -1;
     }
 
     mmStart(module_id, MM_PLAY_ONCE);
 
     WAV_FileStart(argv[3], SAMPLE_RATE);
     if (!WAV_FileIsOpen())
-        goto cleanup;
+    {
+        printf("WAV_FileIsOpen() failed\n");
+        mmEnd();
+        return -1;
+    }
 
     int frames = 0;
 
@@ -76,7 +73,5 @@ int main(int argc, char *argv[])
 
     mmEnd();
 
-cleanup:
-    free(soundbank_buffer);
     return 0;
 }

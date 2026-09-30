@@ -12,8 +12,6 @@
 
 #include <maxmod_headless.h>
 
-#include "file.h"
-
 #define WINDOW_WIDTH    256
 #define WINDOW_HEIGHT   256
 
@@ -28,11 +26,9 @@ static int texture_width = 0;
 static int texture_height = 0;
 
 static int frames = 0;
-static void *soundbank_buffer = NULL;
-static size_t soundbank_size;
 
-mm_word module_count;
-mm_word sample_count;
+static mm_word module_count;
+static mm_word sample_count;
 
 // This function runs once at startup.
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
@@ -45,12 +41,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     if (argc == 2)
         soundbank_path = argv[1];
 
-    // Load file
-    file_load(soundbank_path, &soundbank_buffer, &soundbank_size);
-    if (soundbank_size == 0)
-        return SDL_APP_FAILURE;
+    // Initialize Maxmod
 
-    if (!mmInitDefault(soundbank_buffer, 20, SAMPLE_RATE, MM_OUTFMT_STEREO_S8))
+    if (!mmInitDefault(soundbank_path, 20, SAMPLE_RATE, MM_OUTFMT_STEREO_S8))
     {
         printf("mmInitDefault() failed\n");
         return SDL_APP_FAILURE;
@@ -614,8 +607,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
     mmEnd();
-
-    free(soundbank_buffer);
 
     SDL_DestroyTexture(texture);
 
