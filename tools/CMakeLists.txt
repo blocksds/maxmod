@@ -2,6 +2,8 @@
 #
 # Copyright (c) 2026, Antonio Niño Díaz
 
+add_subdirectory(libutils)
+
 if(BUILD_SDL3_PLAYER)
     add_subdirectory(sdl3_player)
 endif()

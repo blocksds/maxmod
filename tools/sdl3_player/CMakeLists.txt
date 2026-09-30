@@ -44,7 +44,9 @@ if (EMSCRIPTEN)
         "SHELL:--embed-file ${CMAKE_SOURCE_DIR}/tools/sdl3_player/graphics/default_font.png@default_font.png"
     )
 
-    target_link_libraries(maxmod_sdl3_player PRIVATE maxmod SDL3::SDL3-static)
+    target_link_libraries(maxmod_sdl3_player PRIVATE SDL3::SDL3-static)
 else()
-    target_link_libraries(maxmod_sdl3_player PRIVATE maxmod SDL3::SDL3)
+    target_link_libraries(maxmod_sdl3_player PRIVATE SDL3::SDL3)
 endif()
+
+target_link_libraries(maxmod_sdl3_player PRIVATE maxmod maxmod_libutils)

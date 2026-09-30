@@ -11,4 +11,4 @@ target_sources(maxmod_wav_renderer
         ${WAV_RENDERER_SOURCE}
 )
 
-target_link_libraries(maxmod_wav_renderer maxmod)
+target_link_libraries(maxmod_wav_renderer PRIVATE maxmod maxmod_libutils)
