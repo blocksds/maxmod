@@ -141,9 +141,6 @@ void mmFrame(void)
     if (!mm_initialized)
         return;
 
-    // Update effects
-    mmUpdateEffects();
-
     // Note: mm_mixlen is divisible by 2
     mm_sword remaining_samples = mm_mixlen;
 
@@ -199,6 +196,15 @@ void mmFrame(void)
         if (remaining_samples == 0)
             break;
     }
+
+    // This checks which SFXs have ended and it clears the active channel and
+    // SFX channel associated to them. It's better to update it after mixing so
+    // that we know which SFXs have ended right away (with mmEffectActive())
+    // instead of having a frame of delay.
+    //
+    // Note that mmEffectCancel() clears the active and SFX channels as well, so
+    // mmFrame() is always called with the SFX state up to date.
+    mmUpdateEffects();
 }
 
 mm_word mmGetModuleCount(void)

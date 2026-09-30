@@ -425,7 +425,9 @@ void mmEffectCancelAll(void)
     }
 }
 
-// Update sound effects
+// This looks for any sound effect that has ended and it clears its associated
+// active channel and SFX channel. Then, it updates the mask of available SFX
+// channels.
 void mmUpdateEffects(void)
 {
     // Keep track of the channels that are still active after the update
