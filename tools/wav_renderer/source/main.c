@@ -34,10 +34,12 @@ int main(int argc, char *argv[])
 
     // Play the requested song until the end (or a timeout)
 
-    mm_word module_id = mmGetModuleIdByName(argv[2]);
+    const char *name = argv[2];
+
+    mm_word module_id = mmGetModuleIdByName(name);
     if (module_id == -1)
     {
-        printf("mmGetModuleIdByName() failed\n");
+        printf("mmGetModuleIdByName(%s) failed\n", name);
         mmEnd();
         return -1;
     }
