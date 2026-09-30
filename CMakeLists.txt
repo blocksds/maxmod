@@ -89,75 +89,7 @@ target_sources(maxmod
         ${FILES_MAXMOD_SOURCE_HEADLESS}
 )
 
-# SDL3 player
-# -----------
+# Tools directory
+# ---------------
 
-if(BUILD_SDL3_PLAYER)
-
-    add_executable(maxmod_sdl3_player)
-
-    search_source_files(tools/sdl3_player/source FILES_TOOLS_SDL3_PLAYER_SOURCE)
-
-    target_sources(maxmod_sdl3_player
-        PRIVATE
-            ${FILES_TOOLS_SDL3_PLAYER_SOURCE}
-    )
-
-    if (EMSCRIPTEN)
-        # Set output file suffix
-        set_target_properties(maxmod_sdl3_player PROPERTIES SUFFIX ".html")
-
-        # Set Emscripten linker flags
-        if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-            target_link_options(maxmod_sdl3_player PRIVATE
-                -sENVIRONMENT=web
-                -sALLOW_MEMORY_GROWTH=1
-                -sMALLOC=emmalloc
-                -sWASM=1
-                -sASSERTIONS=2
-                -sVERBOSE=1
-                -sEXCEPTION_DEBUG=1
-                -gsource-map
-                -g4
-            )
-        else()
-            target_link_options(maxmod_sdl3_player PRIVATE
-                -sENVIRONMENT=web
-                -sALLOW_MEMORY_GROWTH=1
-                -sMALLOC=emmalloc
-                -sWASM=1
-            )
-        endif()
-
-        # The SHELL syntax is needed to allow for duplicated arguments
-        target_link_options(maxmod_sdl3_player PRIVATE
-            # TODO: Make this flexible for the soundbank
-            "SHELL:--embed-file ${CMAKE_SOURCE_DIR}/soundbank.bin@soundbank.bin"
-            "SHELL:--embed-file ${CMAKE_SOURCE_DIR}/tools/sdl3_player/graphics/default_font.png@default_font.png"
-        )
-
-        target_link_libraries(maxmod_sdl3_player PRIVATE maxmod SDL3::SDL3-static)
-    else()
-        target_link_libraries(maxmod_sdl3_player PRIVATE maxmod SDL3::SDL3)
-    endif()
-
-endif()
-
-
-# WAV renderer
-# ------------
-
-if (BUILD_WAV_RENDERER)
-
-    add_executable(maxmod_wav_renderer)
-
-    search_source_files(tools/wav_renderer/source FILES_TOOLS_WAV_RENDERER_SOURCE)
-
-    target_sources(maxmod_wav_renderer
-        PRIVATE
-            ${FILES_TOOLS_WAV_RENDERER_SOURCE}
-    )
-
-    target_link_libraries(maxmod_wav_renderer maxmod)
-
-endif()
+add_subdirectory(tools)

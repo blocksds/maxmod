@@ -7,7 +7,7 @@
 BLOCKSDS=${BLOCKSDS:-/opt/blocksds/core}
 MMUTIL=${BLOCKSDS}/tools/mmutil/mmutil
 
-WAV_RENDERER=../../build/maxmod_wav_renderer
+WAV_RENDERER=../../build/tools/wav_renderer/maxmod_wav_renderer
 
 test_files=()
 
