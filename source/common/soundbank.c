@@ -23,7 +23,7 @@ static mm_sword mppGetIdByName(mm_word *ptr, const char *name)
         if (entry == 0)
             return -1;
 
-        mm_word id = entry & 0xFFFFFF;
+        mm_sword id = entry & 0xFFFFFF;
         mm_word name_len = entry >> 24;
 
         if (strcmp(name, (const char *)ptr) == 0)
@@ -43,7 +43,7 @@ static const char *mppGetNameById(mm_word *ptr, mm_sword reference_id)
         if (entry == 0)
             return NULL;
 
-        mm_word id = entry & 0xFFFFFF;
+        mm_sword id = entry & 0xFFFFFF;
         mm_word name_len = entry >> 24;
 
         if (id == reference_id)
