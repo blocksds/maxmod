@@ -38,8 +38,10 @@ endif()
 
 if(EMSCRIPTEN)
     set(BUILD_WAV_RENDERER FALSE)
+    set(ENABLE_TESTS FALSE)
 else()
     set(BUILD_WAV_RENDERER TRUE)
+    set(ENABLE_TESTS TRUE)
 endif()
 
 # Macros
@@ -94,5 +96,7 @@ target_sources(maxmod
 # Subdirectories
 # --------------
 
-add_subdirectory(tests)
+if(ENABLE_TESTS)
+    add_subdirectory(tests)
+endif()
 add_subdirectory(tools)
