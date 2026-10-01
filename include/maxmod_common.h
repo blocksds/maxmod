@@ -464,7 +464,14 @@ mm_bool mmEffectActive(mm_sfxhand handle);
 ///     Sound effect handle received from mmEffect() or mmEffectEx().
 /// @param volume
 ///     New volume level. Ranges from 0 (silent) to 255 (normal).
+///
+/// @return
+///     Non-zero on success, zero on error.
+#if defined(__NDS__) && defined(ARM9)
 void mmEffectVolume(mm_sfxhand handle, mm_word volume);
+#else
+mm_word mmEffectVolume(mm_sfxhand handle, mm_word volume);
+#endif
 
 /// Changes the panning of a sound effect.
 ///
@@ -472,7 +479,14 @@ void mmEffectVolume(mm_sfxhand handle, mm_word volume);
 ///     Sound effect handle received from mmEffect() or mmEffectEx().
 /// @param panning
 ///     New panning level. Ranges from 0 (left) to 255 (right).
+///
+/// @return
+///     Non-zero on success, zero on error.
+#if defined(__NDS__) && defined(ARM9)
 void mmEffectPanning(mm_sfxhand handle, mm_byte panning);
+#else
+mm_word mmEffectPanning(mm_sfxhand handle, mm_byte panning);
+#endif
 
 /// Changes the playback rate for a sound effect.
 ///
@@ -487,7 +501,14 @@ void mmEffectPanning(mm_sfxhand handle, mm_byte panning);
 ///     Sound effect handle received from mmEffect() or mmEffectEx().
 /// @param rate
 ///     New playback rate.
+///
+/// @return
+///     Non-zero on success, zero on error.
+#if defined(__NDS__) && defined(ARM9)
 void mmEffectRate(mm_sfxhand handle, mm_word rate);
+#else
+mm_word mmEffectRate(mm_sfxhand handle, mm_word rate);
+#endif
 
 /// Scales the rate of the sound effect by a certain factor.
 ///
@@ -495,7 +516,14 @@ void mmEffectRate(mm_sfxhand handle, mm_word rate);
 ///     Sound effect handle received from mmEffect() or mmEffectEx().
 /// @param factor
 ///     6.10 fixed point factor.
+///
+/// @return
+///     Non-zero on success, zero on error.
+#if defined(__NDS__) && defined(ARM9)
 void mmEffectScaleRate(mm_sfxhand handle, mm_word factor);
+#else
+mm_word mmEffectScaleRate(mm_sfxhand handle, mm_word factor);
+#endif
 
 /// Stops a sound effect. The handle will be invalidated.
 ///
@@ -527,7 +555,14 @@ mm_word mmEffectCancel(mm_sfxhand handle);
 ///
 /// @param handle
 ///     Sound effect handle received from mmEffect() or mmEffectEx().
+///
+/// @return
+///     Non-zero on success, zero on error.
+#if defined(__NDS__) && defined(ARM9)
 void mmEffectRelease(mm_sfxhand handle);
+#else
+mm_word mmEffectRelease(mm_sfxhand handle);
+#endif
 
 /// Set master volume scale for effect playback.
 ///

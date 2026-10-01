@@ -294,13 +294,15 @@ void mmSetEffectsVolume(mm_word volume)
 }
 
 // Set effect panning (0..255)
-void mmEffectPanning(mm_sfxhand handle, mm_byte panning)
+mm_word mmEffectPanning(mm_sfxhand handle, mm_byte panning)
 {
     int mix_channel = mme_get_mix_channel_index(handle);
     if (mix_channel < 0)
-        return;
+        return 0;
 
     mmMixerSetPan(mix_channel, panning);
+
+    return 1;
 }
 
 // Indicates if a sound effect is active or not
@@ -314,11 +316,11 @@ mm_bool mmEffectActive(mm_sfxhand handle)
 }
 
 // Set effect volume (0..255)
-void mmEffectVolume(mm_sfxhand handle, mm_word volume)
+mm_word mmEffectVolume(mm_sfxhand handle, mm_word volume)
 {
     int mix_channel = mme_get_mix_channel_index(handle);
     if (mix_channel < 0)
-        return;
+        return 0;
 
 #if defined(__GBA__) || defined(__HEADLESS__)
     int shift = 10; // Divide by 1024
@@ -329,26 +331,32 @@ void mmEffectVolume(mm_sfxhand handle, mm_word volume)
     volume = (volume * mm_sfx_mastervolume) >> shift;
 
     mmMixerSetVolume(mix_channel, volume);
+
+    return 1;
 }
 
 // Set effect playback rate
-void mmEffectRate(mm_sfxhand handle, mm_word rate)
+mm_word mmEffectRate(mm_sfxhand handle, mm_word rate)
 {
     int mix_channel = mme_get_mix_channel_index(handle);
     if (mix_channel < 0)
-        return;
+        return 0;
 
     mmMixerSetFreq(mix_channel, rate);
+
+    return 1;
 }
 
 // Scale sampling rate by 6.10 factor
-void mmEffectScaleRate(mm_sfxhand handle, mm_word factor)
+mm_word mmEffectScaleRate(mm_sfxhand handle, mm_word factor)
 {
     int mix_channel = mme_get_mix_channel_index(handle);
     if (mix_channel < 0)
-        return;
+        return 0;
 
     mmMixerMulFreq(mix_channel, factor);
+
+    return 1;
 }
 
 // Stop sound effect
@@ -373,11 +381,11 @@ mm_word mmEffectCancel(mm_sfxhand handle)
 }
 
 // Release sound effect (allow interruption)
-void mmEffectRelease(mm_sfxhand handle)
+mm_word mmEffectRelease(mm_sfxhand handle)
 {
     int mix_channel = mme_get_mix_channel_index(handle);
     if (mix_channel < 0)
-        return;
+        return 0;
 
     // Release achannel
     mm_active_channel *act_ch = &mm_achannels[mix_channel];
@@ -386,6 +394,8 @@ void mmEffectRelease(mm_sfxhand handle)
 
     mm_word sfx_channel = (handle & 0xFF) - 1;
     mme_clear_sfx_channel(sfx_channel);
+
+    return 1;
 }
 
 // Stop all sound effects
