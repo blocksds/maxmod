@@ -63,6 +63,11 @@ int main(int argc, char *argv[])
     // Non-looping SFX
 
     handle = mmEffect(laser_id);
+    if (handle == MM_SFXHAND_INVALID)
+    {
+        printf("Line %d: Check failed\n", __LINE__);
+        goto error;
+    }
 
     generate_ms(300); // Wait for about half of the length of the SFX
 
@@ -83,7 +88,17 @@ int main(int argc, char *argv[])
     // The same SFX with with a smaller playback rate should take longer to end
 
     handle = mmEffect(laser_id);
-    mmEffectScaleRate(handle, 1024 / 2); // 50%
+    if (handle == MM_SFXHAND_INVALID)
+    {
+        printf("Line %d: Check failed\n", __LINE__);
+        goto error;
+    }
+
+    if (mmEffectScaleRate(handle, 1024 / 2) == 0) // 50%
+    {
+        printf("Line %d: Check failed\n", __LINE__);
+        goto error;
+    }
 
     generate_ms(300); // Wait for about half of the original length of the SFX
 
@@ -112,6 +127,11 @@ int main(int argc, char *argv[])
     // Cancel an effect after it has started
 
     handle = mmEffect(laser_id);
+    if (handle == MM_SFXHAND_INVALID)
+    {
+        printf("Line %d: Check failed\n", __LINE__);
+        goto error;
+    }
 
     generate_ms(300); // Wait for about half of the original length of the SFX
 
@@ -121,7 +141,11 @@ int main(int argc, char *argv[])
         goto error;
     }
 
-    mmEffectCancel(handle);
+    if (mmEffectCancel(handle) == 0)
+    {
+        printf("Line %d: Check failed\n", __LINE__);
+        goto error;
+    }
 
     if (mmEffectActive(handle) == 1)
     {
@@ -132,6 +156,11 @@ int main(int argc, char *argv[])
     // Release an effect and try to check the state, which should fail
 
     handle = mmEffect(laser_id);
+    if (handle == MM_SFXHAND_INVALID)
+    {
+        printf("Line %d: Check failed\n", __LINE__);
+        goto error;
+    }
 
     generate_ms(300); // Wait for about half of the original length of the SFX
 
@@ -141,7 +170,12 @@ int main(int argc, char *argv[])
         goto error;
     }
 
-    mmEffectRelease(handle); // After releasing it, the handle becomes invalid
+    // After releasing it, the handle becomes invalid
+    if (mmEffectRelease(handle) == 0)
+    {
+        printf("Line %d: Check failed\n", __LINE__);
+        goto error;
+    }
 
     if (mmEffectActive(handle) == 1)
     {

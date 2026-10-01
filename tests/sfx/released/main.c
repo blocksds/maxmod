@@ -148,7 +148,11 @@ int main(int argc, char *argv[])
     }
 
     // Release the original effect. It's handle becomes invalid
-    mmEffectRelease(helicopter_handle);
+    if (mmEffectRelease(helicopter_handle) == 0)
+    {
+        printf("Line %d: Check failed\n", __LINE__);
+        goto error;
+    }
 
     // We can't cancel the effect
     if (mmEffectCancel(helicopter_handle) != 0)
@@ -228,7 +232,11 @@ int main(int argc, char *argv[])
     generate_ms(100);
 
     // Release one of the effects, this invalidates its handle
-    mmEffectRelease(helicopter_handle);
+    if (mmEffectRelease(helicopter_handle) == 0)
+    {
+        printf("Line %d: Check failed\n", __LINE__);
+        goto error;
+    }
 
     // Cancel all released and non-released effects, invalidate all handles
     mmEffectCancelAll();

@@ -63,6 +63,11 @@ int main(int argc, char *argv[])
     // Non-looping SFX
 
     handle = mmEffect(laser_id);
+    if (handle == MM_SFXHAND_INVALID)
+    {
+        printf("Line %d: Check failed\n", __LINE__);
+        goto error;
+    }
 
     if (mmEffectActive(handle) == 0)
     {
@@ -81,6 +86,11 @@ int main(int argc, char *argv[])
     // Looping SFX
 
     handle = mmEffect(helicopter_id);
+    if (handle == MM_SFXHAND_INVALID)
+    {
+        printf("Line %d: Check failed\n", __LINE__);
+        goto error;
+    }
 
     if (mmEffectActive(handle) == 0)
     {
@@ -96,7 +106,11 @@ int main(int argc, char *argv[])
         goto error;
     }
 
-    mmEffectCancel(handle);
+    if (mmEffectCancel(handle) == 0)
+    {
+        printf("Line %d: Check failed\n", __LINE__);
+        goto error;
+    }
 
     if (mmEffectActive(handle) == 1)
     {
