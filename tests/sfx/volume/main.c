@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     }
 
     mm_sword laser_id = mmGetSampleIdByName("laser2_1.wav");
-    if (helicopter_id == -1)
+    if (laser_id == -1)
     {
         printf("mmGetSampleIdByName(\"laser2_1.wav\") failed\n");
         goto error;
