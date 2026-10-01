@@ -322,6 +322,9 @@ mm_word mmEffectVolume(mm_sfxhand handle, mm_word volume)
     if (mix_channel < 0)
         return 0;
 
+    if (volume > 255)
+        volume = 255;
+
 #if defined(__GBA__) || defined(__HEADLESS__)
     int shift = 10; // Divide by 1024
 #elif defined(__NDS__)
