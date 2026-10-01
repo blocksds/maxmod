@@ -10,7 +10,7 @@
 
 #include "wav_utils.h"
 
-#define SAMPLE_RATE (32 * 1024)
+#define SAMPLE_RATE 15768 // Default GBA frequency
 
 void generate_ms(unsigned int ms)
 {
@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 {
     int ret = -1;
 
-    if (argc != 2)
+    if (argc != 3)
     {
         printf("Invalid number of arguments.\n");
         return -1;
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
         goto error;
     }
 
-    WAV_FileStart("output.wav", SAMPLE_RATE);
+    WAV_FileStart(argv[2], SAMPLE_RATE);
     if (!WAV_FileIsOpen())
         goto error;
 
