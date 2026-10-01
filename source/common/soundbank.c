@@ -55,6 +55,9 @@ static const char *mppGetNameById(mm_word *ptr, mm_sword reference_id)
 
 mm_sword mmGetSampleIdByName(const char *name)
 {
+    if (name == NULL)
+        return -1;
+
     mm_word *ptr = mppGetSampleNameList();
     if (ptr == NULL)
         return -1;
@@ -64,6 +67,9 @@ mm_sword mmGetSampleIdByName(const char *name)
 
 mm_sword mmGetModuleIdByName(const char *name)
 {
+    if (name == NULL)
+        return -1;
+
     mm_word *ptr = mppGetModuleNameList();
     if (ptr == NULL)
         return -1;
