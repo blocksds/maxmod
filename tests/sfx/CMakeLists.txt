@@ -26,6 +26,7 @@ endmacro()
 # Add the subdirectories after the macro definition
 add_subdirectory(basic)
 add_subdirectory(frequency)
+add_subdirectory(invalid)
 add_subdirectory(loops)
 add_subdirectory(released)
 add_subdirectory(volume)
