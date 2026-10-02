@@ -208,8 +208,17 @@ bool mmInitDefault(const char *soundbank_file)
     if (!mmTryToInitializeDefault(first_word))
         return false;
 
-    mmSoundBankInFiles(soundbank_file);
+    // mmSoundBankInFiles() opens a FILE to the soundbank and keeps it open
+    // forever. This can cause issues from mmLoadDictionaryFromFile() if it
+    // tries to open the same file again, so we need to load the dictionary
+    // first.
+    //
+    // Also, failing to load the dictionary is normal, so we can keep going even
+    // if the load fails.
     mmLoadDictionaryFromFile(soundbank_file);
+
+    if (!mmSoundBankInFiles(soundbank_file))
+        return false;
 
     return true;
 }

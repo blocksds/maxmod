@@ -42,6 +42,10 @@ extern "C" {
 /// For DS, this function also sets up the internal soundbank interface to use
 /// the file specified.
 ///
+/// @note
+///     After this function returns (on success) it keeps a `FILE` handle open
+///     for the soundbank for the duration of the application.
+///
 /// @param soundbank_file
 ///     Filename of soundbank. A soundbank file can be created with the Maxmod
 ///     Utility.
@@ -235,7 +239,10 @@ mm_callback mmGetEventHandler(void);
 ///
 /// @param filename
 ///     Filename of your soundbank binary.
-void mmSoundBankInFiles(const char *filename);
+///
+/// @return
+///     It returns true on success, false on error.
+mm_bool mmSoundBankInFiles(const char *filename);
 
 /// Enable the standard interface for a soundbank that is loaded into memory.
 ///

@@ -2,7 +2,7 @@
 //
 // Copyright (c) 2008, Mukunda Johnson (mukunda@maxmod.org)
 // Copyright (c) 2023, Lorenzooone (lollo.lollo.rbiz@gmail.com)
-// Copyright (c) 2025, Antonio Niño Díaz
+// Copyright (c) 2025-2026, Antonio Niño Díaz
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,9 +20,10 @@
 // bank is in the filesystem.
 static msl_head *mmsAddress;
 
-// Path to the sound bank when it's stored in the filesystem. Not used when the
-// sound bank is in RAM.
-static char mmsFile[MM_FILENAME_SIZE + 1];
+// This pointer is the soundbank being used by Maxmod when it's stored in the
+// filesystem. Not used when the sound bank is in RAM.
+// TODO: If mmEnd() is ever implemented, this needs to be closed.
+static FILE *mmsFile;
 
 // Default soundbank handler (memory)
 static mm_word mmsHandleMemoryOp(mm_word msg, mm_word param)
@@ -57,65 +58,53 @@ static mm_word mmsHandleMemoryOp(mm_word msg, mm_word param)
 // Load a file from the soundbank and return memory pointer, if it succeeded
 static mm_word mmLoadDataFromSoundBank(mm_word index, mm_word command)
 {
-    FILE *fp = fopen(mmsFile, "rb");
-
-    if (fp == NULL)
+    if (mmsFile == NULL)
         return 0;
 
-    msl_head_data head_data;
-
-    if (fread(&head_data, sizeof(msl_head_data), 1, fp) == 0)
-        goto error;
-
-    if (command == 0)
+    if (command == 0) // Load module
     {
-        if (index >= head_data.moduleCount)
-            goto error;
+        if (index >= mmGetModuleCount())
+            return 0;
 
-        index += head_data.sampleCount;
+        // The modules array starts right after the samples array
+        index += mmGetSampleCount();
     }
-    else if (command == 1)
+    else if (command == 1) // Load samples
     {
-        if (index >= head_data.sampleCount)
-            goto error;
+        if (index >= mmGetSampleCount())
+            return 0;
     }
 
-    if (fseek(fp, sizeof(msl_head_data) + (index * sizeof(mm_addr)), SEEK_SET) != 0)
-        goto error;
+    if (fseek(mmsFile, sizeof(msl_head_data) + (index * sizeof(mm_addr)), SEEK_SET) != 0)
+        return 0;
 
     mm_word offset = 0;
 
-    if (fread(&offset, sizeof(mm_word), 1, fp) == 0)
-        goto error;
+    if (fread(&offset, sizeof(mm_word), 1, mmsFile) == 0)
+        return 0;
 
-    if (fseek(fp, offset, SEEK_SET) != 0)
-        goto error;
+    if (fseek(mmsFile, offset, SEEK_SET) != 0)
+        return 0;
 
     mm_word size = 0;
 
-    if (fread(&size, sizeof(mm_word), 1, fp) == 0)
-        goto error;
+    if (fread(&size, sizeof(mm_word), 1, mmsFile) == 0)
+        return 0;
 
     size += sizeof(mm_mas_prefix);
 
     mm_byte *data = malloc(size);
 
     if (data == NULL)
-        goto error;
+        return 0;
 
-    if (fseek(fp, offset, SEEK_SET) != 0)
-        goto error;
+    if (fseek(mmsFile, offset, SEEK_SET) != 0)
+        return 0;
 
-    if (fread(data, sizeof(mm_byte), size, fp) != size)
-        goto error;
-
-    fclose(fp);
+    if (fread(data, sizeof(mm_byte), size, mmsFile) != size)
+        return 0;
 
     return (mm_word)data;
-
-error:
-    fclose(fp);
-    return 0;
 }
 
 // Default soundbank handler (filesystem)
@@ -154,19 +143,14 @@ void mmSoundBankInMemory(mm_addr address)
 }
 
 // Setup default handler for a soundbank file
-void mmSoundBankInFiles(const char *filename)
+mm_bool mmSoundBankInFiles(const char *filename)
 {
-    int i = 0;
-    // Store filename
-    for (; i < MM_FILENAME_SIZE; i++)
-    {
-        if (filename[i] == '\0')
-            break;
-        mmsFile[i] = filename[i];
-    }
-    mmsFile[i] = '\0';
+    mmsFile = fopen(filename, "rb");
+    if (mmsFile == NULL)
+        return false;
 
     mmSetCustomSoundBankHandler(mmsHandleFileOp);
+    return true;
 }
 
 // Setup default handler for a soundbank file
