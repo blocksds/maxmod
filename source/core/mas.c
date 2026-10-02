@@ -272,20 +272,22 @@ static void mpps_backdoor(mm_word id, mm_pmode mode, mm_layer_type layer)
 #endif
 }
 
-void mmStart(mm_word id, mm_pmode mode)
+mm_word mmStart(mm_word id, mm_pmode mode)
 {
     if (id >= mmGetModuleCount())
-        return;
+        return 0;
 
     mpps_backdoor(id, mode, MM_MAIN);
+    return 1;
 }
 
-void mmJingleStart(mm_word module_ID, mm_pmode mode)
+mm_word mmJingleStart(mm_word module_ID, mm_pmode mode)
 {
     if (module_ID >= mmGetModuleCount())
-        return;
+        return 0;
 
     mpps_backdoor(module_ID, mode, MM_JINGLE);
+    return 1;
 }
 
 // Reset channel data, and any active channels linked to the layer.

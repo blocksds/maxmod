@@ -136,7 +136,14 @@ const char *mmGetModuleNameById(mm_sword id);
 /// @param mode
 ///     Mode of playback. Can be MM_PLAY_LOOP (play and loop until stopped
 ///     manually) or MM_PLAY_ONCE (play until end).
+///
+/// @return
+///     Non-zero on success, zero on error.
+#if defined(__NDS__) && defined(ARM9)
 void mmStart(mm_word module_ID, mm_pmode mode);
+#else
+mm_word mmStart(mm_word module_ID, mm_pmode mode);
+#endif
 
 /// Pauses playback of the active module.
 ///
@@ -323,7 +330,14 @@ void mmPlayMAS(uintptr_t address, mm_word mode, mm_word layer);
 /// @param mode
 ///     Mode of playback. Can be MM_PLAY_LOOP (play and loop until stopped
 ///     manually) or MM_PLAY_ONCE (play until end).
+///
+/// @return
+///     Non-zero on success, zero on error.
+#if defined(__NDS__) && defined(ARM9)
 void mmJingleStart(mm_word module_ID, mm_pmode mode);
+#else
+mm_word mmJingleStart(mm_word module_ID, mm_pmode mode);
+#endif
 
 /// Plays a jingle.
 ///
