@@ -84,6 +84,14 @@ MM_STATIC_ASSERT(mm_mas_head, 276)
 MM_STATIC_ASSERT(mm_mas_head, 284)
 #endif
 
+// The MAS_HEADER_FLAG_OLD_EFFECTS flag is only set by IT songs. It affects the
+// behaviour of some effects. According to ITTECH.txt:
+//
+// - Vibrato is updated every frame in IT mode. In other formats it's updated
+//   every non-row frame. Also, it is two times deeper with old effects on.
+// - In IT mode, command `Oxx` sets the sample offset to the end of a sample.
+//   In old effects mode the command is ignored.
+
 #define MAS_HEADER_FLAG_LINK_GXX    (1 << 0) // Shared Gxx
 #define MAS_HEADER_FLAG_OLD_EFFECTS (1 << 1) // TODO: Unused flag
 #define MAS_HEADER_FLAG_FREQ_MODE   (1 << 2) // 1 = Linear freqs, 0 = Amiga freqs
