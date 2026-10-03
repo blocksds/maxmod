@@ -1607,6 +1607,9 @@ static void mpph_FastForward(mpl_layer_information *layer, mm_word rows_to_skip)
 
 void mmSetPositionEx(mm_word position, mm_word row)
 {
+    if (mmActive() == 0)
+        return;
+
     // TODO: This was commented out in the original code. If it is uncommented,
     // all channels will be reseted when setting the position. If not, the
     // channels will keep playing and they will only be silenced when the notes
