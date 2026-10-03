@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
     if ((mmGetPositionTick() != 0) || (mmGetPositionRow() != 10) ||
         (mmGetPosition() != 0))
     {
-        printf("Line %d: Check failed (%u, %u, %u,)\n", __LINE__,
+        printf("Line %d: Check failed (%u, %u, %u)\n", __LINE__,
                mmGetPositionTick(), mmGetPositionRow(), mmGetPosition());
         goto error;
     }
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
     if ((mmGetPositionTick() != 0) || (mmGetPositionRow() != 10) ||
         (mmGetPosition() != 0))
     {
-        printf("Line %d: Check failed (%u, %u, %u,)\n", __LINE__,
+        printf("Line %d: Check failed (%u, %u, %u)\n", __LINE__,
                mmGetPositionTick(), mmGetPositionRow(), mmGetPosition());
         goto error;
     }
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
     if ((mmGetPositionTick() != 0) || (mmGetPositionRow() != 20) ||
         (mmGetPosition() != 6))
     {
-        printf("Line %d: Check failed (%u, %u, %u,)\n", __LINE__,
+        printf("Line %d: Check failed (%u, %u, %u)\n", __LINE__,
                mmGetPositionTick(), mmGetPositionRow(), mmGetPosition());
         goto error;
     }
@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
     if ((mmGetPositionTick() != 0) || (mmGetPositionRow() != 20) ||
         (mmGetPosition() != 1))
     {
-        printf("Line %d: Check failed (%u, %u, %u,)\n", __LINE__,
+        printf("Line %d: Check failed (%u, %u, %u)\n", __LINE__,
                mmGetPositionTick(), mmGetPositionRow(), mmGetPosition());
         goto error;
     }
@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
     if ((mmGetPositionTick() != 0) || (mmGetPositionRow() != 20) ||
         (mmGetPosition() != 1))
     {
-        printf("Line %d: Check failed (%u, %u, %u,)\n", __LINE__,
+        printf("Line %d: Check failed (%u, %u, %u)\n", __LINE__,
                mmGetPositionTick(), mmGetPositionRow(), mmGetPosition());
         goto error;
     }
@@ -241,7 +241,7 @@ int main(int argc, char *argv[])
     if ((mmGetPositionTick() != 0) || (mmGetPositionRow() != 0) ||
         (mmGetPosition() != 0))
     {
-        printf("Line %d: Check failed (%u, %u, %u,)\n", __LINE__,
+        printf("Line %d: Check failed (%u, %u, %u)\n", __LINE__,
                mmGetPositionTick(), mmGetPositionRow(), mmGetPosition());
         goto error;
     }
@@ -277,7 +277,7 @@ int main(int argc, char *argv[])
     if ((mmGetPositionTick() != 0) || (mmGetPositionRow() != 0) ||
         (mmGetPosition() != 1))
     {
-        printf("Line %d: Check failed (%u, %u, %u,)\n", __LINE__,
+        printf("Line %d: Check failed (%u, %u, %u)\n", __LINE__,
                mmGetPositionTick(), mmGetPositionRow(), mmGetPosition());
         goto error;
     }
