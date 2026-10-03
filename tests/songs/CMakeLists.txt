@@ -24,5 +24,6 @@ macro(songs_test test_name)
 endmacro()
 
 # Add the subdirectories after the macro definition
+add_subdirectory(end_behaviour)
 add_subdirectory(jingle_layer)
 add_subdirectory(main_layer)
