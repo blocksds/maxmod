@@ -21,16 +21,16 @@ macro(s3m_test test_name)
     set_tests_properties(test_s3m_${test_name} PROPERTIES FIXTURES_REQUIRED fixture_soundbank)
 endmacro()
 
-# Test effect 0xx, including 000, which is a "no effect" effect. Also, test
+# Test effect Jxx, including 000, which is a "no effect" effect. Also, test
 # arpeggios when the song speed is too fast and the second note of the arpeggio
 # (or the first one) can't happen.
 s3m_test("arpeggio")
 
-# Test ECx including some corner cases (like EC0, or ECx at the same time as Bxy
-# or Dxy).
+# Test SCx including some corner cases (like SC0, or SCx at the same time as Bxy
+# or Cxy).
 s3m_test("cut_note")
 
-# Test EDx including some corner cases, like ED0, or EDx when the value is the
+# Test SDx including some corner cases, like SD0, or SDx when the value is the
 # same as the speed of the song, or just around it.
 # TODO: This test is currently broken
 #s3m_test("delay_note")
@@ -49,29 +49,30 @@ s3m_test("loop_effect")
 # Test effect Bxy and some corner cases like having it twice in the same row.
 s3m_test("jump_to_pattern")
 
-# Test effects Bxy and Dxy in the same row.
+# Test effects Bxy and Cxy in the same row.
 s3m_test("jump_to_pattern_plus_pattern_break")
 
-# Tests effects 3xy and 5xy.
+# Tests effects Gxy and Lxy.
 s3m_test("porta_to_note")
 
-# Tests effects 1xy, 2xy, E1x and E2x.
+# Tests effect Exx.
 s3m_test("porta_up_down")
 
-# Tests effects 8xy and E8x.
+# Tests effects Xxy and S8x.
 s3m_test("panning")
 
-# Test effect Dxy and some corner cases like having it twice in the same row.
+# Test effect Cxy and some corner cases like having it twice in the same row or
+# jumping to a row number too big.
 s3m_test("pattern_break")
 
 # Tests full range of notes from C-3 to B-8.
 s3m_test("range_test")
 
-# Tests effect E9x, including corner cases such as x = 0, x = speed -1,
-# x = speed and x = speed + 1.
+# Tests effect Qxy, including corner cases such as y = 0, y = speed -1,
+# y = speed and y = speed + 1.
 s3m_test("retrigger_note")
 
-# Tests behaviour of effect 9xy, both for samples that loop and that don't.
+# Tests behaviour of effect Oxy, both for samples that loop and that don't.
 # TODO: This test is currently broken
 #s3m_test("sample_offset")
 
@@ -83,30 +84,29 @@ s3m_test("retrigger_note")
 # Tests samples that have a default finetune value.
 s3m_test("sample_with_finetune")
 
-# Tests effect Fxy both for values that change the speed and values that change
-# the BPM. Make sure that F00 is ignored.
+# Tests effects Axx and Txx to change the speed and BPM.
 s3m_test("speed")
 
-# Tests effect 7xy and how it interacts with Cxy. Cxy should set the base volume
-# for 7xy to ondulate around.
+# Tests effect Rxy and how it interacts with the volume column. The column
+# should set the base volume for Rxy to ondulate around.
 s3m_test("tremolo")
 
-# Test all possible valid values of effect E7x, even the invalid value E78.
+# Test all possible valid values of effect S4x (x goes from 0 to 3).
 # TODO: This is currently broken in Maxmod, it only supports sine waves.
 #s3m_test("tremolo_waveform")
 
-# Tests effects 4xy and 6xy.
+# Tests effects Hxy and Kxy.
 s3m_test("vibrato")
 
-# Test all possible valid values of effect E4x, even the invalid value E48.
+# Test all possible valid values of effect S3x (x goes from 0 to 3).
 # TODO: This is currently broken in Maxmod, it only supports sine waves.
 #s3m_test("vibrato_waveform")
 
-# Test Cxy effect. Test that ECx effect sets the volume to 0 and the channel can
-# be made to sound again with a Cxy effect. Also, test samples with different
+# Test the volume column. Test that SCx effect stops the note. Setting the
+# volume back up doesn't retrigger the note. Also, test samples with different
 # default volumes.
 # TODO: This is currently broken
 #s3m_test("volume")
 
-# Tests effects Axy, EAx, EBx.
+# Tests effect Dxy.
 s3m_test("volume_slide")
