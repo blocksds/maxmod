@@ -41,6 +41,11 @@ s3m_test("cut_note")
 # - Only note, no instrument or effect
 s3m_test("empty_fields")
 
+# Test SB0 and SBx effects. The effect only affects the current pattern, but the
+# destination row set by SB0 isn't preseved between patterns. If you use SBx in
+# the pattern before an SB0, it will jump to the start of the pattern.
+s3m_test("loop_effect")
+
 # Test effect Bxy and some corner cases like having it twice in the same row.
 s3m_test("jump_to_pattern")
 
