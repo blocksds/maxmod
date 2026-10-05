@@ -2585,11 +2585,9 @@ static void mppe_SetGlobalVolume(mm_word param, mpl_layer_information *layer)
     if (layer->tick != 0)
         return;
 
-    mm_word mask = MAS_HEADER_FLAG_XM_MODE | MAS_HEADER_FLAG_OLD_MODE;
-
     mm_word maxvol;
 
-    if (layer->flags & mask)
+    if (layer->flags & MAS_HEADER_FLAG_XM_MODE)
         maxvol = 64;
     else
         maxvol = 128;
