@@ -61,6 +61,11 @@ s3m_test("porta_up_down")
 # Tests effects Xxy and S8x.
 s3m_test("panning")
 
+# It's possible to specify panning instead of volume in the volume column. This
+# isn't a standard behaviour, but it's recognized by trackers. IT files support
+# the same behaviour.
+s3m_test("panning_in_volume_column")
+
 # Test effect Cxy and some corner cases like having it twice in the same row or
 # jumping to a row number too big.
 s3m_test("pattern_break")
