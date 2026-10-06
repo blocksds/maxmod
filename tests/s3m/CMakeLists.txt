@@ -106,7 +106,8 @@ s3m_test("retrigger_note")
 # Tests samples that have a default finetune value.
 s3m_test("sample_with_finetune")
 
-# Tests effects Axx and Txx to change the speed and BPM.
+# Tests effects Axx and Txx to change the speed and BPM. It tests Txx for
+# 'xx > 0x20', '0x1F >= xx >= 0x10' and '0x0F >= xx >= 0x00'.
 s3m_test("speed")
 
 # Tests effect Rxy and how it interacts with the volume column. The column
