@@ -53,6 +53,9 @@ mod_test("jump_to_pattern_plus_pattern_break")
 # TODO: The second part of this test behaves like S3M, which is wrong.
 #mod_test("loop_effect")
 
+# Test effect EEx.
+mod_test("pattern_delay")
+
 # Tests effects 3xy and 5xy.
 mod_test("porta_to_note")
 
