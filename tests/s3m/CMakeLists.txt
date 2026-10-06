@@ -26,6 +26,12 @@ endmacro()
 # (or the first one) can't happen.
 s3m_test("arpeggio")
 
+# It tests non-standard effects Mxx and Nxx, as well as changing instrument
+# volume and channel volume. It also shows how it interacts with Vxx.
+# TODO: When the volume changes in a pattern with Mxx and Vxx at the same time,
+# there is a small delay between both of them.
+s3m_test("channel_volume")
+
 # Test SCx including some corner cases (like SC0, or SCx at the same time as Bxy
 # or Cxy).
 s3m_test("cut_note")
