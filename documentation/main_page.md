@@ -6,6 +6,7 @@ Maxmod Programming Reference {#mainpage}
 - [Hardware Usage](hardware_usage.md)
 - [Memory Usage](memory_usage.md)
 - [CPU Usage](cpu_usage.md)
+- [Supported Features](supported_features.md)
 
 ## Tutorials
 
