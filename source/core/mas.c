@@ -2092,6 +2092,20 @@ static void mppe_PatternBreak(mm_word param, mpl_layer_information *layer)
     if (layer->tick != 0)
         return;
 
+    // TODO: When in IT and XM modes, if we jump to a row that is higher than
+    // the limit of the pattern, it should jump to row 0.
+    //
+    // mmutil can't tell if a jump will be affected or not in XM or IT because
+    // pattern sizes can be changed.
+    //
+    // - MOD, XM and IT behave the same way (a jump to a row too high is a jump
+    //   to row 0).
+    // - S3M ignores jump to rows that are too high, but mmutil knows when that
+    //   happens because S3M has a fixed size of 64 rows.
+    //
+    // The solution is to handle S3M as a special case in mmutil and have Maxmod
+    // behave like MOD/XM/IT.
+
     layer->pattjump_row = param;
 
     if (layer->pattjump == 255) // Check if pattjump is empty
