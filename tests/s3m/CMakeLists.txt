@@ -21,7 +21,7 @@ macro(s3m_test test_name)
     set_tests_properties(test_s3m_${test_name} PROPERTIES FIXTURES_REQUIRED fixture_soundbank)
 endmacro()
 
-# Test effect Jxx, including 000, which is a "no effect" effect. Also, test
+# Test effect Jxx, including J00, which is a "continue" effect. Also, test
 # arpeggios when the song speed is too fast and the second note of the arpeggio
 # (or the first one) can't happen.
 s3m_test("arpeggio")
