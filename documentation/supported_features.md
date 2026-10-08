@@ -41,7 +41,7 @@ Unsupported effects:
 
 Notes:
 
-- `SFx` isn't a valid effect, but Maxmod uses it as an event marker.  Whenever
+- `SFx` isn't a valid effect, but Maxmod uses it as an event marker. Whenever
   `SFx` is found, it is sent to a user-defined callback.
 
 Untested features:
@@ -66,7 +66,7 @@ Unsupported effects:
   Not an original Scream Tracker 3 effect.
 - `S9x` Sound Control: Executes a sound control command. Not an original Scream
   Tracker 3 effect.
-- `SAx` High Offset: Sets the high offset for future Oxx commands. Not an
+- `SAx` High Offset: Sets the high offset for future `Oxx` commands. Not an
   original Scream Tracker 3 effect.
 - `Yxy` Panbrello: Executes panbrello with speed `x` and depth `y` on the
   current note. Not an original Scream Tracker 3 effect.
@@ -76,14 +76,70 @@ Unsupported effects:
 
 Notes:
 
-- Maxmod doesn't implement effect `WIP`, but it uses it as an event marker.
-  Whenever `WIP` is found, it is sent to a user-defined callback.
-- `WIP` isn't a valid effect, but Maxmod uses it as an event marker.  Whenever
-  `WIP` is found, it is sent to a user-defined callback.
+- `SFx` is a valid effect (Set Active Macro), but it is barely used and Maxmod
+  uses it as an event marker instead. Whenever `SFx` is found, it is sent to a
+  user-defined callback.
 
 Untested effects:
 
-- All
+- `S73` NNA Note Cut: Sets the currently active note's New Note Action to Note Cut.
+- `S74` NNA Note Continue: Sets the currently active note's New Note Action to Continue.
+- `S75` NNA Note Off: Sets the currently active note's New Note Action to Note Off.
+- `S76` NNA Note Fade: Sets the currently active note's New Note Action to Note Fade.
+- `S77` Volume Envelope Off: Disables the currently active note's volume envelope.
+- `S78` Volume Envelope On: Enables the currently active note's volume envelope.
+
+Untested volume column effects:
+
+- `a0x` Fine Volume Slide: Functions like `DxF` (slides the volume up x units on
+  the first tick).
+- `b0x` Fine Volume Slide Down: Functions like `DFy` (slides the volume down x
+  units on the first tick).
+- `c0x` Volume Slide Up: Functions like `Dx0` (slides the volume up x units on
+  all ticks except the first).
+- `d0x` Volume Slide Down: Functions like `D0y` (slides the volume down x units
+  on all ticks except the first).
+- `e0x` Portamento Down: Similar to `Exx`.
+- `f0x` Portamento Up: Similar to `Fxx`.
+- `g0x` Tone Portamento: Similar to `Gxx`.
+- `h0x` Vibrato Depth: Executes a vibrato with depth `x` and speed from the last
+  `Hxy` or `Uxy` command.
+
+Unsupported effects:
+
+- `Ixy` Tremor: Rapidly switches the sample volume on and off.
+- `Pxy` Panning Slide or Fine Panning Slide: Slides the current channel's
+  panning position left or right.
+- `S1x` Glissando Control: Configures whether tone portamento effects slide by
+  semitones or not. Not widely supported.
+- `S2x` Set Finetune: Overrides the current sample's C-5 frequency with a MOD
+  finetune value. Considered legacy.
+- `S3x` Set Vibrato Waveform: Sets the waveform of future Vibrato effects.
+  Maxmod only supports sine waves.
+- `S4x` Set Tremolo Waveform: Sets the waveform of future Tremolo effects
+  Maxmod only supports sine waves.
+- `S5x` Set Panbrello Waveform: Sets the waveform of future Panbrello effects.
+- `S70` Past Note Cut: Cuts all notes playing as a result of New Note Actions on
+  the current channel.
+- `S71` Past Note Off: Sends a Note Off to all notes playing as a result of New
+  Note Actions on the current channel.
+- `S72` Past Note Fade: Fades out all notes playing as a result of New Note
+  Actions on the current channel.
+- `S79` Panning Envelope Off: Disables the currently active note's panning
+  envelope.
+- `S7A` Panning Envelope On: Enables the currently active note's panning
+  envelope.
+- `S7B` Pitch Envelope Off: Disables the currently active note's pitch or filter
+  envelope.
+- `S7C` Pitch Envelope On: Enables the currently active note's pitch envelope.
+- `S9x` Sound Control: Executes a sound control command.
+- `SAx` High Offset: Sets the high offset for future `Oxx` commands.
+- `SFx` Set Active Macro: Sets the current channel's active parametered macro.
+- `Yxy` Panbrello: Executes panbrello with speed `x` and depth `y` on the
+  current note.
+- `Zxx` MIDI Macro: Executes a macro.
+- `\xx` Smooth MIDI Macro: Executes an interpolated MIDI Macro. This effect is a
+  ModPlug hack.
 
 ## XM: The FastTracker 2 format
 
