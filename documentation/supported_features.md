@@ -3,7 +3,10 @@
 This file describes the features supported (or unsupported) of the audio formats
 supported by Maxmod.
 
-Note that FM instruments aren't supported in any file format.
+Note that FM instruments aren't supported in S3M songs.
+
+The information in this page has been obtained from the
+[OpenMPT wiki](https://wiki.openmpt.org/Manual:_Effect_Reference).
 
 ## WAV: Waveform Audio File Format
 
@@ -48,6 +51,7 @@ Untested features:
 
 - `Qxy` Retrigger: This needs to be tested with `Q00` at the start of a song,
   and with `x` values other than 0.
+- `^^`: Note cut in note column.
 
 Unsupported effects:
 
@@ -80,7 +84,7 @@ Notes:
   uses it as an event marker instead. Whenever `SFx` is found, it is sent to a
   user-defined callback.
 
-Untested effects:
+Untested features:
 
 - `S73` NNA Note Cut: Sets the currently active note's New Note Action to Note Cut.
 - `S74` NNA Note Continue: Sets the currently active note's New Note Action to Continue.
@@ -88,6 +92,9 @@ Untested effects:
 - `S76` NNA Note Fade: Sets the currently active note's New Note Action to Note Fade.
 - `S77` Volume Envelope Off: Disables the currently active note's volume envelope.
 - `S78` Volume Envelope On: Enables the currently active note's volume envelope.
+- `^^`: Note cut in note column.
+- `==`: Note off in note column.
+- `~~`: Note fade in note column.
 
 Untested volume column effects:
 
@@ -104,6 +111,7 @@ Untested volume column effects:
 - `g0x` Tone Portamento: Similar to `Gxx`.
 - `h0x` Vibrato Depth: Executes a vibrato with depth `x` and speed from the last
   `Hxy` or `Uxy` command.
+- Better tests with patterns with different sizes.
 
 Unsupported effects:
 
@@ -145,11 +153,68 @@ Unsupported effects:
 
 Notes:
 
-- Maxmod doesn't implement effect `WIP`, but it uses it as an event marker.
-  Whenever `WIP` is found, it is sent to a user-defined callback.
-- `WIP` isn't a valid effect, but Maxmod uses it as an event marker.  Whenever
-  `WIP` is found, it is sent to a user-defined callback.
+- `EFx` is a valid effect (Set Active Macro), but it is barely used and Maxmod
+  uses it as an event marker instead. Whenever `EFx` is found, it is sent to a
+  user-defined callback.
 
-Untested effects:
+Untested features:
 
-- All
+- `E9x` Retrigger: Retriggers the current note every `x` ticks.
+- `Kxx` Key Off: Triggers a Note Off command after `xx` ticks.
+- `Lxx` Set Envelope Position: Sets the volume envelope playback position to
+  `xx` ticks.
+- `X1x` Extra Fine Portamento Up: Similar to `E1x`, but with 4 times the
+  precision.
+- `X2x` Extra Fine Portamento Down: Similar to `E2x`, but with 4 times the
+  precision.
+- `==`: Note off in note column.
+- Better tests with patterns with different sizes.
+
+Untested volume column effects:
+
+- `axx` Fine Volume Slide Up: Functions like `EAx` (slides the volume up xx
+  units on the first tick).
+- `bxx` Fine Volume Slide Down: Functions like `EBx` (slides the volume down xx
+  units on the first tick).
+- `cxx` Volume Slide Up: Functions like Ax0 (slides the volume up xx units on
+  all ticks except the first).
+- `dxx` Volume Slide Down: Functions like A0y (slides the volume down xx units
+  on all ticks except the first).
+- `gxx` Tone Portamento: Functions like `3xx` (pitch-bends from the previous
+  note to the current note).
+- `hxx` Vibrato Depth: Executes vibrato with depth `xx` and speed from the last
+  `4xy` or `u0x` command.
+- `lxx` Panning Slide Left: Functions like `P0y` (slides the panning left by
+  `xx` units).
+- `pxx` Set Panning: Sets the current channel's panning position.
+- `uxx` Vibrato Speed: Sets the vibrato speed to `xx`, but does not execute a
+  vibrato.
+
+Unsupported effects:
+
+- `E0x` Set Filter: Configures the Amiga's LED lowpass filter.
+- `E3x` Glissando Control: Configures whether tone portamento effects slide by
+  semitones or not. Not widely supported.
+- `E4x` Set Vibrato Waveform: Sets the waveform of future Vibrato effects.
+  Maxmod only supports sine waves.
+- `E5x` Set Finetune: Overrides the finetune value for the currently playing
+  note.
+- `E7x` Set Tremolo Waveform: Sets the waveform of future Tremolo effects.
+  Maxmod only supports sine waves.
+- `EFx` Set Active Macro: Selects the active parametered macro for the current
+  channel. This effect is a ModPlug hack.
+- `Pxy` Panning Slide or Fine Panning Slide: Slides the current channel's
+- `Txy` Tremor: Rapidly switches the sample volume on and off.
+  panning position left or right.
+- `X5x` Set Panbrello Waveform: Sets the waveform of future Panbrello effects.
+  This effect is a ModPlug hack.
+- `X9x` Sound Control: Executes a sound control command. This effect is a
+  ModPlug hack.
+- `XAx` High Offset: Sets the high offset for future 9xx commands. This effect
+  is a ModPlug hack.
+- `Yxy` Panbrello: Executes panbrello with speed `x` and depth `y` on the
+  current note. This effect is a ModPlug hack.
+- `Zxx` MIDI Macro: Executes a macro. This effect is a ModPlug hack.
+- `\xx` Smooth MIDI Macro: Executes an interpolated MIDI Macro. This effect is a
+  ModPlug hack.
+- `#xx` Parameter Extension: ModPlug hack.
