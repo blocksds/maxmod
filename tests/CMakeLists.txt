@@ -22,6 +22,7 @@ set_tests_properties(soundbank_create PROPERTIES FIXTURES_SETUP fixture_soundban
 # -----------------------------
 
 # Add them after the first test so that TEST_SOUNDBANK_PATH is available there
+add_subdirectory(it)
 add_subdirectory(mod)
 add_subdirectory(s3m)
 add_subdirectory(sfx)
