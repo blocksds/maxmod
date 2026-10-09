@@ -203,6 +203,67 @@ typedef struct tmm_mas_pattern
 
 MM_STATIC_ASSERT(mm_mas_pattern, 1)
 
+typedef enum
+{
+    MAS_FX_NONE = 0,
+
+    // IT and S3M effects (S3M is a subset of IT)
+    MAS_FX_SET_SPEED            = 1,
+    MAS_FX_POSITION_JUMP        = 2,
+    MAS_FX_PATTERN_BREAK        = 3,
+    MAS_FX_VOLUME_SLIDE         = 4,
+    MAS_FX_PORTAMENTO_DOWN      = 5,
+    MAS_FX_PORTAMENTO_UP        = 6,
+    MAS_FX_GLISSANDO            = 7, // Porta to note
+    MAS_FX_VIBRATO              = 8,
+    MAS_FX_TREMOR               = 9,
+    MAS_FX_ARPEGGIO             = 10,
+    MAS_FX_VIBRATO_VOLUME       = 11,
+    MAS_FX_PORTA_VOLUME         = 12,
+    MAS_FX_CHANNEL_VOLUME       = 13,
+    MAS_FX_CHANNEL_VOLUME_SLIDE = 14,
+    MAS_FX_SAMPLE_OFFSET        = 15,
+    MAS_FX_PANNING_SLIDE        = 16,
+    MAS_FX_RETRIGGER            = 17,
+    MAS_FX_TREMOLO              = 18,
+    MAS_FX_EXTENDED             = 19,
+    MAS_FX_SET_TEMPO            = 20,
+    MAS_FX_FINE_VIBRATO         = 21,
+    MAS_FX_SET_GLOBAL_VOLUME    = 22,
+    MAS_FX_GLOBAL_VOLUME_SLIDE  = 23,
+    MAS_FX_SET_PANNING          = 24,
+    MAS_FX_PANBRELLO            = 25,
+    MAS_FX_SET_FILTER           = 26,
+
+    // Most MOD/XM effects can be mapped to IT/S3M effects, but not all
+    MAS_FX_XM_SET_VOLUME        = 27, // MOD/XM
+    MAS_FX_XM_KEY_OFF           = 28, // XM
+    MAS_FX_XM_ENVELOPE_POS      = 29, // XM
+    MAS_FX_XM_TREMOR            = 30, // XM
+}
+mm_mas_pattern_effect;
+
+typedef enum
+{
+    MAS_FX_EXT_FINE_VOL_SLIDE_UP    = 0,
+    MAS_FX_EXT_FINE_VOL_SLIDE_DOWN  = 1,
+    MAS_FX_EXT_OLD_RETRIGGER        = 2,
+    MAS_FX_EXT_VIBRATO_WAVEFORM     = 3,
+    MAS_FX_EXT_TREMOLO_WAVEFORM     = 4,
+    MAS_FX_EXT_PANBRELLO_WAVEFORM   = 5,
+    MAS_FX_EXT_FINE_PATTERN_DELAY   = 6,
+    MAS_FX_EXT_INSTRUMENT_CONTROL   = 7,
+    MAS_FX_EXT_SET_PANNING          = 8,
+    MAS_FX_EXT_SOUND_CONTROL        = 9,
+    MAS_FX_EXT_HIGH_OFFSET          = 10,
+    MAS_FX_EXT_PATTERN_LOOP         = 11,
+    MAS_FX_EXT_NOTE_CUT             = 12,
+    MAS_FX_EXT_NOTE_DELAY           = 13,
+    MAS_FX_EXT_PATTERN_DELAY        = 14,
+    MAS_FX_EXT_SONG_MESSAGE         = 15,
+}
+mm_mas_pattern_effect_extended;
+
 typedef struct tmm_mas_gba_sample
 {
     mm_word     length;

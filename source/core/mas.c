@@ -2813,53 +2813,52 @@ static void mppe_Extended(mm_word param, mm_active_channel *act_ch,
 
     switch (subcmd)
     {
-        case 0x0: // S0x
+        case MAS_FX_EXT_FINE_VOL_SLIDE_UP: // S0x
             mppex_XM_FVolSlideUp(param, channel, layer);
             break;
-        case 0x1: // S1x
+        case MAS_FX_EXT_FINE_VOL_SLIDE_DOWN: // S1x
             mppex_XM_FVolSlideDown(param, channel, layer);
             break;
-        case 0x2: // S2x
+        case MAS_FX_EXT_OLD_RETRIGGER: // S2x
             mppex_OldRetrig(param, act_ch, channel, layer);
             break;
-        case 0x3: // S3x
+        case MAS_FX_EXT_VIBRATO_WAVEFORM: // S3x
             // mppex_VibForm
             break;
-        case 0x4: // S4x
+        case MAS_FX_EXT_TREMOLO_WAVEFORM: // S4x
             // mppex_TremForm
             break;
-        case 0x5: // S5x
+        case MAS_FX_EXT_PANBRELLO_WAVEFORM: // S5x
             // mppex_PanbForm
             break;
-
-        case 0x6: // S6x
+        case MAS_FX_EXT_FINE_PATTERN_DELAY: // S6x
             mppex_FPattDelay(param, layer);
             break;
-        case 0x7: // S7x
+        case MAS_FX_EXT_INSTRUMENT_CONTROL: // S7x
             mppex_InstControl(param, act_ch, channel, layer);
             break;
-        case 0x8: // S8x
+        case MAS_FX_EXT_SET_PANNING: // S8x
             mppex_SetPanning(param, channel);
             break;
-        case 0x9: // S9x
+        case MAS_FX_EXT_SOUND_CONTROL: // S9x
             mppex_SoundControl(param);
             break;
-        case 0xA: // SAx
+        case MAS_FX_EXT_HIGH_OFFSET: // SAx
             // mppex_HighOffset
             break;
-        case 0xB: // SBx
+        case MAS_FX_EXT_PATTERN_LOOP: // SBx
             mppex_PatternLoop(param, layer);
             break;
-        case 0xC: // SCx
+        case MAS_FX_EXT_NOTE_CUT: // SCx
             mppex_NoteCut(param, channel, layer);
             break;
-        case 0xD: // SDx
+        case MAS_FX_EXT_NOTE_DELAY: // SDx
             mppex_NoteDelay(param, layer);
             break;
-        case 0xE: // SEx
+        case MAS_FX_EXT_PATTERN_DELAY: // SEx
             mppex_PatternDelay(param, layer);
             break;
-        case 0xF: // SFx
+        case MAS_FX_EXT_SONG_MESSAGE: // SFx
             mppex_SongMessage(param, layer);
             break;
 
@@ -2959,122 +2958,122 @@ mm_word mpp_Process_Effect(mpl_layer_information *layer, mm_active_channel *act_
     // this list.
     switch (effect)
     {
-        case 0:
+        case MAS_FX_NONE:
             // No effect
             return period;
 
-        case 1:
+        case MAS_FX_SET_SPEED:
             mppe_SetSpeed(param, layer);
             return period;
 
-        case 2:
+        case MAS_FX_POSITION_JUMP:
             mppe_PositionJump(param, layer);
             return period;
 
-        case 3:
+        case MAS_FX_PATTERN_BREAK:
             mppe_PatternBreak(param, layer);
             return period;
 
-        case 4:
+        case MAS_FX_VOLUME_SLIDE:
             mppe_VolumeSlide(param, channel, layer);
             return period;
 
-        case 5:
-        case 6:
+        case MAS_FX_PORTAMENTO_DOWN:
+        case MAS_FX_PORTAMENTO_UP:
             return mppe_Portamento(param, period, channel, layer);
 
-        case 7:
+        case MAS_FX_GLISSANDO:
             return mppe_Glissando(param, period, act_ch, channel, layer);
 
-        case 8:
+        case MAS_FX_VIBRATO:
             return mppe_Vibrato(param, period, channel, layer);
 
-        case 9: // Tremor
+        case MAS_FX_TREMOR: // Tremor
             // TODO: This isn't implemented. Would it work with the OldTremor code?
             return period;
 
-        case 10:
+        case MAS_FX_ARPEGGIO:
             return mppe_Arpeggio(param, period, act_ch, channel, layer);
 
-        case 11:
+        case MAS_FX_VIBRATO_VOLUME:
             return mppe_VibratoVolume(param, period, channel, layer);
 
-        case 12:
+        case MAS_FX_PORTA_VOLUME:
             return mppe_PortaVolume(param, period, act_ch, channel, layer);
 
-        case 13:
+        case MAS_FX_CHANNEL_VOLUME:
             mppe_ChannelVolume(param, channel, layer);
             return period;
 
-        case 14:
+        case MAS_FX_CHANNEL_VOLUME_SLIDE:
             mppe_ChannelVolumeSlide(param, channel, layer);
             return period;
 
-        case 15:
+        case MAS_FX_SAMPLE_OFFSET:
             mppe_SampleOffset(param, layer);
             return period;
 
-        case 16: // Panning slide
+        case MAS_FX_PANNING_SLIDE: // Panning slide
             // TODO
             //mppe_PanningSlide(param, channel, layer);
             return period;
 
-        case 17:
+        case MAS_FX_RETRIGGER:
             mppe_Retrigger(param, act_ch, channel);
             return period;
 
-        case 18:
+        case MAS_FX_TREMOLO:
             mppe_Tremolo(param, channel, layer);
             return period;
 
-        case 19:
+        case MAS_FX_EXTENDED:
             mppe_Extended(param, act_ch, channel, layer);
             return period;
 
-        case 20:
+        case MAS_FX_SET_TEMPO:
             mppe_SetTempo(param, layer);
             return period;
 
-        case 21:
+        case MAS_FX_FINE_VIBRATO:
             return mppe_FineVibrato(param, period, channel, layer);
 
-        case 22:
+        case MAS_FX_SET_GLOBAL_VOLUME:
             mppe_SetGlobalVolume(param, layer);
             return period;
 
-        case 23:
+        case MAS_FX_GLOBAL_VOLUME_SLIDE:
             mppe_GlobalVolumeSlide(param, layer);
             return period;
 
-        case 24:
+        case MAS_FX_SET_PANNING:
             mppe_SetPanning(param, channel, layer);
             return period;
 
-        case 25: // Panbrello
+        case MAS_FX_PANBRELLO: // Panbrello
             // TODO
             return period;
 
-        case 26: // Set Filter
+        case MAS_FX_SET_FILTER: // Set Filter
             // TODO: Not supported
             return period;
 
         // The following effects are only present in MOD and XM files and don't
         // fit in the effects present in IT files.
 
-        case 27: // Cxx effect (Set Volume) of MOD and XM files
+        case MAS_FX_XM_SET_VOLUME: // Cxx effect (Set Volume) of MOD and XM files
             mppe_SetVolume(param, channel, layer);
             return period;
 
-        case 28: // Kxx effect (Key Off) of XM files
+        case MAS_FX_XM_KEY_OFF: // Kxx effect (Key Off) of XM files
             mppe_KeyOff(param, act_ch, layer);
             return period;
 
-        case 29: // Lxx effect (Set envelope position) of XM files
+        case MAS_FX_XM_ENVELOPE_POS: // Lxx effect (Set envelope position) of XM files
             // TODO
             //mppe_EnvelopePos(param, act_ch, layer);
             return period;
 
-        case 30: // Txx effect (Tremor) of XM files
+        case MAS_FX_XM_TREMOR: // Txx effect (Tremor) of XM files
             mppe_OldTremor(param, channel, layer);
             return period;
 
