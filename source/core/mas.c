@@ -2869,7 +2869,7 @@ static void mppe_Extended(mm_word param, mm_active_channel *act_ch,
 }
 
 // =============================================================================
-//                      XM EFFECTS (NOT AVAILABLE IN IT)
+//                    MOD/XM EFFECTS NOT AVAILABLE IN S3M/IT
 // =============================================================================
 
 // EFFECT 0xx: Set Volume
@@ -2937,6 +2937,10 @@ static void mppe_OldTremor(mm_word param, mm_module_channel *channel,
         mpp_vars.volplus = -64;
 }
 
+// =============================================================================
+//                              GLOBAL EFFECT HANDLER
+// =============================================================================
+
 // Process pattern effect
 mm_word mpp_Process_Effect(mpl_layer_information *layer, mm_active_channel *act_ch,
                            mm_module_channel *channel, mm_word period)
@@ -2949,6 +2953,10 @@ mm_word mpp_Process_Effect(mpl_layer_information *layer, mm_active_channel *act_
 
     mm_word effect = channel->effect;
 
+    // The effects in this list follow the IT order. All S3M effects can be
+    // translated 1:1 to IT effects. However, there are some effects in MOD and
+    // XM files that aren't present in IT files. They are placed at the end of
+    // this list.
     switch (effect)
     {
         case 0:
@@ -3050,20 +3058,23 @@ mm_word mpp_Process_Effect(mpl_layer_information *layer, mm_active_channel *act_
             // TODO: Not supported
             return period;
 
-        case 27:
+        // The following effects are only present in MOD and XM files and don't
+        // fit in the effects present in IT files.
+
+        case 27: // Cxx effect (Set Volume) of MOD and XM files
             mppe_SetVolume(param, channel, layer);
             return period;
 
-        case 28:
+        case 28: // Kxx effect (Key Off) of XM files
             mppe_KeyOff(param, act_ch, layer);
             return period;
 
-        case 29: // Envelope Pos
+        case 29: // Lxx effect (Set envelope position) of XM files
             // TODO
             //mppe_EnvelopePos(param, act_ch, layer);
             return period;
 
-        case 30:
+        case 30: // Txx effect (Tremor) of XM files
             mppe_OldTremor(param, channel, layer);
             return period;
 
