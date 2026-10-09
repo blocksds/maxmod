@@ -114,14 +114,17 @@ xm_test("tremolo")
 
 # Test all possible valid values of effect E7x, even the invalid value E78.
 # TODO: This is currently broken in Maxmod, it only supports sine waves.
-#mod_test("tremolo_waveform")
+#xm_test("tremolo_waveform")
+
+# Tests effect Txy
+xm_test("tremor")
 
 # Tests effects 4xy and 6xy.
 xm_test("vibrato")
 
 # Test all possible valid values of effect E4x, even the invalid value E48.
 # TODO: This is currently broken in Maxmod, it only supports sine waves.
-#mod_test("vibrato_waveform")
+#xm_test("vibrato_waveform")
 
 # Test the volume column and effect Cxx. Test that ECx effect stops the note.
 # Setting the volume back up doesn't retrigger the note. Also, test samples with

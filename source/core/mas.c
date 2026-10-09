@@ -2914,25 +2914,34 @@ static void mppe_EnvelopePos(mm_word param, mm_active_channel *act_ch,
 static void mppe_OldTremor(mm_word param, mm_module_channel *channel,
                            mpl_layer_information *layer)
 {
-    if (layer->tick == 0)
-        return;
+    // channel->fxmem is set to 0 whenever a new instrument is used, so the
+    // Tremor effect is restarted at that point. Otherwise, the counter remains
+    // unchanged.
 
-    int mem = channel->fxmem;
-    if (mem == 0) // Old
+    if (layer->tick != 0)
     {
-        channel->fxmem = mem - 1;
-    }
-    else // New
-    {
-        channel->bflags ^= MCH_BFLAGS_TREMOR | MCH_BFLAGS_CUT_VOLUME;
+        mm_word target;
 
-        if (channel->bflags & MCH_BFLAGS_CUT_VOLUME)
-            channel->fxmem = (param >> 4) + 1;
+        if (channel->bflags & MCH_BFLAGS_TREMOR)
+            target = param & 0xF;
         else
-            channel->fxmem = (param & 0xF) + 1;
+            target = param >> 4;
+
+        int mem = channel->fxmem;
+        if (mem <= target)
+        {
+            mem++;
+        }
+        else
+        {
+            mem = 1;
+            channel->bflags ^= MCH_BFLAGS_TREMOR; // | MCH_BFLAGS_CUT_VOLUME;
+        }
+
+        channel->fxmem = mem;
     }
 
-    if ((channel->bflags & MCH_BFLAGS_CUT_VOLUME) == 0) // Cut note
+    if (channel->bflags & MCH_BFLAGS_TREMOR) // Mute note if needed
         mpp_vars.volplus = -64;
 }
 

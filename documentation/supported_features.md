@@ -204,7 +204,6 @@ Unsupported effects:
 - `EFx` Set Active Macro: Selects the active parametered macro for the current
   channel. This effect is a ModPlug hack.
 - `Pxy` Panning Slide or Fine Panning Slide: Slides the current channel's
-- `Txy` Tremor: Rapidly switches the sample volume on and off.
   panning position left or right.
 - `X5x` Set Panbrello Waveform: Sets the waveform of future Panbrello effects.
   This effect is a ModPlug hack.
