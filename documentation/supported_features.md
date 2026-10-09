@@ -55,7 +55,6 @@ Untested features:
 
 Unsupported effects:
 
-- `Ixy` Tremor: Rapidly switches the sample volume on and off.
 - `Pxy` Panning Slide or Fine Panning Slide: Slides the current channel's
   panning position left or right. Not an original Scream Tracker 3 effect.
 - `S1x` Glissando Control: Configures whether tone portamento effects slide by

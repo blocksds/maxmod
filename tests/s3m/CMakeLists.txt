@@ -118,6 +118,9 @@ s3m_test("tremolo")
 # TODO: This is currently broken in Maxmod, it only supports sine waves.
 #s3m_test("tremolo_waveform")
 
+# Tests effect Ixy
+s3m_test("tremor")
+
 # Tests effects Hxy, Uxy and Kxy.
 s3m_test("vibrato")
 

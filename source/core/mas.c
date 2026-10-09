@@ -2314,6 +2314,40 @@ static mm_word mppe_Vibrato(mm_word param, mm_word period, mm_module_channel *ch
     return period;
 }
 
+// EFFECT Ixy: Tremor
+static void mppe_Tremor(mm_word param, mm_module_channel *channel,
+                        mpl_layer_information *layer)
+{
+    // channel->fxmem is set to 0 whenever a new instrument is used, so the
+    // Tremor effect is restarted at that point. Otherwise, the counter remains
+    // unchanged.
+
+    // Note: This needs to be updated every tick
+
+    mm_word target;
+
+    if (channel->bflags & MCH_BFLAGS_TREMOR)
+        target = param & 0xF;
+    else
+        target = param >> 4;
+
+    int mem = channel->fxmem;
+    if (mem <= target)
+    {
+        mem++;
+    }
+    else
+    {
+        mem = 1;
+        channel->bflags ^= MCH_BFLAGS_TREMOR; // | MCH_BFLAGS_CUT_VOLUME;
+    }
+
+    channel->fxmem = mem;
+
+    if (channel->bflags & MCH_BFLAGS_TREMOR) // Mute note if needed
+        mpp_vars.volplus = -64;
+}
+
 // EFFECT Jxy: Arpeggio
 static mm_word mppe_Arpeggio(mm_word param, mm_word period, mm_active_channel *act_ch,
                              mm_module_channel *channel, mpl_layer_information *layer)
@@ -2920,29 +2954,13 @@ static void mppe_OldTremor(mm_word param, mm_module_channel *channel,
 
     if (layer->tick != 0)
     {
-        mm_word target;
-
-        if (channel->bflags & MCH_BFLAGS_TREMOR)
-            target = param & 0xF;
-        else
-            target = param >> 4;
-
-        int mem = channel->fxmem;
-        if (mem <= target)
-        {
-            mem++;
-        }
-        else
-        {
-            mem = 1;
-            channel->bflags ^= MCH_BFLAGS_TREMOR; // | MCH_BFLAGS_CUT_VOLUME;
-        }
-
-        channel->fxmem = mem;
+        mppe_Tremor(param, channel, layer);
     }
-
-    if (channel->bflags & MCH_BFLAGS_TREMOR) // Mute note if needed
-        mpp_vars.volplus = -64;
+    else
+    {
+        if (channel->bflags & MCH_BFLAGS_TREMOR) // Mute note if needed
+            mpp_vars.volplus = -64;
+    }
 }
 
 // =============================================================================
@@ -2997,8 +3015,8 @@ mm_word mpp_Process_Effect(mpl_layer_information *layer, mm_active_channel *act_
         case MAS_FX_VIBRATO:
             return mppe_Vibrato(param, period, channel, layer);
 
-        case MAS_FX_TREMOR: // Tremor
-            // TODO: This isn't implemented. Would it work with the OldTremor code?
+        case MAS_FX_TREMOR:
+            mppe_Tremor(param, channel, layer);
             return period;
 
         case MAS_FX_ARPEGGIO:
