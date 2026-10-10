@@ -77,7 +77,7 @@ s3m_test("panning")
 # It's possible to specify panning instead of volume in the volume column. This
 # isn't a standard behaviour, but it's recognized by trackers. IT files support
 # the same behaviour.
-s3m_test("panning_in_volume_column")
+s3m_test("volcmd_panning")
 
 # Test effects S6x and SEx.
 # TODO: Fine pattern delay doesn't work correctly

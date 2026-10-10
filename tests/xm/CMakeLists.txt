@@ -71,7 +71,7 @@ xm_test("porta_up_down")
 xm_test("panning")
 
 # It's possible to specify panning instead of volume in the volume column.
-xm_test("panning_in_volume_column")
+xm_test("volcmd_panning")
 
 # Test effect EEx.
 # TODO: Fine pattern delay doesn't work correctly
