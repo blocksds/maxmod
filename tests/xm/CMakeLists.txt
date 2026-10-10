@@ -67,6 +67,10 @@ xm_test("porta_to_note")
 # Tests effects 1xy, 2xy, E1x and E2x.
 xm_test("porta_up_down")
 
+# Tests effect g0x in the volume column.
+# TODO: This is broken
+#xm_test("volcmd_portamento")
+
 # Tests effects 8xy and E8x.
 xm_test("panning")
 

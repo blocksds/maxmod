@@ -97,9 +97,6 @@ Untested features:
 
 Untested volume column effects:
 
-- `e0x` Portamento Down: Similar to `Exx`.
-- `f0x` Portamento Up: Similar to `Fxx`.
-- `g0x` Tone Portamento: Similar to `Gxx`.
 - `h0x` Vibrato Depth: Executes a vibrato with depth `x` and speed from the last
   `Hxy` or `Uxy` command.
 - Better tests with patterns with different sizes.
@@ -163,8 +160,6 @@ Untested features:
 
 Untested volume column effects:
 
-- `gxx` Tone Portamento: Functions like `3xx` (pitch-bends from the previous
-  note to the current note).
 - `hxx` Vibrato Depth: Executes vibrato with depth `xx` and speed from the last
   `4xy` or `u0x` command.
 - `lxx` Panning Slide Left: Functions like `P0y` (slides the panning left by
