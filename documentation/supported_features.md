@@ -163,21 +163,14 @@ Untested features:
 
 Untested volume column effects:
 
-- `axx` Fine Volume Slide Up: Functions like `EAx` (slides the volume up xx
-  units on the first tick).
-- `bxx` Fine Volume Slide Down: Functions like `EBx` (slides the volume down xx
-  units on the first tick).
-- `cxx` Volume Slide Up: Functions like Ax0 (slides the volume up xx units on
-  all ticks except the first).
-- `dxx` Volume Slide Down: Functions like A0y (slides the volume down xx units
-  on all ticks except the first).
 - `gxx` Tone Portamento: Functions like `3xx` (pitch-bends from the previous
   note to the current note).
 - `hxx` Vibrato Depth: Executes vibrato with depth `xx` and speed from the last
   `4xy` or `u0x` command.
 - `lxx` Panning Slide Left: Functions like `P0y` (slides the panning left by
   `xx` units).
-- `pxx` Set Panning: Sets the current channel's panning position.
+- `rxx` Panning Slide Right. Functions like `Px0` (slides the panning right by
+  `xx` units).
 - `uxx` Vibrato Speed: Sets the vibrato speed to `xx`, but does not execute a
   vibrato.
 
