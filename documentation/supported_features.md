@@ -97,14 +97,6 @@ Untested features:
 
 Untested volume column effects:
 
-- `a0x` Fine Volume Slide: Functions like `DxF` (slides the volume up x units on
-  the first tick).
-- `b0x` Fine Volume Slide Down: Functions like `DFy` (slides the volume down x
-  units on the first tick).
-- `c0x` Volume Slide Up: Functions like `Dx0` (slides the volume up x units on
-  all ticks except the first).
-- `d0x` Volume Slide Down: Functions like `D0y` (slides the volume down x units
-  on all ticks except the first).
 - `e0x` Portamento Down: Similar to `Exx`.
 - `f0x` Portamento Up: Similar to `Fxx`.
 - `g0x` Tone Portamento: Similar to `Gxx`.
