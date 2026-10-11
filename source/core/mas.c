@@ -2154,7 +2154,7 @@ static mm_word mppe_Portamento(mm_word param, mm_word period,
 
     mm_word new_period;
 
-    if (channel->effect == 5) // 5 = portamento down
+    if (channel->effect == MAS_FX_PORTAMENTO_DOWN)
     {
         // Slide down
         if (is_fine)
