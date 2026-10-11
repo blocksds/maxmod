@@ -162,10 +162,6 @@ Untested volume column effects:
 
 - `hxx` Vibrato Depth: Executes vibrato with depth `xx` and speed from the last
   `4xy` or `u0x` command.
-- `lxx` Panning Slide Left: Functions like `P0y` (slides the panning left by
-  `xx` units).
-- `rxx` Panning Slide Right. Functions like `Px0` (slides the panning right by
-  `xx` units).
 - `uxx` Vibrato Speed: Sets the vibrato speed to `xx`, but does not execute a
   vibrato.
 

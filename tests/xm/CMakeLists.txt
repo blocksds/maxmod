@@ -75,6 +75,7 @@ xm_test("porta_up_down")
 xm_test("panning")
 
 # It's possible to specify panning instead of volume in the volume column.
+# However, they were buggy in FT2, so XM players need to emulate the bugs.
 xm_test("volcmd_panning")
 
 # Test effect EEx.
