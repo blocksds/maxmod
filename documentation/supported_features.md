@@ -149,8 +149,6 @@ Untested features:
 
 - `E9x` Retrigger: Retriggers the current note every `x` ticks.
 - `Kxx` Key Off: Triggers a Note Off command after `xx` ticks.
-- `Lxx` Set Envelope Position: Sets the volume envelope playback position to
-  `xx` ticks.
 - `X1x` Extra Fine Portamento Up: Similar to `E1x`, but with 4 times the
   precision.
 - `X2x` Extra Fine Portamento Down: Similar to `E2x`, but with 4 times the
@@ -171,6 +169,8 @@ Unsupported effects:
   Maxmod only supports sine waves.
 - `EFx` Set Active Macro: Selects the active parametered macro for the current
   channel. This effect is a ModPlug hack.
+- `Lxx` Set Envelope Position: Sets the volume envelope playback position to
+  `xx` ticks.
 - `Pxy` Panning Slide or Fine Panning Slide: Slides the current channel's
   panning position left or right.
 - `X5x` Set Panbrello Waveform: Sets the waveform of future Panbrello effects.
