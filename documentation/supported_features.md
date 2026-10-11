@@ -158,13 +158,6 @@ Untested features:
 - `==`: Note off in note column.
 - Better tests with patterns with different sizes.
 
-Untested volume column effects:
-
-- `hxx` Vibrato Depth: Executes vibrato with depth `xx` and speed from the last
-  `4xy` or `u0x` command.
-- `uxx` Vibrato Speed: Sets the vibrato speed to `xx`, but does not execute a
-  vibrato.
-
 Unsupported effects:
 
 - `E0x` Set Filter: Configures the Amiga's LED lowpass filter.

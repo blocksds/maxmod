@@ -127,6 +127,9 @@ xm_test("tremor")
 # Tests effects 4xy and 6xy.
 xm_test("vibrato")
 
+# Tests volume command effects h0x and uxx.
+xm_test("volcmd_vibrato")
+
 # Test all possible valid values of effect E4x, even the invalid value E48.
 # TODO: This is currently broken in Maxmod, it only supports sine waves.
 #xm_test("vibrato_waveform")
