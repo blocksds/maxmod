@@ -149,10 +149,6 @@ Untested features:
 
 - `E9x` Retrigger: Retriggers the current note every `x` ticks.
 - `Kxx` Key Off: Triggers a Note Off command after `xx` ticks.
-- `X1x` Extra Fine Portamento Up: Similar to `E1x`, but with 4 times the
-  precision.
-- `X2x` Extra Fine Portamento Down: Similar to `E2x`, but with 4 times the
-  precision.
 - `==`: Note off in note column.
 - Better tests with patterns with different sizes.
 

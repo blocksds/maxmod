@@ -64,7 +64,7 @@ xm_test("jump_to_pattern_plus_pattern_break")
 # Tests effects 3xy and 5xy.
 xm_test("porta_to_note")
 
-# Tests effects 1xy, 2xy, E1x and E2x.
+# Tests effects 1xy, 2xy, E1x, E2x, X1x and X2x.
 xm_test("porta_up_down")
 
 # Tests effect g0x in the volume column.
