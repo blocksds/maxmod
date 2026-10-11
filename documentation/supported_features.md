@@ -95,10 +95,8 @@ Untested features:
 - `==`: Note off in note column.
 - `~~`: Note fade in note column.
 
-Untested volume column effects:
+Untested features:
 
-- `h0x` Vibrato Depth: Executes a vibrato with depth `x` and speed from the last
-  `Hxy` or `Uxy` command.
 - Better tests with patterns with different sizes.
 
 Unsupported effects:

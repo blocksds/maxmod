@@ -128,6 +128,10 @@ it_test("tremolo")
 # Tests effects Hxy, Uxy and Kxy.
 it_test("vibrato")
 
+# Tests volume command effect h0x.
+# TODO: This test is currently broken
+#it_test("volcmd_vibrato")
+
 # Test all possible valid values of effect S3x (x goes from 0 to 3).
 # TODO: This is currently broken in Maxmod, it only supports sine waves.
 #it_test("vibrato_waveform")
