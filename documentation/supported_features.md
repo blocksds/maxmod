@@ -49,8 +49,6 @@ Notes:
 
 Untested features:
 
-- `Qxy` Retrigger: This needs to be tested with `Q00` at the start of a song,
-  and with `x` values other than 0.
 - `^^`: Note cut in note column.
 - Better tests with patterns with different sizes (channels and rows).
 
@@ -143,10 +141,6 @@ Notes:
 - `EFx` is a valid effect (Set Active Macro), but it is barely used and Maxmod
   uses it as an event marker instead. Whenever `EFx` is found, it is sent to a
   user-defined callback.
-
-Untested features:
-
-- `E9x` Retrigger: Retriggers the current note every `x` ticks.
 
 Unsupported effects:
 

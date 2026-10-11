@@ -101,10 +101,10 @@ xm_test("volcmd_panning")
 # Tests full range of notes from C-3 to B-8.
 xm_test("range_test")
 
-# Tests effect Ryx, including corner cases such as x = 0, x = speed -1,
-# x = speed and x = speed + 1.
-# TODO: The initial note seems to be buggy
-#xm_test("retrigger_note")
+# Tests effect Ryx and E9x, including corner cases such as x = 0, x = speed -1,
+# x = speed and x = speed + 1. Note that Ryx is very buggy, according to the
+# OpenMPT wiki, so we shouldn't focus too much on it.
+xm_test("retrigger_note")
 
 # Tests behaviour of effect 9xy, both for samples that loop and that don't.
 # TODO: This test is currently broken
