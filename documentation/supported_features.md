@@ -147,7 +147,6 @@ Notes:
 Untested features:
 
 - `E9x` Retrigger: Retriggers the current note every `x` ticks.
-- Better tests with patterns with different sizes (channels and rows).
 
 Unsupported effects:
 

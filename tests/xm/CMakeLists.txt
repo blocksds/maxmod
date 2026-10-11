@@ -66,6 +66,11 @@ xm_test("jump_to_pattern")
 # Test effects Bxy and Dxy in the same row.
 xm_test("jump_to_pattern_plus_pattern_break")
 
+# Test patterns with different numbers of rows (and with fewer channels than the
+# other examples). Also, test effect Dxx jumping after the end of the following
+# pattern (it should jump to the start instead).
+xm_test("pattern_sizes")
+
 # Tests effects 3xy and 5xy.
 xm_test("porta_to_note")
 
