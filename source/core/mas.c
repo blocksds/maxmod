@@ -1267,27 +1267,30 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
                 channel->volume = volume;
             }
         }
-        else if (volcmd < 0xC0) // Vibrato : mppuv_xm_vibrato
+        else if (volcmd < 0xC0) // Set vibrato speed or depth
         {
-            // Sets speed or depth
-
             if (tick == 0)
                 return period;
 
-            if (volcmd < 0xB0) // mppuv_xm_vibspd
+            if (volcmd < 0xB0) // Set vibrato speed
             {
                 volcmd = (volcmd - 0xA0) << 2;
                 if (volcmd != 0)
                     channel->vibspd = volcmd;
+
+                // FT2 doesn't run vibrato effect when setting the speed in the
+                // volume command. You need to have a 400 or 600 effect in the
+                // same row if you want to apply the vibrato effect.
+                return period;
             }
-            else // mppuv_xm_vibdepth
+            else // Set vibrato depth
             {
                 volcmd = (volcmd - 0xB0) << 3;
                 if (volcmd != 0)
                     channel->vibdep = volcmd;
-            }
 
-            return mppe_DoVibrato(period, channel, layer);
+                return mppe_DoVibrato(period, channel, layer);
+            }
         }
         else if (volcmd < 0xD0) // Panning : mppuv_xm_panning
         {
