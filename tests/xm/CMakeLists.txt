@@ -30,6 +30,11 @@ xm_test("arpeggio")
 # or Dxy).
 xm_test("cut_note")
 
+# Tests effect Kxx and note off in the note column (==).
+# TODO: This test doesn't currently pass. It can't make notes sound by setting
+# their volume after stopping them.
+#xm_test("key_off_note_off")
+
 # Test EDx including some corner cases, like ED0, or EDx when the value is the
 # same as the speed of the song, or just around it.
 # TODO: This test is currently broken

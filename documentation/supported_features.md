@@ -52,6 +52,7 @@ Untested features:
 - `Qxy` Retrigger: This needs to be tested with `Q00` at the start of a song,
   and with `x` values other than 0.
 - `^^`: Note cut in note column.
+- Better tests with patterns with different sizes (channels and rows).
 
 Unsupported effects:
 
@@ -97,7 +98,7 @@ Untested features:
 
 Untested features:
 
-- Better tests with patterns with different sizes.
+- Better tests with patterns with different sizes (channels and rows).
 
 Unsupported effects:
 
@@ -146,9 +147,7 @@ Notes:
 Untested features:
 
 - `E9x` Retrigger: Retriggers the current note every `x` ticks.
-- `Kxx` Key Off: Triggers a Note Off command after `xx` ticks.
-- `==`: Note off in note column.
-- Better tests with patterns with different sizes.
+- Better tests with patterns with different sizes (channels and rows).
 
 Unsupported effects:
 
