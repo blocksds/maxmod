@@ -370,9 +370,9 @@ mmUpdateChannel_T0(mm_module_channel *module_channel, mpl_layer_information *mpp
     if (module_channel->flags & MF_HASFX)
     {
         // Test for 'SDx' (note delay). Don't start channel if delayed
-        //if (module_channel->effect == 19)
+        //if (module_channel->effect == MAS_FX_EXTENDED)
         //{
-        //    if ((module_channel->param >> 4) == 0xD)
+        //    if ((module_channel->param >> 4) == MAS_FX_EXT_NOTE_DELAY)
         //        goto dont_start_Channel;
         //}
 
@@ -572,7 +572,14 @@ void mmUpdateChannel_TN(mm_module_channel *module_channel, mpl_layer_information
 
     if (mpp_vars.notedelay)
     {
-        act_ch->flags |= MCAF_UPDATED;
+        // We need to explicitly stop the note if we detect that it won't be
+        // triggered due to the speed being too high. If we don't stop it, it
+        // can be triggered by other things by mistake.
+        if (mpp_vars.notedelay >= mpp_layer->speed)
+            act_ch->volume = 0;
+        else
+            act_ch->flags |= MCAF_UPDATED;
+
         return;
     }
 
