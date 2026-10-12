@@ -89,9 +89,7 @@ it_test("volcmd_panning")
 
 # Test effect Cxx and some corner cases like having it twice in the same row or
 # jumping to a row number too big.
-# TODO: Currently Maxmod doesn't behave correctly when Cxx jumps to a row higher
-# than the size of next pattern. This needs to be fixed in Maxmod.
-#it_test("pattern_break")
+it_test("pattern_break")
 
 # Tests full range of notes from C-3 to B-8.
 it_test("range_test")
