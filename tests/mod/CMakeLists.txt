@@ -47,11 +47,10 @@ mod_test("jump_to_pattern")
 # Test effects Bxy and Dxy in the same row.
 mod_test("jump_to_pattern_plus_pattern_break")
 
-# Test E60 and E6x effects. The effect only affects the current pattern, but the
-# destination row set by E60 is preseved even in other patterns. If you use E6x
-# in the pattern after E60, it will jump to the previously saved location.
-# TODO: The second part of this test behaves like S3M, which is wrong.
-#mod_test("loop_effect")
+# Test E60 and E6x effects. The effect only affects the current pattern, and
+# mmutil tries to detect E6x that are used before E60 because the behaviour in
+# that case depends a lot on the format.
+mod_test("loop_effect")
 
 # Test effect EEx.
 mod_test("pattern_delay")

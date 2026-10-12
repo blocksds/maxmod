@@ -54,9 +54,10 @@ s3m_test("global_volume")
 # song. Also, test the initial per-channel panning setting.
 s3m_test("initial_settings")
 
-# Test SB0 and SBx effects. The effect only affects the current pattern, but the
-# destination row set by SB0 isn't preseved between patterns. If you use SBx in
-# the pattern before an SB0, it will jump to the start of the pattern.
+# Test SB0 and SBx effects. The effect only affects the current pattern, and
+# mmutil tries to detect SBx that are used before SB0 because the behaviour in
+# that case depends a lot on the format. The current behaviour is the one that
+# corresponds to S3M, but we shouldn't rely on that.
 s3m_test("loop_effect")
 
 # Test effect Bxy and some corner cases like having it twice in the same row.

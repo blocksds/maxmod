@@ -54,11 +54,10 @@ xm_test("global_volume")
 # song. Also, test the initial per-channel panning setting.
 xm_test("initial_settings")
 
-# Test E60 and E6x effects. The effect only affects the current pattern, but the
-# destination row set by E60 is preseved even in other patterns. If you use E6x
-# in the pattern after E60, it will jump to the previously saved location.
-# TODO: The second part of this test behaves like S3M, which is wrong.
-#xm_test("loop_effect")
+# Test E60 and E6x effects. The effect only affects the current pattern, and
+# mmutil tries to detect E6x that are used before E60 because the behaviour in
+# that case depends a lot on the format.
+xm_test("loop_effect")
 
 # Test effect Bxy and some corner cases like having it twice in the same row.
 xm_test("jump_to_pattern")

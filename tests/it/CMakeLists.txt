@@ -56,11 +56,10 @@ it_test("global_volume")
 # song. Also, test the initial per-channel panning setting.
 it_test("initial_settings")
 
-# Test SB0 and SBx effects. The effect only affects the current pattern, but the
-# destination row set by SB0 isn't preseved between patterns. If you use SBx in
-# the pattern before an SB0, it will jump to the start of the pattern.
-# TODO: Jumps in patterns without SB0 don't seem to work as expected
-#it_test("loop_effect")
+# Test SB0 and SBx effects. The effect only affects the current pattern, and
+# mmutil tries to detect SBx that are used before SB0 because the behaviour in
+# that case depends a lot on the format.
+it_test("loop_effect")
 
 # Test effect Bxy and some corner cases like having it twice in the same row.
 it_test("jump_to_pattern")
