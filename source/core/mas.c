@@ -674,6 +674,13 @@ static mm_active_channel *mpp_Channel_GetACHN(mm_module_channel *channel)
 // Process new note
 IWRAM_CODE void mpp_Channel_NewNote(mm_module_channel *module_channel, mpl_layer_information *layer)
 {
+    // Reset vibrato and tremolo position whenever a new note starts.
+    // In MOD/XM modes 5 to 7 we continue from the last position.
+    if (module_channel->vibtype < 4)
+        module_channel->vibpos = 0;
+    if (module_channel->tremtype < 4)
+        module_channel->trempos = 0;
+
     if (module_channel->inst == 0)
         return;
 
@@ -2040,6 +2047,31 @@ static const mm_sbyte mpp_TABLE_FineSineData[] = {
     -24, -23, -22, -20, -19, -17, -16, -14, -12, -11,  -9,  -8,  -6,  -5,  -3,  -2,
 };
 
+static mm_sbyte mpp_GetWaveformSample(mm_word type, mm_byte position)
+{
+    type &= 3;
+
+    if (type == 0) // Sine
+    {
+        // We don't need to clamp anything because "position" is a byte
+        return mpp_TABLE_FineSineData[position];
+    }
+    else if (type == 1) // Ramp down
+    {
+        // Position goes from 0 to 255 so this goes from 64 to -63
+        return 64 - (position >> 1);
+    }
+    else if (type == 2) // Square
+    {
+        return (position < 128) ? 64 : -64;
+    }
+    else // Random
+    {
+        // TODO: Implement this in a nicer way
+        return mpp_TABLE_FineSineData[(position * 0x1234) & 255];
+    }
+}
+
 static mm_word mppe_DoVibrato(mm_word period, mm_module_channel *channel,
                               mpl_layer_information *layer)
 {
@@ -2055,7 +2087,7 @@ static mm_word mppe_DoVibrato(mm_word period, mm_module_channel *channel,
         position = channel->vibpos;
     }
 
-    mm_sword value = mpp_TABLE_FineSineData[position];
+    mm_sword value = mpp_GetWaveformSample(channel->vibtype, position);
     mm_sword depth = channel->vibdep;
 
     value = (value * depth) >> 8;
@@ -2543,23 +2575,17 @@ static void mppe_Tremolo(mm_word param, mm_module_channel *channel, mpl_layer_in
 
     if (layer->tick != 0)
     {
-        // Get sine position
-        mm_word position = channel->fxmem;
-
-        mm_word speed = param >> 4;
-        // Mask out SPEED, multiply by 4 to compensate for larger sine table
-        position += speed * 4;
-
-        // Save (value & 255)
-        channel->fxmem = position;
+        // Mask out SPEED, multiply by 4 to compensate for larger waveform table
+        mm_word speed = (param >> 4) * 4;
+        channel->trempos += speed;
     }
 
-    mm_word position = channel->fxmem; // Get sine position
-    mm_sword sine = mpp_TABLE_FineSineData[position]; // Load sine table value
+    mm_byte position = channel->trempos; // Get waveform position
+    mm_sword value = mpp_GetWaveformSample(channel->tremtype, position);
 
     mm_word depth = param & 0xF;
 
-    mm_sword result = (sine * depth) >> 6; // Sine * depth / 64
+    mm_sword result = (value * depth) >> 6; // Sine * depth / 64
 
     if (layer->flags & MAS_HEADER_FLAG_XM_MODE)
         result >>= 1;
@@ -2720,6 +2746,16 @@ static void mppex_OldRetrig(mm_word param, mm_active_channel *act_ch,
     }
 }
 
+static void mppex_VibForm(mm_word param, mm_module_channel *channel)
+{
+    channel->vibtype = param & 7;
+}
+
+static void mppex_TremForm(mm_word param, mm_module_channel *channel)
+{
+    channel->tremtype = param & 7;
+}
+
 static void mppex_FPattDelay(mm_word param, mpl_layer_information *layer)
 {
     if (layer->tick != 0)
@@ -2861,10 +2897,10 @@ static void mppe_Extended(mm_word param, mm_active_channel *act_ch,
             mppex_OldRetrig(param, act_ch, channel, layer);
             break;
         case MAS_FX_EXT_VIBRATO_WAVEFORM: // S3x
-            // mppex_VibForm
+            mppex_VibForm(param, channel);
             break;
         case MAS_FX_EXT_TREMOLO_WAVEFORM: // S4x
-            // mppex_TremForm
+            mppex_TremForm(param, channel);
             break;
         case MAS_FX_EXT_PANBRELLO_WAVEFORM: // S5x
             // mppex_PanbForm
@@ -3327,7 +3363,7 @@ static mm_word mpp_Update_ACHN_notest_auto_vibrato(mpl_layer_information *layer,
         act_ch->avib_pos = (act_ch->avib_pos + sample->av_speed) & 0xFF;
 
         // Load table value at the current position
-        mm_sword slide_val = mpp_TABLE_FineSineData[act_ch->avib_pos];
+        mm_sword slide_val = mpp_GetWaveformSample(sample->av_type, act_ch->avib_pos);
 
         slide_val = (slide_val * new_depth) >> 23;
 

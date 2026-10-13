@@ -29,9 +29,15 @@ typedef struct {
     mm_byte     flags;  // Channel flags
     mm_byte     inst;   // Instrument#
     mm_byte     pflags; // Playback flags (unused)
+
     mm_byte     vibdep;
     mm_byte     vibspd;
     mm_byte     vibpos;
+    mm_byte     vibtype; // MOD/XM: 0 to 7; S3M/IT: 0 to 3
+
+    mm_byte     trempos;
+    mm_byte     tremtype; // MOD/XM: 0 to 7; S3M/IT: 0 to 3
+
     mm_byte     volume;
     mm_byte     cvolume;
     mm_word     period;
