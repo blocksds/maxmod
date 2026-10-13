@@ -107,9 +107,8 @@ xm_test("retrigger_note")
 #xm_test("sample_offset")
 
 # Tests behaviour of samples that loop (different parts of the sample waveform)
-# and samples that don't loop.
-# TODO: This test is currently broken
-#xm_test("sample_that_loops")
+# and samples that don't loop. It also tests BIDI loops.
+xm_test("sample_that_loops")
 
 # Tests samples that have a default finetune value.
 # TODO: The arpeggios are buggy in OpenMPT, but maybe they are a Maxmod bug?

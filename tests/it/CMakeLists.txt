@@ -102,9 +102,8 @@ it_test("retrigger_note")
 #it_test("sample_offset")
 
 # Tests behaviour of samples that loop (different parts of the sample waveform)
-# and samples that don't loop.
-# TODO: This test is currently broken
-#it_test("sample_that_loops")
+# and samples that don't loop. It also tests BIDI loops.
+it_test("sample_that_loops")
 
 # Tests samples that have a default finetune value.
 it_test("sample_with_finetune")

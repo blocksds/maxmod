@@ -100,8 +100,7 @@ s3m_test("retrigger_note")
 
 # Tests behaviour of samples that loop (different parts of the sample waveform)
 # and samples that don't loop.
-# TODO: This test is currently broken
-#s3m_test("sample_that_loops")
+s3m_test("sample_that_loops")
 
 # Tests samples that have a default finetune value.
 s3m_test("sample_with_finetune")
