@@ -37,8 +37,7 @@ xm_test("cut_note")
 
 # Test EDx including some corner cases, like ED0, or EDx when the value is the
 # same as the speed of the song, or just around it.
-# TODO: This test is currently broken
-#xm_test("delay_note")
+xm_test("delay_note")
 
 # Test of behaviour in the following cases:
 # - No instrument number, only note and effect.

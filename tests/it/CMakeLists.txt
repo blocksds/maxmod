@@ -39,8 +39,7 @@ it_test("cut_note")
 
 # Test SDx including some corner cases, like SD0, or SDx when the value is the
 # same as the speed of the song, or just around it.
-# TODO: This test is currently broken
-#it_test("delay_note")
+it_test("delay_note")
 
 # Test of behaviour in the following cases:
 # - No instrument number, only note and effect.
