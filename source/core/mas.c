@@ -2326,6 +2326,7 @@ static void mppe_Tremor(mm_word param, mm_module_channel *channel,
     // unchanged.
 
     // Note: This needs to be updated every tick
+    (void)layer;
 
     mm_word target;
 
@@ -2334,7 +2335,7 @@ static void mppe_Tremor(mm_word param, mm_module_channel *channel,
     else
         target = param >> 4;
 
-    int mem = channel->fxmem;
+    mm_word mem = channel->fxmem;
     if (mem <= target)
     {
         mem++;
