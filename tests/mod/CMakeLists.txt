@@ -78,9 +78,8 @@ mod_test("retrigger_note")
 #mod_test("sample_offset")
 
 # Tests behaviour of samples that loop (different parts of the sample waveform)
-# and samples that don't loop.
-# TODO: This test is currently broken
-#mod_test("sample_that_loops")
+# and samples that don't loop. Note that this doesn't behave like S3M/XM/IT.
+mod_test("sample_that_loops")
 
 # Tests samples that have a default finetune value.
 mod_test("sample_with_finetune")
