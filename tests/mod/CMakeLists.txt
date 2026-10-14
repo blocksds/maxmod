@@ -93,15 +93,13 @@ mod_test("speed")
 mod_test("tremolo")
 
 # Test all possible valid values of effect E7x, even the invalid value E78.
-# TODO: This is currently broken in Maxmod, it only supports sine waves.
-#mod_test("tremolo_waveform")
+mod_test("tremolo_waveform")
 
 # Tests effects 4xy and 6xy.
 mod_test("vibrato")
 
 # Test all possible valid values of effect E4x, even the invalid value E48.
-# TODO: This is currently broken in Maxmod, it only supports sine waves.
-#mod_test("vibrato_waveform")
+mod_test("vibrato_waveform")
 
 # Test Cxy effect. Test that ECx effect sets the volume to 0 and the channel can
 # be made to sound again with a Cxy effect. Also, test samples with different

@@ -123,8 +123,7 @@ xm_test("speed")
 xm_test("tremolo")
 
 # Test all possible valid values of effect E7x, even the invalid value E78.
-# TODO: This is currently broken in Maxmod, it only supports sine waves.
-#xm_test("tremolo_waveform")
+xm_test("tremolo_waveform")
 
 # Tests effect Txy
 xm_test("tremor")
@@ -136,8 +135,7 @@ xm_test("vibrato")
 xm_test("volcmd_vibrato")
 
 # Test all possible valid values of effect E4x, even the invalid value E48.
-# TODO: This is currently broken in Maxmod, it only supports sine waves.
-#xm_test("vibrato_waveform")
+xm_test("vibrato_waveform")
 
 # Tests effects a0x, b0x, c0x, d0x in the volume column.
 xm_test("volcmd_volume_slide")

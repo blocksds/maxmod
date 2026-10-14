@@ -117,8 +117,7 @@ it_test("speed")
 it_test("tremolo")
 
 # Test all possible valid values of effect S4x (x goes from 0 to 3).
-# TODO: This is currently broken in Maxmod, it only supports sine waves.
-#it_test("tremolo_waveform")
+it_test("tremolo_waveform")
 
 # Tests effects Hxy, Uxy and Kxy.
 it_test("vibrato")
@@ -128,8 +127,7 @@ it_test("vibrato")
 #it_test("volcmd_vibrato")
 
 # Test all possible valid values of effect S3x (x goes from 0 to 3).
-# TODO: This is currently broken in Maxmod, it only supports sine waves.
-#it_test("vibrato_waveform")
+it_test("vibrato_waveform")
 
 # Tests effects a0x, b0x, c0x, d0x in the volume column.
 it_test("volcmd_volume_slide")

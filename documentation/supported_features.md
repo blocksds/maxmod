@@ -29,12 +29,8 @@ Unsupported effects:
 - `E0x` Set Filter: Configures the Amiga's LED lowpass filter.
 - `E3x` Glissando Control: Configures whether tone portamento effects slide by
   semitones or not. Not widely supported.
-- `E4x` Set Vibrato Waveform: Sets the waveform of future Vibrato effects.
-  Maxmod only supports sine waves.
 - `E5x` Set Finetune: Overrides the finetune value for the currently playing
   note.
-- `E7x` Set Tremolo Waveform: Sets the waveform of future Tremolo effects.
-  Maxmod only supports sine waves.
 - `EFx` Invert Loop: When used with a looped sample, goes through the sample
   loop and inverts all sampling points (i.e. changes the sign) one by one at
   speed x. This effect permanently modifies the module file when encountered
@@ -60,10 +56,6 @@ Unsupported effects:
   semitones or not. Not widely supported.
 - `S2x` Set Finetune: Overrides the current sample's C-5 frequency with a MOD
   finetune value. Considered legacy.
-- `S3x` Set Vibrato Waveform: Sets the waveform of future Vibrato effects.
-  Maxmod only supports sine waves.
-- `S4x` Set Tremolo Waveform: Sets the waveform of future Tremolo effects
-  Maxmod only supports sine waves.
 - `S5x` Set Panbrello Waveform: Sets the waveform of future Panbrello effects.
   Not an original Scream Tracker 3 effect.
 - `S9x` Sound Control: Executes a sound control command. Not an original Scream
@@ -107,10 +99,6 @@ Unsupported effects:
   semitones or not. Not widely supported.
 - `S2x` Set Finetune: Overrides the current sample's C-5 frequency with a MOD
   finetune value. Considered legacy.
-- `S3x` Set Vibrato Waveform: Sets the waveform of future Vibrato effects.
-  Maxmod only supports sine waves.
-- `S4x` Set Tremolo Waveform: Sets the waveform of future Tremolo effects
-  Maxmod only supports sine waves.
 - `S5x` Set Panbrello Waveform: Sets the waveform of future Panbrello effects.
 - `S70` Past Note Cut: Cuts all notes playing as a result of New Note Actions on
   the current channel.
@@ -147,12 +135,8 @@ Unsupported effects:
 - `E0x` Set Filter: Configures the Amiga's LED lowpass filter.
 - `E3x` Glissando Control: Configures whether tone portamento effects slide by
   semitones or not. Not widely supported.
-- `E4x` Set Vibrato Waveform: Sets the waveform of future Vibrato effects.
-  Maxmod only supports sine waves.
 - `E5x` Set Finetune: Overrides the finetune value for the currently playing
   note.
-- `E7x` Set Tremolo Waveform: Sets the waveform of future Tremolo effects.
-  Maxmod only supports sine waves.
 - `EFx` Set Active Macro: Selects the active parametered macro for the current
   channel. This effect is a ModPlug hack.
 - `Lxx` Set Envelope Position: Sets the volume envelope playback position to

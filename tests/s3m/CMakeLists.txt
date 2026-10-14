@@ -114,8 +114,7 @@ s3m_test("speed")
 s3m_test("tremolo")
 
 # Test all possible valid values of effect S4x (x goes from 0 to 3).
-# TODO: This is currently broken in Maxmod, it only supports sine waves.
-#s3m_test("tremolo_waveform")
+s3m_test("tremolo_waveform")
 
 # Tests effect Ixy
 s3m_test("tremor")
@@ -124,8 +123,7 @@ s3m_test("tremor")
 s3m_test("vibrato")
 
 # Test all possible valid values of effect S3x (x goes from 0 to 3).
-# TODO: This is currently broken in Maxmod, it only supports sine waves.
-#s3m_test("vibrato_waveform")
+s3m_test("vibrato_waveform")
 
 # Test the volume column. Test that SCx effect stops the note. Setting the
 # volume back up doesn't retrigger the note. Also, test samples with different
