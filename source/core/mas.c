@@ -1851,7 +1851,10 @@ IWRAM_CODE void mppProcessTick(void)
     }
 
     if (layer->fpattdelay != 0)
+    {
         layer->fpattdelay--;
+        goto mppt_POST_TICK;
+    }
 
     // Otherwise clear the tick count and advance to next row
 
@@ -2771,7 +2774,7 @@ static void mppex_FPattDelay(mm_word param, mpl_layer_information *layer)
     if (layer->tick != 0)
         return;
 
-    layer->fpattdelay = param & 0xF;
+    layer->fpattdelay += param & 0xF;
 }
 
 static void mppex_InstControl(mm_word param, mm_active_channel *act_ch,
