@@ -73,9 +73,9 @@ mod_test("range_test")
 # x = speed and x = speed + 1.
 mod_test("retrigger_note")
 
-# Tests behaviour of effect 9xy, both for samples that loop and that don't.
-# TODO: This test is currently broken
-#mod_test("sample_offset")
+# Tests behaviour of effect 9xy, both for samples that loop and that don't. Also
+# test jumps after the end of the loop and end of the sample.
+mod_test("sample_offset")
 
 # Tests behaviour of samples that loop (different parts of the sample waveform)
 # and samples that don't loop. Note that this doesn't behave like S3M/XM/IT.

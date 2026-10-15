@@ -102,9 +102,9 @@ xm_test("range_test")
 # OpenMPT wiki, so we shouldn't focus too much on it.
 xm_test("retrigger_note")
 
-# Tests behaviour of effect 9xy, both for samples that loop and that don't.
-# TODO: This test is currently broken
-#xm_test("sample_offset")
+# Tests behaviour of effect 9xy, both for samples that loop and that don't. Also
+# test jumps after the end of the loop and end of the sample.
+xm_test("sample_offset")
 
 # Tests behaviour of samples that loop (different parts of the sample waveform)
 # and samples that don't loop. It also tests BIDI loops.
