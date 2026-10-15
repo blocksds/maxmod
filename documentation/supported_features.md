@@ -45,7 +45,7 @@ Notes:
 
 Untested features:
 
-- `^^`: Note cut in note column.
+- `^^`: Note cut in note column (and try to turn it on again with `v63`).
 - Better tests with patterns with different sizes (channels and rows).
 
 Unsupported effects:
@@ -82,13 +82,14 @@ Untested features:
 - `S76` NNA Note Fade: Sets the currently active note's New Note Action to Note Fade.
 - `S77` Volume Envelope Off: Disables the currently active note's volume envelope.
 - `S78` Volume Envelope On: Enables the currently active note's volume envelope.
-- `^^`: Note cut in note column.
-- `==`: Note off in note column.
-- `~~`: Note fade in note column.
+- `^^`: Note cut in note column (and try to turn it on again with `v63`).
+- `==`: Note off in note column (and try to turn it on again with `v63`).
+- `~~`: Note fade in note column (and try to turn it on again with `v63`).
 
 Untested features:
 
 - Better tests with patterns with different sizes (channels and rows).
+- Samples with auto vibrato.
 
 Unsupported effects:
 
@@ -129,6 +130,10 @@ Notes:
 - `EFx` is a valid effect (Set Active Macro), but it is barely used and Maxmod
   uses it as an event marker instead. Whenever `EFx` is found, it is sent to a
   user-defined callback.
+
+Untested features:
+
+- Samples with auto vibrato.
 
 Unsupported effects:
 
