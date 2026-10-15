@@ -86,9 +86,8 @@ xm_test("panning")
 # However, they were buggy in FT2, so XM players need to emulate the bugs.
 xm_test("volcmd_panning")
 
-# Test effect EEx.
-# TODO: Fine pattern delay doesn't work correctly
-#xm_test("pattern_delay")
+# Test effects EEx and X6x.
+xm_test("pattern_delay")
 
 # Test effect Dxy and some corner cases like having it twice in the same row or
 # jumping to a row number too big.

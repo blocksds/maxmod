@@ -80,8 +80,7 @@ s3m_test("panning")
 s3m_test("volcmd_panning")
 
 # Test effects S6x and SEx.
-# TODO: Fine pattern delay doesn't work correctly
-#s3m_test("pattern_delay")
+s3m_test("pattern_delay")
 
 # Test effect Cxy and some corner cases like having it twice in the same row or
 # jumping to a row number too big.
