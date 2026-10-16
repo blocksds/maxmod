@@ -66,6 +66,11 @@ it_test("jump_to_pattern")
 # Test effects Bxy and Cxy in the same row.
 it_test("jump_to_pattern_plus_pattern_break")
 
+# Test patterns with different numbers of rows (and with fewer channels than the
+# other examples). Also, test effect Dxx jumping after the end of the following
+# pattern (it should jump to the start instead).
+it_test("pattern_sizes")
+
 # Tests effects Gxy and Lxy.
 it_test("porta_to_note")
 
