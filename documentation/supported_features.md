@@ -46,7 +46,6 @@ Notes:
 Untested features:
 
 - `^^`: Note cut in note column (and try to turn it on again with `v63`).
-- Better tests with patterns with different sizes (channels and rows).
 
 Unsupported effects:
 
@@ -85,9 +84,6 @@ Untested features:
 - `^^`: Note cut in note column (and try to turn it on again with `v63`).
 - `==`: Note off in note column (and try to turn it on again with `v63`).
 - `~~`: Note fade in note column (and try to turn it on again with `v63`).
-
-Untested features:
-
 - Better tests with patterns with different sizes (channels and rows).
 - Samples with auto vibrato.
 
@@ -122,6 +118,11 @@ Unsupported effects:
 - `Zxx` MIDI Macro: Executes a macro.
 - `\xx` Smooth MIDI Macro: Executes an interpolated MIDI Macro. This effect is a
   ModPlug hack.
+
+Known bugs:
+
+- Volume column commands `e0x`, `f0x` and `g0x` (portamento) are broken.
+- Volume column command `h0x` (vibrato) is broken.
 
 ## XM: The FastTracker 2 format
 
@@ -160,3 +161,7 @@ Unsupported effects:
 - `\xx` Smooth MIDI Macro: Executes an interpolated MIDI Macro. This effect is a
   ModPlug hack.
 - `#xx` Parameter Extension: ModPlug hack.
+
+Known bugs:
+
+- Volume column command `g0x` (portamento) is broken.
