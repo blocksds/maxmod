@@ -104,6 +104,9 @@ it_test("sample_offset")
 # and samples that don't loop. It also tests BIDI loops.
 it_test("sample_that_loops")
 
+# Tests samples that have autovibrato
+it_test("sample_with_autovibrato")
+
 # Tests samples that have a default finetune value.
 it_test("sample_with_finetune")
 

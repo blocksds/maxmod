@@ -109,6 +109,9 @@ xm_test("sample_offset")
 # and samples that don't loop. It also tests BIDI loops.
 xm_test("sample_that_loops")
 
+# Tests samples that have autovibrato
+xm_test("sample_with_autovibrato")
+
 # Tests samples that have a default finetune value.
 # TODO: The arpeggios are buggy in OpenMPT, but maybe they are a Maxmod bug?
 #xm_test("sample_with_finetune")

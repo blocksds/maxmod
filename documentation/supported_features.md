@@ -24,7 +24,7 @@ Notes:
 - Maxmod doesn't implement effect `EFx`, but it uses it as an event marker.
   Whenever `EFx` is found, it is sent to a user-defined callback.
 
-Unsupported effects:
+Unsupported features:
 
 - `E0x` Set Filter: Configures the Amiga's LED lowpass filter.
 - `E3x` Glissando Control: Configures whether tone portamento effects slide by
@@ -47,7 +47,7 @@ Untested features:
 
 - `^^`: Note cut in note column (and try to turn it on again with `v63`).
 
-Unsupported effects:
+Unsupported features:
 
 - `Pxy` Panning Slide or Fine Panning Slide: Slides the current channel's
   panning position left or right. Not an original Scream Tracker 3 effect.
@@ -85,9 +85,9 @@ Untested features:
 - `==`: Note off in note column (and try to turn it on again with `v63`).
 - `~~`: Note fade in note column (and try to turn it on again with `v63`).
 - Better tests with patterns with different sizes (channels and rows).
-- Samples with auto vibrato.
+- Samples with sustain loops.
 
-Unsupported effects:
+Unsupported features:
 
 - `Ixy` Tremor: Rapidly switches the sample volume on and off.
 - `Pxy` Panning Slide or Fine Panning Slide: Slides the current channel's
@@ -132,11 +132,7 @@ Notes:
   uses it as an event marker instead. Whenever `EFx` is found, it is sent to a
   user-defined callback.
 
-Untested features:
-
-- Samples with auto vibrato.
-
-Unsupported effects:
+Unsupported features:
 
 - `E0x` Set Filter: Configures the Amiga's LED lowpass filter.
 - `E3x` Glissando Control: Configures whether tone portamento effects slide by
