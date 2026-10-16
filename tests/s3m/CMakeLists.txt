@@ -124,11 +124,9 @@ s3m_test("vibrato")
 # Test all possible valid values of effect S3x (x goes from 0 to 3).
 s3m_test("vibrato_waveform")
 
-# Test the volume column. Test that SCx effect stops the note. Setting the
-# volume back up doesn't retrigger the note. Also, test samples with different
-# default volumes.
-# TODO: This is currently broken
-#s3m_test("volume")
+# Test the volume column. Test that SCx effect stops the note. Also, test
+# samples with different default volumes.
+s3m_test("volume")
 
 # Tests effect Dxy.
 s3m_test("volume_slide")

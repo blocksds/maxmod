@@ -131,11 +131,9 @@ it_test("vibrato_waveform")
 # Tests effects a0x, b0x, c0x, d0x in the volume column.
 it_test("volcmd_volume_slide")
 
-# Test the volume column. Test that SCx effect stops the note. Setting the
-# volume back up doesn't retrigger the note. Also, test samples with different
-# default volumes.
-# TODO: This is currently broken
-#it_test("volume")
+# Test the volume column. Test that SCx effect stops the note. Also, test
+# samples with different default volumes.
+it_test("volume")
 
 # Tests effect Dxy.
 it_test("volume_slide")

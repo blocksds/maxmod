@@ -139,10 +139,8 @@ xm_test("vibrato_waveform")
 # Tests effects a0x, b0x, c0x, d0x in the volume column.
 xm_test("volcmd_volume_slide")
 
-# Test the volume column and effect Cxx. Test that ECx effect stops the note.
-# Setting the volume back up doesn't retrigger the note. Also, test samples with
-# different default volumes.
-# TODO: This is currently broken
+# Test the volume column and effect Cxx. Also, test samples with different
+# default volumes.
 xm_test("volume")
 
 # Tests effects Axy, EAx and EBx.
