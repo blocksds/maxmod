@@ -1555,7 +1555,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
                 return mppe_glis_backdoor(mem, period, act_ch, channel, layer);
             }
         }
-        else if (volcmd <= 212) // H: Vibrato (Speed) : mppuv_vibrato
+        else if (volcmd <= 212) // H: Vibrato (Depth) : mppuv_vibrato
         {
             // VCMD vibrato uses the same memory as effects Hxx/Uxx.
 
@@ -1565,13 +1565,17 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
             // Set speed
 
             volcmd = volcmd - 203;
+
             if (volcmd != 0)
             {
-                volcmd = volcmd << 2;
-                channel->vibspd = volcmd;
+                mm_word depth = volcmd * 4;
+
+                // if (OldEffects)
+                //     depth <<= 1;
+                channel->vibdep = depth << layer->oldeffects;
             }
 
-            return mppe_DoVibrato(volcmd, channel, layer);
+            return mppe_DoVibrato(period, channel, layer);
         }
     }
 
