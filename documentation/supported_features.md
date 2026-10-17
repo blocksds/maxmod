@@ -84,11 +84,10 @@ Untested features:
 - `^^`: Note cut in note column (and try to turn it on again with `v63`).
 - `==`: Note off in note column (and try to turn it on again with `v63`).
 - `~~`: Note fade in note column (and try to turn it on again with `v63`).
-- Better tests with patterns with different sizes (channels and rows).
-- Samples with sustain loops.
 
 Unsupported features:
 
+- Samples with sustain loops.
 - `Ixy` Tremor: Rapidly switches the sample volume on and off.
 - `Pxy` Panning Slide or Fine Panning Slide: Slides the current channel's
   panning position left or right.
@@ -122,7 +121,6 @@ Unsupported features:
 Known bugs:
 
 - Volume column commands `e0x`, `f0x` and `g0x` (portamento) are broken.
-- Volume column command `h0x` (vibrato) is broken.
 
 ## XM: The FastTracker 2 format
 
@@ -131,6 +129,10 @@ Notes:
 - `EFx` is a valid effect (Set Active Macro), but it is barely used and Maxmod
   uses it as an event marker instead. Whenever `EFx` is found, it is sent to a
   user-defined callback.
+
+Untested features:
+
+- Key off in note column (and try to turn it on again with `v63`).
 
 Unsupported features:
 
