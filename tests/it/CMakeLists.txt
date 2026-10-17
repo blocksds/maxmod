@@ -130,8 +130,7 @@ it_test("tremolo_waveform")
 it_test("vibrato")
 
 # Tests volume command effect h0x.
-# TODO: This test is currently broken
-#it_test("volcmd_vibrato")
+it_test("volcmd_vibrato")
 
 # Test all possible valid values of effect S3x (x goes from 0 to 3).
 it_test("vibrato_waveform")
