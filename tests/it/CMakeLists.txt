@@ -38,7 +38,7 @@ it_test("arpeggio")
 it_test("cut_note")
 
 # Tests effect note off/cut/fade in the note column (==/^^/~~).
-# TODO: This test crashes
+# TODO: This test doesn't pass
 #it_test("note_stop")
 
 # Test SDx including some corner cases, like SD0, or SDx when the value is the

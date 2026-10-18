@@ -43,10 +43,6 @@ Notes:
 - `SFx` isn't a valid effect, but Maxmod uses it as an event marker. Whenever
   `SFx` is found, it is sent to a user-defined callback.
 
-Untested features:
-
-- `^^`: Note cut in note column (and try to turn it on again with `v63`).
-
 Unsupported features:
 
 - `Pxy` Panning Slide or Fine Panning Slide: Slides the current channel's
@@ -81,12 +77,10 @@ Untested features:
 - `S76` NNA Note Fade: Sets the currently active note's New Note Action to Note Fade.
 - `S77` Volume Envelope Off: Disables the currently active note's volume envelope.
 - `S78` Volume Envelope On: Enables the currently active note's volume envelope.
-- `^^`: Note cut in note column (and try to turn it on again with `v63`).
-- `==`: Note off in note column (and try to turn it on again with `v63`).
-- `~~`: Note fade in note column (and try to turn it on again with `v63`).
 
 Unsupported features:
 
+- `~~`: Note fade in note column.
 - Samples with sustain loops.
 - `Ixy` Tremor: Rapidly switches the sample volume on and off.
 - `Pxy` Panning Slide or Fine Panning Slide: Slides the current channel's
@@ -129,10 +123,6 @@ Notes:
 - `EFx` is a valid effect (Set Active Macro), but it is barely used and Maxmod
   uses it as an event marker instead. Whenever `EFx` is found, it is sent to a
   user-defined callback.
-
-Untested features:
-
-- Key off in note column (and try to turn it on again with `v63`).
 
 Unsupported features:
 
