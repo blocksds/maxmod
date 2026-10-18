@@ -31,9 +31,8 @@ xm_test("arpeggio")
 xm_test("cut_note")
 
 # Tests effect Kxx and note off in the note column (==).
-# TODO: This test doesn't currently pass. It can't make notes sound by setting
-# their volume after stopping them.
-#xm_test("key_off_note_off")
+# TODO: This test doesn't pass
+#xm_test("note_stop")
 
 # Test EDx including some corner cases, like ED0, or EDx when the value is the
 # same as the speed of the song, or just around it.
@@ -43,8 +42,8 @@ xm_test("delay_note")
 # - No instrument number, only note and effect.
 # - No note, only instrument number and effect.
 # - Only note, no instrument or effect
-# TODO: The second part of the test fails
-#xm_test("empty_fields")
+# TODO: There's a small difference in the test, but not big enough to disable it
+xm_test("empty_fields")
 
 # It tests effects Gxx and Hxx.
 xm_test("global_volume")

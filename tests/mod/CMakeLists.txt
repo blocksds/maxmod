@@ -38,6 +38,7 @@ mod_test("delay_note")
 # - No instrument number, only note and effect.
 # - No note, only instrument number and effect.
 # - Only note, no instrument or effect
+# TODO: There's a small difference in the test, but not big enough to disable it
 mod_test("empty_fields")
 
 # Test effect Bxy and some corner cases like having it twice in the same row.

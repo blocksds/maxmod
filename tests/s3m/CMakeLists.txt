@@ -36,6 +36,10 @@ s3m_test("channel_volume")
 # or Cxy).
 s3m_test("cut_note")
 
+# Tests effect note cut in the note column (^^).
+# TODO: This test doesn't pass
+#s3m_test("note_stop")
+
 # Test SDx including some corner cases, like SD0, or SDx when the value is the
 # same as the speed of the song, or just around it.
 s3m_test("delay_note")
@@ -44,6 +48,7 @@ s3m_test("delay_note")
 # - No instrument number, only note and effect.
 # - No note, only instrument number and effect.
 # - Only note, no instrument or effect
+# TODO: There's a small difference in the test, but not big enough to disable it
 s3m_test("empty_fields")
 
 # It tests effects Vxx and the non-standard Wxx.

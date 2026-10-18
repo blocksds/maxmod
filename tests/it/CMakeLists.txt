@@ -37,6 +37,10 @@ it_test("arpeggio")
 # or Cxy).
 it_test("cut_note")
 
+# Tests effect note off/cut/fade in the note column (==/^^/~~).
+# TODO: This test crashes
+#it_test("note_stop")
+
 # Test SDx including some corner cases, like SD0, or SDx when the value is the
 # same as the speed of the song, or just around it.
 it_test("delay_note")
@@ -45,7 +49,7 @@ it_test("delay_note")
 # - No instrument number, only note and effect.
 # - No note, only instrument number and effect.
 # - Only note, no instrument or effect
-# TODO: The second part of the test fails
+# TODO: This test doesn't pass
 #it_test("empty_fields")
 
 # It tests effects Vxx and the non-standard Wxx.
