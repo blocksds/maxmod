@@ -109,11 +109,11 @@ typedef struct tmm_mas_instrument
     mm_byte     global_volume;
     mm_byte     fadeout;
     mm_byte     random_volume;
-    mm_byte     dct;
-    mm_byte     nna;
+    mm_byte     dct; // Duplicate Check Type (0-3 = Off/Note/Sample/Instrument)
+    mm_byte     nna; // New Note Action (0-3 = Cut/Continue/Note off/Note fade)
     mm_byte     env_flags;
     mm_byte     panning;
-    mm_byte     dca;
+    mm_byte     dca; // Duplicate Check Action (0-2 = Cut/Note off/Note fade)
     mm_hword    note_map_offset : 15;
     mm_hword    is_note_map_invalid : 1;
     mm_hword    reserved; // Always zero

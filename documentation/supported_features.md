@@ -71,6 +71,10 @@ Notes:
 
 Untested features:
 
+- Instrument fadeout.
+- Instrument note map.
+- Instrument DTC/NNA/DCA.
+- Instrument volume/panning/pitch envelope.
 - `S73` NNA Note Cut: Sets the currently active note's New Note Action to Note Cut.
 - `S74` NNA Note Continue: Sets the currently active note's New Note Action to Continue.
 - `S75` NNA Note Off: Sets the currently active note's New Note Action to Note Off.
@@ -123,6 +127,11 @@ Notes:
 - `EFx` is a valid effect (Set Active Macro), but it is barely used and Maxmod
   uses it as an event marker instead. Whenever `EFx` is found, it is sent to a
   user-defined callback.
+
+Untested features:
+
+- Instrument fadeout.
+- Instrument volume/panning envelope.
 
 Unsupported features:
 
