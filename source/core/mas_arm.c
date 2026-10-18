@@ -42,6 +42,7 @@
 #define GLISSANDO_MX_VOLCMD_START   0xF0
 #define GLISSANDO_MX_VOLCMD_END     0xFF
 
+#define NOTE_MAX        120
 #define NOTE_CUT        254
 #define NOTE_OFF        255
 
@@ -50,7 +51,7 @@
 // Bitmask to select which hardware/software channels are free to use
 mm_word mm_ch_mask;
 
-static const mm_byte note_table_oct[] =
+static const mm_byte note_table_oct[NOTE_MAX / 4] =
 {
     0, 0, 0,
     1, 1, 1,
@@ -64,7 +65,7 @@ static const mm_byte note_table_oct[] =
     9, 9, 9
 };
 
-static const mm_byte note_table_mod[] =
+static const mm_byte note_table_mod[NOTE_MAX] =
 {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
@@ -75,11 +76,11 @@ static const mm_byte note_table_mod[] =
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
-    0
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
 };
 
 // LUT for amiga periods.
-static const mm_hword ST3_FREQTABLE[] =
+static const mm_hword ST3_FREQTABLE[12] =
 {
     // More accurate scalars
     1712 * 8, 1616 * 8, 1524 * 8, 1440 * 8, 1356 * 8, 1280 * 8,
@@ -95,7 +96,7 @@ static const mm_hword ST3_FREQTABLE[] =
 // LUT for linear periods. Values are 16.16 bit
 // https://ftp.modland.com/pub/documents/format_documentation/Impulse%20Tracker%20v2.04%20(.it).html
 __attribute__((aligned (4))) // Align to 4 bytes so that we can read 2 hwords in one read
-static const mm_hword IT_PitchTable[] =
+static const mm_hword IT_PitchTable[NOTE_MAX * 2] =
 {
     2048, 0,   2170, 0,   2299, 0,   2435, 0,   2580, 0,   2734, 0,
     2896, 0,   3069, 0,   3251, 0,   3444, 0,   3649, 0,   3866, 0, // C-0 > B-0
@@ -215,6 +216,8 @@ IWRAM_CODE ARM_CODE mm_bool mmReadPattern(mpl_layer_information *mpp_layer)
                 pattern_flags |= MF_NOTECUT;
             else if (note == NOTE_OFF)
                 pattern_flags |= MF_NOTEOFF;
+            else if (note >= NOTE_MAX) // This is a note fade
+                pattern_flags |= MF_NOTECUT; // TODO: Implement note fade
             else
                 module_channel->pnoter = note;
         }
