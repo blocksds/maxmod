@@ -118,10 +118,6 @@ Unsupported features:
 - `\xx` Smooth MIDI Macro: Executes an interpolated MIDI Macro. This effect is a
   ModPlug hack.
 
-Known bugs:
-
-- Volume column commands `e0x` and `f0x` (portamento up/down) are broken.
-
 ## XM: The FastTracker 2 format
 
 Notes:

@@ -91,8 +91,7 @@ it_test("porta_to_note")
 it_test("porta_up_down")
 
 # Tests effects e0x, f0x, g0x in the volume column.
-# TODO: This is broken
-#it_test("volcmd_portamento")
+it_test("volcmd_portamento")
 
 # Tests effects Xxy and S8x.
 it_test("panning")
