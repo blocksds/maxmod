@@ -1480,7 +1480,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
 
                 channel->memory[MPP_IT_PORTA] = volcmd;
 
-                new_period = mpph_PitchSlide_Up(period, volcmd, layer);
+                new_period = mpph_PitchSlide_Up(channel->period, volcmd, layer);
             }
             else // E: mppuv_porta_down
             {
@@ -1491,7 +1491,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
 
                 channel->memory[MPP_IT_PORTA] = volcmd;
 
-                new_period = mpph_PitchSlide_Down(period, volcmd, layer);
+                new_period = mpph_PitchSlide_Down(channel->period, volcmd, layer);
             }
 
             int old_period = channel->period;
