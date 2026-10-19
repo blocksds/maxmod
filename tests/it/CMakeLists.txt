@@ -64,6 +64,10 @@ it_test("initial_settings")
 # envelope continue).
 it_test("instrument_envelopes")
 
+# Tests long and short instrument fadeouts for instruments with envelope loops
+# and envelope sustain loops.
+it_test("instrument_fadeout")
+
 # Test SB0 and SBx effects. The effect only affects the current pattern, and
 # mmutil tries to detect SBx that are used before SB0 because the behaviour in
 # that case depends a lot on the format.

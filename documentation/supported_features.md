@@ -3,8 +3,6 @@
 This file describes the features supported (or unsupported) of the audio formats
 supported by Maxmod.
 
-Note that FM instruments aren't supported in S3M songs.
-
 The information in this page has been obtained from the
 [OpenMPT wiki](https://wiki.openmpt.org/Manual:_Effect_Reference).
 
@@ -45,6 +43,7 @@ Notes:
 
 Unsupported features:
 
+- FM instruments aren't supported.
 - `Pxy` Panning Slide or Fine Panning Slide: Slides the current channel's
   panning position left or right. Not an original Scream Tracker 3 effect.
 - `S1x` Glissando Control: Configures whether tone portamento effects slide by
@@ -71,7 +70,7 @@ Notes:
 
 Untested features:
 
-- Instrument fadeout.
+- Instrument global volume, pan, pitch/pan separation.
 - Instrument note map.
 - Instrument DTC/NNA/DCA.
 - Instrument envelope carry.
@@ -87,6 +86,8 @@ Unsupported features:
 - `~~`: Note fade in note column.
 - Samples with sustain loops.
 - Instrument filter envelope.
+- Instrument random variation.
+- Instrument filter.
 - `Ixy` Tremor: Rapidly switches the sample volume on and off.
 - `Pxy` Panning Slide or Fine Panning Slide: Slides the current channel's
   panning position left or right.
@@ -128,10 +129,6 @@ Notes:
 - `EFx` is a valid effect (Set Active Macro), but it is barely used and Maxmod
   uses it as an event marker instead. Whenever `EFx` is found, it is sent to a
   user-defined callback.
-
-Untested features:
-
-- Instrument fadeout.
 
 Unsupported features:
 

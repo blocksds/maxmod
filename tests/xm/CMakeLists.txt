@@ -56,6 +56,10 @@ xm_test("initial_settings")
 # envelope sustain.
 xm_test("instrument_envelopes")
 
+# Tests long and short instrument fadeouts for instruments with envelope loops
+# and envelope sustain loops.
+xm_test("instrument_fadeout")
+
 # Test E60 and E6x effects. The effect only affects the current pattern, and
 # mmutil tries to detect E6x that are used before E60 because the behaviour in
 # that case depends a lot on the format.
