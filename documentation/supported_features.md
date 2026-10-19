@@ -74,7 +74,7 @@ Untested features:
 - Instrument fadeout.
 - Instrument note map.
 - Instrument DTC/NNA/DCA.
-- Instrument volume/panning/pitch envelope.
+- Instrument envelope carry.
 - `S73` NNA Note Cut: Sets the currently active note's New Note Action to Note Cut.
 - `S74` NNA Note Continue: Sets the currently active note's New Note Action to Continue.
 - `S75` NNA Note Off: Sets the currently active note's New Note Action to Note Off.
@@ -86,6 +86,7 @@ Unsupported features:
 
 - `~~`: Note fade in note column.
 - Samples with sustain loops.
+- Instrument filter envelope.
 - `Ixy` Tremor: Rapidly switches the sample volume on and off.
 - `Pxy` Panning Slide or Fine Panning Slide: Slides the current channel's
   panning position left or right.
@@ -131,7 +132,6 @@ Notes:
 Untested features:
 
 - Instrument fadeout.
-- Instrument volume/panning envelope.
 
 Unsupported features:
 

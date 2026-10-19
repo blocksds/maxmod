@@ -59,6 +59,11 @@ it_test("global_volume")
 # song. Also, test the initial per-channel panning setting.
 it_test("initial_settings")
 
+# Test volume, panning, pitch and filter envelopes in instruments (filter
+# envelope isn't supported!). Test envelope loop and envelope sustain (but not
+# envelope continue).
+it_test("instrument_envelopes")
+
 # Test SB0 and SBx effects. The effect only affects the current pattern, and
 # mmutil tries to detect SBx that are used before SB0 because the behaviour in
 # that case depends a lot on the format.

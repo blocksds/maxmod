@@ -52,6 +52,10 @@ xm_test("global_volume")
 # song. Also, test the initial per-channel panning setting.
 xm_test("initial_settings")
 
+# Test volume and panning envelopes in instruments. Test envelope loop and
+# envelope sustain.
+xm_test("instrument_envelopes")
+
 # Test E60 and E6x effects. The effect only affects the current pattern, and
 # mmutil tries to detect E6x that are used before E60 because the behaviour in
 # that case depends a lot on the format.
