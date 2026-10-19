@@ -39,8 +39,8 @@
 #define GLISSANDO_EFFECT            7
 #define GLISSANDO_IT_VOLCMD_START   193
 #define GLISSANDO_IT_VOLCMD_END     202
-#define GLISSANDO_MX_VOLCMD_START   0xF0
-#define GLISSANDO_MX_VOLCMD_END     0xFF
+#define GLISSANDO_XM_VOLCMD_START   0xF0
+#define GLISSANDO_XM_VOLCMD_END     0xFF
 
 #define NOTE_NUM        120 // Valid notes go from 0 to 119
 #define NOTE_CUT        254
@@ -398,16 +398,16 @@ mmUpdateChannel_T0(mm_module_channel *module_channel, mpl_layer_information *mpp
 
     if (mpp_layer->flags & MAS_HEADER_FLAG_XM_MODE) // XM effects
     {
-        // Glissando is 193..202
-        if ((module_channel->volcmd < GLISSANDO_IT_VOLCMD_START) ||
-            (module_channel->volcmd > GLISSANDO_IT_VOLCMD_END))
+        // Glissando is Fx
+        if ((module_channel->volcmd < GLISSANDO_XM_VOLCMD_START) /* ||
+            (module_channel->volcmd > GLISSANDO_XM_VOLCMD_END)*/ )
             goto start_channel;
     }
     else // IT effects
     {
-        // Glissando is Fx
-        if ((module_channel->volcmd < GLISSANDO_MX_VOLCMD_START) /* ||
-            (module_channel->volcmd > GLISSANDO_MX_VOLCMD_END)*/ )
+        // Glissando is 193..202
+        if ((module_channel->volcmd < GLISSANDO_IT_VOLCMD_START) ||
+            (module_channel->volcmd > GLISSANDO_IT_VOLCMD_END))
             goto start_channel;
     }
 
