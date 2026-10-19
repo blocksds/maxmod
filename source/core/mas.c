@@ -1469,7 +1469,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
             if (tick == 0)
                 return period;
 
-            mm_word r0;
+            mm_word new_period;
 
             if (volcmd >= 115) // F: mppuv_porta_up
             {
@@ -1480,7 +1480,7 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
 
                 channel->memory[MPP_IT_PORTA] = volcmd;
 
-                r0 = mpph_PitchSlide_Up(channel->period, volcmd, layer);
+                new_period = mpph_PitchSlide_Up(period, volcmd, layer);
             }
             else // E: mppuv_porta_down
             {
@@ -1491,14 +1491,16 @@ mm_word mpp_Process_VolumeCommand(mpl_layer_information *layer,
 
                 channel->memory[MPP_IT_PORTA] = volcmd;
 
-                r0 = mpph_PitchSlide_Down(channel->period, volcmd, layer);
+                new_period = mpph_PitchSlide_Down(period, volcmd, layer);
             }
 
-            mm_word r1 = channel->period;
+            int old_period = channel->period;
 
-            channel->period = period;
+            channel->period = new_period;
 
-            return period + r0 - r1;
+            int delta = new_period - old_period;
+
+            return period + delta;
         }
         else if (volcmd <= 192) // P: Panning : mppuv_panning
         {
