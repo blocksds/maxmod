@@ -71,7 +71,6 @@ Notes:
 Untested features:
 
 - Instrument global volume, pan, pitch/pan separation.
-- Instrument note map.
 - Instrument DTC/NNA/DCA.
 - Instrument envelope carry.
 - `S73` NNA Note Cut: Sets the currently active note's New Note Action to Note Cut.
