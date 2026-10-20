@@ -38,9 +38,11 @@ endif()
 
 if(EMSCRIPTEN)
     set(BUILD_WAV_RENDERER FALSE)
+    set(BUILD_WAV_DIFF FALSE)
     set(ENABLE_TESTS FALSE)
 else()
     set(BUILD_WAV_RENDERER TRUE)
+    set(BUILD_WAV_DIFF TRUE)
     set(ENABLE_TESTS TRUE)
 endif()
 

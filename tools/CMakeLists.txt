@@ -11,3 +11,7 @@ endif()
 if (BUILD_WAV_RENDERER)
     add_subdirectory(wav_renderer)
 endif()
+
+if (BUILD_WAV_DIFF)
+    add_subdirectory(wav_diff)
+endif()
