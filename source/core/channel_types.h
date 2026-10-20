@@ -127,7 +127,7 @@ typedef struct {
     mm_byte     envn_vol;
     mm_byte     envn_pan;
     mm_byte     envn_pic;
-    mm_byte     sfx;        // can store this anywhere
+    mm_byte     unused; // Reserved, used as padding
 } mm_active_channel;
 
 #ifdef __GBA__
