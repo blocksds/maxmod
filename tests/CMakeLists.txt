@@ -18,6 +18,36 @@ add_test(
 # This test creates the fixture soundbank that all other tests depend on.
 set_tests_properties(soundbank_create PROPERTIES FIXTURES_SETUP fixture_soundbank)
 
+# Macro to generate tests for module files
+# ----------------------------------------
+
+set(TEST_RUNNER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/run_module_test.sh)
+
+macro(module_test test_name)
+
+    get_filename_component(name_base ${test_name} NAME_WE)
+    get_filename_component(name_ext_with_dot ${test_name} EXT)
+    string(REPLACE "." "" name_ext ${name_ext_with_dot})
+
+    set(cmake_test_name "test_${name_ext}_${name_base}")
+
+    add_test(
+        NAME ${cmake_test_name}
+
+        COMMAND
+            ${BASH_EXECUTABLE} ${TEST_RUNNER_SCRIPT}
+                $<TARGET_FILE:maxmod_wav_renderer>
+                $<TARGET_FILE:maxmod_wav_diff>
+                ${TEST_SOUNDBANK_PATH}
+                ${CMAKE_CURRENT_SOURCE_DIR}
+                ${test_name}
+
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    )
+
+    set_tests_properties(${cmake_test_name} PROPERTIES FIXTURES_REQUIRED fixture_soundbank)
+endmacro()
+
 # Add subdirectories with tests
 # -----------------------------
 

@@ -6,132 +6,117 @@
 #
 #     tar -jcf output.tar.bz input.wav
 
-macro(s3m_test test_name)
-    add_test(
-        NAME test_s3m_${test_name}
-
-        COMMAND
-            ${BASH_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/run_test.sh
-                $<TARGET_FILE:maxmod_wav_renderer> ${TEST_SOUNDBANK_PATH}
-                ${CMAKE_CURRENT_SOURCE_DIR} ${test_name}
-
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    )
-
-    set_tests_properties(test_s3m_${test_name} PROPERTIES FIXTURES_REQUIRED fixture_soundbank)
-endmacro()
-
 # Test effect Jxx, including J00, which is a "continue" effect. Also, test
 # arpeggios when the song speed is too fast and the second note of the arpeggio
 # (or the first one) can't happen.
-s3m_test("arpeggio")
+module_test("arpeggio.s3m")
 
 # It tests non-standard effects Mxx and Nxx, as well as changing instrument
 # volume and channel volume. It also shows how it interacts with Vxx.
 # TODO: When the volume changes in a pattern with Mxx and Vxx at the same time,
 # there is a small delay between both of them.
-s3m_test("channel_volume")
+module_test("channel_volume.s3m")
 
 # Test SCx including some corner cases (like SC0, or SCx at the same time as Bxy
 # or Cxy).
-s3m_test("cut_note")
+module_test("cut_note.s3m")
 
 # Tests effect note cut in the note column (^^).
 # TODO: This test doesn't pass
-#s3m_test("note_stop")
+#module_test("note_stop.s3m")
 
 # Test SDx including some corner cases, like SD0, or SDx when the value is the
 # same as the speed of the song, or just around it.
-s3m_test("delay_note")
+module_test("delay_note.s3m")
 
 # Test of behaviour in the following cases:
 # - No instrument number, only note and effect.
 # - No note, only instrument number and effect.
 # - Only note, no instrument or effect
 # TODO: There's a small difference in the test, but not big enough to disable it
-s3m_test("empty_fields")
+module_test("empty_fields.s3m")
 
 # It tests effects Vxx and the non-standard Wxx.
-s3m_test("global_volume")
+module_test("global_volume.s3m")
 
 # Test initial global volume, initial tempo and speed. Change them during the
 # song. Also, test the initial per-channel panning setting.
-s3m_test("initial_settings")
+module_test("initial_settings.s3m")
 
 # Test SB0 and SBx effects. The effect only affects the current pattern, and
 # mmutil tries to detect SBx that are used before SB0 because the behaviour in
 # that case depends a lot on the format. The current behaviour is the one that
 # corresponds to S3M, but we shouldn't rely on that.
-s3m_test("loop_effect")
+module_test("loop_effect.s3m")
 
 # Test effect Bxy and some corner cases like having it twice in the same row.
-s3m_test("jump_to_pattern")
+module_test("jump_to_pattern.s3m")
 
 # Test effects Bxy and Cxy in the same row.
-s3m_test("jump_to_pattern_plus_pattern_break")
+module_test("jump_to_pattern_plus_pattern_break.s3m")
 
 # Tests effects Gxy and Lxy.
-s3m_test("porta_to_note")
+module_test("porta_to_note.s3m")
 
 # Tests effect Exx.
-s3m_test("porta_up_down")
+module_test("porta_up_down.s3m")
 
 # Tests effects Xxy and S8x.
-s3m_test("panning")
+module_test("panning.s3m")
 
 # It's possible to specify panning instead of volume in the volume column. This
 # isn't a standard behaviour, but it's recognized by trackers. IT files support
 # the same behaviour.
-s3m_test("volcmd_panning")
+module_test("volcmd_panning.s3m")
 
 # Test effects S6x and SEx.
-s3m_test("pattern_delay")
+module_test("pattern_delay.s3m")
 
 # Test effect Cxy and some corner cases like having it twice in the same row or
 # jumping to a row number too big.
-s3m_test("pattern_break")
+module_test("pattern_break.s3m")
 
 # Tests full range of notes from C-3 to B-8.
-s3m_test("range_test")
+module_test("range_test.s3m")
 
 # Tests effect Qxy, including corner cases such as y = 0, y = speed -1,
 # y = speed and y = speed + 1.
-s3m_test("retrigger_note")
+module_test("retrigger_note.s3m")
 
 # Tests behaviour of effect Oxy, both for samples that loop and that don't. Also
 # test jumps after the end of the loop and end of the sample.
-s3m_test("sample_offset")
+module_test("sample_offset.s3m")
 
 # Tests behaviour of samples that loop (different parts of the sample waveform)
 # and samples that don't loop.
-s3m_test("sample_that_loops")
+module_test("sample_that_loops.s3m")
 
 # Tests samples that have a default finetune value.
-s3m_test("sample_with_finetune")
+module_test("sample_with_finetune.s3m")
 
 # Tests effects Axx and Txx to change the speed and BPM. It tests Txx for
 # 'xx > 0x20', '0x1F >= xx >= 0x10' and '0x0F >= xx >= 0x00'.
-s3m_test("speed")
+module_test("speed.s3m")
 
 # Tests effect Rxy and how it interacts with the volume column. The column
 # should set the base volume for Rxy to ondulate around.
-s3m_test("tremolo")
+module_test("tremolo.s3m")
 
 # Test all possible valid values of effect S4x (x goes from 0 to 3).
-s3m_test("tremolo_waveform")
+module_test("tremolo_waveform.s3m")
 
 # Tests effect Ixy
-s3m_test("tremor")
+module_test("tremor.s3m")
 
 # Tests effects Hxy, Uxy and Kxy.
-s3m_test("vibrato")
+module_test("vibrato.s3m")
 
 # Test all possible valid values of effect S3x (x goes from 0 to 3).
-s3m_test("vibrato_waveform")
+module_test("vibrato_waveform.s3m")
 
 # Test the volume column. Test that SCx effect stops the note. Also, test
 # samples with different default volumes.
-s3m_test("volume")
+module_test("volume.s3m")
 
 # Tests effect Dxy.
-s3m_test("volume_slide")
+module_test("volume_slide.s3m")

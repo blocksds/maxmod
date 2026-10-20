@@ -6,153 +6,138 @@
 #
 #     tar -jcf output.tar.bz input.wav
 
-macro(it_test test_name)
-    add_test(
-        NAME test_it_${test_name}
-
-        COMMAND
-            ${BASH_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/run_test.sh
-                $<TARGET_FILE:maxmod_wav_renderer> ${TEST_SOUNDBANK_PATH}
-                ${CMAKE_CURRENT_SOURCE_DIR} ${test_name}
-
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    )
-
-    set_tests_properties(test_it_${test_name} PROPERTIES FIXTURES_REQUIRED fixture_soundbank)
-endmacro()
-
 # Test effect Jxx, including J00, which is a "continue" effect. Also, test
 # arpeggios when the song speed is too fast and the second note of the arpeggio
 # (or the first one) can't happen.
-it_test("arpeggio")
+module_test("arpeggio.it")
 
 # It tests non-standard effects Mxx and Nxx, as well as changing instrument
 # volume and channel volume. It also shows how it interacts with Vxx.
 # TODO: When the volume changes in a pattern with Mxx and Vxx at the same time,
 # there is a small delay between both of them. Also, it looks like the initial
 # change doesn't work as expected.
-#it_test("channel_volume")
+#module_test("channel_volume.it")
 
 # Test SCx including some corner cases (like SC0, or SCx at the same time as Bxy
 # or Cxy).
-it_test("cut_note")
+module_test("cut_note.it")
 
 # Tests effect note off/cut/fade in the note column (==/^^/~~).
 # TODO: This test doesn't pass
-#it_test("note_stop")
+#module_test("note_stop.it")
 
 # Test SDx including some corner cases, like SD0, or SDx when the value is the
 # same as the speed of the song, or just around it.
-it_test("delay_note")
+module_test("delay_note.it")
 
 # Test of behaviour in the following cases:
 # - No instrument number, only note and effect.
 # - No note, only instrument number and effect.
 # - Only note, no instrument or effect
 # TODO: This test doesn't pass
-#it_test("empty_fields")
+#module_test("empty_fields.it")
 
 # It tests effects Vxx and the non-standard Wxx.
-it_test("global_volume")
+module_test("global_volume.it")
 
 # Test initial global volume, initial tempo and speed. Change them during the
 # song. Also, test the initial per-channel panning setting.
-it_test("initial_settings")
+module_test("initial_settings.it")
 
 # Test volume, panning, pitch and filter envelopes in instruments (filter
 # envelope isn't supported!). Test envelope loop and envelope sustain (but not
 # envelope continue).
-it_test("instrument_envelopes")
+module_test("instrument_envelopes.it")
 
 # Tests long and short instrument fadeouts for instruments with envelope loops
 # and envelope sustain loops.
-it_test("instrument_fadeout")
+module_test("instrument_fadeout.it")
 
 # Test SB0 and SBx effects. The effect only affects the current pattern, and
 # mmutil tries to detect SBx that are used before SB0 because the behaviour in
 # that case depends a lot on the format.
-it_test("loop_effect")
+module_test("loop_effect.it")
 
 # Test effect Bxy and some corner cases like having it twice in the same row.
-it_test("jump_to_pattern")
+module_test("jump_to_pattern.it")
 
 # Test effects Bxy and Cxy in the same row.
-it_test("jump_to_pattern_plus_pattern_break")
+module_test("jump_to_pattern_plus_pattern_break.it")
 
 # Test patterns with different numbers of rows (and with fewer channels than the
 # other examples). Also, test effect Dxx jumping after the end of the following
 # pattern (it should jump to the start instead).
-it_test("pattern_sizes")
+module_test("pattern_sizes.it")
 
 # Tests effects Gxy and Lxy.
-it_test("porta_to_note")
+module_test("porta_to_note.it")
 
 # Tests effect Exx.
-it_test("porta_up_down")
+module_test("porta_up_down.it")
 
 # Tests effects e0x, f0x, g0x in the volume column.
-it_test("volcmd_portamento")
+module_test("volcmd_portamento.it")
 
 # Tests effects Xxy and S8x.
-it_test("panning")
+module_test("panning.it")
 
 # It's possible to specify panning instead of volume in the volume column.
-it_test("volcmd_panning")
+module_test("volcmd_panning.it")
 
 # Test effects S6x and SEx.
-it_test("pattern_delay")
+module_test("pattern_delay.it")
 
 # Test effect Cxx and some corner cases like having it twice in the same row or
 # jumping to a row number too big.
-it_test("pattern_break")
+module_test("pattern_break.it")
 
 # Tests full range of notes from C-3 to B-8.
-it_test("range_test")
+module_test("range_test.it")
 
 # Tests effect Qxy, including corner cases such as y = 0, y = speed -1,
 # y = speed and y = speed + 1.
-it_test("retrigger_note")
+module_test("retrigger_note.it")
 
 # Tests behaviour of effect Oxy, both for samples that loop and that don't. Also
 # test jumps after the end of the loop and end of the sample.
-it_test("sample_offset")
+module_test("sample_offset.it")
 
 # Tests behaviour of samples that loop (different parts of the sample waveform)
 # and samples that don't loop. It also tests BIDI loops.
-it_test("sample_that_loops")
+module_test("sample_that_loops.it")
 
 # Tests samples that have autovibrato
-it_test("sample_with_autovibrato")
+module_test("sample_with_autovibrato.it")
 
 # Tests samples that have a default finetune value.
-it_test("sample_with_finetune")
+module_test("sample_with_finetune.it")
 
 # Tests effects Axx and Txx to change the speed and BPM. It tests Txx for
 # 'xx > 0x20', '0x1F >= xx >= 0x10' and '0x0F >= xx >= 0x00'.
-it_test("speed")
+module_test("speed.it")
 
 # Tests effect Rxy and how it interacts with the volume column. The column
 # should set the base volume for Rxy to ondulate around.
-it_test("tremolo")
+module_test("tremolo.it")
 
 # Test all possible valid values of effect S4x (x goes from 0 to 3).
-it_test("tremolo_waveform")
+module_test("tremolo_waveform.it")
 
 # Tests effects Hxy, Uxy and Kxy.
-it_test("vibrato")
+module_test("vibrato.it")
 
 # Tests volume command effect h0x.
-it_test("volcmd_vibrato")
+module_test("volcmd_vibrato.it")
 
 # Test all possible valid values of effect S3x (x goes from 0 to 3).
-it_test("vibrato_waveform")
+module_test("vibrato_waveform.it")
 
 # Tests effects a0x, b0x, c0x, d0x in the volume column.
-it_test("volcmd_volume_slide")
+module_test("volcmd_volume_slide.it")
 
 # Test the volume column. Test that SCx effect stops the note. Also, test
 # samples with different default volumes.
-it_test("volume")
+module_test("volume.it")
 
 # Tests effect Dxy.
-it_test("volume_slide")
+module_test("volume_slide.it")
