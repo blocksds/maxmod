@@ -2791,27 +2791,41 @@ static void mppex_InstControl(mm_word param, mm_active_channel *act_ch,
 
     mm_word subparam = param & 0xF;
 
-    if (subparam <= 2) // mppex_ic_pastnotes
+    switch (subparam)
     {
-        // TODO
-    }
-    else if (subparam <= 6) // mppex_ic_nna
-    {
-        // Overwrite NNA
-        channel->bflags &= ~MCH_BFLAGS_NNA_MASK;
-        channel->bflags |= MCH_BFLAGS_NNA_SET(subparam - 3);
-    }
-    else if (subparam <= 8) // mppex_ic_envelope
-    {
-        if (act_ch != NULL)
-        {
-            int val = subparam - 7; // val can be 0 or 1
+        case 0x0: // Past Note Cut
+        case 0x1: // Past Note Off
+        case 0x2: // Past Note Fade
+            // TODO
+            break;
 
-            if (val)
-                act_ch->flags |= MCAF_VOLENV;
-            else
+        case 0x3: // NNA Note Cut
+        case 0x4: // NNA Note Continue
+        case 0x5: // NNA Note Off
+        case 0x6: // NNA Note Fade
+            // Overwrite NNA
+            channel->bflags &= ~MCH_BFLAGS_NNA_MASK;
+            channel->bflags |= MCH_BFLAGS_NNA_SET(subparam - 3);
+            break;
+
+        case 0x7: // Volume Envelope Off
+            if (act_ch != NULL)
                 act_ch->flags &= ~MCAF_VOLENV;
-        }
+            break;
+
+        case 0x8: // Volume Envelope On
+            if (act_ch != NULL)
+                act_ch->flags |= MCAF_VOLENV;
+            break;
+
+        case 0x9: // Panning Envelope Off
+        case 0xA: // Panning Envelope On
+        case 0xB: // Pitch Envelope Off
+        case 0xC: // Pitch Envelope On
+            break;
+
+        default: // 0xD, 0xE, 0xF are unused
+            break;
     }
 }
 
