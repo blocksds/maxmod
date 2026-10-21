@@ -70,7 +70,7 @@ Notes:
 
 Untested features:
 
-- Compressed samples.
+- Compressed stereo samples.
 - Instrument global volume, pan, pitch/pan separation.
 - Instrument DTC/NNA/DCA.
 - Instrument envelope carry.
@@ -83,6 +83,7 @@ Unsupported features:
 
 - `~~`: Note fade in note column.
 - Samples with sustain loops.
+- Stereo samples are converted to mono.
 - Instrument filter envelope.
 - Instrument random variation.
 - Instrument filter.
