@@ -70,6 +70,7 @@ Notes:
 
 Untested features:
 
+- Compressed samples.
 - Instrument global volume, pan, pitch/pan separation.
 - Instrument DTC/NNA/DCA.
 - Instrument envelope carry.
