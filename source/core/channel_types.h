@@ -120,14 +120,13 @@ typedef struct {
     mm_byte     type;
     mm_byte     inst;
     mm_byte     panning;
+    mm_hword    flags;
     mm_byte     volume;
     mm_byte     sample;
     mm_byte     parent;
-    mm_byte     flags;
     mm_byte     envn_vol;
     mm_byte     envn_pan;
     mm_byte     envn_pic;
-    mm_byte     unused; // Reserved, used as padding
 } mm_active_channel;
 
 #ifdef __GBA__
@@ -144,6 +143,8 @@ static_assert(sizeof(mm_active_channel) == MM_SIZEOF_ACTCH);
 #define MCAF_VOLENV     (1 << 5) // Volume envelope enabled
 #define MCAF_SUB        (1 << 6) // 1 = Channel used for jingle. 0 = Used for main module
 #define MCAF_EFFECT     (1 << 7) // 1 = Channel is used for an effect, not module or jingle
+#define MCAF_PANENV     (1 << 8) // Panning envelope enabled
+#define MCAF_PITCHENV   (1 << 9) // Pitch envelope enabled
 // Note: Don't move MCAF_SUB or MCAF_EFFECT from their current places. Some
 // functions read both of them in one go.
 

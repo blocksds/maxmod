@@ -136,12 +136,19 @@ typedef struct tmm_mas_instrument
 
 MM_STATIC_ASSERT(mm_mas_instrument, 12)
 
-#define MAS_INSTR_FLAG_VOL_ENV_EXISTS   (1 << 0) // Volume envelope exists
-#define MAS_INSTR_FLAG_PAN_ENV_EXISTS   (1 << 1) // Panning envelope exists
-#define MAS_INSTR_FLAG_PITCH_ENV_EXISTS (1 << 2) // Pitch envelope exists
-#define MAS_INSTR_FLAG_VOL_ENV_ENABLED  (1 << 3) // Volume envelope enabled
-// In XM, bits 0 and 3 are always set together. In IT, they can be set
-// independently. Other formats don't use them.
+#define MAS_INSTR_FLAG_VOL_ENV_EXISTS    (1 << 0) // Volume envelope exists
+#define MAS_INSTR_FLAG_PAN_ENV_EXISTS    (1 << 1) // Panning envelope exists
+#define MAS_INSTR_FLAG_PITCH_ENV_EXISTS  (1 << 2) // Pitch envelope exists
+#define MAS_INSTR_FLAG_VOL_ENV_ENABLED   (1 << 3) // Volume envelope enabled
+#define MAS_INSTR_FLAG_PAN_ENV_ENABLED   (1 << 4) // Panning envelope enabled
+#define MAS_INSTR_FLAG_PITCH_ENV_ENABLED (1 << 5) // Pitch envelope enabled
+// In XM pitch envelope doesn't exist, only volume and panning envelopes. Also,
+// the "exists" and "enabled" flags are always together.
+//
+// In IT, the "enabled" and "exists" flags are set independently (an envelope
+// may start disabled and it can be enabled with S7x effects.
+//
+// MOD and S3M don't have instruments, so they don't have instrument envelopes
 
 typedef struct
 {

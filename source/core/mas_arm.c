@@ -466,10 +466,21 @@ channel_started:
             module_channel->bflags &= ~MCH_BFLAGS_NNA_MASK;
             module_channel->bflags |= MCH_BFLAGS_NNA_SET(instrument->nna);
 
+            // Instrument envelopes may start enabled or disabled
             if (instrument->env_flags & MAS_INSTR_FLAG_VOL_ENV_ENABLED)
                 act_ch->flags |= MCAF_VOLENV;
             else
                 act_ch->flags &= ~MCAF_VOLENV;
+
+            if (instrument->env_flags & MAS_INSTR_FLAG_PAN_ENV_ENABLED)
+                act_ch->flags |= MCAF_PANENV;
+            else
+                act_ch->flags &= ~MCAF_PANENV;
+
+            if (instrument->env_flags & MAS_INSTR_FLAG_PITCH_ENV_ENABLED)
+                act_ch->flags |= MCAF_PITCHENV;
+            else
+                act_ch->flags &= ~MCAF_PITCHENV;
 
             // The MSB determines if we need to set a new panning value
             if (instrument->panning & 0x80)

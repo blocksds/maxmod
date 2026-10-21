@@ -2819,9 +2819,23 @@ static void mppex_InstControl(mm_word param, mm_active_channel *act_ch,
             break;
 
         case 0x9: // Panning Envelope Off
+            if (act_ch != NULL)
+                act_ch->flags &= ~MCAF_PANENV;
+            break;
+
         case 0xA: // Panning Envelope On
+            if (act_ch != NULL)
+                act_ch->flags |= MCAF_PANENV;
+            break;
+
         case 0xB: // Pitch Envelope Off
+            if (act_ch != NULL)
+                act_ch->flags &= ~MCAF_PITCHENV;
+            break;
+
         case 0xC: // Pitch Envelope On
+            if (act_ch != NULL)
+                act_ch->flags |= MCAF_PITCHENV;
             break;
 
         default: // 0xD, 0xE, 0xF are unused
@@ -3330,31 +3344,56 @@ mppt_has_volenv:
 
     if (instrument->env_flags & MAS_INSTR_FLAG_PAN_ENV_EXISTS)
     {
-        mm_word value_mul_64;
         mm_mas_envelope *env = (mm_mas_envelope *)env_ptr;
-
         env_ptr += env_ptr[0];
 
-        mpph_ProcessEnvelope(&act_ch->envc_pan, &act_ch->envn_pan, env, act_ch, &value_mul_64);
+        mm_word value_mul_64;
+
+        if (act_ch->flags & MCAF_PANENV)
+        {
+            mpph_ProcessEnvelope(&act_ch->envc_pan, &act_ch->envn_pan, env, act_ch, &value_mul_64);
+        }
+        else
+        {
+            // mpp_vars.panplus is cleared between updates, so we need to
+            // recalculate the current value of the envelope. However, we need
+            // to use temporary values that will get updated (instead of the
+            // real ones) so that the envelope doesn't advance.
+            mm_hword envc = act_ch->envc_pan;
+            mm_byte envn = act_ch->envn_pan;
+
+            mpph_ProcessEnvelope(&envc, &envn, env, act_ch, &value_mul_64);
+        }
 
         mpp_vars.panplus += (value_mul_64 >> 4) - 128;
     }
 
     if (instrument->env_flags & MAS_INSTR_FLAG_PITCH_ENV_EXISTS)
     {
-        mm_word value_mul_64;
         mm_mas_envelope *env = (mm_mas_envelope *)env_ptr;
 
         if (env->is_filter == 0)
         {
-            mpph_ProcessEnvelope(&act_ch->envc_pic, &act_ch->envn_pic, env, act_ch, &value_mul_64);
+            if (act_ch->flags & MCAF_PITCHENV)
+            {
+                mm_word value_mul_64;
 
-            mm_sword value = (value_mul_64 >> 3) - 256;
+                mpph_ProcessEnvelope(&act_ch->envc_pic, &act_ch->envn_pic, env, act_ch, &value_mul_64);
 
-            if (value < 0)
-                period = mpph_LinearPitchSlide_Down(period, -value, layer);
+                mm_sword value = (value_mul_64 >> 3) - 256;
+
+                if (value < 0)
+                    period = mpph_LinearPitchSlide_Down(period, -value, layer);
+                else
+                    period = mpph_LinearPitchSlide_Up(period, value, layer);
+            }
             else
-                period = mpph_LinearPitchSlide_Up(period, value, layer);
+            {
+                // The current pitch of the channel is preserved between
+                // updates, so we don't need to check the state of the envelope
+                // every time.
+            }
+
         }
     }
 
