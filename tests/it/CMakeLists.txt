@@ -49,6 +49,11 @@ module_test("initial_settings.it")
 # envelope continue).
 module_test("instrument_envelopes.it")
 
+# Test volume, panning, pitch and filter envelopes in instruments that start
+# enabled or disabled. Then, test that they can be enabled or disabled manually
+# with effects S77, S78, S79, S7A, S7B and S7C.
+module_test("instrument_envelopes_on_off.it")
+
 # Tests long and short instrument fadeouts for instruments with envelope loops
 # and envelope sustain loops.
 module_test("instrument_fadeout.it")

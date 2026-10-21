@@ -77,8 +77,6 @@ Untested features:
 - `S74` NNA Note Continue: Sets the currently active note's New Note Action to Continue.
 - `S75` NNA Note Off: Sets the currently active note's New Note Action to Note Off.
 - `S76` NNA Note Fade: Sets the currently active note's New Note Action to Note Fade.
-- `S77` Volume Envelope Off: Disables the currently active note's volume envelope.
-- `S78` Volume Envelope On: Enables the currently active note's volume envelope.
 
 Unsupported features:
 
@@ -101,13 +99,6 @@ Unsupported features:
   Note Actions on the current channel.
 - `S72` Past Note Fade: Fades out all notes playing as a result of New Note
   Actions on the current channel.
-- `S79` Panning Envelope Off: Disables the currently active note's panning
-  envelope.
-- `S7A` Panning Envelope On: Enables the currently active note's panning
-  envelope.
-- `S7B` Pitch Envelope Off: Disables the currently active note's pitch or filter
-  envelope.
-- `S7C` Pitch Envelope On: Enables the currently active note's pitch envelope.
 - `S9x` Sound Control: Executes a sound control command.
 - `SAx` High Offset: Sets the high offset for future `Oxx` commands.
 - `SFx` Set Active Macro: Sets the current channel's active parametered macro.
