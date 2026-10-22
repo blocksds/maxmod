@@ -41,15 +41,21 @@ MM_STATIC_ASSERT(mm_mas_prefix, 8)
 #define MAS_TYPE_SAMPLE_GBA 1
 #define MAS_TYPE_SAMPLE_NDS 2
 
+// Max number of pattern orders in MAS files. The last value must be '255'.
+#define MAS_MAX_PATTERN_ORDERS  200
+
+// Max number of channels in MAS files
+#define MAS_MAX_CHANNELS        32
+
 typedef struct tmm_mas_head
 {
 #ifdef MM_MMUTIL_DEVKITPRO_COMPAT
-    mm_byte     order_count; // TODO: mmutil always exports 200. This is unused.
+    mm_byte     order_count; // TODO: mmutil always exports MAS_MAX_PATTERN_ORDERS. Unused.
     mm_byte     instr_count;
     mm_byte     sampl_count;
     mm_byte     pattn_count;
 #else
-    mm_hword    order_count; // TODO: mmutil always exports 200. This is unused.
+    mm_hword    order_count; // TODO: mmutil always exports MAS_MAX_PATTERN_ORDERS. Unused.
     mm_hword    instr_count;
     mm_hword    sampl_count;
     mm_hword    pattn_count; // TODO: This is unused
@@ -67,9 +73,9 @@ typedef struct tmm_mas_head
     mm_hword    repeat_position;
     mm_byte     reserved[4];
 #endif
-    mm_byte     channel_volume[32];
-    mm_byte     channel_panning[32];
-    mm_byte     sequence[200];
+    mm_byte     channel_volume[MAS_MAX_CHANNELS];
+    mm_byte     channel_panning[MAS_MAX_CHANNELS];
+    mm_byte     sequence[MAS_MAX_PATTERN_ORDERS];
 
     mm_word     tables[];
 
@@ -112,7 +118,7 @@ typedef struct tmm_mas_instrument
     mm_byte     dct; // Duplicate Check Type (0-3 = Off/Note/Sample/Instrument)
     mm_byte     nna; // New Note Action (0-3 = Cut/Continue/Note off/Note fade)
     mm_byte     env_flags;
-    mm_byte     panning;
+    mm_byte     panning; // If bit 7 is 0, use the value. Value = 0..127
     mm_byte     dca; // Duplicate Check Action (0-2 = Cut/Note off/Note fade)
     mm_hword    note_map_offset : 15;
     mm_hword    is_note_map_invalid : 1;
@@ -181,7 +187,7 @@ MM_STATIC_ASSERT(mm_mas_envelope, 8)
 typedef struct tmm_mas_sample_info
 {
     mm_byte     default_volume;
-    mm_byte     panning;
+    mm_byte     panning; // If bit 7 is 0, use the value. Value = 0..127
     mm_hword    frequency;
     mm_byte     av_type; // VIT (auto vibrato)
     mm_byte     av_depth; // VID
