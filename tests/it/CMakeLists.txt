@@ -44,6 +44,13 @@ module_test("global_volume.it")
 # song. Also, test the initial per-channel panning setting.
 module_test("initial_settings.it")
 
+# This tests different settings for the channel panning, including surround
+# (which isn't supported) and mute (which is supported).
+# TODO: When a sample has a default panning, it changes the panning of the
+# module channel, and that affects the following notes. This shouldn't happen,
+# notes should have the default panning of the channel instead.
+module_test("initial_panning.it")
+
 # Test volume, panning, pitch and filter envelopes in instruments (filter
 # envelope isn't supported!). Test envelope loop and envelope sustain (but not
 # envelope continue).

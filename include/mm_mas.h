@@ -74,7 +74,7 @@ typedef struct tmm_mas_head
     mm_byte     reserved[4];
 #endif
     mm_byte     channel_volume[MAS_MAX_CHANNELS];
-    mm_byte     channel_panning[MAS_MAX_CHANNELS];
+    mm_byte     channel_panning[MAS_MAX_CHANNELS]; // 0..255
     mm_byte     sequence[MAS_MAX_PATTERN_ORDERS];
 
     mm_word     tables[];

@@ -70,8 +70,8 @@ Notes:
 
 Untested features:
 
-- Compressed stereo samples.
-- Instrument global volume, pan, pitch/pan separation.
+- Stereo samples (compressed and uncompressed).
+- Instrument global volume, pitch/pan separation.
 - Instrument DTC/NNA/DCA.
 - Instrument envelope carry.
 - `S73` NNA Note Cut: Sets the currently active note's New Note Action to Note Cut.
