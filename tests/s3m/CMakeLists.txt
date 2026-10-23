@@ -43,6 +43,10 @@ module_test("global_volume.s3m")
 # song. Also, test the initial per-channel panning setting.
 module_test("initial_settings.s3m")
 
+# This tests different settings for the channel panning, including muted
+# channels.
+module_test("initial_panning.s3m")
+
 # Test SB0 and SBx effects. The effect only affects the current pattern, and
 # mmutil tries to detect SBx that are used before SB0 because the behaviour in
 # that case depends a lot on the format. The current behaviour is the one that
