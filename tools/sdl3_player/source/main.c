@@ -368,7 +368,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
                 //    wait_forever();
                 //}
 
-                mmStart(active_module_id, MM_PLAY_LOOP);
+                mmStart(active_module_id, MM_PLAY_ONCE);
                 mmSetModuleTempo(selected_module_tempo);
                 mmSetModulePitch(selected_module_pitch);
                 mmSetModuleVolume(selected_module_volume);
