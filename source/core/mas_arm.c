@@ -457,6 +457,12 @@ channel_started:
 
     if (module_channel->flags & MF_DVOL)
     {
+        // TODO: When a note is played, if there is no default panning in the
+        // sample or instrument, it should be taken from the initial channel
+        // settings. Sample panning has priority over instrument panning, and it
+        // has priority over channel panning. However, this is all overwriten by
+        // any effect found in the same row as the note.
+
         if (module_channel->inst)
         {
             // Get instrument pointer

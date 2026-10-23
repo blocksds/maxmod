@@ -51,6 +51,11 @@ module_test("initial_settings.it")
 # notes should have the default panning of the channel instead.
 module_test("initial_panning.it")
 
+# Tests how samples with/without default panning interact with instruments
+# with/without default panning. Sample panning has priority over instrument
+# panning.
+module_test("instrument_sample_pan.it")
+
 # Test volume, panning, pitch and filter envelopes in instruments (filter
 # envelope isn't supported!). Test envelope loop and envelope sustain (but not
 # envelope continue).
