@@ -74,7 +74,6 @@ Notes:
 
 Untested features:
 
-- Sample/instrument/channel global volume
 - Instrument pitch/pan separation.
 - Instrument DTC/NNA/DCA.
 - Instrument envelope carry.

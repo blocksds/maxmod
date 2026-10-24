@@ -44,6 +44,10 @@ module_test("global_volume.it")
 # song. Also, test the initial per-channel panning setting.
 module_test("initial_settings.it")
 
+# Test channel volume, sample global volume, sample default volume, instrument
+# global volume, and volume column commands. Global volume isn't tested here.
+module_test("instrument_sample_volume.it")
+
 # This tests different settings for the channel panning, including surround
 # (which isn't supported) and mute (which is supported).
 # TODO: When a sample has a default panning, it changes the panning of the
