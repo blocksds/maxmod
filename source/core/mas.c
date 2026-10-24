@@ -1935,18 +1935,20 @@ void mppProcessTickSub(void)
     mppProcessTick();
 }
 
-// Note: This is also used for panning slide
+// Note: This could also be used for panning slide
 static mm_word mpph_VolumeSlide(int volume, mm_word param, mm_word tick, int max_volume,
                                 mpl_layer_information *layer)
 {
     if (layer->flags & MAS_HEADER_FLAG_XM_MODE) // mpph_vs_XM
     {
+        // This is used for MOD and XM
+
         if (tick != 0)
         {
-            int r3 = param >> 4;
-            int r1 = param & 0xF;
+            int x = param >> 4;
+            int y = param & 0xF;
 
-            int new_val = volume + r3 - r1;
+            int new_val = volume + x - y;
 
             if (new_val > max_volume)
                 new_val = max_volume;
@@ -1960,7 +1962,11 @@ static mm_word mpph_VolumeSlide(int volume, mm_word param, mm_word tick, int max
     }
     else // mpph_vs_IT
     {
-        if (param == 0xF)
+        // This is used for S3M and IT
+
+        // D0F and DF0 slide on every tick
+
+        if (param == 0x0F) // D0F
         {
             volume -= 0xF;
             if (volume < 0)
@@ -1969,11 +1975,8 @@ static mm_word mpph_VolumeSlide(int volume, mm_word param, mm_word tick, int max
             return volume;
         }
 
-        if (param == 0xF0)
+        if (param == 0xF0) // DF0
         {
-            if (tick != 0)
-                return volume;
-
             volume += 0xF;
             if (volume > max_volume)
                 return max_volume;
@@ -1981,7 +1984,9 @@ static mm_word mpph_VolumeSlide(int volume, mm_word param, mm_word tick, int max
             return volume;
         }
 
-        if ((param & 0xF) == 0) // Test for Dx0 : mpph_vs_add
+        // Dx0 and D0x only on ticks after 0
+
+        if ((param & 0xF) == 0) // Dx0 : mpph_vs_add
         {
             if (tick == 0)
                 return volume;
@@ -1993,7 +1998,7 @@ static mm_word mpph_VolumeSlide(int volume, mm_word param, mm_word tick, int max
             return volume;
         }
 
-        if ((param >> 4) == 0) // Test for D0x : mpph_vs_sub
+        if ((param >> 4) == 0) // D0x : mpph_vs_sub
         {
             if (tick == 0)
                 return volume;
@@ -2005,11 +2010,12 @@ static mm_word mpph_VolumeSlide(int volume, mm_word param, mm_word tick, int max
             return volume;
         }
 
-        // Fine slides now... only slide on tick 0
+        // DxF and DFx are fine slides. Only slide on tick 0
+
         if (tick != 0)
             return volume;
 
-        if ((param & 0xF) == 0xF) // Test for DxF
+        if ((param & 0xF) == 0xF) // DxF
         {
             volume += param >> 4;
             if (volume > max_volume)
@@ -2018,7 +2024,7 @@ static mm_word mpph_VolumeSlide(int volume, mm_word param, mm_word tick, int max
             return volume;
         }
 
-        if ((param >> 4) == 0xF) // Test for DFx
+        if ((param >> 4) == 0xF) // DFx
         {
             volume -= param & 0xF;
             if (volume < 0)

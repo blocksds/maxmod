@@ -106,7 +106,7 @@ MM_STATIC_ASSERT(mm_mas_head, 284)
 #define MAS_HEADER_FLAG_LINK_GXX    (1 << 0) // Shared Gxx
 #define MAS_HEADER_FLAG_OLD_EFFECTS (1 << 1) // TODO: Unused flag
 #define MAS_HEADER_FLAG_FREQ_MODE   (1 << 2) // 1 = Linear freqs, 0 = Amiga freqs
-#define MAS_HEADER_FLAG_XM_MODE     (1 << 3) // 1 = XM mode, 0 = Other/IT mode?
+#define MAS_HEADER_FLAG_XM_MODE     (1 << 3) // 1 = MOD/XM mode, 0 = S3M/IT mode
 #define MAS_HEADER_FLAG_MSL_DEP     (1 << 4) // TODO: Unused flag
 #define MAS_HEADER_FLAG_OLD_MODE    (1 << 5) // 1 = MOD/S3M, 0 = Other
 
@@ -224,15 +224,15 @@ typedef enum
     MAS_FX_SET_SPEED            = 1,
     MAS_FX_POSITION_JUMP        = 2,
     MAS_FX_PATTERN_BREAK        = 3,
-    MAS_FX_VOLUME_SLIDE         = 4,
+    MAS_FX_VOLUME_SLIDE         = 4, // Affected by MAS_HEADER_FLAG_XM_MODE
     MAS_FX_PORTAMENTO_DOWN      = 5,
     MAS_FX_PORTAMENTO_UP        = 6,
     MAS_FX_GLISSANDO            = 7, // Porta to note
     MAS_FX_VIBRATO              = 8,
-    MAS_FX_TREMOR               = 9,
+    MAS_FX_TREMOR               = 9, // S3M
     MAS_FX_ARPEGGIO             = 10,
-    MAS_FX_VIBRATO_VOLUME       = 11,
-    MAS_FX_PORTA_VOLUME         = 12,
+    MAS_FX_VIBRATO_VOLUME       = 11, // Affected by MAS_HEADER_FLAG_XM_MODE
+    MAS_FX_PORTA_VOLUME         = 12, // Affected by MAS_HEADER_FLAG_XM_MODE
     MAS_FX_CHANNEL_VOLUME       = 13,
     MAS_FX_CHANNEL_VOLUME_SLIDE = 14,
     MAS_FX_SAMPLE_OFFSET        = 15,
