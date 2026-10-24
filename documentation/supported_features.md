@@ -6,6 +6,9 @@ supported by Maxmod.
 The information in this page has been obtained from the
 [OpenMPT wiki](https://wiki.openmpt.org/Manual:_Effect_Reference).
 
+Note that Maxmod has a limit of 32 channels per module file, and a limit of 199
+pattern orders. They are hard limits of the current MAS format.
+
 ## WAV: Waveform Audio File Format
 
 Supported chunks:
@@ -31,7 +34,7 @@ Unsupported features:
   note.
 - `EFx` Invert Loop: When used with a looped sample, goes through the sample
   loop and inverts all sampling points (i.e. changes the sign) one by one at
-  speed x. This effect permanently modifies the module file when encountered
+  speed `x`. This effect permanently modifies the module file when encountered
   during playback.
 
 ## S3M: The Scream Tracker 3 format
@@ -43,6 +46,7 @@ Notes:
 
 Unsupported features:
 
+- Stereo samples are converted to mono by ignoring the right channel.
 - FM instruments aren't supported.
 - `Pxy` Panning Slide or Fine Panning Slide: Slides the current channel's
   panning position left or right. Not an original Scream Tracker 3 effect.
@@ -70,8 +74,8 @@ Notes:
 
 Untested features:
 
-- Stereo samples (compressed and uncompressed).
-- Instrument global volume, pitch/pan separation.
+- Sample/instrument/channel global volume
+- Instrument pitch/pan separation.
 - Instrument DTC/NNA/DCA.
 - Instrument envelope carry.
 - `S73` NNA Note Cut: Sets the currently active note's New Note Action to Note Cut.
@@ -83,7 +87,7 @@ Unsupported features:
 
 - `~~`: Note fade in note column.
 - Samples with sustain loops.
-- Stereo samples are converted to mono.
+- Stereo samples are converted to mono by ignoring the right channel.
 - Instrument filter envelope.
 - Instrument random variation.
 - Instrument filter.
@@ -120,6 +124,7 @@ Notes:
 
 Unsupported features:
 
+- Stereo samples are converted to mono by ignoring the right channel.
 - `E0x` Set Filter: Configures the Amiga's LED lowpass filter.
 - `E3x` Glissando Control: Configures whether tone portamento effects slide by
   semitones or not. Not widely supported.
@@ -135,7 +140,7 @@ Unsupported features:
   This effect is a ModPlug hack.
 - `X9x` Sound Control: Executes a sound control command. This effect is a
   ModPlug hack.
-- `XAx` High Offset: Sets the high offset for future 9xx commands. This effect
+- `XAx` High Offset: Sets the high offset for future `9xx` commands. This effect
   is a ModPlug hack.
 - `Yxy` Panbrello: Executes panbrello with speed `x` and depth `y` on the
   current note. This effect is a ModPlug hack.

@@ -162,7 +162,12 @@ module_test("volume.it")
 # Tests effect Dxy.
 module_test("volume_slide.it")
 
-# Test different types of sample compression (and no compression at all).
+# Test different types of mono sample compression (and no compression at all).
 module_test("sample_compression_it214.it")
 module_test("sample_compression_it215.it")
 module_test("sample_compression_none.it")
+
+# Test different types of stereo sample compression (and no compression at all).
+module_test("sample_stereo_compression_it214.it")
+module_test("sample_stereo_compression_it215.it")
+module_test("sample_stereo_compression_none.it")

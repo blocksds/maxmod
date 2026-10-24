@@ -48,6 +48,9 @@ module_test("instrument_fadeout.xm")
 # Tests an instrument with a note map that uses multiple samples.
 module_test("instrument_note_map.xm")
 
+# Test what happens when there's a stereo sample.
+module_test("sample_stereo.xm")
+
 # Test E60 and E6x effects. The effect only affects the current pattern, and
 # mmutil tries to detect E6x that are used before E60 because the behaviour in
 # that case depends a lot on the format.

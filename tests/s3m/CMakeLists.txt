@@ -124,3 +124,6 @@ module_test("volume.s3m")
 
 # Tests effect Dxy.
 module_test("volume_slide.s3m")
+
+# Test what happens when there's a stereo sample.
+module_test("sample_stereo.s3m")
