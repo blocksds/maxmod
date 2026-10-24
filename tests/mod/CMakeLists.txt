@@ -92,5 +92,5 @@ module_test("vibrato_waveform.mod")
 # default volumes.
 module_test("volume.mod")
 
-# Tests effects Axy, EAx, EBx.
+# Tests effects Axy, EAx, EBx with valid and invalid parameters.
 module_test("volume_slide.mod")

@@ -163,7 +163,7 @@ module_test("volcmd_volume_slide.it")
 # samples with different default volumes.
 module_test("volume.it")
 
-# Tests effect Dxy.
+# Tests effect Dxy with valid and invalid parameters.
 module_test("volume_slide.it")
 
 # Test different types of mono sample compression (and no compression at all).

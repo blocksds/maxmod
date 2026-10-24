@@ -143,5 +143,5 @@ module_test("volcmd_volume_slide.xm")
 # default volumes.
 module_test("volume.xm")
 
-# Tests effects Axy, EAx and EBx.
+# Tests effects Axy, EAx, EBx with valid and invalid parameters.
 module_test("volume_slide.xm")

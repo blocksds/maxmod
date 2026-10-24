@@ -122,7 +122,7 @@ module_test("vibrato_waveform.s3m")
 # samples with different default volumes.
 module_test("volume.s3m")
 
-# Tests effect Dxy.
+# Tests effect Dxy with valid and invalid parameters.
 module_test("volume_slide.s3m")
 
 # Test what happens when there's a stereo sample.
