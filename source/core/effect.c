@@ -203,10 +203,9 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
     // Setup mixer channel
     // -------------------
 
-#if defined(__GBA__) || defined(__HEADLESS__)
-
     mm_mixer_channel *mix_ch = &mm_mix_channels[mix_channel];
 
+#if defined(__GBA__) || defined(__HEADLESS__)
     // Set sample data address
 
     msl_head *head = mp_solution;
@@ -229,8 +228,6 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
     mix_ch->pan = sound->panning;
 
 #elif defined(__NDS__)
-
-    mm_mixer_channel *mix_ch = &mm_mix_channels[mix_channel];
 
     // Set sample data address
 
