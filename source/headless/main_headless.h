@@ -7,6 +7,7 @@
 #define MM_HEADLESS_MAIN_H
 
 #include <maxmod_headless.h>
+#include <mm_mas.h>
 #include <mm_msl.h>
 
 // Headless setup information, passed to mmInit().
@@ -49,12 +50,10 @@ typedef struct t_mmheadlesssystem
 
 } mm_headless_system;
 
-// Address of soundbank in memory/rom
-extern msl_head *mp_solution;
-
 mm_word *mppGetSampleNameList(void);
 mm_word *mppGetModuleNameList(void);
 
+mm_mas_gba_sample *mmGetSampleAddress(mm_word id);
 uintptr_t mmGetModuleAddress(mm_word id);
 
 #endif // MM_HEADLESS_MAIN_H

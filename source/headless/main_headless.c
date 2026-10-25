@@ -19,14 +19,14 @@
 #include "headless/mixer.h"
 
 // Address of soundbank in memory/rom
-msl_head *mp_solution;
+static msl_head *mp_solution;
 static bool mp_solution_allocated_by_maxmod = false;
 
 // Number of modules in sound bank
-mm_word mmModuleCount;
+static mm_word mmModuleCount;
 
 // Number of samples in sound bank
-mm_word mmSampleCount;
+static mm_word mmSampleCount;
 
 // Pointer to buffer allocated by mmInitDefault()
 static mm_addr mm_init_default_buffer = NULL;
@@ -269,6 +269,19 @@ mm_word mmGetModuleCount(void)
 mm_word mmGetSampleCount(void)
 {
     return mmSampleCount;
+}
+
+mm_mas_gba_sample *mmGetSampleAddress(mm_word id)
+{
+    uintptr_t sampleOffset = (uintptr_t)mp_solution->sampleTable[id];
+
+    uintptr_t sample_addr = ((uintptr_t)mp_solution) + sampleOffset;
+
+    // The pointers in sampleTank are pointers to MAS file objects. We need to
+    // skip the header of the MAS file to get the pointer to the sample data.
+    // Normally there is more data after the header, but a MAS file generated
+    // from a WAV file only has the header and a sample.
+    return (mm_mas_gba_sample *)(sample_addr + sizeof(mm_mas_prefix));
 }
 
 uintptr_t mmGetModuleAddress(mm_word id)

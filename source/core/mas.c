@@ -3475,19 +3475,11 @@ static mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information
     {
         // Get sample from solution
 #if defined(__GBA__)
-        msl_head *head = mp_solution;
-        uintptr_t sample_offset = (uintptr_t)head->sampleTable[sample->msl_id];
-
-        mm_byte *sample_addr = ((mm_byte *)mp_solution) + sample_offset;
-        mm_mas_gba_sample *gba_sample = (mm_mas_gba_sample *)(sample_addr + sizeof(mm_mas_prefix));
+        mm_mas_gba_sample *gba_sample = mmGetSampleAddress(sample->msl_id);
 
         mix_ch->src = (uintptr_t)(&(gba_sample->data[0]));
 #elif defined(__HEADLESS__)
-        msl_head *head = mp_solution;
-        uintptr_t sample_offset = (uintptr_t)head->sampleTable[sample->msl_id];
-
-        mm_byte *sample_addr = ((mm_byte *)mp_solution) + sample_offset;
-        mm_mas_gba_sample *gba_sample = (mm_mas_gba_sample *)(sample_addr + sizeof(mm_mas_prefix));
+        mm_mas_gba_sample *gba_sample = mmGetSampleAddress(sample->msl_id);
 
         mix_ch->src = (uintptr_t)(&(gba_sample->data[0]));
         mix_ch->active = true;

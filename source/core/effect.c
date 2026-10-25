@@ -207,11 +207,7 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
 
 #if defined(__GBA__) || defined(__HEADLESS__)
     // Set sample data address
-
-    msl_head *head = mp_solution;
-    uintptr_t sample_offset = (uintptr_t)head->sampleTable[sound->id & 0xFFFF];
-    mm_byte *sample_addr = ((mm_byte *)mp_solution) + sample_offset;
-    mm_mas_gba_sample *sample = (mm_mas_gba_sample *)(sample_addr + sizeof(mm_mas_prefix));
+    mm_mas_gba_sample *sample = mmGetSampleAddress(sound->id);
 
     mix_ch->src = (uintptr_t)(&(sample->data[0]));
 #if defined(__HEADLESS__)
