@@ -37,13 +37,14 @@ typedef struct {
     mm_byte     trempos;
     mm_byte     tremtype; // MOD/XM: 0 to 7; S3M/IT: 0 to 3
 
+    mm_word     period;
+
+    mm_hword    bflags;
     mm_byte     volume;
     mm_byte     cvolume;
-    mm_word     period;
-    mm_hword    bflags;
+
     mm_byte     pnoter;  // Pattern note
     mm_byte     memory[15];
-    mm_byte     padding[2];
 } mm_module_channel;
 
 #ifdef __GBA__
