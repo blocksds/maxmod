@@ -30,4 +30,9 @@ static inline void mmMixerChannelStop(mm_mixer_channel *mix_ch)
     mix_ch->active = false;
 }
 
+static inline void mmMixerChannelSetPan(mm_mixer_channel *mix_ch, mm_word pan)
+{
+    mix_ch->pan = pan;
+}
+
 #endif // MM_HEADLESS_MIXER_H

@@ -3718,13 +3718,7 @@ mppt_achn_audible:
     else if (newpan > 255)
         newpan = 255;
 
-#if defined(__GBA__) || defined(__HEADLESS__)
-    mix_ch->pan = newpan;
-#elif defined(__NDS__)
-    mix_ch->tpan = newpan >> 1;
-#endif
-
-    return;
+    mmMixerChannelSetPan(mix_ch, newpan);
 }
 
 mm_word mpp_Update_ACHN_notest(mpl_layer_information *layer, mm_active_channel *act_ch,

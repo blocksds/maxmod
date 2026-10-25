@@ -44,4 +44,9 @@ static inline void mmMixerChannelStop(mm_mixer_channel *mix_ch)
     mix_ch->tpan = 0;
 }
 
+static inline void mmMixerChannelSetPan(mm_mixer_channel *mix_ch, mm_word pan)
+{
+    mix_ch->tpan = pan >> 1;
+}
+
 #endif // MM_DS_ARM7_MIXER_H__

@@ -54,4 +54,9 @@ static inline void mmMixerChannelStop(mm_mixer_channel *mix_ch)
     mix_ch->src = MIXCH_GBA_SRC_STOPPED;
 }
 
+static inline void mmMixerChannelSetPan(mm_mixer_channel *mix_ch, mm_word pan)
+{
+    mix_ch->pan = pan;
+}
+
 #endif // MM_GBA_MIXER_H
