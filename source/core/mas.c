@@ -317,17 +317,7 @@ static void mpp_resetchannels(mm_module_channel *channels,
         memset(act_ch, 0, sizeof(mm_active_channel));
 
         // Disabled mixer channel. Disabled status differs between systems.
-#if defined(__NDS__)
-        mix_ch->key_on = 0;
-        mix_ch->samp = 0;
-        // Setting the panning isn't really needed, but it helps the compiler
-        // optimize all 3 accesses into one single 32-bit write.
-        mix_ch->tpan = 0;
-#elif defined(__GBA__)
-        mix_ch->src = MIXCH_GBA_SRC_STOPPED;
-#elif defined(__HEADLESS__)
-        mix_ch->active = false;
-#endif
+        mmMixerChannelStop(mix_ch);
     }
 }
 
@@ -3684,15 +3674,7 @@ mppt_achn_not_audible:
     // Stop channel
     // ------------
 
-#if defined(__GBA__)
-    mix_ch->src = MIXCH_GBA_SRC_STOPPED;
-#elif defined(__HEADLESS__)
-    mix_ch->active = false;
-#elif defined(__NDS__)
-    mix_ch->samp = 0;
-    mix_ch->tpan = 0;
-    mix_ch->key_on = 0;
-#endif
+    mmMixerChannelStop(mix_ch);
 
     if (act_ch->type == ACHN_FOREGROUND)
     {
@@ -3708,16 +3690,9 @@ mppt_achn_audible:
     mix_ch->vol = volume;
 
     // Check if mixer channel has ended
-#if defined(__GBA__)
-    if (mix_ch->src & MIXCH_GBA_SRC_STOPPED)
+
+    if (!mmMixerChannelIsActive(mix_ch))
     {
-#elif defined(__HEADLESS__)
-    if (!mix_ch->active)
-    {
-#elif defined(__NDS__)
-    if (mix_ch->samp == 0)
-    {
-#endif
         if (act_ch->type == ACHN_FOREGROUND)
         {
             // Stop channel if channel ended
@@ -3726,16 +3701,7 @@ mppt_achn_audible:
 
         // TODO: This isn't required because we've just checked if the mixer
         // channel is stopped
-        // Stop mixer channel
-#if defined(__GBA__)
-        mix_ch->src = MIXCH_GBA_SRC_STOPPED;
-#elif defined(__HEADLESS__)
-        mix_ch->active = false;
-#elif defined(__NDS__)
-        mix_ch->samp = 0;
-        mix_ch->tpan = 0;
-        mix_ch->key_on = 0;
-#endif
+        mmMixerChannelStop(mix_ch);
 
         act_ch->type = ACHN_DISABLED;
         return;

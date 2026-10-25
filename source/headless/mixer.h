@@ -20,4 +20,14 @@ mm_addr mmMixerMix(mm_addr wave_buffer, mm_word samples_count,
 void mmMixerSetRead(int channel, mm_word value);
 void mmMixerEnd(void);
 
+static inline bool mmMixerChannelIsActive(mm_mixer_channel *mix_ch)
+{
+    return mix_ch->active;
+}
+
+static inline void mmMixerChannelStop(mm_mixer_channel *mix_ch)
+{
+    mix_ch->active = false;
+}
+
 #endif // MM_HEADLESS_MIXER_H

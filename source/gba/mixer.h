@@ -41,4 +41,17 @@ void mmMixerMix(mm_word samples_count);
 void mmMixerSetRead(int channel, mm_word value);
 void mmMixerEnd(void);
 
+static inline bool mmMixerChannelIsActive(mm_mixer_channel *mix_ch)
+{
+    if (mix_ch->src & MIXCH_GBA_SRC_STOPPED)
+        return false;
+
+    return true;
+}
+
+static inline void mmMixerChannelStop(mm_mixer_channel *mix_ch)
+{
+    mix_ch->src = MIXCH_GBA_SRC_STOPPED;
+}
+
 #endif // MM_GBA_MIXER_H

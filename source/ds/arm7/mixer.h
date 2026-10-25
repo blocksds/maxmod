@@ -26,4 +26,22 @@ extern mm_mix_data_ds mm_mix_data;
 
 extern mm_mixer_channel mm_mix_channels[NUM_CHANNELS];
 
+static inline bool mmMixerChannelIsActive(mm_mixer_channel *mix_ch)
+{
+    if (mix_ch->samp == 0)
+        return false;
+
+    return true;
+}
+
+static inline void mmMixerChannelStop(mm_mixer_channel *mix_ch)
+{
+    mix_ch->key_on = 0;
+    mix_ch->samp = 0;
+
+    // Setting the panning isn't really needed, but it may help the compiler
+    // optimize all 3 accesses into one single 32-bit write.
+    mix_ch->tpan = 0;
+}
+
 #endif // MM_DS_ARM7_MIXER_H__
