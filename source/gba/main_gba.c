@@ -217,6 +217,21 @@ mm_word mmGetSampleCount(void)
     return mmSampleCount;
 }
 
+uintptr_t mmGetModuleAddress(mm_word id)
+{
+    // In the MSL format, the module table goes right after the sample table,
+    // but the size of both isn't fixed. We need to calculate the start of the
+    // module table by checking how big the sample table is.
+    mm_hword sampleCount = mp_solution->head_data.sampleCount;
+    mm_word *moduleTable = (mm_word *)&(mp_solution->sampleTable[sampleCount]);
+
+    // Calculate the address of the module now that we have the module table. It
+    // represents offsets inside the soundbank.
+    uintptr_t moduleAddress = (uintptr_t)mp_solution + moduleTable[id];
+
+    return moduleAddress;
+}
+
 // -----------------------------------------------------------------------------
 
 mm_word *mppGetSampleNameList(void)

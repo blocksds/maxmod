@@ -14,4 +14,6 @@ extern msl_head *mp_solution;
 mm_word *mppGetSampleNameList(void);
 mm_word *mppGetModuleNameList(void);
 
+uintptr_t mmGetModuleAddress(mm_word id);
+
 #endif // MM_GBA_MAIN_H

@@ -8,7 +8,6 @@
 
 #include <mm_types.h>
 
-extern mm_addr *mmModuleBank;
 extern mm_word *mmSampleBank;
 
 void mmInit7(void);
@@ -23,5 +22,7 @@ mm_word *mppGetModuleNameList(void);
 #define NUM_PHYS_CHANNELS 16
 #define ALL_PHYS_CHANNELS_MASK ((1 << NUM_PHYS_CHANNELS) - 1)
 #define ALL_SOFT_CHANNELS_MASK (~ALL_PHYS_CHANNELS_MASK)
+
+uintptr_t mmGetModuleAddress(mm_word id);
 
 #endif // MM_DS_ARM7_MAIN7_H__

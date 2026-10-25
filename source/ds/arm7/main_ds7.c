@@ -253,3 +253,8 @@ mm_word *mppGetModuleNameList(void)
     // The ARM7 doesn't have access to the dictionary
     return NULL;
 }
+
+uintptr_t mmGetModuleAddress(mm_word id)
+{
+    return (uintptr_t)mmModuleBank[id];
+}
