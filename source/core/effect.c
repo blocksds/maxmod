@@ -423,18 +423,8 @@ void mmEffectCancelAll(void)
         // Clear achannel data to zero
         memset(act_ch, 0, sizeof(mm_active_channel));
 
-        // Disabled mixer channel. Disabled status differs between systems.
-#if defined(__GBA__)
-        mix_ch->src = MIXCH_GBA_SRC_STOPPED;
-#elif defined(__HEADLESS__)
-        mix_ch->active = false;
-#elif defined(__NDS__)
-        mix_ch->key_on = 0;
-        mix_ch->samp = 0;
-        // Setting the panning isn't really needed, but it helps the compiler
-        // optimize all 3 accesses into one single 32-bit write.
-        mix_ch->tpan = 0;
-#endif
+        // Disable mixer channel. Disabled status differs between systems.
+        mmMixerChannelStop(mix_ch);
     }
 }
 
@@ -460,13 +450,7 @@ void mmUpdateEffects(void)
         // Test if channel is still active
 
         mm_mixer_channel *mix_ch = &mm_mix_channels[mix_channel];
-#if defined(__GBA__)
-        if ((mix_ch->src & MIXCH_GBA_SRC_STOPPED) == 0)
-#elif defined(__HEADLESS__)
-        if (mix_ch->active)
-#elif defined(__NDS__)
-        if (mix_ch->samp != 0)
-#endif
+        if (mmMixerChannelIsActive(mix_ch))
         {
             new_bitmask |= (1 << i);
             continue;
