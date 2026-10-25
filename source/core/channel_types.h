@@ -28,7 +28,6 @@ typedef struct {
     mm_byte     note;   // Translated note
     mm_byte     flags;  // Channel flags
     mm_byte     inst;   // Instrument#
-    mm_byte     pflags; // Playback flags (unused)
 
     mm_byte     vibdep;
     mm_byte     vibspd;
