@@ -227,7 +227,7 @@ uintptr_t mmGetModuleAddress(mm_word id)
 
     // Calculate the address of the module now that we have the module table. It
     // represents offsets inside the soundbank.
-    uintptr_t moduleAddress = (uintptr_t)mp_solution + moduleTable[id];
+    uintptr_t moduleAddress = ((uintptr_t)mp_solution) + moduleTable[id];
 
     return moduleAddress;
 }
@@ -243,7 +243,7 @@ mm_word *mppGetSampleNameList(void)
         return NULL;
 
     msl_names_dictionary *dict = (void *)(dictOffset + (uintptr_t)mp_solution);
-    uintptr_t address = (uintptr_t)dict + sizeof(msl_names_dictionary);
+    uintptr_t address = ((uintptr_t)dict) + sizeof(msl_names_dictionary);
 
     return (mm_word *)address;
 }
@@ -257,7 +257,7 @@ mm_word *mppGetModuleNameList(void)
         return NULL;
 
     msl_names_dictionary *dict = (void *)(dictOffset + (uintptr_t)mp_solution);
-    uintptr_t address = (uintptr_t)dict + sizeof(msl_names_dictionary) + dict->samplesDictSize;
+    uintptr_t address = ((uintptr_t)dict) + sizeof(msl_names_dictionary) + dict->samplesDictSize;
 
     return (mm_word *)address;
 }
