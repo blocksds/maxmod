@@ -252,11 +252,12 @@ typedef struct t_mmsoundeffect
     union
     {
         /// ID of sample to be played. Values are defined in the soundbank
-        /// header.
+        /// header. 0x0000 to 0xFFFE (0xFFFF is invalid).
         mm_word         id;
 
         /// Address of external sample, must be in main RAM. The ID is ignored
-        /// if this entry is used. This field isn't valid in GBA systems.
+        /// if this entry is used. Unused in GBA or Headless systems.
+        // TODO: Test this!
         mm_ds_sample    *sample;
     };
 

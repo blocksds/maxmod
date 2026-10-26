@@ -225,18 +225,24 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
 
 #elif defined(__NDS__)
 
-    // Set sample data address
+    // Get sample data address
+    //
+    // sound->id and sound->sample are in a union. If the ID is valid (values up
+    // to 0xFFFF) we're just playing a sample from the soundbank. If it isn't
+    // valid, use the 'sample' pointer, which must point to a location in main
+    // RAM (0x2000000 onwards) that contains a sample.
 
-    mm_word source = (mm_word)sound->sample;
+    mm_mas_ds_sample *sample;
 
-    if (source < 0x10000) // If external sample, skip this
+    if (sound->id < 0x10000)
     {
-        // This is using an ID number
+        // The sound effect is using an ID number, get the corresponding address
+        // of the sample in main RAM.
 
-        source = mmSampleBank[source];
-        source &= 0xFFFFFF; // Mask out counter value
+        mm_word addr = mmSampleBank[sound->id];
+        addr &= 0xFFFFFF; // Mask out counter value
 
-        if (source == 0)
+        if (addr == 0)
         {
             mix_ch->key_on = 0;
             mix_ch->samp = 0;
@@ -245,19 +251,24 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
         }
 
         // Turn this into a main RAM address from an offset
-        source += 0x2000000;
+        addr += 0x2000000;
 
         // The pointers in mmSampleBank are pointers to MAS file objects. We
         // need to skip the header of the MAS file to get the pointer to the
         // sample data. Normally there is more data after the header, but a MAS
         // file generated from a WAV file only has the header and a sample.
-        source += sizeof(mm_mas_prefix);
+        addr += sizeof(mm_mas_prefix);
+
+        sample = (mm_mas_ds_sample *)addr;
+    }
+    else
+    {
+        // The sound effect is using an arbitrary address in main RAM.
+        // TODO: Test that this works
+        sample = (mm_mas_ds_sample *)sound->sample;
     }
 
-    mix_ch->key_on = 0;
-    mix_ch->samp = source;
-
-    mm_mas_ds_sample *sample = (mm_mas_ds_sample *)source;
+    mix_ch->samp = (mm_word)sample;
 
     // Set pitch to original * pitch
     mix_ch->freq = (sound->rate * sample->default_frequency) >> 10;
