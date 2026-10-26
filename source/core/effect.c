@@ -238,28 +238,14 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
     {
         // The sound effect is using an ID number, get the corresponding address
         // of the sample in main RAM.
-
-        mm_word addr = mmSampleBank[sound->id];
-        addr &= 0xFFFFFF; // Mask out counter value
-
-        if (addr == 0)
+        sample = mmGetSampleAddress(sound->id);
+        if (sample == NULL)
         {
             mix_ch->key_on = 0;
             mix_ch->samp = 0;
             mix_ch->tpan = 0;
             return MM_SFXHAND_INVALID;
         }
-
-        // Turn this into a main RAM address from an offset
-        addr += 0x2000000;
-
-        // The pointers in mmSampleBank are pointers to MAS file objects. We
-        // need to skip the header of the MAS file to get the pointer to the
-        // sample data. Normally there is more data after the header, but a MAS
-        // file generated from a WAV file only has the header and a sample.
-        addr += sizeof(mm_mas_prefix);
-
-        sample = (mm_mas_ds_sample *)addr;
     }
     else
     {

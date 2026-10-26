@@ -3466,7 +3466,7 @@ static mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information
 #elif defined(__NDS__)
         mm_mas_ds_sample *ds_sample = (mm_mas_ds_sample *)&(sample->data[0]);
 
-        mix_ch->samp = ((mm_word)ds_sample) - 0x2000000;
+        mix_ch->samp = ((mm_word)ds_sample) & 0xFFFFFF; // Ignore top 8 bits
         mix_ch->tpan = 0;
         mix_ch->key_on = 1;
 #endif
@@ -3484,16 +3484,9 @@ static mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information
         mix_ch->src = (uintptr_t)(&(gba_sample->data[0]));
         mix_ch->active = true;
 #elif defined(__NDS__)
-        mm_word source = mmSampleBank[sample->msl_id];
-        source &= 0xFFFFFF; // Mask out counter value
+        mm_mas_ds_sample *ds_sample = mmGetSampleAddress(sample->msl_id);
 
-        // The pointers in mmSampleBank are pointers to MAS file objects. We
-        // need to skip the header of the MAS file to get the pointer to the
-        // sample data. Normally there is more data after the header, but a MAS
-        // file generated from a WAV file only has the header and a sample.
-        source += sizeof(mm_mas_prefix);
-
-        mix_ch->samp = source;
+        mix_ch->samp = ((mm_word)ds_sample) & 0xFFFFFF; // Ignore top 8 bits
         mix_ch->tpan = 0;
         mix_ch->key_on = 1;
 #endif

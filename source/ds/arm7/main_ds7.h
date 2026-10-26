@@ -6,9 +6,8 @@
 #ifndef MM_DS_ARM7_MAIN7_H__
 #define MM_DS_ARM7_MAIN7_H__
 
+#include <mm_mas.h>
 #include <mm_types.h>
-
-extern mm_word *mmSampleBank;
 
 void mmInit7(void);
 void mmLockChannelsQuick(mm_word);
@@ -23,6 +22,7 @@ mm_word *mppGetModuleNameList(void);
 #define ALL_PHYS_CHANNELS_MASK ((1 << NUM_PHYS_CHANNELS) - 1)
 #define ALL_SOFT_CHANNELS_MASK (~ALL_PHYS_CHANNELS_MASK)
 
+mm_mas_ds_sample *mmGetSampleAddress(mm_word id);
 uintptr_t mmGetModuleAddress(mm_word id);
 
 #endif // MM_DS_ARM7_MAIN7_H__

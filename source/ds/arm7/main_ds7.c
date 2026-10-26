@@ -26,15 +26,15 @@ static void StopActiveChannel(mm_word);
 #define BASE_PITCH 0x400
 
 // Number of modules in sound bank
-mm_word mmModuleCount;
+static mm_word mmModuleCount;
 
 // Number of samples in sound bank
-mm_word mmSampleCount;
+static mm_word mmSampleCount;
 
 // This is a pointer to an array of pointers. Each pointer points to a module in
 // MAS format stored in main RAM, or to NULL if the module hasn't been loaded
 // by mmLoad().
-mm_addr *mmModuleBank;
+static mm_addr *mmModuleBank;
 
 // Same as mmModuleBank, but for samples instead of modules. The MAS files it
 // points to only contain one sample.
@@ -43,7 +43,7 @@ mm_addr *mmModuleBank;
 // bottom 24 bits hold the address (minus 0x2000000). The top 8 bit are the
 // number of times that the sample has been requested to be loaded (in case a
 // sample is used by multiple modules).
-mm_word *mmSampleBank;
+static mm_word *mmSampleBank;
 
 // Memory for module/active channels for NDS system
 mm_module_channel mm_rds_pchannels[NUM_CHANNELS];
@@ -252,6 +252,28 @@ mm_word *mppGetModuleNameList(void)
 {
     // The ARM7 doesn't have access to the dictionary
     return NULL;
+}
+
+mm_mas_ds_sample *mmGetSampleAddress(mm_word id)
+{
+    // Get address in RAM of a sample from its ID. It must have been loaded.
+
+    mm_word addr = mmSampleBank[id];
+    addr &= 0xFFFFFF; // Mask out counter value
+
+    if (addr == 0)
+        return NULL;
+
+    // Turn this into a main RAM address from an offset
+    addr += 0x2000000;
+
+    // The pointers in mmSampleBank are pointers to MAS file objects. We
+    // need to skip the header of the MAS file to get the pointer to the
+    // sample data. Normally there is more data after the header, but a MAS
+    // file generated from a WAV file only has the header and a sample.
+    addr += sizeof(mm_mas_prefix);
+
+    return (mm_mas_ds_sample *)addr;
 }
 
 uintptr_t mmGetModuleAddress(mm_word id)
