@@ -194,6 +194,17 @@ typedef struct tmm_mas_sample_info
     mm_byte     av_speed; // VIS
     mm_byte     global_volume; // GV
     mm_hword    av_rate; // VIR
+
+    // MSL files contain MAS files that can contain sample waveforms or songs.
+    // In order to save space, all samples in the MSL file are extracted from
+    // their songs, deduplicated, and stored as MAS files. Then, songs have
+    // references to the MSL ID of the MAS file with that sample, and data[] is
+    // empty.
+    //
+    // Individual MAS files don't move the sample waveforms out of the song. In
+    // that case, the MSL ID is set to 0xFFFF, and the sample waveform data is
+    // stored after the sample information. This means that data[] is a
+    // mm_mas_gba_sample or mm_mas_ds_sample struct.
     mm_hword    msl_id;
 
     // If msl_id == 0xFFFF this is a mm_mas_gba_sample or mm_mas_ds_sample
