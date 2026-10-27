@@ -2127,19 +2127,24 @@ static void mppe_PatternBreak(mm_word param, mpl_layer_information *layer)
     if (layer->tick != 0)
         return;
 
-    // TODO: When in IT and XM modes, if we jump to a row that is higher than
-    // the limit of the pattern, it should jump to row 0.
+    // This effect behaves in different ways depending on the module type:
     //
-    // mmutil can't tell if a jump will be affected or not in XM or IT because
-    // pattern sizes can be changed.
-    //
-    // - MOD, XM and IT behave the same way (a jump to a row too high is a jump
-    //   to row 0).
-    // - S3M ignores jump to rows that are too high, but mmutil knows when that
-    //   happens because S3M has a fixed size of 64 rows.
+    // - MOD, XM and IT: A jump to a row higher than the limit of the following
+    //   pattern is treated like a jump to row 0.
+    // - S3M: Jumps to row over the limit of the next pattern are ignored.
     //
     // The solution is to handle S3M as a special case in mmutil and have Maxmod
     // behave like MOD/XM/IT.
+    //
+    // - mmutil can detect affected pattern breaks in MOD files because patterns
+    //   have a fixed size of 64 rows. It replaces them by jumps to row 0.
+    // - mmutil can't tell if a jump will be affected or not in XM or IT because
+    //   pattern sizes can be changed.
+    // - mmutil can detect affected jumps in S3M files because S3M has a fixed
+    //   size of 64 rows, so it can remove them from the song.
+    //
+    // And so, Maxmod only needs to handle invalid jumps as in XM/IT (which is
+    // also valid for MOD, but not used).
 
     layer->pattjump_row = param;
 
