@@ -207,21 +207,19 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
 
 #if defined(__GBA__) || defined(__HEADLESS__)
     // Set sample data address
-    mm_mas_gba_sample *sample = mmGetSampleAddress(sound->id);
+    mm_mas_platform_sample *plat_sample = mmGetSampleAddress(sound->id);
 
-    mix_ch->src = (uintptr_t)(&(sample->data[0]));
-#if defined(__HEADLESS__)
-    mix_ch->active = true;
-#endif
+    mmMixerChannelPlaySample(mix_ch, plat_sample);
 
     // set pitch to original * pitch
-    mix_ch->freq = (sound->rate * sample->default_frequency) >> (10 - 2);
+    mix_ch->freq = (sound->rate * plat_sample->default_frequency) >> (10 - 2);
 
     // reset read position
     mix_ch->read = 0;
 
     mix_ch->vol = (sound->volume * mm_sfx_mastervolume) >> 10;
-    mix_ch->pan = sound->panning;
+
+    mmMixerChannelSetPan(mix_ch, sound->panning);
 
 #elif defined(__NDS__)
 
@@ -232,18 +230,16 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
     // valid, use the 'sample' pointer, which must point to a location in main
     // RAM (0x2000000 onwards) that contains a sample.
 
-    mm_mas_ds_sample *sample;
+    mm_mas_platform_sample *plat_sample;
 
     if (sound->id < 0x10000)
     {
         // The sound effect is using an ID number, get the corresponding address
         // of the sample in main RAM.
-        sample = mmGetSampleAddress(sound->id);
-        if (sample == NULL)
+        plat_sample = mmGetSampleAddress(sound->id);
+        if (plat_sample == NULL)
         {
-            mix_ch->key_on = 0;
-            mix_ch->samp = 0;
-            mix_ch->tpan = 0;
+            mmMixerChannelStop(mix_ch);
             return MM_SFXHAND_INVALID;
         }
     }
@@ -251,20 +247,18 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
     {
         // The sound effect is using an arbitrary address in main RAM.
         // TODO: Test that this works
-        sample = (mm_mas_ds_sample *)sound->sample;
+        plat_sample = (mm_mas_platform_sample *)sound->sample;
     }
 
-    mix_ch->samp = (mm_word)sample;
+    mmMixerChannelPlaySample(mix_ch, plat_sample);
 
     // Set pitch to original * pitch
-    mix_ch->freq = (sound->rate * sample->default_frequency) >> 10;
+    mix_ch->freq = (sound->rate * plat_sample->default_frequency) >> 10;
 
     // Clear sample offset
     mix_ch->read = 0;
 
-    // Set panning | start bit
-    mix_ch->tpan = sound->panning >> 1;
-    mix_ch->key_on = 1;
+    mmMixerChannelSetPan(mix_ch, sound->panning);
 
     // Set volume
     mix_ch->vol = (sound->volume * mm_sfx_mastervolume) >> 2;
