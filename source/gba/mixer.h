@@ -31,6 +31,9 @@
 #define REG_SGFIFOA     (volatile uint32_t *)0x40000A0
 #define REG_SGFIFOB     (volatile uint32_t *)0x40000A4
 
+// Alias used by common code
+typedef mm_mas_gba_sample mm_mas_platform_sample;
+
 extern mm_mixer_channel *mm_mix_channels;
 extern mm_word mm_mixlen;
 
@@ -57,6 +60,12 @@ static inline void mmMixerChannelStop(mm_mixer_channel *mix_ch)
 static inline void mmMixerChannelSetPan(mm_mixer_channel *mix_ch, mm_word pan)
 {
     mix_ch->pan = pan;
+}
+
+static inline void mmMixerChannelPlaySample(mm_mixer_channel *mix_ch,
+                                            mm_mas_gba_sample *sample)
+{
+    mix_ch->src = (uintptr_t)&(sample->data[0]);
 }
 
 #endif // MM_GBA_MIXER_H

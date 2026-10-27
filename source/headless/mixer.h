@@ -9,6 +9,9 @@
 #include "core/channel_types.h"
 #include "headless/main_headless.h"
 
+// Alias used by common code
+typedef mm_mas_gba_sample mm_mas_platform_sample;
+
 extern mm_mixer_channel *mm_mix_channels;
 extern mm_word mm_mixlen;
 
@@ -33,6 +36,13 @@ static inline void mmMixerChannelStop(mm_mixer_channel *mix_ch)
 static inline void mmMixerChannelSetPan(mm_mixer_channel *mix_ch, mm_word pan)
 {
     mix_ch->pan = pan;
+}
+
+static inline void mmMixerChannelPlaySample(mm_mixer_channel *mix_ch,
+                                            mm_mas_gba_sample *sample)
+{
+    mix_ch->src = (uintptr_t)&(sample->data[0]);
+    mix_ch->active = true;
 }
 
 #endif // MM_HEADLESS_MIXER_H

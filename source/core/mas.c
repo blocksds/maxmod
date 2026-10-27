@@ -3453,43 +3453,17 @@ static mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information
 
     if (sample->msl_id == 0xFFFF)
     {
-        // The sample has been provided
-#if defined(__GBA__)
-        mm_mas_gba_sample *gba_sample = (mm_mas_gba_sample *)&(sample->data[0]);
-
-        mix_ch->src = (uintptr_t)&(gba_sample->data[0]);
-#elif defined(__HEADLESS__)
-        mm_mas_gba_sample *gba_sample = (mm_mas_gba_sample *)&(sample->data[0]);
-
-        mix_ch->src = (uintptr_t)&(gba_sample->data[0]);
-        mix_ch->active = true;
-#elif defined(__NDS__)
-        mm_mas_ds_sample *ds_sample = (mm_mas_ds_sample *)&(sample->data[0]);
-
-        mix_ch->samp = ((mm_word)ds_sample) & 0xFFFFFF; // Ignore top 8 bits
-        mix_ch->tpan = 0;
-        mix_ch->key_on = 1;
-#endif
+        // The sample has been provided. This only happens when playing MAS
+        // files that don't belong to a MSL.
+        mm_mas_platform_sample *plat_sample = (mm_mas_platform_sample *)&(sample->data[0]);
+        mmMixerChannelPlaySample(mix_ch, plat_sample);
     }
     else
     {
-        // Get sample from solution
-#if defined(__GBA__)
-        mm_mas_gba_sample *gba_sample = mmGetSampleAddress(sample->msl_id);
-
-        mix_ch->src = (uintptr_t)(&(gba_sample->data[0]));
-#elif defined(__HEADLESS__)
-        mm_mas_gba_sample *gba_sample = mmGetSampleAddress(sample->msl_id);
-
-        mix_ch->src = (uintptr_t)(&(gba_sample->data[0]));
-        mix_ch->active = true;
-#elif defined(__NDS__)
-        mm_mas_ds_sample *ds_sample = mmGetSampleAddress(sample->msl_id);
-
-        mix_ch->samp = ((mm_word)ds_sample) & 0xFFFFFF; // Ignore top 8 bits
-        mix_ch->tpan = 0;
-        mix_ch->key_on = 1;
-#endif
+        // Get sample from solution. This is what happens when playing MAS files
+        // from inside a MSL file.
+        mm_mas_platform_sample *plat_sample = mmGetSampleAddress(sample->msl_id);
+        mmMixerChannelPlaySample(mix_ch, plat_sample);
     }
 
     // "sampoff" is the sample offset specified as an effect in the module. It

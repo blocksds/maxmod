@@ -14,6 +14,9 @@
 #define NUM_CHANNELS        32
 #define NUM_PHYS_CHANNELS   16
 
+// Alias used by common code
+typedef mm_mas_ds_sample mm_mas_platform_sample;
+
 void mmMixerInit(void);
 void mmMixerMix(void);
 void mmMixerPre(void);
@@ -47,6 +50,14 @@ static inline void mmMixerChannelStop(mm_mixer_channel *mix_ch)
 static inline void mmMixerChannelSetPan(mm_mixer_channel *mix_ch, mm_word pan)
 {
     mix_ch->tpan = pan >> 1;
+}
+
+static inline void mmMixerChannelPlaySample(mm_mixer_channel *mix_ch,
+                                            mm_mas_ds_sample *sample)
+{
+    mix_ch->samp = ((mm_word)sample) & 0xFFFFFF; // Ignore top 8 bits
+    mix_ch->tpan = 0;
+    mix_ch->key_on = 1;
 }
 
 #endif // MM_DS_ARM7_MIXER_H__
