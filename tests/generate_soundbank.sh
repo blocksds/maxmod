@@ -25,4 +25,4 @@ wav_files=`find . -type f -iname "*.wav"`
 
 audio_files="$mod_files $s3m_files $it_files $xm_files $wav_files"
 
-$MMUTIL -D -o${output_path} $audio_files
+$MMUTIL -y -D -o${output_path} $audio_files
