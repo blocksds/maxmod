@@ -212,7 +212,7 @@ int main(int argc, char *argv[])
     if (total_mismatched_samples > 0)
     {
         printf("Waveform match: %.2f%% (%.2f / %.2f seconds)\n",
-               100.f * total_mismatched_samples / data_size,
+               100.0f - (100.0f * total_mismatched_samples / data_size),
                (float)(data_size - total_mismatched_samples) / header->byte_rate,
                (float)data_size / header->byte_rate);
     }
