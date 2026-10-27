@@ -74,19 +74,21 @@ Notes:
 
 Untested features:
 
-- Instrument pitch/pan separation.
 - Instrument DTC/NNA/DCA.
 - Instrument envelope carry.
 - `S73` NNA Note Cut: Sets the currently active note's New Note Action to Note Cut.
 - `S74` NNA Note Continue: Sets the currently active note's New Note Action to Continue.
 - `S75` NNA Note Off: Sets the currently active note's New Note Action to Note Off.
 - `S76` NNA Note Fade: Sets the currently active note's New Note Action to Note Fade.
+- Instrument envelope loop/sustain and how they interact with note off and NNA
+  set to Note Off.
 
 Unsupported features:
 
 - `~~`: Note fade in note column.
 - Samples with sustain loops.
 - Stereo samples are converted to mono by ignoring the right channel.
+- Instrument pitch/pan separation.
 - Instrument filter envelope.
 - Instrument random variation.
 - Instrument filter.
@@ -120,6 +122,10 @@ Notes:
 - `EFx` is a valid effect (Set Active Macro), but it is barely used and Maxmod
   uses it as an event marker instead. Whenever `EFx` is found, it is sent to a
   user-defined callback.
+
+Untested features:
+
+- Instrument envelope loop/sustain and how they interact with key off.
 
 Unsupported features:
 
