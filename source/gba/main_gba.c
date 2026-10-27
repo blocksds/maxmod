@@ -40,6 +40,9 @@ static bool mm_initialized = false;
 // Initialize maxmod
 bool mmInit(mm_gba_system *setup)
 {
+    if (mm_initialized)
+        return false;
+
     mp_solution = setup->soundbank;
 
     mmSampleCount = mp_solution->head_data.sampleCount;
@@ -76,6 +79,9 @@ bool mmInit(mm_gba_system *setup)
 
 bool mmInitDefault(mm_addr soundbank, mm_word number_of_channels)
 {
+    if (mm_initialized)
+        return false;
+
     if (number_of_channels > 32)
         return false;
 
@@ -119,6 +125,9 @@ bool mmInitDefault(mm_addr soundbank, mm_word number_of_channels)
 
 bool mmEnd(void)
 {
+    if (!mm_initialized)
+        return false;
+
     mm_initialized = false;
 
     mmMixerEnd();

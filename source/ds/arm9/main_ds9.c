@@ -52,6 +52,9 @@ mm_word *mmSampleNameList = NULL;
 mm_word *mmModuleNameList = NULL;
 mm_bool mmNameListsAllocated = false; // Set to true if allocated with malloc()
 
+// This is set to true when Maxmod is initialized
+static bool mm_initialized = false;
+
 // Set function for handling playback events
 void mmSetEventHandler(mm_callback handler)
 {
@@ -67,6 +70,9 @@ mm_callback mmGetEventHandler(void)
 // Initialize Maxmod (manual settings)
 bool mmInit(mm_ds_system *system)
 {
+    if (mm_initialized)
+        return false;
+
     mmModuleCount = system->mod_count;
     mmSampleCount = system->samp_count;
     mmMemoryBank = system->mem_bank;
@@ -117,6 +123,8 @@ static mm_bool mmTryToInitializeDefault(mm_word first_word)
         free(system.mem_bank);
         return false;
     }
+
+    mm_initialized = true;
 
     return true;
 }
@@ -190,6 +198,9 @@ error:
 // Initialize Maxmod with default setup
 bool mmInitDefault(const char *soundbank_file)
 {
+    if (mm_initialized)
+        return false;
+
     mm_word first_word;
 
     FILE *f = fopen(soundbank_file, "rb");
@@ -251,6 +262,9 @@ static void mmLoadDictionaryFromMemory(mm_addr soundbank)
 // (when the entire soundbank is loaded into memory)
 bool mmInitDefaultMem(mm_addr soundbank)
 {
+    if (mm_initialized)
+        return false;
+
     mm_word first_word = ((mm_word*)soundbank)[0];
 
     if (!mmTryToInitializeDefault(first_word))
@@ -263,6 +277,9 @@ bool mmInitDefaultMem(mm_addr soundbank)
 
 bool mmInitNoSoundbank(void)
 {
+    if (mm_initialized)
+        return false;
+
     if (!mmTryToInitializeDefault(0))
         return false;
 

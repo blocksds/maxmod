@@ -78,6 +78,9 @@ static bool mmInit(mm_headless_system *setup)
 bool mmInitDefaultMem(mm_addr soundbank, mm_word number_of_channels,
                       mm_word sample_rate, mm_headless_output_format output_format)
 {
+    if (mm_initialized)
+        return false;
+
     if (number_of_channels > 256)
         return false;
 
@@ -120,6 +123,9 @@ bool mmInitDefaultMem(mm_addr soundbank, mm_word number_of_channels,
 bool mmInitDefault(const char *soundbank_path, mm_word number_of_channels,
                    mm_word sample_rate, mm_headless_output_format output_format)
 {
+    if (mm_initialized)
+        return false;
+
     FILE *f = fopen(soundbank_path, "rb");
     if (f == NULL)
         return false;
@@ -167,6 +173,9 @@ bool mmInitDefault(const char *soundbank_path, mm_word number_of_channels,
 
 bool mmEnd(void)
 {
+    if (!mm_initialized)
+        return false;
+
     mm_initialized = false;
 
     mmMixerEnd();
