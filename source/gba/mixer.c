@@ -93,13 +93,6 @@ void mmMixerStopChannel(int channel)
     mm_mix_channels[channel].src = MIXCH_GBA_SRC_STOPPED;
 }
 
-// Set channel read position
-void mmMixerSetRead(int channel, mm_word value)
-{
-    // Store new offset
-    mm_mix_channels[channel].read = value;
-}
-
 // Set channel mixing rate
 void mmMixerSetFreq(int channel, mm_word rate)
 {

@@ -20,7 +20,6 @@ extern mm_word mm_bpmdv;
 void mmMixerInit(mm_headless_system* setup);
 mm_addr mmMixerMix(mm_addr wave_buffer, mm_word samples_count,
                    mm_headless_output_format output_format);
-void mmMixerSetRead(int channel, mm_word value);
 void mmMixerEnd(void);
 
 static inline bool mmMixerChannelIsActive(mm_mixer_channel *mix_ch)
