@@ -45,4 +45,12 @@ static inline void mmMixerChannelPlaySample(mm_mixer_channel *mix_ch,
     mix_ch->active = true;
 }
 
+static inline void mmMixerChannelSetSampleOffset(mm_mixer_channel *mix_ch,
+                                                 mm_word offset)
+{
+    // GBA soundbanks only support 8-bit samples, so we don't have to worry
+    // about having different shifts for 8-bit or 16-bit samples.
+    mix_ch->read = offset << MP_SAMPFRAC;
+}
+
 #endif // MM_HEADLESS_MIXER_H

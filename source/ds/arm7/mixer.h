@@ -60,4 +60,14 @@ static inline void mmMixerChannelPlaySample(mm_mixer_channel *mix_ch,
     mix_ch->key_on = 1;
 }
 
+static inline void mmMixerChannelSetSampleOffset(mm_mixer_channel *mix_ch,
+                                                 mm_word offset)
+{
+    // We store the value without shifting it. mmMixA(), mmMixB() and mmMixC()
+    // take this value when the note starts and it shifts it by the right value
+    // to adjust it for 8 or 16-bit samples.
+    mix_ch->read = (offset >> 8);
+    // TODO: Remove this shift by modifying the mmMix*() functions.
+}
+
 #endif // MM_DS_ARM7_MIXER_H__

@@ -3474,15 +3474,7 @@ static mm_mixer_channel *mpp_Update_ACHN_notest_update_mix(mpl_layer_information
     // "sampoff" is the sample offset specified as an effect in the module. It
     // expects the player to skip "256 * xx" samples, where "xx" is the value
     // passed in the effect.
-    //
-    // The GBA only supports 8-bit samples, so we can do the final calculation
-    // here. The DS supports 8 and 16-bit samples, so we need to do the final
-    // calculation in mmMix() when the note starts.
-#if defined(__GBA__) || defined(__HEADLESS__)
-    mix_ch->read = ((mm_word)mpp_vars.sampoff) << (MP_SAMPFRAC + 8);
-#elif defined(__NDS__)
-    mix_ch->read = mpp_vars.sampoff;
-#endif
+     mmMixerChannelSetSampleOffset(mix_ch, (mm_word)mpp_vars.sampoff << 8);
 
 mppt_achn_nostart:
 

@@ -215,7 +215,7 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
     mix_ch->freq = (sound->rate * plat_sample->default_frequency) >> (10 - 2);
 
     // reset read position
-    mix_ch->read = 0;
+    mmMixerChannelSetSampleOffset(mix_ch, 0);
 
     mix_ch->vol = (sound->volume * mm_sfx_mastervolume) >> 10;
 
@@ -255,8 +255,7 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
     // Set pitch to original * pitch
     mix_ch->freq = (sound->rate * plat_sample->default_frequency) >> 10;
 
-    // Clear sample offset
-    mix_ch->read = 0;
+    mmMixerChannelSetSampleOffset(mix_ch, 0);
 
     mmMixerChannelSetPan(mix_ch, sound->panning);
 
