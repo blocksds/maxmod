@@ -14,6 +14,8 @@
 #define NUM_CHANNELS        32
 #define NUM_PHYS_CHANNELS   16
 
+#define PLATFORM_MIXER_VOLUME_16BIT     1
+
 // Alias used by common code
 typedef mm_mas_ds_sample mm_mas_platform_sample;
 

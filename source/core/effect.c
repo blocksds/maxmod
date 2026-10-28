@@ -215,8 +215,6 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
     // set pitch to original * pitch
     mix_ch->freq = (sound->rate * plat_sample->default_frequency) >> (10 - 2);
 
-    mix_ch->vol = (sound->volume * mm_sfx_mastervolume) >> (2 + 8);
-
 #elif defined(__NDS__)
 
     // Get sample data address
@@ -247,9 +245,6 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
     // Set pitch to original * pitch
     mix_ch->freq = (sound->rate * plat_sample->default_frequency) >> 10;
 
-    // Set volume
-    mix_ch->vol = (sound->volume * mm_sfx_mastervolume) >> 2;
-
 #endif
 
     // Always play sound effects from the start
@@ -257,6 +252,13 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
 
     // Save the start of the waveform and enable the channel
     mmMixerChannelPlaySample(mix_ch, plat_sample);
+
+#if PLATFORM_MIXER_VOLUME_16BIT
+    const mm_word shift = 2;
+#else
+    const mm_word shift = 2 + 8;
+#endif
+    mix_ch->vol = (sound->volume * mm_sfx_mastervolume) >> shift;
 
     // Set some sound settings
     mmMixerChannelSetPan(mix_ch, sound->panning);
@@ -305,12 +307,11 @@ mm_word mmEffectVolume(mm_sfxhand handle, mm_word volume)
     if (volume > 255)
         volume = 255;
 
-#if defined(__GBA__) || defined(__HEADLESS__)
-    int shift = 10; // Divide by 1024
-#elif defined(__NDS__)
-    int shift = 2; // Divide by 4
+#if PLATFORM_MIXER_VOLUME_16BIT
+    const mm_word shift = 2;
+#else
+    const mm_word shift = 2 + 8;
 #endif
-
     volume = (volume * mm_sfx_mastervolume) >> shift;
 
     mmMixerSetVolume(mix_channel, volume);

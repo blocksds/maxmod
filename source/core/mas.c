@@ -3565,19 +3565,13 @@ static mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *la
     vol = (vol * act_ch->fade) >> 10;
     vol = (vol * layer->volume) >> 11;
     // 'vol' is now a 16-bit value
-
-#ifdef __NDS__
-    // 16-bit volume levels for mixer channels
     if (vol > 65535)
         vol = 65535;
 
+#if PLATFORM_MIXER_VOLUME_16BIT
     act_ch->fvol = vol >> 8; // The active channel expects 8-bit
-#else
-    // 8-bit volume levels for mixer channels
+#else // 8-bit
     vol = vol >> 8;
-    if (vol > 255)
-        vol = 255;
-
     act_ch->fvol = vol;
 #endif
 

@@ -31,6 +31,8 @@
 #define REG_SGFIFOA     (volatile uint32_t *)0x40000A0
 #define REG_SGFIFOB     (volatile uint32_t *)0x40000A4
 
+#define PLATFORM_MIXER_VOLUME_16BIT     0
+
 // Alias used by common code
 typedef mm_mas_gba_sample mm_mas_platform_sample;
 

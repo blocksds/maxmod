@@ -9,6 +9,8 @@
 #include "core/channel_types.h"
 #include "headless/main_headless.h"
 
+#define PLATFORM_MIXER_VOLUME_16BIT     0
+
 // Alias used by common code
 typedef mm_mas_gba_sample mm_mas_platform_sample;
 
