@@ -205,21 +205,17 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
 
     mm_mixer_channel *mix_ch = &mm_mix_channels[mix_channel];
 
-#if defined(__GBA__) || defined(__HEADLESS__)
-    // Set sample data address
-    mm_mas_platform_sample *plat_sample = mmGetSampleAddress(sound->id);
+    mm_mas_platform_sample *plat_sample;
 
-    mmMixerChannelPlaySample(mix_ch, plat_sample);
+#if defined(__GBA__) || defined(__HEADLESS__)
+
+    // Get sample data address
+    plat_sample = mmGetSampleAddress(sound->id);
 
     // set pitch to original * pitch
     mix_ch->freq = (sound->rate * plat_sample->default_frequency) >> (10 - 2);
 
-    // reset read position
-    mmMixerChannelSetSampleOffset(mix_ch, 0);
-
     mix_ch->vol = (sound->volume * mm_sfx_mastervolume) >> 10;
-
-    mmMixerChannelSetPan(mix_ch, sound->panning);
 
 #elif defined(__NDS__)
 
@@ -229,8 +225,6 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
     // to 0xFFFF) we're just playing a sample from the soundbank. If it isn't
     // valid, use the 'sample' pointer, which must point to a location in main
     // RAM (0x2000000 onwards) that contains a sample.
-
-    mm_mas_platform_sample *plat_sample;
 
     if (sound->id < 0x10000)
     {
@@ -250,19 +244,22 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
         plat_sample = (mm_mas_platform_sample *)sound->sample;
     }
 
-    mmMixerChannelPlaySample(mix_ch, plat_sample);
-
     // Set pitch to original * pitch
     mix_ch->freq = (sound->rate * plat_sample->default_frequency) >> 10;
-
-    mmMixerChannelSetSampleOffset(mix_ch, 0);
-
-    mmMixerChannelSetPan(mix_ch, sound->panning);
 
     // Set volume
     mix_ch->vol = (sound->volume * mm_sfx_mastervolume) >> 2;
 
 #endif
+
+    // Always play sound effects from the start
+    mmMixerChannelSetSampleOffset(mix_ch, 0);
+
+    // Save the start of the waveform and enable the channel
+    mmMixerChannelPlaySample(mix_ch, plat_sample);
+
+    // Set some sound settings
+    mmMixerChannelSetPan(mix_ch, sound->panning);
 
     return handle;
 }
