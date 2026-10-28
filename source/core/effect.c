@@ -253,12 +253,7 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
     // Save the start of the waveform and enable the channel
     mmMixerChannelPlaySample(mix_ch, plat_sample);
 
-#if PLATFORM_MIXER_VOLUME_16BIT
-    const mm_word shift = 2;
-#else
-    const mm_word shift = 2 + 8;
-#endif
-    mix_ch->vol = (sound->volume * mm_sfx_mastervolume) >> shift;
+    mmMixerChannelSetVolume(mix_ch, (sound->volume * mm_sfx_mastervolume) >> 2);
 
     // Set some sound settings
     mmMixerChannelSetPan(mix_ch, sound->panning);
@@ -307,14 +302,7 @@ mm_word mmEffectVolume(mm_sfxhand handle, mm_word volume)
     if (volume > 255)
         volume = 255;
 
-#if PLATFORM_MIXER_VOLUME_16BIT
-    const mm_word shift = 2;
-#else
-    const mm_word shift = 2 + 8;
-#endif
-    volume = (volume * mm_sfx_mastervolume) >> shift;
-
-    mmMixerSetVolume(mix_channel, volume);
+    mmMixerSetVolume(mix_channel, (volume * mm_sfx_mastervolume) >> 2);
 
     return 1;
 }

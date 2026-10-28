@@ -14,8 +14,6 @@
 #define NUM_CHANNELS        32
 #define NUM_PHYS_CHANNELS   16
 
-#define PLATFORM_MIXER_VOLUME_16BIT     1
-
 // Alias used by common code
 typedef mm_mas_ds_sample mm_mas_platform_sample;
 
@@ -69,6 +67,13 @@ static inline void mmMixerChannelSetSampleOffset(mm_mixer_channel *mix_ch,
     // take this value when the note starts and it shifts it by the right value
     // to adjust it for 8 or 16-bit samples.
     mix_ch->read = offset;
+}
+
+// Volume is a 16-bit value (0 to 65535)
+static inline void mmMixerChannelSetVolume(mm_mixer_channel *mix_ch,
+                                           mm_word volume)
+{
+    mix_ch->vol = volume; // DS mixer channels use 16-bit values
 }
 
 #endif // MM_DS_ARM7_MIXER_H__

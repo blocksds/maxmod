@@ -67,7 +67,7 @@ static mm_voidfunc mm_vblank_function;
 // Set channel volume
 void mmMixerSetVolume(int channel, mm_word volume)
 {
-    mm_mix_channels[channel].vol = volume;
+    mm_mix_channels[channel].vol = volume >> 8;
 }
 
 // Set channel panning

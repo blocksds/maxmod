@@ -24,7 +24,7 @@ static mm_word mm_mixch_count;
 // Set channel volume
 void mmMixerSetVolume(int channel, mm_word volume)
 {
-    mm_mix_channels[channel].vol = volume;
+    mm_mix_channels[channel].vol = volume >> 8;
 }
 
 // Set channel panning

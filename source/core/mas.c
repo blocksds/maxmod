@@ -3568,13 +3568,9 @@ static mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *la
     if (vol > 65535)
         vol = 65535;
 
-#if PLATFORM_MIXER_VOLUME_16BIT
     act_ch->fvol = vol >> 8; // The active channel expects 8-bit
-#else // 8-bit
-    vol = vol >> 8;
-    act_ch->fvol = vol;
-#endif
 
+    // Return a 16-bit volume
     return vol;
 }
 
@@ -3621,7 +3617,7 @@ mppt_achn_not_audible:
 
 mppt_achn_audible:
 
-    mix_ch->vol = volume;
+    mmMixerChannelSetVolume(mix_ch, volume);
 
     // Check if mixer channel has ended
 
