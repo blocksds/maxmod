@@ -458,7 +458,7 @@ static ARM_CODE void mmMixA(void)
                 // Test sample format
                 if (sample->format == MM_SFORMAT_8BIT)
                     offset = offset << (8 - 2); // 8-bit = LSL 0
-                if (sample->format == MM_SFORMAT_16BIT)
+                else if (sample->format == MM_SFORMAT_16BIT)
                     offset = offset << (9 - 2); // 16-bit = LSL 1
                 else
                     offset = 0; // ADPCM/other = invalid
