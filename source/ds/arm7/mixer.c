@@ -443,23 +443,20 @@ static ARM_CODE void mmMixA(void)
 
             mix_ch->key_on = 0; // Clear start bit
 
-            // When the note starts "mix_ch->read" contains the sample offset
+            // When the note starts, "mix_ch->read" contains the sample offset
             // obtained from "mpp_vars.sampoff", which comes from the effects in
             // the module. The module player doesn't know how many bytes to skip
             // because the DS supports 8-bit and 16-bit samples, so we need to
             // calculate it here when the note starts.
-            //
-            // Note: Only the least significant byte of "mix_ch->read" contains
-            // the offset, and the value read must be multiplied by 256 samples.
-            mm_word offset = (mm_byte)mix_ch->read;
+            mm_word offset = mix_ch->read;
 
             if (offset != 0)
             {
                 // Test sample format
                 if (sample->format == MM_SFORMAT_8BIT)
-                    offset = offset << (8 - 2); // 8-bit = LSL 0
+                    offset = offset << 0; // 8-bit = LSL 0
                 else if (sample->format == MM_SFORMAT_16BIT)
-                    offset = offset << (9 - 2); // 16-bit = LSL 1
+                    offset = offset << 1; // 16-bit = LSL 1
                 else
                     offset = 0; // ADPCM/other = invalid
             }
@@ -468,7 +465,7 @@ static ARM_CODE void mmMixA(void)
             if (sampledata == NULL)
                 sampledata = sample->data;
 
-            sampledata += (offset << 2); // add sample offset (in bytes)
+            sampledata += offset; // add sample offset (in bytes)
 
             mm_byte rep_mode = sample->repeat_mode; // check repeat mode
 
@@ -476,7 +473,7 @@ static ARM_CODE void mmMixA(void)
             {
                 mm_sword lstart = sample->loop_start; // Get loopstart position
 
-                lstart -= offset; // Subtract sample offset
+                lstart -= (offset >> 2); // Subtract sample offset
 
                 if (lstart < 0)
                 {
@@ -495,11 +492,11 @@ static ARM_CODE void mmMixA(void)
             {
                 mm_word len = sample->length; // read length
 
-                mm_sword remaining_len = len - offset; // subtract sample offset
+                mm_sword remaining_len = len - (offset >> 2); // subtract sample offset
 
                 if (remaining_len < 0)
                 {
-                    sampledata -= offset << 2; // clamp negative results
+                    sampledata -= offset; // clamp negative results
                     remaining_len = len;
                 }
 
@@ -604,18 +601,16 @@ static void ARM_CODE mmMixB(void)
 
             mix_ch->cvol = vol | (pan << (16 + 9));
 
-            // When the note starts "mix_ch->read" contains the sample offset
+            // When the note starts, "mix_ch->read" contains the sample offset
             // obtained from "mpp_vars.sampoff", which comes from the effects in
             // the module. The module player doesn't know how many bytes to skip
             // because the DS supports 8-bit and 16-bit samples, so we need to
             // calculate it here when the note starts.
             //
-            // Note: Only the least significant byte of "mix_ch->read" contains
-            // the offset, and the value read must be multiplied by 256 samples.
-            //
             // TODO: Mode B doesn't support 16-bit samples, is that a bug?
-            mm_word offset = (mm_byte)mix_ch->read;
-            mix_ch->read = offset << (8 + MP_SAMPFRAC);
+            mm_word offset = mix_ch->read;
+
+            mix_ch->read = offset << MP_SAMPFRAC; // 8-bit = LSL 0
 
             do_zero_padding = 1; // add zero padding
         }
@@ -684,17 +679,14 @@ static ARM_CODE void mmMixC(void)
         {
             // shift sample offset (for swm only): offset / 256
 
-            // When the note starts "mix_ch->read" contains the sample offset
+            // When the note starts, "mix_ch->read" contains the sample offset
             // obtained from "mpp_vars.sampoff", which comes from the effects in
             // the module. The module player doesn't know how many bytes to skip
             // because the DS supports 8-bit and 16-bit samples, so we need to
             // calculate it here when the note starts.
-            //
-            // Note: Only the least significant byte of "mix_ch->read" contains
-            // the offset, and the value read must be multiplied by 256 samples.
-            mm_word sample_offset = (mm_byte)mix_ch->read;
+            mm_word sample_offset = mix_ch->read;
 
-            mix_ch->read = sample_offset << (MP_SAMPFRAC + 8);
+            mix_ch->read = sample_offset << MP_SAMPFRAC;
 
             // set direct volume levels on key-on
             mix_ch->cvol = mix_ch->vol;
@@ -703,29 +695,29 @@ static ARM_CODE void mmMixC(void)
             if (channel >= 16) // skip the rest for software channels
                 continue;
 
-            mm_sword length = sample_offset;
+            mm_sword start_length = 0;
 
             if (sample_offset != 0) // convert sample offset into word count
             {
                 if (sample->format == MM_SFORMAT_8BIT)
-                    length = length << (8 - 2); // 8-bit = lsl #0
+                    start_length = sample_offset << 0; // 8-bit = lsl #0
                 else if (sample->format == MM_SFORMAT_16BIT)
-                    length = length << (9 - 2); // 16-bit = lsl #1
+                    start_length = sample_offset << 1; // 16-bit = lsl #1
                 else
-                    length = 0; // ADPCM and others = 0
+                    start_length = 0; // ADPCM and others = 0
             }
 
             mm_word source_addr = sample->point;
             if (source_addr == 0)
                 source_addr = (mm_word)&(sample->data[0]);
 
-            source_addr += length << 2;
+            source_addr += start_length;
 
             mm_sword loop_start;
 
             if (sample->repeat_mode == MM_SREPEAT_FORWARD) // Forward loop
             {
-                loop_start = sample->loop_start - length;
+                loop_start = sample->loop_start - (start_length >> 2);
 
                 if (loop_start < 0)
                 {
@@ -738,11 +730,11 @@ static ARM_CODE void mmMixC(void)
             }
             else // No loop
             {
-                mm_sword new_length = sample->length - length;
+                mm_sword new_length = sample->length - (start_length >> 2);
                 if (new_length < 0)
                 {
                     // Cancel sample offset if greater than length
-                    source_addr -= length << 2;
+                    source_addr -= start_length;
                     new_length = sample->length;
                 }
 
