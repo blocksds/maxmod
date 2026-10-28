@@ -3560,23 +3560,22 @@ static mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *la
     mm_byte global_volume = layer->global_volume;
     if (layer->flags & MAS_HEADER_FLAG_XM_MODE)
         global_volume <<= 1; // XM mode global volume is only 0->64, shift to 0->128
+
     vol = (vol * global_volume) >> 10;
-
     vol = (vol * act_ch->fade) >> 10;
-
-    vol *= layer->volume;
+    vol = (vol * layer->volume) >> 11;
+    // 'vol' is now a 16-bit value
 
 #ifdef __NDS__
-    vol = vol >> (19 - 3 - 5);  // (19 - 3) (new 16-bit levels!)
-
-    if (vol > 65535) // Clip values over 65535 // 2047
+    // 16-bit volume levels for mixer channels
+    if (vol > 65535)
         vol = 65535;
 
-    act_ch->fvol = vol >> 8; // 3 (new 16-bit levels!)
+    act_ch->fvol = vol >> 8; // The active channel expects 8-bit
 #else
-    vol = vol >> 19;
-
-    if (vol > 255) // Clip values over 255
+    // 8-bit volume levels for mixer channels
+    vol = vol >> 8;
+    if (vol > 255)
         vol = 255;
 
     act_ch->fvol = vol;

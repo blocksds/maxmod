@@ -215,7 +215,7 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
     // set pitch to original * pitch
     mix_ch->freq = (sound->rate * plat_sample->default_frequency) >> (10 - 2);
 
-    mix_ch->vol = (sound->volume * mm_sfx_mastervolume) >> 10;
+    mix_ch->vol = (sound->volume * mm_sfx_mastervolume) >> (2 + 8);
 
 #elif defined(__NDS__)
 
