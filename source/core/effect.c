@@ -219,12 +219,12 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
 
     // Get sample data address
     //
-    // sound->id and sound->sample are in a union. If the ID is valid (values up
-    // to 0xFFFF) we're just playing a sample from the soundbank. If it isn't
-    // valid, use the 'sample' pointer, which must point to a location in main
-    // RAM (0x2000000 onwards) that contains a sample.
+    // sound->id and sound->sample are in a union. If the ID is valid (0x0000 to
+    // 0xFFFE, 0xFFFF is invalid) we're just playing a sample from the
+    // soundbank. If it isn't valid, use the 'sample' pointer, which must point
+    // to a location in main RAM (0x2000000 onwards) that contains a sample.
 
-    if (sound->id < 0x10000)
+    if (sound->id <= 0xFFFE)
     {
         // The sound effect is using an ID number, get the corresponding address
         // of the sample in main RAM.
