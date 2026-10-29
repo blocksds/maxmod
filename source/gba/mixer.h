@@ -6,10 +6,33 @@
 #ifndef MM_GBA_MIXER_H
 #define MM_GBA_MIXER_H
 
-#include "core/channel_types.h"
+#include <assert.h>
+
+#include <maxmod.h>
+#include <mm_types.h>
 
 // Alias used by common code
 typedef mm_mas_gba_sample mm_mas_platform_sample;
+
+// A mixer channel is active if "src & MIXCH_GBA_SRC_STOPPED" is zero.
+typedef struct {
+    uintptr_t   src;
+    mm_word     read; // Fixed point 20.12. See MP_SAMPFRAC
+    mm_byte     vol;
+    mm_byte     pan;
+    mm_byte     unused_0;
+    mm_byte     unused_1;
+    mm_word     freq;
+} mm_mixer_channel;
+
+// Fractionary part of the sample read offset
+#define MP_SAMPFRAC             12
+
+#define MIXCH_GBA_SRC_STOPPED   (1u << ((sizeof(uintptr_t) * 8) - 1))
+
+// Make sure that the size matches the assembly code
+static_assert(sizeof(mm_mixer_channel) == 16);
+static_assert(sizeof(mm_mixer_channel) == MM_SIZEOF_MIXCH);
 
 extern mm_mixer_channel *mm_mix_channels;
 extern mm_word mm_mixlen;

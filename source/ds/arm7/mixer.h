@@ -6,13 +6,36 @@
 #ifndef MM_DS_ARM7_MIXER_H__
 #define MM_DS_ARM7_MIXER_H__
 
+#include <assert.h>
+
 #include <mm_types.h>
 
-#include "core/channel_types.h"
 #include "ds/arm7/mixer_types.h"
 
 #define NUM_CHANNELS        32
 #define NUM_PHYS_CHANNELS   16
+
+// A DS mixer channel is active if "samp" isn't zero.
+typedef struct {
+    mm_word     samp   : 24;    // 0:23  mainram address
+    mm_word     tpan   : 7;     // 24:30 = target panning
+    mm_word     key_on : 1;     // 31 = key-on
+
+    mm_hword    freq;           // unsigned 3.10, top 3 cleared
+    mm_hword    vol;            // target volume   0..65535
+    mm_word     read;           // unsigned 22.10. See MP_SAMPFRAC
+    mm_hword    cvol;           // current volume  0..65535
+    mm_hword    cpan;           // current panning 0..65535
+} mm_mixer_channel;
+
+// Make sure that the size matches the assembly code
+static_assert(sizeof(mm_mixer_channel) == 16);
+
+// Fractionary part of the sample read offset
+#define MP_SAMPFRAC         10
+
+// scale = 65536*1024*2 / mixrate
+#define MIXER_SCALE         4096 //6151
 
 // Alias used by common code
 typedef mm_mas_ds_sample mm_mas_platform_sample;
