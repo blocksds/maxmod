@@ -3511,8 +3511,7 @@ static mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *la
             value = (value * mm_master_jingle_pitch) >> 10;
 
 #if defined(__GBA__) || defined(__HEADLESS__)
-        const mm_word scale = (4096 * 65536) / 15768;
-        mix_ch->freq = (scale * value) >> 16;
+        mix_ch->freq = (MIXER_SCALE * value) >> 16;
 #elif defined(__NDS__)
         mix_ch->freq = (MIXER_SCALE * value) >> (16 + 1);
 #endif
@@ -3531,8 +3530,7 @@ static mm_word mpp_Update_ACHN_notest_set_pitch_volume(mpl_layer_information *la
                 value = (value * mm_master_jingle_pitch) >> 10;
 
 #if defined(__GBA__) || defined(__HEADLESS__)
-            const mm_word scale = (4096 * 65536) / 15768;
-            mix_ch->freq = (scale * value) >> 16;
+            mix_ch->freq = (MIXER_SCALE * value) >> 16;
 #elif defined(__NDS__)
             mix_ch->freq = (MIXER_SCALE * value) >> (16 + 1);
 #endif

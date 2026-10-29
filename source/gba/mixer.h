@@ -28,6 +28,8 @@ typedef struct {
 // Fractionary part of the sample read offset
 #define MP_SAMPFRAC             12
 
+#define MIXER_SCALE             ((4096 * 65536) / 15768)
+
 #define MIXCH_GBA_SRC_STOPPED   (1u << ((sizeof(uintptr_t) * 8) - 1))
 
 // Make sure that the size matches the assembly code

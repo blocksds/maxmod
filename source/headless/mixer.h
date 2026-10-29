@@ -22,6 +22,8 @@ typedef struct {
 // Fractionary part of the sample read offset
 #define MP_SAMPFRAC             12
 
+#define MIXER_SCALE             ((4096 * 65536) / 15768)
+
 // Alias used by common code
 typedef mm_mas_gba_sample mm_mas_platform_sample;
 
