@@ -164,12 +164,7 @@ static void mpp_suspend(mm_layer_type layer)
         if ((act_ch->flags & (MCAF_SUB | MCAF_EFFECT)) != (layer << 6))
             continue;
 
-#if defined(__GBA__) || defined(__HEADLESS__)
-        mix_ch->freq = 0;
-#elif defined(__NDS__)
-        mix_ch->freq = 0;
-        mix_ch->vol = 0;
-#endif
+        mmMixerChannelSuspend(mix_ch);
     }
 }
 

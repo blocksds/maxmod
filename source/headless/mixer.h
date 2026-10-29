@@ -74,4 +74,9 @@ static inline void mmMixerChannelSetVolume(mm_mixer_channel *mix_ch,
     mix_ch->vol = volume >> 8; // Headless mixer channels use 8-bit values
 }
 
+static inline void mmMixerChannelSuspend(mm_mixer_channel *mix_ch)
+{
+    mix_ch->freq = 0;
+}
+
 #endif // MM_HEADLESS_MIXER_H

@@ -99,4 +99,10 @@ static inline void mmMixerChannelSetVolume(mm_mixer_channel *mix_ch,
     mix_ch->vol = volume; // DS mixer channels use 16-bit values
 }
 
+static inline void mmMixerChannelSuspend(mm_mixer_channel *mix_ch)
+{
+    mix_ch->freq = 0;
+    mix_ch->vol = 0;
+}
+
 #endif // MM_DS_ARM7_MIXER_H__
