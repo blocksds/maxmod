@@ -118,6 +118,7 @@ mm_sfxhand mmEffect(mm_word sample_ID)
     mm_sound_effect effect =
     {
         .id = sample_ID,
+        .sample = NULL,
         .rate = 1024,
         .handle = 0,
         .volume = 255,
@@ -207,24 +208,8 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
 
     mm_mas_platform_sample *plat_sample;
 
-#if defined(__GBA__) || defined(__HEADLESS__)
-
-    // Get sample data address
-    plat_sample = mmGetSampleAddress(sound->id);
-
-    // set pitch to original * pitch
-    mix_ch->freq = (sound->rate * plat_sample->default_frequency) >> (10 - 2);
-
-#elif defined(__NDS__)
-
-    // Get sample data address
-    //
-    // sound->id and sound->sample are in a union. If the ID is valid (0x0000 to
-    // 0xFFFE, 0xFFFF is invalid) we're just playing a sample from the
-    // soundbank. If it isn't valid, use the 'sample' pointer, which must point
-    // to a location in main RAM (0x2000000 onwards) that contains a sample.
-
-    if (sound->id <= 0xFFFE)
+    // If the sample pointer is NULL, use the MSL ID.
+    if (sound->sample == NULL)
     {
         // The sound effect is using an ID number, get the corresponding address
         // of the sample in main RAM.
@@ -237,14 +222,16 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
     }
     else
     {
-        // The sound effect is using an arbitrary address in main RAM.
+        // The sound effect is using an arbitrary address
         // TODO: Test that this works
         plat_sample = (mm_mas_platform_sample *)sound->sample;
     }
 
-    // Set pitch to original * pitch
+    // set pitch to original * pitch
+#if defined(__GBA__) || defined(__HEADLESS__)
+    mix_ch->freq = (sound->rate * plat_sample->default_frequency) >> (10 - 2);
+#elif defined(__NDS__)
     mix_ch->freq = (sound->rate * plat_sample->default_frequency) >> 10;
-
 #endif
 
     // Always play sound effects from the start

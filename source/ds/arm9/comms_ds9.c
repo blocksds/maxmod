@@ -363,11 +363,12 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
 {
     mm_word buffer[MAX_PARAM_WORDS];
 
-    buffer[0] = (((mm_word)sound->sample) << 16) | (MSG_EFFECTEX << 8) | (11);
-    buffer[1] = (sound->rate << 16) | (((mm_word)sound->sample) >> 16);
-    buffer[2] = (sound->panning << 24) | (sound->volume << 16) | (sound->handle & 0xFFFF);
+    buffer[0] = (sound->id << 16) | (MSG_EFFECTEX << 8) | (13);
+    buffer[1] = (mm_word)sound->sample;
+    buffer[2] = (sound->handle << 16) | sound->rate;
+    buffer[3] = (sound->panning << 8) | sound->volume;
 
-    SendString(buffer, 3);
+    SendString(buffer, 4);
 
     return mmWaitForHandle();
 }

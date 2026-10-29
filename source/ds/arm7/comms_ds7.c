@@ -373,7 +373,8 @@ static void ProcessNextMessage(void)
         case MSG_EFFECTEX:
         {
             mm_sound_effect sfx;
-            sfx.sample = (mm_ds_sample *)ReadNFifoBytes(4);
+            sfx.id = ReadNFifoBytes(2);
+            sfx.sample = (const void *)ReadNFifoBytes(4);
             sfx.rate = ReadNFifoBytes(2);
             sfx.handle = (mm_sfxhand)ReadNFifoBytes(2);
             sfx.volume = ReadNFifoBytes(1);
