@@ -252,11 +252,7 @@ typedef struct t_mmsoundeffect
     /// ID of sample to be played. Values are defined in the soundbank
     /// header. 0x0000 to 0xFFFE (0xFFFF is invalid). This value is only used if
     /// 'sample' is NULL.
-    mm_word     id;
-
-    /// Address of a sample that isn't in the soundbank. The ID is ignored if
-    /// this entry is not NULL.
-    const void *sample;
+    mm_hword    id;
 
     /// Playback rate. 6.10 fixed point number. (1024 = original sound)
     mm_hword    rate;
@@ -270,6 +266,10 @@ typedef struct t_mmsoundeffect
 
     /// Panning level. Ranges from 0 (far-left) to 255 (far-right).
     mm_byte     panning;
+
+    /// Address of a sample that isn't in the soundbank. The ID is ignored if
+    /// this entry is not NULL.
+    const void *sample;
 
 } mm_sound_effect;
 
