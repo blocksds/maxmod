@@ -93,11 +93,13 @@ module_test("jump_to_pattern_plus_pattern_break.it")
 # pattern (it should jump to the start instead).
 module_test("pattern_sizes.it")
 
-# Tests effects Gxy and Lxy.
+# Tests effects Gxy and Lxy (linear and amiga frequency slides modes).
 module_test("porta_to_note.it")
+module_test("porta_to_note_linear_slides.it")
 
-# Tests effect Exx.
+# Tests effect Exx (linear and amiga frequency slides modes).
 module_test("porta_up_down.it")
+module_test("porta_up_down_linear_slides.it")
 
 # Tests effects e0x, f0x, g0x in the volume column.
 module_test("volcmd_portamento.it")

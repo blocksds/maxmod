@@ -67,11 +67,14 @@ module_test("jump_to_pattern_plus_pattern_break.xm")
 # pattern (it should jump to the start instead).
 module_test("pattern_sizes.xm")
 
-# Tests effects 3xy and 5xy.
+# Tests effects 3xy and 5xy (linear and amiga frequency slides modes).
 module_test("porta_to_note.xm")
+module_test("porta_to_note_linear_slides.xm")
 
-# Tests effects 1xy, 2xy, E1x, E2x, X1x and X2x.
+# Tests effects 1xy, 2xy, E1x, E2x, X1x and X2x (linear and amiga frequency
+# slides modes).
 module_test("porta_up_down.xm")
+module_test("porta_up_down_linear_slides.xm")
 
 # Tests effect g0x in the volume column.
 module_test("volcmd_portamento.xm")
