@@ -103,12 +103,12 @@ MM_STATIC_ASSERT(mm_mas_head, 284)
 //   of the sample. In old mode, the sample is played from the end point. In new
 //   mode, commands that set the offset after the end are ignored.
 
-#define MAS_HEADER_FLAG_LINK_GXX    (1 << 0) // Shared Gxx
-#define MAS_HEADER_FLAG_OLD_EFFECTS (1 << 1) // TODO: Unused flag
+#define MAS_HEADER_FLAG_LINK_GXX    (1 << 0) // Shared Gxx memory (effect and volcmd)
+#define MAS_HEADER_FLAG_OLD_EFFECTS (1 << 1) // MOD/S3M = true. XM/IT = false. TODO: Unused
 #define MAS_HEADER_FLAG_FREQ_MODE   (1 << 2) // 1 = Linear freqs, 0 = Amiga freqs
 #define MAS_HEADER_FLAG_XM_MODE     (1 << 3) // 1 = MOD/XM mode, 0 = S3M/IT mode
-#define MAS_HEADER_FLAG_MSL_DEP     (1 << 4) // TODO: Unused flag
-#define MAS_HEADER_FLAG_OLD_MODE    (1 << 5) // 1 = MOD/S3M, 0 = Other
+#define MAS_HEADER_FLAG_MSL_DEP     (1 << 4) // MSL file = true, MAS file = false. TODO: Unused
+#define MAS_HEADER_FLAG_OLD_MODE    (1 << 5) // 1 = MOD/S3M, 0 = S3M/IT
 
 typedef struct tmm_mas_instrument
 {
