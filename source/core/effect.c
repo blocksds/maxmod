@@ -220,11 +220,35 @@ mm_sfxhand mmEffectEx(mm_sound_effect *sound)
             return MM_SFXHAND_INVALID;
         }
     }
-    else
+    else // The sound effect is using an arbitrary address with a MAS file
     {
-        // The sound effect is using an arbitrary address
-        // TODO: Test that this works
-        plat_sample = (mm_mas_platform_sample *)sound->sample;
+        // Always skip the MAS prefix
+        uintptr_t head_address = (uintptr_t)sound->sample + sizeof(mm_mas_prefix);
+
+        // The pointer must be aligned to at least 4 bytes
+        if ((head_address & 3) != 0)
+            return MM_SFXHAND_INVALID;
+
+        mm_mas_head *head = (mm_mas_head *)head_address;
+
+        // Check that the MAS file only contains samples
+        if ((head->order_count > 0) || (head->instr_count > 0) || (head->pattn_count > 0))
+            return MM_SFXHAND_INVALID;
+
+        // For now, only mono sound effects are supported
+        // TODO: Support MAS files with 2 samples and play them as stereo
+        if (head->sampl_count != 1)
+            return MM_SFXHAND_INVALID;
+
+        uintptr_t sample_address = head_address + head->tables[0];
+
+        const mm_mas_sample_info *sample_info = (const mm_mas_sample_info *)sample_address;
+
+        // Make sure that the sample data is after the sample info struct
+        if (sample_info->msl_id != 0xFFFF)
+            return MM_SFXHAND_INVALID;
+
+        plat_sample = (mm_mas_platform_sample *)&(sample_info->data[0]);
     }
 
     // set pitch to original * pitch
