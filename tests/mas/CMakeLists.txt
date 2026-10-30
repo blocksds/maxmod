@@ -25,4 +25,5 @@ macro(mas_test test_name mas_file)
 endmacro()
 
 # Add the subdirectories after the macro definition
+add_subdirectory(mas_sample)
 add_subdirectory(mas_song)
