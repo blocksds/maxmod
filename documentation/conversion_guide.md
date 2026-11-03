@@ -31,22 +31,22 @@ Usage:
 
  Input may be MOD, S3M, XM, IT, and/or WAV
 
-.------------.----------------------------------------------------.
-| Option     | Description                                        |
-|------------|----------------------------------------------------|
-| -o<output> | Set output file.                                   |
-| -h<header> | Set header output file.                            |
-| -D         | Add list of sample and module names to soundbank.  |
-| -m         | Output MAS file rather than soundbank.             |
-| -d         | Use for NDS projects.                              |
-| -b         | Create test ROM. (use -d for .nds, otherwise .gba) |
-| -i         | Ignore sample name flags (NDS mode only).          |
-| -v         | Enable verbose output (-v -v for extra verbose).   |
-| -p         | Set initial panning separation for MOD/S3M.        |
-| -z         | Export raw WAV data (8-bit format)                 |
-| -y         | Assume 'yes' in confirmation prompts.              |
-| -V         | Print version string and exit.                     |
-`-----------------------------------------------------------------'
+.--------------.----------------------------------------------------.
+| Option       | Description                                        |
+|--------------|----------------------------------------------------|
+| -o [output]  | Set output file (.mas, .bin, .gba, .nds).          |
+| -h [header]  | Set header output file (.h).                       |
+| -D           | Add list of sample and module names to soundbank.  |
+| -m           | Output MAS file rather than soundbank.             |
+| -d           | Use for NDS projects.                              |
+| -b           | Create test ROM. (use -d for .nds, otherwise .gba) |
+| -i           | Ignore sample name flags (NDS mode only).          |
+| -v           | Enable verbose output (-v -v for extra verbose).   |
+| -p [0...255] | Set initial panning separation for MOD/S3M.        |
+| -z           | Export raw WAV data (8-bit format)                 |
+| -y           | Assume 'yes' in confirmation prompts.              |
+| -V           | Print version string and exit.                     |
+`--------------'----------------------------------------------------'
 
 .-----------------------------------------------------------------.
 | Sample flags                                                    |
@@ -77,15 +77,15 @@ Usage:
 | Create DS soundbank file (soundbank.bin) from input1.xm         |
 | and input2.it Also output header file (soundbank.h)             |
 |                                                                 |
-| mmutil -d input1.xm input2.it -osoundbank.bin -hsoundbank.h     |
+| mmutil -d input1.xm input2.it -o soundbank.bin -h soundbank.h   |
 |-----------------------------------------------------------------|
 | Create test GBA ROM from two inputs                             |
 |                                                                 |
-| mmutil -b input1.mod input2.s3m -oTEST.gba                      |
+| mmutil -b input1.mod input2.s3m -o TEST.gba                     |
 |-----------------------------------------------------------------|
 | Create test NDS ROM from three inputs                           |
 |                                                                 |
-| mmutil -d -b input1.xm input2.s3m testsound.wav -oTEST.nds      |
+| mmutil -d -b input1.xm input2.s3m testsound.wav -o TEST.nds     |
 `-----------------------------------------------------------------'
 ```
 
@@ -94,7 +94,8 @@ and `song4.it`. Let's also throw in a couple sound effects too: `sound1.wav` and
 `sound2.wav`. Produce a soundbank file like this:
 
 ```
-mmutil -osoundbank.bin -hsoundbank.h -d song1.mod song2.s3m song3.xm song4.it sound1.wav sound2.wav
+mmutil -o soundbank.bin -h soundbank.h -d \
+    song1.mod song2.s3m song3.xm song4.it sound1.wav sound2.wav
 ```
 
 You should now have **soundbank.bin** which is the actual soundbank file, and
@@ -135,13 +136,13 @@ To make a test ROM with a certain module, use the **-b** option. This will
 produce a GBA image that features the song listed.
 
 ```
-mmutil -b test.xm test2.xm -oMyTestROM.gba
+mmutil -b test.xm test2.xm -o MyTestROM.gba
 ```
 
 To make a DS image, specify the **-d** option too.
 
 ```
-mutil -b -d test3.it test6.it sound1.wav sound2.wav -oMyAwesomeTestROM.nds
+mmutil -b -d test3.it test6.it sound1.wav sound2.wav -o MyAwesomeTestROM.nds
 ```
 
 You should now have either have a GBA or NDS file depending on the **-d** flag.

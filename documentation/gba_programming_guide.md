@@ -68,7 +68,7 @@ rule to convert the output binary so it can be linked in.
 #-------------------------------------------------------------
 soundbank.bin: $(AUDIOFILES)
 #-------------------------------------------------------------
-	@mmutil $^ -osoundbank.bin -hsoundbank.h
+	@mmutil $^ -o soundbank.bin -h soundbank.h
 ```
 
 Now the soundbank file should be generated and linked into the project

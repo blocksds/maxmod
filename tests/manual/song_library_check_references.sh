@@ -40,7 +40,7 @@ audio_file_paths="$mod_files $s3m_files $it_files $xm_files"
 
 echo "[###] Generating soundbank in ${SOUNDBANK}"
 
-$MMUTIL -y -D -o${SOUNDBANK} $audio_file_paths 1>"$OUTPUT_PATH/mmutil_test.log" 2>&1
+$MMUTIL -y -D -o ${SOUNDBANK} $audio_file_paths 1>"$OUTPUT_PATH/mmutil_test.log" 2>&1
 
 set +e
 

@@ -19,4 +19,4 @@ set -e
 
 echo "Generating MAS file from ${INPUT_AUDIO_FILE} in ${OUTPUT_MAS_FILE}"
 
-$MMUTIL -y -m -o${OUTPUT_MAS_FILE} ${INPUT_AUDIO_FILE}
+$MMUTIL -y -m -o ${OUTPUT_MAS_FILE} ${INPUT_AUDIO_FILE}

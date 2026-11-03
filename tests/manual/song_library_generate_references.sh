@@ -36,7 +36,7 @@ audio_file_paths="$mod_files $s3m_files $it_files $xm_files"
 
 echo "[###] Generating soundbank in ${SOUNDBANK}"
 
-$MMUTIL -y -D -o${SOUNDBANK} $audio_file_paths 1>"$OUTPUT_PATH/mmutil_reference.log" 2>&1
+$MMUTIL -y -D -o ${SOUNDBANK} $audio_file_paths 1>"$OUTPUT_PATH/mmutil_reference.log" 2>&1
 
 for audio_file_path in $audio_file_paths; do
     song_name=`basename $audio_file_path`
