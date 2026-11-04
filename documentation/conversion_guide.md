@@ -43,7 +43,7 @@ Usage:
 | -i           | Ignore sample name flags (NDS mode only).          |
 | -v           | Enable verbose output (-v -v for extra verbose).   |
 | -p [0...255] | Set initial panning separation for MOD/S3M.        |
-| -z           | Export raw WAV data (8-bit format)                 |
+| -z           | Convert WAV file to raw ADPCM file (for testing).  |
 | -y           | Assume 'yes' in confirmation prompts.              |
 | -V           | Print version string and exit.                     |
 `--------------'----------------------------------------------------'
