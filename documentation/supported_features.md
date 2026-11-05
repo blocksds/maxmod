@@ -74,12 +74,8 @@ Notes:
 
 Untested features:
 
-- Instrument DTC/NNA/DCA.
+- Instrument DTC/DCA.
 - Instrument envelope carry.
-- `S73` NNA Note Cut: Sets the currently active note's New Note Action to Note Cut.
-- `S74` NNA Note Continue: Sets the currently active note's New Note Action to Continue.
-- `S75` NNA Note Off: Sets the currently active note's New Note Action to Note Off.
-- `S76` NNA Note Fade: Sets the currently active note's New Note Action to Note Fade.
 - Instrument envelope loop/sustain and how they interact with note off and NNA
   set to Note Off.
 

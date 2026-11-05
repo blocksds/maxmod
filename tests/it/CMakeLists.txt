@@ -177,3 +177,9 @@ module_test("sample_compression_none.it")
 module_test("sample_stereo_compression_it214.it")
 module_test("sample_stereo_compression_it215.it")
 module_test("sample_stereo_compression_none.it")
+
+# Test different instrument NNA settings
+module_test("nna_modes.it")
+
+# Test temporarily channging instrument NNA settings with S73, S74, S75 and S76.
+module_test("nna_change_mode_effects.it")
