@@ -2062,9 +2062,10 @@ static mm_sbyte mpp_GetWaveformSample(mm_word type, mm_byte position)
         case MAS_WAVE_RANDOM:
             // TODO: Implement this in a nicer way?
             return mpp_TABLE_FineSineData[(position * 0x1234) & 255];
-    }
 
-    return 0;
+        default:
+            return 0;
+    }
 }
 
 static mm_word mppe_DoVibrato(mm_word period, mm_module_channel *channel,
